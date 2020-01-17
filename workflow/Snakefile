@@ -1,0 +1,36 @@
+# The main entry point of your workflow.
+# After configuring, running snakemake -n in a clone of this repository should successfully execute a dry-run of the workflow.
+
+
+configfile: "config/config.yaml"
+report: "report/workflow.rst"
+
+# Allow users to fix the underlying OS via singularity.
+singularity: "docker://continuumio/miniconda3"
+
+include: "rules/common.smk"
+include: "rules/ref.smk"
+include: "rules/trimming.smk"
+include: "rules/mapping.smk"
+include: "rules/candidate_calling.smk"
+include: "rules/calling.smk"
+include: "rules/annotation/pass1.smk"
+include: "rules/annotation/pass2.smk"
+include: "rules/filtering.smk"
+include: "rules/report.smk"
+include: "rules/tmb.smk"
+include: "rules/vega.smk"
+include: "rules/utils.smk"
+include: "rules/oncoprint.smk"
+
+groups = samples["group"].unique()
+    
+
+rule all:
+    input:
+        expand("igv-report/{group}.{event}.html",
+               group=groups,
+               event=config["calling"]["fdr-control"]["events"]),
+        get_tmb_targets(),
+        expand("plots/oncoprint/{event}.pdf",
+               event=config["calling"]["fdr-control"]["events"])

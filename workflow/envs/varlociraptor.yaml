@@ -1,0 +1,6 @@
+channels:
+  - conda-forge
+  - bioconda
+dependencies:
+  - varlociraptor =1.5.0
+  - bcftools =1.9

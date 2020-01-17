@@ -1,0 +1,5 @@
+channels:
+  - conda-forge
+dependencies:
+  - jinja2 =2.10
+  - pandas =0.24.2

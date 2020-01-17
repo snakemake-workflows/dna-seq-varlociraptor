@@ -1,0 +1,6 @@
+channels:
+  - bioconda
+  - conda-forge
+dependencies:
+  - rust-bio-tools =0.9.0
+  - bcftools =1.10

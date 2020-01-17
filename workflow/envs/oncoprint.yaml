@@ -1,0 +1,6 @@
+channels:
+  - conda-forge
+  - bioconda
+dependencies:
+  - bioconductor-complexheatmap =2.2
+  - r-ggplot2 =3.2
