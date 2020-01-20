@@ -7,12 +7,13 @@ rule get_sra:
 
 
 def get_raw_fastq(wildcards):
-    unit = units.loc[w.sample].loc[w.unit]
-    if unit["fq1"].isna():
+    unit = units.loc[wildcards.sample].loc[wildcards.unit]
+    print(unit)
+    if not unit["fq1"]:
         # SRA sample (always paired-end for now)
         accession = unit["sra"]
         return expand("sra/{accession}_{read}.fastq", accession=accession, read=[1, 2])
-    if unit["fq2"].isna():
+    if not unit["fq2"]:
         # single end local sample
         return unit["fq1"]
     else:
@@ -22,8 +23,7 @@ def get_raw_fastq(wildcards):
 
 rule cutadapt_pe:
     input:
-        lambda w: ,
-        lambda w: units.loc[w.sample].loc[w.unit, "fq2"]
+        get_raw_fastq
     output:
         fastq1="trimmed/{sample}-{unit}.1.fastq.gz",
         fastq2="trimmed/{sample}-{unit}.2.fastq.gz",
@@ -39,7 +39,7 @@ rule cutadapt_pe:
 
 rule cutadapt_se:
     input:
-        lambda w: units.loc[w.sample].loc[w.unit, "fq1"]
+        get_raw_fastq
     output:
         fastq="trimmed/{sample}-{unit}.fastq.gz",
         qc="trimmed/{sample}-{unit}.qc.txt"
