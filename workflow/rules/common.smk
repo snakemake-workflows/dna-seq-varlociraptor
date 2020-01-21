@@ -4,6 +4,7 @@ min_version("5.7.0")
 
 import pandas as pd
 from snakemake.remote import FTP
+from snakemake.utils import validate
 
 ftp = FTP.RemoteProvider()
 
@@ -16,8 +17,10 @@ def _group_or_sample(row):
     return group
 
 samples["group"] = [_group_or_sample(row) for _, row in samples.iterrows()]
+validate(samples, schema="../schemas/samples.schema.yaml")
 
 units = pd.read_csv(config["units"], sep="\t", dtype=str).set_index(["sample_name", "unit_name"], drop=False).sort_index()
+validate(units, schema="../schemas/units.schema.yaml")
 
 def is_paired_end(sample):
     sample_units = units.loc[sample]
