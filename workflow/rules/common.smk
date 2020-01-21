@@ -10,7 +10,7 @@ ftp = FTP.RemoteProvider()
 
 validate(config, schema="../schemas/config.schema.yaml")
 
-samples = pd.read_csv(config["samples"], sep="\t", dtype=str).set_index("sample_name", drop=False).sort_index()
+samples = pd.read_csv(config["samples"], sep="\t", dtype={"sample_name": str, "group": str}).set_index("sample_name", drop=False).sort_index()
 
 def _group_or_sample(row):
     group = row.get("group", None)
@@ -21,7 +21,7 @@ def _group_or_sample(row):
 samples["group"] = [_group_or_sample(row) for _, row in samples.iterrows()]
 validate(samples, schema="../schemas/samples.schema.yaml")
 
-units = pd.read_csv(config["units"], sep="\t", dtype=str).set_index(["sample_name", "unit_name"], drop=False).sort_index()
+units = pd.read_csv(config["units"], sep="\t", dtype={"sample_name": str, "unit_name": str}).set_index(["sample_name", "unit_name"], drop=False).sort_index()
 validate(units, schema="../schemas/units.schema.yaml")
 
 def is_paired_end(sample):
