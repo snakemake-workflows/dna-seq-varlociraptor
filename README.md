@@ -1,7 +1,7 @@
 # Snakemake workflow: DNA-seq variant calling with Varlociraptor
 
 [![Snakemake](https://img.shields.io/badge/snakemake-≥5.7.0-brightgreen.svg)](https://snakemake.bitbucket.io)
-[![GitHub actions status](https://github.com/snakemake-workflows/dna-seq-varlociraptor/workflows/CI/badge.svg?branch=master)](https://github.com/snakemake-workflows/dna-seq-varlociraptor/actions?query=branch%3Amaster+workflow%3ACI)
+[![GitHub actions status](https://github.com/snakemake-workflows/dna-seq-varlociraptor/workflows/Tests/badge.svg?branch=master)](https://github.com/snakemake-workflows/dna-seq-varlociraptor/actions?query=branch%3Amaster+workflow%3ATests)
 
 This workflow detects genomic variants with [Delly](https://github.com/dellytools/delly) and [Freebayes](https://github.com/ekg/freebayes), followed by statistical assessment with [Varlociraptor](https://varlociraptor.github.io). It is designed to flexibly define calling groups, and directly integrates the fetching of SRA samples (if required) and reference data (the latter making use of [between workflow caching](https://snakemake.readthedocs.io/en/stable/executing/caching.html)).
 
