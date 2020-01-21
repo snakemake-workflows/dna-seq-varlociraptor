@@ -5,6 +5,8 @@
 
 This workflow detects genomic variants with [Delly](https://github.com/dellytools/delly) and [Freebayes](https://github.com/ekg/freebayes), followed by statistical assessment with [Varlociraptor](https://varlociraptor.github.io). It is designed to flexibly define calling groups, and directly integrates the fetching of SRA samples (if required) and reference data (the latter making use of [between workflow caching](https://snakemake.readthedocs.io/en/stable/executing/caching.html)).
 
+**Note:** at the moment, [Varlociraptor](https://varlociraptor.github.io) is limited to SNVs, MNVs, small and large (structural) indels and hence also this workflow. This will change with future releases of [Varlociraptor](https://varlociraptor.github.io).
+
 ## Authors
 
 * Felix Mölder (@FelixMoelder)
