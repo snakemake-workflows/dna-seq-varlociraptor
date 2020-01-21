@@ -8,6 +8,8 @@ from snakemake.utils import validate
 
 ftp = FTP.RemoteProvider()
 
+validate(config, schema="../schemas/config.schema.yaml")
+
 samples = pd.read_csv(config["samples"], sep="\t", dtype=str).set_index("sample_name", drop=False).sort_index()
 
 def _group_or_sample(row):
