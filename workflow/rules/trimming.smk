@@ -8,17 +8,16 @@ rule get_sra:
 
 def get_raw_fastq(wildcards):
     unit = units.loc[wildcards.sample].loc[wildcards.unit]
-    print(unit)
-    if not unit["fq1"]:
+    if pd.isna(unit["fq1"]):
         # SRA sample (always paired-end for now)
         accession = unit["sra"]
         return expand("sra/{accession}_{read}.fastq", accession=accession, read=[1, 2])
-    if not unit["fq2"]:
+    if pd.isna(unit["fq2"]):
         # single end local sample
-        return unit["fq1"]
+        return unit["fq1"].values
     else:
         # paired end local sample
-        return unit[["fq1", "fq2"]]
+        return unit[["fq1", "fq2"]].values
 
 
 rule cutadapt_pe:

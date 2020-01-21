@@ -7,7 +7,7 @@ from snakemake.remote import FTP
 
 ftp = FTP.RemoteProvider()
 
-samples = pd.read_csv(config["samples"], sep="\t").set_index("sample_name", drop=False).sort_index()
+samples = pd.read_csv(config["samples"], sep="\t", dtype=str).set_index("sample_name", drop=False).sort_index()
 
 def _group_or_sample(row):
     group = row.get("group", None)
@@ -20,12 +20,14 @@ samples["group"] = [_group_or_sample(row) for _, row in samples.iterrows()]
 units = pd.read_csv(config["units"], sep="\t", dtype=str).set_index(["sample_name", "unit_name"], drop=False).sort_index()
 
 def is_paired_end(sample):
-    assert not units.loc[sample, "fq1"].isnull().any()
-    fq2_null = units.loc[sample, "fq2"].isnull()
-    all_paired = not fq2_null.any()
-    assert fq2_null.all() or all_paired, "invalid units for sample {}, must be all paired end or all single end".format(sample)
+    sample_units = units.loc[sample]
+    fq2_null = sample_units["fq2"].isnull()
+    sra_null = sample_units["sra"].isnull()
+    paired = ~fq2_null | ~sra_null
+    all_paired = paired.all()
+    all_single = (~paired).all()
+    assert all_single or all_paired, "invalid units for sample {}, must be all paired end or all single end".format(sample)
     return all_paired
-
 
 def get_merged(wildcards):
     if is_paired_end(wildcards.sample):

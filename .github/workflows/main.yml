@@ -14,14 +14,15 @@ jobs:
     - uses: actions/checkout@v1
     - name: Checkout submodules
       uses: textbook/git-checkout-submodule-action@2.0.0
-    - name: snakemake
+    - name: Test workflow (local FASTQs)
       uses: snakemake/snakemake-github-action@master
       with:
         directory: .test
         snakefile: workflow/Snakefile
         args: "--use-conda --show-failed-logs"
-        stagein: |
-          conda create -c bioconda -c conda-forge -q -n prep bwa samtools
-          source activate prep
-          bwa index .test/data/ref/genome.chr21.fa
-          samtools faidx .test/data/ref/genome.chr21.fa
+    - name: Test workflow (SRA FASTQs)
+      uses: snakemake/snakemake-github-action@master
+      with:
+        directory: .test
+        snakefile: workflow/Snakefile
+        args: "--use-conda -n"
