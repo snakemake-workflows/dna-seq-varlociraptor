@@ -1,0 +1,29 @@
+$schema: "http://json-schema.org/draft-04/schema#"
+
+description: an entry in the sample sheet
+properties:
+  sample_name:
+    type: string
+    description: sample name/identifier
+  alias:
+    type: string
+    description: sample name within the VCF/BCF files generated for a group (e.g. tumor, normal, etc.)
+  group:
+    type: string
+    description: group of samples called jointly
+  platform:
+    type: string
+    enum: ["CAPILLARY", "LS454", "ILLUMINA", "SOLID", "HELICOS", "IONTORRENT", "ONT", "PACBIO"]
+  purity:
+    type: number
+    minimum: 0.0
+    maximum: 1.0
+    description: Purity to use for tumor/normal groups.
+
+  
+
+required:
+  - sample_name
+  - alias
+  - group
+  - platform

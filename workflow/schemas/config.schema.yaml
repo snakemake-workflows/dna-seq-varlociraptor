@@ -1,0 +1,160 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+
+description: snakemake configuration file
+
+type: object
+
+definitions:
+  filterentry:
+    type: object
+    additionalProperties:
+      type: string
+  evententry:
+    type: object
+    properties:
+      varlociraptor:
+        type: array
+        items: 
+          type: string
+      filter:
+        type: string
+
+properties:
+  samples:
+    type: string
+  units:
+    type: string
+
+  ref:
+    type: object
+    properties:
+      n_chromosomes:
+        type: integer
+      species:
+        type: string
+      release:
+        type: integer
+      snpeff_release:
+        type: integer
+      build:
+        type: string
+    required:
+      - species
+      - release
+      - snpeff_release
+      - build
+      - n_chromosomes
+
+  tmb:
+    type: object
+    properties:
+      activate:
+        type: boolean
+      coding_genome_size:
+        type: string
+      tumor_sample:
+        type: string
+      somatic_events:
+        type: array
+        items: 
+          type: string
+    required:
+      - activate
+      - coding_genome_size
+      - tumor_sample
+      - somatic_events
+
+
+  calling:
+    type: object
+    properties:
+      delly:
+        type: object
+        properties:
+          activate:
+            type: boolean
+      freebayes:
+        type: object
+        properties:
+          activate:
+            type: boolean
+      scenario:
+        type: string
+      filter:
+        $ref: "#/definitions/filterentry"
+        description: "a map of <filtername: string> pairs"
+      fdr-control:
+        type: object
+        properties:
+          threshold:
+            type: number
+            minimum: 0.0
+            maximum: 1.0
+          events:
+            $ref: "#/definitions/evententry"
+            description: "a map of <eventname: event> pairs"
+        required:
+          - threshold
+          - events
+    required:
+      - delly
+      - freebayes
+      - scenario
+      - filter
+      - fdr-control
+  
+  annotations:
+    type: object
+    properties:
+      dbnsfp:
+        properties:
+          activate:
+            type: boolean
+      vcfs:
+        properties:
+          activate:
+            type: boolean
+      dgidb:
+        properties:
+          activate:
+            type: boolean
+    required:
+      - dbnsfp
+      - vcfs
+      - dgidb
+
+
+
+
+  params:
+    type: object
+    properties:
+      cutadapt:
+        type: string
+      gatk:
+        type: object
+        properties:
+          BaseRecalibrator:
+            type: string
+        required:
+          - BaseRecalibrator
+      picard:
+        type: object
+        properties:
+          MarkDuplicates:
+            type: string
+        required:
+          - MarkDuplicates
+    required:
+      - gatk
+      - picard
+      - cutadapt
+
+required:
+  - samples
+  - units
+  - ref
+  - tmb
+  - calling
+  - params
+  - annotations
