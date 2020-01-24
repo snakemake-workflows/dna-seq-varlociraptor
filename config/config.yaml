@@ -90,6 +90,6 @@ annotations:
 params:
   cutadapt: ""
   picard:
-    MarkDuplicates: ""
+    MarkDuplicates: "VALIDATION_STRINGENCY=LENIENT"
   gatk:
     BaseRecalibrator: ""
