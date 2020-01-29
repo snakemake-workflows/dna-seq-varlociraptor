@@ -1,6 +1,6 @@
 rule render_scenario:
     input:
-        config["calling"]["scenario"]
+        local(config["calling"]["scenario"])
     output:
         report("scenarios/{group}.yaml", caption="../report/scenario.rst", category="Variant calling scenarios")
     params:
