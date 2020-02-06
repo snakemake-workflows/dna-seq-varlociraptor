@@ -18,8 +18,9 @@ alter_fun = list(
 
 heatmap_legend_param = list(title = "Alterations", at = c("SNV", "INDEL"), 
         labels = c("SNV", "INDEL"))
-
-mat <- mat[order(apply(mat, 1, function(row) sum(row != "")), decreasing = T), ]
+if (ncol(mat) > 1 ){
+    mat <- mat[order(apply(mat, 1, function(row) sum(row != "")), decreasing = T), ]
+}
 
 if (nrow(mat) > 2000) {
     mat <- mat[1:2000,]
