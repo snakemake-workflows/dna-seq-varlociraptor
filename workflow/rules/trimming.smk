@@ -56,8 +56,5 @@ rule merge_fastqs:
         lambda w: expand("trimmed/{{sample}}-{unit}.{{read}}.fastq.gz", unit=units.loc[w.sample, "unit_name"])
     output:
         "merged/{sample}.{read,(single|1|2)}.fastq.gz"
-    run:
-        if input[0].endswith(".gz"):
-            shell("cat {input} > {output}")
-        else:
-            shell("cat {input} | gzip > {output}")
+    shell:
+        "cat {input} > {output}"
