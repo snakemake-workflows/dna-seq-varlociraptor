@@ -38,7 +38,7 @@ def get_merged(wildcards):
     if is_paired_end(wildcards.sample):
         return ["merged/{sample}.1.fastq.gz",
                 "merged/{sample}.2.fastq.gz"]
-    return "merged/{sample}.fastq.gz"
+    return "merged/{sample}.single.fastq.gz"
 
 def get_group_aliases(wildcards):
     return samples.loc[samples["group"] == wildcards.group]["alias"]

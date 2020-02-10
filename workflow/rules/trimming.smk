@@ -40,7 +40,7 @@ rule cutadapt_se:
     input:
         get_raw_fastq
     output:
-        fastq="trimmed/{sample}-{unit}.fastq.gz",
+        fastq="trimmed/{sample}-{unit}.single.fastq.gz",
         qc="trimmed/{sample}-{unit}.qc.txt"
     params:
         others = config["params"]["cutadapt"],
@@ -55,9 +55,6 @@ rule merge_fastqs:
     input:
         lambda w: expand("trimmed/{{sample}}-{unit}.{{read}}.fastq.gz", unit=units.loc[w.sample, "unit_name"])
     output:
-        "merged/{sample}.{read,(1|2)}.fastq.gz"
-    run:
-        if input[0].endswith(".gz"):
-            shell("cat {input} > {output}")
-        else:
-            shell("cat {input} | gzip > {output}")
+        "merged/{sample}.{read,(single|1|2)}.fastq.gz"
+    shell:
+        "cat {input} > {output}"
