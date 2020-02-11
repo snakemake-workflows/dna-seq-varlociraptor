@@ -68,11 +68,9 @@ if is_activated("annotations/dbnsfp"):
         threads: 4
         shell:
             """
-            unzip {input} -d resources/dbnsfp/ &&
-            (zcat resources/dbnsfp/*_variant.chr1.gz |
-            head -n 1 ; zcat resources/dbnsfp/*_variant.chr* |
-            grep -v '^#' ) | bgzip -@ {threads} > {output} &&
-            rm -r resources/dbnsfp
+            (unzip -p {input} "*_variant.chr1.gz" | zcat |
+            head -n 1 ; unzip -p {input} "*_variant.chr*" |
+            zcat | grep -v '^#' ) | bgzip -l9 -@ {threads} > {output}
             """
     
     rule annotate_dbnsfp:
