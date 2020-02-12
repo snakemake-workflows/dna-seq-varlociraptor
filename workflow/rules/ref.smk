@@ -6,6 +6,8 @@ rule get_genome:
         datatype="dna",
         build=config["ref"]["build"],
         release=config["ref"]["release"]
+    log:
+        "logs/get-genome.log"
     wrapper:
         "0.45.1/bio/reference/ensembl-sequence"
 
@@ -15,6 +17,8 @@ rule genome_faidx:
         "refs/genome.fasta"
     output:
         "refs/genome.fasta.fai"
+    log:
+        "logs/genome-faidx.log"
     wrapper:
         "0.45.1/bio/samtools/faidx"
 
@@ -40,6 +44,8 @@ rule get_known_variants:
         species=config["ref"]["species"],
         release=config["ref"]["release"],
         type="all"
+    log:
+        "logs/get-known-variants.log"
     wrapper:
         "0.45.1/bio/reference/ensembl-variation"
 
@@ -51,6 +57,8 @@ rule remove_iupac_codes:
         "refs/variation.noiupac.vcf.gz"
     conda:
         "../envs/rbt.yaml"
+    log:
+        "logs/fix-iupac-alleles.log"
     shell:
         "rbt vcf-fix-iupac-alleles < {input} | bcftools view -Oz > {output}"
 
@@ -73,9 +81,11 @@ rule bwa_index:
         "refs/genome.fasta"
     output:
         multiext("refs/genome", ".amb", ".ann", ".bwt", ".pac", ".sa")
-    log:
-        "logs/bwa_index.log"
     params:
         prefix="refs/genome"
+    log:
+        "logs/bwa_index.log"
+    resources:
+        mem_mb=369000
     wrapper:
         "0.45.1/bio/bwa/index"
