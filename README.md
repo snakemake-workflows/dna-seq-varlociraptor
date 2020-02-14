@@ -98,7 +98,7 @@ In case you have also changed or added steps, please consider contributing them 
 
 1. [Fork](https://help.github.com/en/articles/fork-a-repo) the original repo to a personal or lab account.
 2. [Clone](https://help.github.com/en/articles/cloning-a-repository) the fork to your local system, to a different place than where you ran your analysis.
-3. Copy the modified files from your analysis to the clone of your fork, e.g., `cp -r envs rules scripts path/to/fork`. Make sure to **not** accidentally copy config file contents or sample sheets.
+3. Copy the modified files from your analysis to the clone of your fork, e.g., `cp -r workflow path/to/fork`. Make sure to **not** accidentally copy config file contents or sample sheets. Instead, manually update the example config files if necessary.
 4. Commit and push your changes to your fork.
 5. Create a [pull request](https://help.github.com/en/articles/creating-a-pull-request) against the original repository.
 
