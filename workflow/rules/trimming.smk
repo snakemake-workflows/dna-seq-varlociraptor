@@ -28,7 +28,7 @@ rule cutadapt_pe:
     output:
         fastq1="trimmed/{sample}-{unit}.1.fastq.gz",
         fastq2="trimmed/{sample}-{unit}.2.fastq.gz",
-        qc="trimmed/{sample}-{unit}.qc.txt"
+        qc="trimmed/{sample}-{unit}.paired.qc.txt"
     params:
         others = config["params"]["cutadapt"],
         adapters = lambda w: str(units.loc[w.sample].loc[w.unit, "adapters"]),
@@ -43,7 +43,7 @@ rule cutadapt_se:
         get_raw_fastq
     output:
         fastq="trimmed/{sample}-{unit}.single.fastq.gz",
-        qc="trimmed/{sample}-{unit}.qc.txt"
+        qc="trimmed/{sample}-{unit}.single.qc.txt"
     params:
         others = config["params"]["cutadapt"],
         adapters_r1 = lambda w: str(units.loc[w.sample].loc[w.unit, "adapters"])

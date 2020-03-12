@@ -80,9 +80,7 @@ rule bwa_index:
     input:
         "refs/genome.fasta"
     output:
-        multiext("refs/genome", ".amb", ".ann", ".bwt", ".pac", ".sa")
-    params:
-        prefix="refs/genome"
+        multiext("refs/genome.fasta", ".amb", ".ann", ".bwt", ".pac", ".sa")
     log:
         "logs/bwa_index.log"
     resources:

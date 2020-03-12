@@ -1,11 +1,11 @@
 annotations = [(e, f) for e, f in config["annotations"]["vcfs"].items() if e != "activate"]
 
 
-def get_annotation_pipes():
+def get_annotation_pipes(wildcards, input):
      if annotations:
          return "| " + " | ".join(
              ["SnpSift annotate -name {prefix}_ {path} /dev/stdin".format(prefix=prefix, path=path)
-              for prefix, path in annotations]
+              for (prefix, _), path in zip(annotations, input.annotations)]
          )
      else:
          return ""
@@ -13,7 +13,7 @@ def get_annotation_pipes():
 
 def get_annotation_vcfs(idx=False):
     fmt = lambda f: f if not idx else f + ".tbi"
-    return [fmt(f) for e, f in annotations]
+    return [fmt(f) for _, f in annotations]
 
 
 #What about multiple ID Fields?
@@ -26,7 +26,7 @@ rule annotate_vcfs:
         "calls/{prefix}.db-annotated.bcf"
     params:
         extra="-Xmx4g",
-        pipes=get_annotation_pipes()
+        pipes=get_annotation_pipes
     conda:
         "../../envs/snpsift.yaml"
     shell:

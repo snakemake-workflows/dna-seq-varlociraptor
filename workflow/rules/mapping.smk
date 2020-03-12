@@ -7,7 +7,7 @@ rule map_reads:
     log:
         "logs/bwa_mem/{sample}.log"
     params:
-        index="refs/genome",
+        index=lambda w, input: os.path.splitext(input.idx[0])[0],
         extra=get_read_group,
         sort="samtools",
         sort_order="coordinate"
@@ -36,6 +36,7 @@ rule recalibrate_base_qualities:
         bai="dedup/{sample}.sorted.bam.bai",
         ref="refs/genome.fasta",
         ref_dict="refs/genome.dict",
+        ref_fai="refs/genome.fasta.fai",
         known="refs/variation.noiupac.vcf.gz",
         tbi="refs/variation.noiupac.vcf.gz.tbi",
     output:

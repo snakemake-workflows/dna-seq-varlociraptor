@@ -1,3 +1,8 @@
+# log to file
+log <- file(snakemake@log[[1]], open="wt")
+sink(log)
+sink(log, type="message")
+
 library(ComplexHeatmap)
 library(ggplot2)
 
@@ -23,8 +28,9 @@ if (ncol(mat) > 1 ){
 }
 
 if (nrow(mat) > 2000) {
-    mat <- mat[1:2000,]
+    mat <- mat[1:2000, , drop=FALSE]
 }
+                           
 rows_matrix <- nrow(mat)
 height_plot <- (rows_matrix/5)
 if (height_plot < 4) {

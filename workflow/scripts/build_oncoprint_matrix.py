@@ -1,7 +1,12 @@
 import pysam
 import pandas as pd
 import os
+import sys
 
+# redirect output to log file
+log = open(snakemake.log[0], "w")
+sys.stdout = log
+sys.stderr = log
 
 input_files = snakemake.input
 
