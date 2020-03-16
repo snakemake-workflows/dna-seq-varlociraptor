@@ -27,9 +27,10 @@ for sample_file in input_files:
                 transcripts = rec.info["ANN"]
                 for transcript in transcripts:
                     gene = transcript.split("|")[3]
-                    if gene not in gene_variant_dict:
-                        gene_variant_dict[gene] = set()
-                    gene_variant_dict[gene].add(variant_type)
+                    if gene:
+                        if gene not in gene_variant_dict:
+                            gene_variant_dict[gene] = set()
+                        gene_variant_dict[gene].add(variant_type)
                 break
     for key, value in gene_variant_dict.items():
         gene_variant_dict[key] = ','.join(value)
