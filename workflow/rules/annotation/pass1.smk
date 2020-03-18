@@ -11,4 +11,4 @@ rule snpeff:
         reference="{}.{}".format(config["ref"]["build"], config["ref"]["snpeff_release"]),
         extra="-Xmx4g"
     wrapper:
-        "2421904a0c01588f5c67d3e7f68024ccc9f6787b/bio/snpeff"
+        "0.50.3/bio/snpeff"

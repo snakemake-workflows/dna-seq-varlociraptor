@@ -12,7 +12,7 @@ rule freebayes:
         extra=config["params"].get("freebayes", ""),
         chunksize=100000
     wrapper:
-        "0.50.2/bio/freebayes"
+        "0.50.3/bio/freebayes"
 
 rule delly:
     input:
