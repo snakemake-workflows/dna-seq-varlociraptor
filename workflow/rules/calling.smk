@@ -59,4 +59,4 @@ rule bcftools_concat:
     params:
         "-a -Ob" # Check this
     wrapper:
-        "0.36.0/bio/bcftools/concat"
+        "0.50.1/bio/bcftools/concat"

@@ -44,4 +44,4 @@ rule merge_calls:
     params:
         "-a -Ob"
     wrapper:
-        "0.37.1/bio/bcftools/concat"
+        "0.50.1/bio/bcftools/concat"
