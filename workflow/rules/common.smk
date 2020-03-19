@@ -12,6 +12,17 @@ validate(config, schema="../schemas/config.schema.yaml")
 
 samples = pd.read_csv(config["samples"], sep="\t", dtype={"sample_name": str, "group": str}).set_index("sample_name", drop=False).sort_index()
 
+def get_final_output():
+    if config["igv_report"]["activate"]:
+        final_output = expand("igv-report/{group}.{event}.html",
+                        group=groups,
+                        event=config["calling"]["fdr-control"]["events"]),
+    else:
+        final_output = expand("merged-calls/{group}.{event}.fdr-controlled.bcf",
+                        group=groups,
+                        event=config["calling"]["fdr-control"]["events"]),
+    return final_output
+
 def _group_or_sample(row):
     group = row.get("group", None)
     if pd.isnull(group):
