@@ -24,7 +24,11 @@ include: "rules/utils.smk"
 include: "rules/oncoprint.smk"
 
 groups = samples["group"].unique()
-    
+
+batches = "all"
+if is_activated("oncoprint/stratify"):
+    batches = samples[config["oncoprint"]["stratify"]["by-column"]].unique()
+
 
 rule all:
     input:
@@ -32,5 +36,6 @@ rule all:
                group=groups,
                event=config["calling"]["fdr-control"]["events"]),
         get_tmb_targets(),
-        expand("plots/oncoprint/{event}.pdf",
-               event=config["calling"]["fdr-control"]["events"])
+        expand("plots/oncoprint/{batch}.{event}.pdf",
+               event=config["calling"]["fdr-control"]["events"],
+               batch=batches)
