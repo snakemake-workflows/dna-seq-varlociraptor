@@ -25,4 +25,4 @@ jobs:
       with:
         directory: .test
         snakefile: workflow/Snakefile
-        args: "--use-conda -n"
+        args: "--use-conda -n -j 3"
