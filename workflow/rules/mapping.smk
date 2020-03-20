@@ -3,7 +3,7 @@ rule map_reads:
         reads=get_merged,
         idx=rules.bwa_index.output
     output:
-        temp("results/mapped/{sample}.bam")
+        temp("results/mapped/{sample}.sorted.bam")
     log:
         "logs/bwa_mem/{sample}.log"
     params:
