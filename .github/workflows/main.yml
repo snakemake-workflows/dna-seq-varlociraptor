@@ -19,10 +19,10 @@ jobs:
       with:
         directory: .test
         snakefile: workflow/Snakefile
-        args: "--use-conda --show-failed-logs -j 4"
+        args: "--use-conda --show-failed-logs -j 10"
     - name: Test workflow (SRA FASTQs)
       uses: snakemake/snakemake-github-action@master
       with:
         directory: .test
         snakefile: workflow/Snakefile
-        args: "--use-conda -n -j 4"
+        args: "--use-conda -n -j 10"
