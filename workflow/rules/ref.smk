@@ -37,9 +37,9 @@ rule genome_dict:
 rule get_known_variants:
     input:
         # use fai to annotate contig lengths for GATK BQSR
-        fai="refs/genome.fasta.fai"
+        fai="results/refs/genome.fasta.fai"
     output:
-        vcf="refs/variation.vcf.gz"
+        vcf="results/refs/variation.vcf.gz"
     params:
         species=config["ref"]["species"],
         release=config["ref"]["release"],
