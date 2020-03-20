@@ -2,17 +2,21 @@ samples: config/samples.tsv
 
 units: config/units.tsv
 
+igv_report:
+  activate: true
+
 ref:
   # Number of chromosomes to consider for calling.
   # The first n entries of the FASTA will be considered.
   n_chromosomes: 25
   # Ensembl species name
-  species: saccharomyces_cerevisiae
-  # Ensembl release (make sure to take one where snpeff data is available, check 'snpEff databases' output)
+  species: homo_sapiens
+  # Ensembl release
   release: 98
+  # Ensembl release to use for SnpEff annotation (sometimes, the latest Ensembl release is not available in SnpEff)
   snpeff_release: 86
   # Genome build
-  build: R64-1-1
+  build: GRCh38
 
 # Estimation of tumor mutational burden.
 tmb:
@@ -20,13 +24,22 @@ tmb:
   # Size of the sequenced coding genome for TMB estimation
   # Attention: when doing panel sequencing, set this to the
   # CAPTURED coding genome, not the entire one!
-  coding_genome_size: 3.0e7
+  coding_genome_size: 3e7
   # Name of the tumor sample in the scenario.yaml.
   tumor_sample: tumor
   somatic_events:
     - SOMATIC_TUMOR_LOW
     - SOMATIC_TUMOR_MEDIUM
     - SOMATIC_TUMOR_HIGH
+
+# printing of variants in a matrix, sorted by recurrence
+oncoprint:
+  # if stratificatio is deactivated, one oncoprint for all
+  # samples will be created.
+  stratify:
+    activate: false
+    # select a sample sheet column for stratification
+    by-column: condition
 
 calling:
   delly:
@@ -35,30 +48,61 @@ calling:
     activate: true
   # See https://varlociraptor.github.io/docs/calling/#generic-variant-calling
   scenario: config/scenario.yaml
-  # See http://snpeff.sourceforge.net/SnpSift.html#filter
   filter:
-    moderate: "ANN[*].IMPACT has 'MODERATE'"
+    # Add any number of named filters here. They will be applied independenty,
+    # and can be referred in FDR control below to generate calls for different events.
+    # In particular, you can also filter by ID or dbsnp annotations here.
+    # See http://snpeff.sourceforge.net/SnpSift.html#filter
+    filtername: "ANN[*].IMPACT has 'MODERATE'"
   fdr-control:
     threshold: 0.05
     events: 
+      # Add any number of events here to filter for.
       present:
         varlociraptor: 
           - "PRESENT"
-        filter: moderate
+        filter: filtername
 
 annotations:
   dbnsfp:
     activate: false
+    url: ftp://dbnsfp:dbnsfp@dbnsfp.softgenetics.com/dbNSFP4.0a.zip
+    fields:
+      - MetaSVM_score # -2 to 3 (>0 Damaging), single
+      - MetaLR_score # 0 to 1 (>0.5 Damaging), single
+      - M-CAP_score # 0 to 1 (>0.025 Damaging), single
+      - REVEL_score # 0 to 1, single
+      - MutPred_score # 0 to 1, single
+      - PrimateAI_score # 0 to 1 (>0.803 Damaging), single
+      - DEOGEN2_score # 0 to 1 (>0.5 damaging), single
+      - LRT_score # 0 to 1, single
+      - Uniprot_entry
+      - MutationAssessor_score # -5.17 to 6.49 (H > 3.5 > M > 1.935 > L > 0.8 > N), Uniprot_entry
+      - Uniprot_acc
+      - Polyphen2_HDIV_score # 0 to 1 (D: [0.957,1], P: [0.453,0.956], B: [0,0.452], binary cutoff 0.5), Uniprot_acc
+      - Polyphen2_HVAR_score # 0 to 1 (D: [0.909, 1], P: [0.447,0.908], B: [0,0.446], binary cutoff 0.5), Uniprot_acc
+      - Ensembl_proteinid
+      - FATHMM_score # -16.13 to 10.64 (<=-1.5 Damaging), Ensembl_proteinid
+      - PROVEAN_score # -14 to 14 (<=-2.5 Damaging), Ensembl_proteinid
+      - SIFT_score # 0 to 1  (D < 0.05 <= T), Ensembl_proteinid
+      - Ensembl_transcriptid
+      - VEST4_score # 0 to 1, Ensembl_transcriptid
+      - SIFT4G_score # 0 to 1 (D <0.05 <= T), Ensembl_transcriptid
+      - MVP_score # 0 to 1 (>0.7 or > 0.75 Damaging), Ensembl_transcriptid
+      - MPC_score # 0 to 5, Ensembl_transcriptid
+      - MutationTaster_score # 0 to 1 (D > 0.5 > N, what about A and P?), unknown
   vcfs:
     activate: true
+    # annotate with known variants from ensembl
     known: refs/variation.vcf.gz
+    # add more external VCFs as needed
+    # cosmic: path/to/cosmic.vcf.gz
   dgidb:
     activate: true
-
 
 params:
   cutadapt: ""
   picard:
-    MarkDuplicates: ""
+    MarkDuplicates: "VALIDATION_STRINGENCY=LENIENT"
   gatk:
     BaseRecalibrator: ""
