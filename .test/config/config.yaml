@@ -2,6 +2,9 @@ samples: config/samples.tsv
 
 units: config/units.tsv
 
+igv_report:
+  activate: false
+
 ref:
   # Number of chromosomes to consider for calling.
   # The first n entries of the FASTA will be considered.
