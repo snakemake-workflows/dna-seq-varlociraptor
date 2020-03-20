@@ -32,8 +32,8 @@ rule mark_duplicates:
 
 rule recalibrate_base_qualities:
     input:
-        bam="results/dedup/{sample}.bam",
-        bai="results/dedup/{sample}.bam.bai",
+        bam="results/dedup/{sample}.sorted.bam",
+        bai="results/dedup/{sample}.sorted.bam.bai",
         ref="results/refs/genome.fasta",
         ref_dict="results/refs/genome.dict",
         ref_fai="results/refs/genome.fasta.fai",
