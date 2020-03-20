@@ -66,8 +66,7 @@ def is_activated(xpath):
         if entry == "results":
             continue
         c = c.get(entry, {})
-    return bool(c["activate"])
-
+    return bool(c.get("activate", False))
 
 def get_read_group(wildcards):
     """Denote sample name and platform in read group."""

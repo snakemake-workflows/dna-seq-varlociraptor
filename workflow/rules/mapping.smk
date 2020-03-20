@@ -36,6 +36,7 @@ rule recalibrate_base_qualities:
         bai="results/dedup/{sample}.bam.bai",
         ref="results/refs/genome.fasta",
         ref_dict="results/refs/genome.dict",
+        ref_fai="results/refs/genome.fasta.fai"
         known="results/refs/variation.noiupac.vcf.gz",
         tbi="results/refs/variation.noiupac.vcf.gz.tbi",
     output:

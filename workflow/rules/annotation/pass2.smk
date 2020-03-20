@@ -29,14 +29,16 @@ rule annotate_vcfs:
         "results/calls/{prefix}.db-annotated.bcf"
     params:
         extra="-Xmx4g",
-        pipes=get_annotation_pipes()
+        pipes=get_annotation_pipes
     conda:
         "../../envs/snpsift.yaml"
     shell:
-        "bcftools view --threads 4 {input.bcf} {params.pipes} | bcftools view --threads 4 -Ob > {output}"
+        "bcftools view --threads {threads} {input.bcf} {params.pipes} | bcftools view --threads {threads} -Ob > {output}"
 
 
 rule annotate_dgidb:
+    threads:
+        4
     input:
         "results/calls/{prefix}.bcf"
     output:
@@ -47,7 +49,7 @@ rule annotate_dgidb:
     resources:
         dgidb_requests=1
     shell:
-        "rbt vcf-annotate-dgidb -g 500 {input} |  bcftools view --threads 4 -Ob > {output}"
+        "rbt vcf-annotate-dgidb -g 500 {input} |  bcftools view --threads {threads} -Ob > {output}"
 
 
 if is_activated("annotations/dbnsfp"):
@@ -62,13 +64,14 @@ if is_activated("annotations/dbnsfp"):
 
 
     rule dbnsfp_bgzip:
+        threads:
+             4
         input:
             "resources/dbnsfp.zip"
         output:
             "resources/dbnsfp.txt.gz"
         conda:
             "../../envs/htslib.yaml"
-        threads: 4
         shell:
             """
             (unzip -p {input} "*_variant.chr1.gz" | zcat |
@@ -91,8 +94,8 @@ if is_activated("annotations/dbnsfp"):
         conda:
             "../../envs/snpsift.yaml"
         shell:
-            "bcftools view --threads 4 {input.bcf} | SnpSift dbnsfp -db {input.db} -f {params.fields} {params.extra} /dev/stdin | "
-            "sed 's/\\(^##INFO=<ID=dbNSFP_\\w*,Number=\\)A/\\1./g' | bcftools view -Ob --threads 4 > {output}"
+            "bcftools view --threads {threads} {input.bcf} | SnpSift dbnsfp -db {input.db} -f {params.fields} {params.extra} /dev/stdin | "
+            "sed 's/\\(^##INFO=<ID=dbNSFP_\\w*,Number=\\)A/\\1./g' | bcftools view -Ob --threads {threads} > {output}"
 
 
     rule create_dbnsfp_tabix_index:

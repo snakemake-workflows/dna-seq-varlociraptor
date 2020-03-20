@@ -2,7 +2,7 @@ rule render_scenario:
     input:
         local(config["calling"]["scenario"])
     output:
-        report("results/scenarios/{group}.yaml", caption="../report/scenario.rst", category="Variant calling scenarios")
+        report("results/scenarios/{group}.yaml", caption="../results/report/scenario.rst", category="Variant calling scenarios")
     params:
         samples = samples
     conda:
