@@ -3,13 +3,13 @@ def get_oncoprint_batch(wildcards):
         groups = samples["group"].unique()
     else:
         groups = samples.loc[samples[config["oncoprint"]["stratify"]["by-column"]] == wildcards.batch, "group"].unique()
-    return expand("merged-calls/{group}.{{event}}.fdr-controlled.bcf", group=groups)
+    return expand("results/merged-calls/{group}.{{event}}.fdr-controlled.bcf", group=groups)
 
 rule build_oncoprint_table:
     input:
         bcf=get_oncoprint_batch
     output:
-        "plots/oncoprint/{batch}.{event}.tsv"
+        "results/plots/oncoprint/{batch}.{event}.tsv"
     conda:
         "../envs/oncoprinttable.yaml"
     log:
@@ -21,7 +21,7 @@ rule plot_oncoprint:
     input:
         "plots/oncoprint/{batch}.{event}.tsv"
     output:
-        report("plots/oncoprint/{batch}.{event}.pdf", category="Oncoprint", caption="../report/oncoprint.rst")
+        report("results/plots/oncoprint/{batch}.{event}.pdf", category="Oncoprint", caption="../report/oncoprint.rst")
     conda:
         "../envs/oncoprint.yaml"
     log:

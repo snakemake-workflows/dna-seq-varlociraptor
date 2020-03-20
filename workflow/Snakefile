@@ -32,10 +32,10 @@ if is_activated("oncoprint/stratify"):
 
 rule all:
     input:
-        expand("igv-report/{group}.{event}.html",
+        expand("results/igv-report/{group}.{event}.html",
                group=groups,
                event=config["calling"]["fdr-control"]["events"]),
         get_tmb_targets(),
-        expand("plots/oncoprint/{batch}.{event}.pdf",
+        expand("results/plots/oncoprint/{batch}.{event}.pdf",
                event=config["calling"]["fdr-control"]["events"],
                batch=batches)

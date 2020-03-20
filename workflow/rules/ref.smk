@@ -1,6 +1,6 @@
 rule get_genome:
     output:
-        "refs/genome.fasta"
+        "results/refs/genome.fasta"
     params:
         species=config["ref"]["species"],
         datatype="dna",
@@ -14,9 +14,9 @@ rule get_genome:
 
 rule genome_faidx:
     input:
-        "refs/genome.fasta"
+        "results/refs/genome.fasta"
     output:
-        "refs/genome.fasta.fai"
+        "results/refs/genome.fasta.fai"
     log:
         "logs/genome-faidx.log"
     wrapper:
@@ -25,9 +25,9 @@ rule genome_faidx:
 
 rule genome_dict:
     input:
-        "refs/genome.fasta"
+        "results/refs/genome.fasta"
     output:
-        "refs/genome.dict"
+        "results/refs/genome.dict"
     log:
         "logs/picard/create_dict.log"
     wrapper:
@@ -52,9 +52,9 @@ rule get_known_variants:
 
 rule remove_iupac_codes:
     input:
-        "refs/variation.vcf.gz"
+        "results/refs/variation.vcf.gz"
     output:
-        "refs/variation.noiupac.vcf.gz"
+        "results/refs/variation.noiupac.vcf.gz"
     conda:
         "../envs/rbt.yaml"
     log:
@@ -65,9 +65,9 @@ rule remove_iupac_codes:
 
 rule tabix_known_variants:
     input:
-        "refs/{prefix}.vcf.gz"
+        "results/refs/{prefix}.vcf.gz"
     output:
-        "refs/{prefix}.vcf.gz.tbi"
+        "results/refs/{prefix}.vcf.gz.tbi"
     params:
         "-p vcf"
     log:
@@ -78,9 +78,11 @@ rule tabix_known_variants:
 
 rule bwa_index:
     input:
-        "refs/genome.fasta"
+        "results/refs/genome.fasta"
     output:
-        multiext("refs/genome.fasta", ".amb", ".ann", ".bwt", ".pac", ".sa")
+        multiext("results/refs/genome", ".amb", ".ann", ".bwt", ".pac", ".sa")
+    params:
+        prefix="results/refs/genome"
     log:
         "logs/bwa_index.log"
     resources:

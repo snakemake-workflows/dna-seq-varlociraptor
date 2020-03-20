@@ -2,7 +2,7 @@ rule render_scenario:
     input:
         local(config["calling"]["scenario"])
     output:
-        report("scenarios/{group}.yaml", caption="../report/scenario.rst", category="Variant calling scenarios")
+        report("results/scenarios/{group}.yaml", caption="../report/scenario.rst", category="Variant calling scenarios")
     params:
         samples = samples
     conda:
@@ -12,13 +12,13 @@ rule render_scenario:
 
 rule varlociraptor_preprocess:
     input:
-        ref="refs/genome.fasta",
-        ref_idx="refs/genome.fasta.fai",
-        candidates="candidate-calls/{group}.{caller}.bcf",
-        bam="recal/{sample}.sorted.bam",
-        bai="recal/{sample}.sorted.bam.bai"
+        ref="results/refs/genome.fasta",
+        ref_idx="results/refs/genome.fasta.fai",
+        candidates="results/candidate-calls/{group}.{caller}.bcf",
+        bam="results/recal/{sample}.sorted.bam",
+        bai="results/recal/{sample}.sorted.bam.bai"
     output:
-        "observations/{group}/{sample}.{caller}.bcf"
+        "results/observations/{group}/{sample}.{caller}.bcf"
     log:
         "logs/varlociraptor/preprocess/{group}/{sample}.{caller}.log"
     conda:
@@ -30,9 +30,9 @@ rule varlociraptor_preprocess:
 rule varlociraptor_call:
     input:
         obs=get_group_observations,
-        scenario="scenarios/{group}.yaml"
+        scenario="results/scenarios/{group}.yaml"
     output:
-        temp("calls/{group}.{caller}.bcf")
+        temp("results/calls/{group}.{caller}.bcf")
     log:
         "logs/varlociraptor/call/{group}.{caller}.log"
     params:
@@ -47,15 +47,15 @@ rule varlociraptor_call:
 rule bcftools_concat:
     input:
         calls = expand(
-            "calls/{{group}}.{caller}.bcf",
+            "results/calls/{{group}}.{caller}.bcf",
             caller=caller
         ),
         indexes = expand(
-            "calls/{{group}}.{caller}.bcf.csi",
+            "results/calls/{{group}}.{caller}.bcf.csi",
             caller=caller
         )
     output:
-        "calls/{group}.bcf"
+        "results/calls/{group}.bcf"
     params:
         "-a -Ob" # Check this
     wrapper:

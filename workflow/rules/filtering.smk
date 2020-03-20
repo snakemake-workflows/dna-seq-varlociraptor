@@ -2,7 +2,7 @@ rule filter_by_annotation:
     input:
         get_annotated_bcf
     output:
-        "calls/{group}.{filter}.filtered.bcf"
+        "results/calls/{group}.{filter}.filtered.bcf"
     params:
         filter=lambda w: config["calling"]["filter"][w.filter]
     conda:
@@ -13,9 +13,9 @@ rule filter_by_annotation:
 
 rule control_fdr:
     input:
-        "calls/{group}.{filter}.filtered.bcf"
+        "results/calls/{group}.{filter}.filtered.bcf"
     output:
-        "calls/{group}.{vartype}.{event}.{filter}.fdr-controlled.bcf"
+        "results/calls/{group}.{vartype}.{event}.{filter}.fdr-controlled.bcf"
     params:
         threshold=config["calling"]["fdr-control"]["threshold"],
         events=lambda wc: config["calling"]["fdr-control"]["events"][wc.event]["varlociraptor"]
@@ -28,7 +28,7 @@ rule control_fdr:
 
 def get_merge_input(ext=".bcf"):
     def inner(wildcards):
-        return expand("calls/{{group}}.{vartype}.{{event}}.{filter}.fdr-controlled{ext}",
+        return expand("results/calls/{{group}}.{vartype}.{{event}}.{filter}.fdr-controlled{ext}",
                       ext=ext,
                       vartype=["SNV", "INS", "DEL", "MNV"],
                       filter=config["calling"]["fdr-control"]["events"][wildcards.event]["filter"])
@@ -40,7 +40,7 @@ rule merge_calls:
         calls=get_merge_input(".bcf"),
         idx=get_merge_input(".bcf.csi")
     output:
-        "merged-calls/{group}.{event}.fdr-controlled.bcf"
+        "results/merged-calls/{group}.{event}.fdr-controlled.bcf"
     params:
         "-a -Ob"
     wrapper:

@@ -1,3 +1,5 @@
+import glob
+
 rule get_sra:
     output:
         "sra/{accession}_1.fastq",
@@ -16,19 +18,37 @@ def get_raw_fastq(wildcards):
         return expand("sra/{accession}_{read}.fastq", accession=accession, read=[1, 2])
     if pd.isna(unit["fq2"]):
         # single end local sample
-        return unit["fq1"].values
+        return f"pipe/cutadapt/{unit.sample_name}-{unit.unit_name}.fq1.fastq.gz"
     else:
         # paired end local sample
-        return unit[["fq1", "fq2"]].values
+        return expand(f"pipe/cutadapt/{unit.sample_name}-{unit.unit_name}.{{read}}.fastq.gz", read=["fq1","fq2"])
+
+
+def cutadapt_pipe_input(wc):
+    files = list(sorted(glob.glob(units.loc[wc.sample].loc[wc.unit, wc.fq])))
+    #print(wc, units.loc[wc.sample].loc[wc.unit, wc.fq])
+    assert(len(files) > 0)
+    return files
+
+
+rule cutadapt_pipe:
+    threads:
+        0
+    input:
+        cutadapt_pipe_input
+    output:
+        pipe("pipe/cutadapt/{sample}-{unit}.{fq}.fastq.gz")
+    shell:
+        "cat {input} > {output}"
 
 
 rule cutadapt_pe:
     input:
         get_raw_fastq
     output:
-        fastq1="trimmed/{sample}-{unit}.1.fastq.gz",
-        fastq2="trimmed/{sample}-{unit}.2.fastq.gz",
-        qc="trimmed/{sample}-{unit}.paired.qc.txt"
+        fastq1="results/trimmed/{sample}-{unit}.1.fastq.gz",
+        fastq2="results/trimmed/{sample}-{unit}.2.fastq.gz",
+        qc="results/trimmed/{sample}-{unit}.qc.txt"
     params:
         others = config["params"]["cutadapt"],
         adapters = lambda w: str(units.loc[w.sample].loc[w.unit, "adapters"]),
@@ -42,8 +62,8 @@ rule cutadapt_se:
     input:
         get_raw_fastq
     output:
-        fastq="trimmed/{sample}-{unit}.single.fastq.gz",
-        qc="trimmed/{sample}-{unit}.single.qc.txt"
+        fastq="results/trimmed/{sample}-{unit}.single.fastq.gz",
+        qc="results/trimmed/{sample}-{unit}.qc.txt"
     params:
         others = config["params"]["cutadapt"],
         adapters_r1 = lambda w: str(units.loc[w.sample].loc[w.unit, "adapters"])
@@ -55,8 +75,8 @@ rule cutadapt_se:
 
 rule merge_fastqs:
     input:
-        lambda w: expand("trimmed/{{sample}}-{unit}.{{read}}.fastq.gz", unit=units.loc[w.sample, "unit_name"])
+        lambda w: expand("results/trimmed/{{sample}}-{unit}.{{read}}.fastq.gz", unit=units.loc[w.sample, "unit_name"])
     output:
-        "merged/{sample}.{read,(single|1|2)}.fastq.gz"
+        "results/merged/{sample}.{read,(single|1|2)}.fastq.gz"
     shell:
         "cat {input} > {output}"

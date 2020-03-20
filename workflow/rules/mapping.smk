@@ -3,7 +3,7 @@ rule map_reads:
         reads=get_merged,
         idx=rules.bwa_index.output
     output:
-        temp("mapped/{sample}.sorted.bam")
+        temp("results/mapped/{sample}.bam")
     log:
         "logs/bwa_mem/{sample}.log"
     params:
@@ -11,17 +11,17 @@ rule map_reads:
         extra=get_read_group,
         sort="samtools",
         sort_order="coordinate"
-    threads: 8
+    threads: 100
     wrapper:
         "0.39.0/bio/bwa/mem"
 
 
 rule mark_duplicates:
     input:
-        "mapped/{sample}.sorted.bam"
+        "results/mapped/{sample}.sorted.bam"
     output:
-        bam=temp("dedup/{sample}.sorted.bam"),
-        metrics="qc/dedup/{sample}.metrics.txt"
+        bam=temp("results/dedup/{sample}.sorted.bam"),
+        metrics="results/qc/dedup/{sample}.metrics.txt"
     log:
         "logs/picard/dedup/{sample}.log"
     params:
@@ -32,15 +32,14 @@ rule mark_duplicates:
 
 rule recalibrate_base_qualities:
     input:
-        bam="dedup/{sample}.sorted.bam",
-        bai="dedup/{sample}.sorted.bam.bai",
-        ref="refs/genome.fasta",
-        ref_dict="refs/genome.dict",
-        ref_fai="refs/genome.fasta.fai",
-        known="refs/variation.noiupac.vcf.gz",
-        tbi="refs/variation.noiupac.vcf.gz.tbi",
+        bam="results/dedup/{sample}.bam",
+        bai="results/dedup/{sample}.bam.bai",
+        ref="results/refs/genome.fasta",
+        ref_dict="results/refs/genome.dict",
+        known="results/refs/variation.noiupac.vcf.gz",
+        tbi="results/refs/variation.noiupac.vcf.gz.tbi",
     output:
-        bam=protected("recal/{sample}.sorted.bam")
+        bam=protected("results/recal/{sample}.sorted.bam")
     params:
         extra=config["params"]["gatk"]["BaseRecalibrator"]
     log:

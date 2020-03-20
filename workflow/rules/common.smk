@@ -36,9 +36,9 @@ def is_paired_end(sample):
 
 def get_merged(wildcards):
     if is_paired_end(wildcards.sample):
-        return ["merged/{sample}.1.fastq.gz",
-                "merged/{sample}.2.fastq.gz"]
-    return "merged/{sample}.single.fastq.gz"
+        return ["results/merged/{sample}.1.fastq.gz",
+                "results/merged/{sample}.2.fastq.gz"]
+    return "results/merged/{sample}.single.fastq.gz"
 
 def get_group_aliases(wildcards):
     return samples.loc[samples["group"] == wildcards.group]["alias"]
@@ -49,22 +49,24 @@ def get_group_samples(wildcards):
 
 
 def get_group_bams(wildcards):
-    return expand("recal/{sample}.sorted.bam", sample=get_group_samples(wildcards))
+    return expand("results/recal/{sample}.sorted.bam", sample=get_group_samples(wildcards))
 
 def get_group_observations(wildcards):
-    return expand("observations/{group}/{sample}.{caller}.bcf", 
+    return expand("results/observations/{group}/{sample}.{caller}.bcf", 
                   caller=wildcards.caller, 
                   group=wildcards.group,
                   sample=get_group_samples(wildcards))
 
 def get_group_bais(wildcards):
-    return expand("recal/{sample}.sorted.bam.bai", sample=get_group_samples(wildcards))
+    return expand("results/recal/{sample}.sorted.bam.bai", sample=get_group_samples(wildcards))
 
 def is_activated(xpath):
     c = config
     for entry in xpath.split("/"):
+        if entry == "results":
+            continue
         c = c.get(entry, {})
-    return bool(c.get("activate", False))
+    return bool(c["activate"])
 
 
 def get_read_group(wildcards):
@@ -76,7 +78,7 @@ def get_read_group(wildcards):
 
 def get_tmb_targets():
     if is_activated("tmb"):
-        return expand("plots/tmb/{group}.tmb.svg",
+        return expand("results/plots/tmb/{group}.tmb.svg",
                       group=groups)
     else:
         return []
@@ -92,7 +94,7 @@ def get_annotated_bcf(wildcards, group=None):
         selection += ".dbnsfp"
     if is_activated("annotations/dgidb"):
         selection += ".dgidb"
-    return "calls/{group}{selection}.bcf".format(group=group, selection=selection)
+    return "results/calls/{group}{selection}.bcf".format(group=group, selection=selection)
 
 
 wildcard_constraints:
@@ -100,4 +102,4 @@ wildcard_constraints:
     sample="|".join(samples["sample_name"]),
     caller="|".join(["freebayes", "delly"])
 
-caller=list(filter(None, ["freebayes" if is_activated("calling/freebayes") else None, "delly" if is_activated("calling/delly") else None]))
+caller=list(filter(None, ["freebayes" if is_activated("results/calling/freebayes") else None, "delly" if is_activated("calling/delly") else None]))
