@@ -45,6 +45,20 @@ properties:
       - build
       - n_chromosomes
 
+  oncoprint:
+    type: object
+    properties:
+      stratify:
+        type: object
+        properties:
+          activate:
+            type: boolean
+          by-column:
+            type: string
+        required:
+          - activate
+          - by-column
+
   tmb:
     type: object
     properties:
