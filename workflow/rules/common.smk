@@ -14,11 +14,11 @@ samples = pd.read_csv(config["samples"], sep="\t", dtype={"sample_name": str, "g
 
 def get_final_output():
     if config["igv_report"]["activate"]:
-        final_output = expand("igv-report/{group}.{event}.html",
+        final_output = expand("results/igv-report/{group}.{event}.html",
                         group=groups,
                         event=config["calling"]["fdr-control"]["events"]),
     else:
-        final_output = expand("merged-calls/{group}.{event}.fdr-controlled.bcf",
+        final_output = expand("results/merged-calls/{group}.{event}.fdr-controlled.bcf",
                         group=groups,
                         event=config["calling"]["fdr-control"]["events"]),
     return final_output

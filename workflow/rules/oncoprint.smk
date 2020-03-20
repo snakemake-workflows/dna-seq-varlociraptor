@@ -19,7 +19,7 @@ rule build_oncoprint_table:
 
 rule plot_oncoprint:
     input:
-        "plots/oncoprint/{batch}.{event}.tsv"
+        "results/plots/oncoprint/{batch}.{event}.tsv"
     output:
         report("results/plots/oncoprint/{batch}.{event}.pdf", category="Oncoprint", caption="../report/oncoprint.rst")
     conda:
