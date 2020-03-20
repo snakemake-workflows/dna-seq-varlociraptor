@@ -3,8 +3,4 @@ channels:
   - bioconda
 dependencies:
   - rust-bio-tools =0.9
-<<<<<<< HEAD
-  - bcftools =1.10.2
-=======
   - bcftools =1.10
->>>>>>> 284fc663015f48ebb80b4724469af7a5d47d9e86
