@@ -49,7 +49,7 @@ rule annotate_dgidb:
     resources:
         dgidb_requests=1
     shell:
-        "rbt vcf-annotate-dgidb {input} |  bcftools view --threads {threads} -Ob > {output}"
+        "rbt vcf-annotate-dgidb {input} | bcftools view --threads {threads} -Ob > {output}"
 
 
 if is_activated("annotations/dbnsfp"):
