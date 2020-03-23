@@ -41,7 +41,7 @@ rule cutadapt_pipe:
     input:
         cutadapt_pipe_input
     output:
-        pipe("pipe/cutadapt/{sample}-{unit}.{fq}.fastq{ending}")
+        pipe("pipe/cutadapt/{sample}-{unit}.{fq}.{ending, 'fastq|fastq.gz'}")
     shell:
         "cat {input} > {output}"
 
