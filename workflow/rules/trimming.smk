@@ -37,11 +37,13 @@ def cutadapt_pipe_input(wildcards):
 
 
 rule cutadapt_pipe:
-    threads: 0
     input:
         cutadapt_pipe_input
     output:
-        pipe("pipe/cutadapt/{sample}-{unit}.{fq}.{ending, 'fastq|fastq.gz'}")
+        pipe('pipe/cutadapt/{sample}-{unit}.{fq}.{ending}')
+    wildcard_constraints:
+        dataset="fastq|fastq.gz"
+    threads: 0
     shell:
         "cat {input} > {output}"
 
