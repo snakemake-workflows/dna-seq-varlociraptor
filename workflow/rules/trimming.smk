@@ -23,26 +23,25 @@ def get_raw_fastq(wildcards):
         return expand("sra/{accession}_{read}.fastq", accession=accession, read=[1, 2])
     if pd.isna(unit["fq2"]):
         # single end local sample
-        return f"pipe/cutadapt/{unit.sample_name}-{unit.unit_name}.fq1.fastq{ending}"
+        return "pipe/cutadapt/{S}-{U}.fq1.fastq{E}".format(S=unit.sample_name, U=unit.unit_name, E=ending)
     else:
         # paired end local sample
-        return expand(f"pipe/cutadapt/{unit.sample_name}-{unit.unit_name}.{{read}}.fastq{ending}", read=["fq1","fq2"])
+        return expand("pipe/cutadapt/{S}-{U}.{{read}}.fastq{E}".format(S=unit.sample_name, U=unit.unit_name, E=ending), read=["fq1","fq2"])
 
 
-def cutadapt_pipe_input(wc):
-    files = list(sorted(glob.glob(units.loc[wc.sample].loc[wc.unit, wc.fq])))
+def cutadapt_pipe_input(wildcards):
+    files = list(sorted(glob.glob(units.loc[wildcards.sample].loc[wildcards.unit, wildcards.fq])))
     #print(wc, units.loc[wc.sample].loc[wc.unit, wc.fq])
     assert(len(files) > 0)
     return files
 
 
 rule cutadapt_pipe:
-    threads:
-        0
+    threads: 0
     input:
         cutadapt_pipe_input
     output:
-        pipe("pipe/cutadapt/{sample}-{unit}.{fq}.fast{ending}")
+        pipe("pipe/cutadapt/{sample}-{unit}.{fq}.fastq{ending}")
     shell:
         "cat {input} > {output}"
 
@@ -53,7 +52,7 @@ rule cutadapt_pe:
     output:
         fastq1="results/trimmed/{sample}-{unit}.1.fastq.gz",
         fastq2="results/trimmed/{sample}-{unit}.2.fastq.gz",
-        qc="results/trimmed/{sample}-{unit}.qc.txt"
+        qc="results/trimmed/{sample}-{unit}.paired.qc.txt"
     params:
         others = config["params"]["cutadapt"],
         adapters = lambda w: str(units.loc[w.sample].loc[w.unit, "adapters"]),
@@ -68,7 +67,7 @@ rule cutadapt_se:
         get_raw_fastq
     output:
         fastq="results/trimmed/{sample}-{unit}.single.fastq.gz",
-        qc="results/trimmed/{sample}-{unit}.qc.txt"
+        qc="results/trimmed/{sample}-{unit}.single.qc.txt"
     params:
         others = config["params"]["cutadapt"],
         adapters_r1 = lambda w: str(units.loc[w.sample].loc[w.unit, "adapters"])
