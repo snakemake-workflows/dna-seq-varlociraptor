@@ -78,11 +78,9 @@ rule tabix_known_variants:
 
 rule bwa_index:
     input:
-        "results/refs/genome.fasta"
+        "refs/genome.fasta"
     output:
-        multiext("results/refs/genome", ".amb", ".ann", ".bwt", ".pac", ".sa")
-    params:
-        prefix="results/refs/genome"
+        multiext("results/refs/genome.fasta", ".amb", ".ann", ".bwt", ".pac", ".sa")
     log:
         "logs/bwa_index.log"
     resources:
