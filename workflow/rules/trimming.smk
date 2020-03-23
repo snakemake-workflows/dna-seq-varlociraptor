@@ -12,16 +12,21 @@ rule get_sra:
 
 def get_raw_fastq(wildcards):
     unit = units.loc[wildcards.sample].loc[wildcards.unit]
+    if unit["fq1"].endswith("gz"):
+        ending = ".gz"
+    else:
+        ending = ""
+
     if pd.isna(unit["fq1"]):
         # SRA sample (always paired-end for now)
         accession = unit["sra"]
         return expand("sra/{accession}_{read}.fastq", accession=accession, read=[1, 2])
     if pd.isna(unit["fq2"]):
         # single end local sample
-        return f"pipe/cutadapt/{unit.sample_name}-{unit.unit_name}.fq1.fastq.gz"
+        return f"pipe/cutadapt/{unit.sample_name}-{unit.unit_name}.fq1.fastq{ending}"
     else:
         # paired end local sample
-        return expand(f"pipe/cutadapt/{unit.sample_name}-{unit.unit_name}.{{read}}.fastq.gz", read=["fq1","fq2"])
+        return expand(f"pipe/cutadapt/{unit.sample_name}-{unit.unit_name}.{{read}}.fastq{ending}", read=["fq1","fq2"])
 
 
 def cutadapt_pipe_input(wc):
@@ -37,7 +42,7 @@ rule cutadapt_pipe:
     input:
         cutadapt_pipe_input
     output:
-        pipe("pipe/cutadapt/{sample}-{unit}.{fq}.fastq.gz")
+        pipe("pipe/cutadapt/{sample}-{unit}.{fq}.fast{ending}")
     shell:
         "cat {input} > {output}"
 
