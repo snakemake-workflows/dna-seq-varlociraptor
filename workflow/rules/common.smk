@@ -74,8 +74,6 @@ def get_group_bais(wildcards):
 def is_activated(xpath):
     c = config
     for entry in xpath.split("/"):
-        if entry == "results":
-            continue
         c = c.get(entry, {})
     return bool(c.get("activate", False))
 
@@ -112,4 +110,4 @@ wildcard_constraints:
     sample="|".join(samples["sample_name"]),
     caller="|".join(["freebayes", "delly"])
 
-caller=list(filter(None, ["freebayes" if is_activated("results/calling/freebayes") else None, "delly" if is_activated("calling/delly") else None]))
+caller=list(filter(None, ["freebayes" if is_activated("calling/freebayes") else None, "delly" if is_activated("calling/delly") else None]))

@@ -1,13 +1,13 @@
 rule get_genome:
     output:
         "results/refs/genome.fasta"
+    log:
+        "logs/get-genome.log"
     params:
         species=config["ref"]["species"],
         datatype="dna",
         build=config["ref"]["build"],
         release=config["ref"]["release"]
-    log:
-        "logs/get-genome.log"
     wrapper:
         "0.45.1/bio/reference/ensembl-sequence"
 
@@ -40,12 +40,12 @@ rule get_known_variants:
         fai="results/refs/genome.fasta.fai"
     output:
         vcf="results/refs/variation.vcf.gz"
+    log:
+        "logs/get-known-variants.log"
     params:
         species=config["ref"]["species"],
         release=config["ref"]["release"],
         type="all"
-    log:
-        "logs/get-known-variants.log"
     wrapper:
         "0.45.1/bio/reference/ensembl-variation"
 
@@ -55,10 +55,10 @@ rule remove_iupac_codes:
         "results/refs/variation.vcf.gz"
     output:
         "results/refs/variation.noiupac.vcf.gz"
-    conda:
-        "../envs/rbt.yaml"
     log:
         "logs/fix-iupac-alleles.log"
+    conda:
+        "../envs/rbt.yaml"
     shell:
         "rbt vcf-fix-iupac-alleles < {input} | bcftools view -Oz > {output}"
 
@@ -68,10 +68,10 @@ rule tabix_known_variants:
         "results/refs/{prefix}.vcf.gz"
     output:
         "results/refs/{prefix}.vcf.gz.tbi"
-    params:
-        "-p vcf"
     log:
         "logs/tabix/{prefix}.log"
+    params:
+        "-p vcf"
     wrapper:
         "0.45.1/bio/tabix"
 

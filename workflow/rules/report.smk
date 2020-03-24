@@ -7,12 +7,12 @@ rule igv_report:
         bais=get_group_bais
     output:
         report("results/igv-report/{group}.{event}.html", caption="../results/report/calls.rst", category="Variant calls")
+    log:
+        "logs/igv-report/{group}.{event}.log"
     params:
         os.path.join(os.path.dirname(workflow.snakefile), "resources/igv-report-template.html")
     conda:
         "../envs/igv-reports.yaml"
-    log:
-        "logs/igv-report/{group}.{event}.log"
     shell:
         "bcftools view {input.bcf} > {output}.vcf;"
         "create_report {output}.vcf {input.ref} --flanking 100 "

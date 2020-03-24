@@ -3,6 +3,8 @@ rule render_scenario:
         local(config["calling"]["scenario"])
     output:
         report("results/scenarios/{group}.yaml", caption="../results/report/scenario.rst", category="Variant calling scenarios")
+    log:
+        "logs/render-scenario/{group}.log"
     params:
         samples = samples
     conda:
@@ -56,7 +58,9 @@ rule bcftools_concat:
         )
     output:
         "results/calls/{group}.bcf"
+    log:
+        "logs/condat-calls/{group}.log"
     params:
-        "-a -Ob" # Check this
+        "-a -Ob" # TODO Check this
     wrapper:
         "0.50.1/bio/bcftools/concat"

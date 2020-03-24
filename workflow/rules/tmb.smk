@@ -4,10 +4,12 @@ if config["tmb"]["activate"]:
             "results/calls/{group}.annotated.bcf"
         output:
             "results/plots/tmb/{group}.tmb.vl.json"
-        conda:
-            "../envs/varlociraptor.yaml"
+        log:
+            "logs/estimate-tmb/{group}.log"
         params:
             **config["tmb"]
+        conda:
+            "../envs/varlociraptor.yaml"
         shell:
             "varlociraptor estimate tmb "
             "--coding-genome-size {params.coding_genome_size} "

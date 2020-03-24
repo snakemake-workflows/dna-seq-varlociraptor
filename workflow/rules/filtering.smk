@@ -3,6 +3,8 @@ rule filter_by_annotation:
         get_annotated_bcf
     output:
         "results/calls/{group}.{filter}.filtered.bcf"
+    log:
+        "logs/filter-calls/{group}.{filter}.log"
     params:
         filter=lambda w: config["calling"]["filter"][w.filter]
     conda:
@@ -16,6 +18,8 @@ rule control_fdr:
         "results/calls/{group}.{filter}.filtered.bcf"
     output:
         "results/calls/{group}.{vartype}.{event}.{filter}.fdr-controlled.bcf"
+    log:
+        "logs/control-fdr/{group}.{vartype}.{event}.{filter}.log"
     params:
         threshold=config["calling"]["fdr-control"]["threshold"],
         events=lambda wc: config["calling"]["fdr-control"]["events"][wc.event]["varlociraptor"]
@@ -41,6 +45,8 @@ rule merge_calls:
         idx=get_merge_input(".bcf.csi")
     output:
         "results/merged-calls/{group}.{event}.fdr-controlled.bcf"
+    log:
+        "logs/merge-calls/{group}.{event}.log"
     params:
         "-a -Ob"
     wrapper:

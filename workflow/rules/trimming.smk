@@ -40,10 +40,12 @@ rule cutadapt_pipe:
     input:
         cutadapt_pipe_input
     output:
-        pipe('pipe/cutadapt/{sample}-{unit}.{fq}.{ending}')
+        pipe('pipe/cutadapt/{sample}-{unit}.{fq}.{ext}')
+    log:
+        "logs/pipe-fastqs/{sample}-{unit}.{fq}.{ext}"
     wildcard_constraints:
-        dataset="fastq|fastq.gz"
-    threads: 0
+        ext=r"fastq|fastq\.gz"
+    threads: 0 # this does not need CPU
     shell:
         "cat {input} > {output}"
 
@@ -55,11 +57,11 @@ rule cutadapt_pe:
         fastq1="results/trimmed/{sample}-{unit}.1.fastq.gz",
         fastq2="results/trimmed/{sample}-{unit}.2.fastq.gz",
         qc="results/trimmed/{sample}-{unit}.paired.qc.txt"
+    log:
+        "logs/cutadapt/{sample}-{unit}.log"
     params:
         others = config["params"]["cutadapt"],
         adapters = lambda w: str(units.loc[w.sample].loc[w.unit, "adapters"]),
-    log:
-        "logs/cutadapt/{sample}-{unit}.log"
     threads: 8
     wrapper:
         "0.42.0/bio/cutadapt/pe"
@@ -70,11 +72,11 @@ rule cutadapt_se:
     output:
         fastq="results/trimmed/{sample}-{unit}.single.fastq.gz",
         qc="results/trimmed/{sample}-{unit}.single.qc.txt"
+    log:
+        "logs/cutadapt/{sample}-{unit}.log"
     params:
         others = config["params"]["cutadapt"],
         adapters_r1 = lambda w: str(units.loc[w.sample].loc[w.unit, "adapters"])
-    log:
-        "logs/cutadapt/{sample}-{unit}.log"
     threads: 8
     wrapper:
         "0.42.0/bio/cutadapt/se"
@@ -83,6 +85,10 @@ rule merge_fastqs:
     input:
         lambda w: expand("results/trimmed/{{sample}}-{unit}.{{read}}.fastq.gz", unit=units.loc[w.sample, "unit_name"])
     output:
-        "results/merged/{sample}.{read,(single|1|2)}.fastq.gz"
+        "results/merged/{sample}.{read}.fastq.gz"
+    log:
+        "logs/merge-fastqs/{sample}.{read}.log"
+    wildcard_constraints:
+        read="single|1|2"
     shell:
         "cat {input} > {output}"
