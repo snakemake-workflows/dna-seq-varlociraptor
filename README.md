@@ -11,6 +11,7 @@ This workflow detects genomic variants with [Delly](https://github.com/dellytool
 
 * Felix Mölder (@FelixMoelder)
 * Johannes Köster (@johanneskoester)
+* Christopher Schröder (@christopher-schroeder)
 
 ## Usage
 
