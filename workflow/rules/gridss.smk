@@ -24,7 +24,7 @@ rule GridssCollectMetrics:
         insert_size_metrics="tmp/{sample}.sorted.bam.gridss.working/tmp.{sample}.sorted.bam.insert_size_metrics",
         histogram="tmp/{sample}.sorted.bam.gridss.working/tmp.{sample}.sorted.bam.insert_size_histogram.pdf"
     log:
-        "log/collect_gridss_metrics.{sample}.log"
+        "log/gridss/collect_metrics/{sample}.log"
     params:
         tmp_dir="tmp/{sample}.sorted.bam.gridss.working",
         prefix="tmp/{sample}.sorted.bam.gridss.working/tmp.{sample}.sorted.bam",
@@ -61,6 +61,8 @@ rule GridssCollectMetricsAndExtractSVReads:
     output:
         sv_metrics="tmp/{sample}.sorted.bam.gridss.working/{sample}.bam.sv_metrics",
         namedsorted_bam="tmp/{sample}.sorted.bam.gridss.working/tmp.{sample}.sorted.bam.namedsorted.bam",
+    log:
+        "log/gridss/collect_metrics_and_extract_sv_reads/{sample}.log"
     params:
         dir="tmp/{sample}.sorted.bam.gridss.working",
         prefix="tmp/{sample}.sorted.bam.gridss.working/{sample}.sorted.bam",
@@ -106,7 +108,7 @@ INCLUDE_DUPLICATES=true \
 -Obam \
 -o {output.namedsorted_bam} \
 -@ {threads} \
-/dev/stdin
+/dev/stdin 2> {log}
         """
 
 
@@ -118,7 +120,7 @@ rule GridssComputeSamTags:
     output:
         coordinate_bam="tmp/{sample}.sorted.bam.gridss.working/tmp.{sample}.sorted.bam.coordinate.bam"
     wildcard_constraints:
-        sample=sample_constrain
+        sample=sample_constraint
     params:
         working_dir="tmp",
         tmp_sort="tmp/{sample}.sorted.bam.gridss.working/{sample}.sorted.coordinate-tmp",
