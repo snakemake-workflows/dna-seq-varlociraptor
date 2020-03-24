@@ -1,5 +1,6 @@
-annotations = [(e, f) for e, f in config["annotations"]["vcfs"].items() if e != "activate"]
+import os
 
+annotations = [(e, os.path.join("results", f)) for e, f in config["annotations"]["vcfs"].items() if e != "activate"]
 
 def get_annotation_pipes(wildcards, input):
      if annotations:
@@ -18,26 +19,30 @@ def get_annotation_vcfs(idx=False):
 
 #What about multiple ID Fields?
 rule annotate_vcfs:
+    threads:
+        4
     input:
-        bcf="calls/{prefix}.bcf",
+        bcf="results/calls/{prefix}.bcf",
         annotations=get_annotation_vcfs(),
         idx=get_annotation_vcfs(idx=True)
     output:
-        "calls/{prefix}.db-annotated.bcf"
+        "results/calls/{prefix}.db-annotated.bcf"
     params:
         extra="-Xmx4g",
         pipes=get_annotation_pipes
     conda:
         "../../envs/snpsift.yaml"
     shell:
-        "bcftools view {input.bcf} {params.pipes} | bcftools view -Ob > {output}"
+        "bcftools view --threads {threads} {input.bcf} {params.pipes} | bcftools view --threads {threads} -Ob > {output}"
 
 
 rule annotate_dgidb:
+    threads:
+        4
     input:
-        "calls/{prefix}.bcf"
+        "results/calls/{prefix}.bcf"
     output:
-        "calls/{prefix}.dgidb.bcf"
+        "results/calls/{prefix}.dgidb.bcf"
     params:
     conda:
         "../../envs/annotate_dgidb.yaml"
@@ -59,13 +64,14 @@ if is_activated("annotations/dbnsfp"):
 
 
     rule dbnsfp_bgzip:
+        threads:
+             4
         input:
             "resources/dbnsfp.zip"
         output:
             "resources/dbnsfp.txt.gz"
         conda:
             "../../envs/htslib.yaml"
-        threads: 4
         shell:
             """
             (unzip -p {input} "*_variant.chr1.gz" | zcat |
@@ -74,20 +80,22 @@ if is_activated("annotations/dbnsfp"):
             """
     
     rule annotate_dbnsfp:
+        threads:
+            4
         input:
-            bcf="calls/{prefix}.bcf",
+            bcf="results/calls/{prefix}.bcf",
             db="resources/dbnsfp.txt.gz",
             idx="resources/dbnsfp.txt.gz.tbi"
         output:
-            "calls/{prefix}.dbnsfp.bcf"
+            "results/calls/{prefix}.dbnsfp.bcf"
         params:
             extra="-Xmx4g",
             fields = ",".join(config["annotations"]["dbnsfp"]["fields"])
         conda:
             "../../envs/snpsift.yaml"
         shell:
-            "bcftools view {input.bcf} | SnpSift dbnsfp -db {input.db} -f {params.fields} {params.extra} /dev/stdin | "
-            "sed 's/\\(^##INFO=<ID=dbNSFP_\\w*,Number=\\)A/\\1./g' | bcftools view -Ob > {output}"
+            "bcftools view --threads {threads} {input.bcf} | SnpSift dbnsfp -db {input.db} -f {params.fields} {params.extra} /dev/stdin | "
+            "sed 's/\\(^##INFO=<ID=dbNSFP_\\w*,Number=\\)A/\\1./g' | bcftools view -Ob --threads {threads} > {output}"
 
 
     rule create_dbnsfp_tabix_index:

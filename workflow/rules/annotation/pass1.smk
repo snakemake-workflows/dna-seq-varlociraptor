@@ -1,10 +1,10 @@
 rule snpeff:
     input:
-        "calls/{group}.bcf"
+        "results/calls/{group}.bcf"
     output:
-        calls="calls/{group}.annotated.bcf",
-        stats="snpeff/{group}.html",
-        csvstats="snpeff/{group}.csv"
+        calls="results/calls/{group}.annotated.bcf",
+        stats="results/snpeff/{group}.html",
+        csvstats="results/snpeff/{group}.csv"
     log:
         "logs/snpeff/{group}.log"
     params:

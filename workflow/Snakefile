@@ -34,6 +34,6 @@ rule all:
     input:
         get_final_output(),
         get_tmb_targets(),
-        expand("plots/oncoprint/{batch}.{event}.pdf",
+        expand("results/plots/oncoprint/{batch}.{event}.pdf",
                event=config["calling"]["fdr-control"]["events"],
                batch=batches)
