@@ -21,13 +21,13 @@ rule GridssCollectMetrics:
         #bam="{sample.bam}"
         bam="results/recal/{sample}.sorted.bam"
     output:
-        insert_size_metrics="tmp/{sample}.sorted.bam.gridss.working/tmp.{sample}.sorted.bam.insert_size_metrics",
-        histogram="tmp/{sample}.sorted.bam.gridss.working/tmp.{sample}.sorted.bam.insert_size_histogram.pdf"
+        insert_size_metrics=temp("tmp/{sample}.sorted.bam.gridss.working/tmp.{sample}.sorted.bam.insert_size_metrics"),
+        histogram=temp("tmp/{sample}.sorted.bam.gridss.working/tmp.{sample}.sorted.bam.insert_size_histogram.pdf")
     log:
         "log/gridss/collect_metrics/{sample}.log"
     params:
-        tmp_dir="tmp/{sample}.sorted.bam.gridss.working",
-        prefix="tmp/{sample}.sorted.bam.gridss.working/tmp.{sample}.sorted.bam",
+        tmp_dir=temp("tmp/{sample}.sorted.bam.gridss.working"),
+        prefix=temp("tmp/{sample}.sorted.bam.gridss.working/tmp.{sample}.sorted.bam"),
         maxcoverage=50000,
         metricsrecords=10000000,
         picardoptions=""
@@ -58,14 +58,15 @@ rule GridssCollectMetricsAndExtractSVReads:
         bam="results/recal/{sample}.sorted.bam",
         insert_size_metrics="tmp/{sample}.sorted.bam.gridss.working/tmp.{sample}.sorted.bam.insert_size_metrics",
     output:
-        sv_metrics="tmp/{sample}.sorted.bam.gridss.working/{sample}.bam.sv_metrics",
-        namedsorted_bam="tmp/{sample}.sorted.bam.gridss.working/tmp.{sample}.sorted.bam.namedsorted.bam",
+        sv_metrics=temp("tmp/{sample}.sorted.bam.gridss.working/{sample}.bam.sv_metrics"),
+        namedsorted_bam=temp("tmp/{sample}.sorted.bam.gridss.working/tmp.{sample}.sorted.bam.namedsorted.bam"),
+        metrics=temp(multiext("tmp/{sample}.sorted.bam.gridss.working/{sample}.sorted.bam", ".cigar_metrics", ".coverage.blacklist.bed", ".idsv_metrics", ".insert_size_histogram.pdf", ".insert_size_metrics", ".mapq_metrics", ".tag_metrics")),
     log:
         "log/gridss/collect_metrics_and_extract_sv_reads/{sample}.log"
     params:
-        dir="tmp/{sample}.sorted.bam.gridss.working",
-        prefix="tmp/{sample}.sorted.bam.gridss.working/{sample}.sorted.bam",
-        tmp_sort="tmp/{sample}.sorted.bam.gridss.working/{sample}.sorted.namedsort",
+        dir=temp("tmp/{sample}.sorted.bam.gridss.working"),
+        prefix=temp("tmp/{sample}.sorted.bam.gridss.working/{sample}.sorted.bam"),
+        tmp_sort=temp("tmp/{sample}.sorted.bam.gridss.working/{sample}.sorted.namedsort"),
         maxcoverage=50000,
         picardoptions="",
     conda:
@@ -116,15 +117,15 @@ rule GridssComputeSamTags:
         idx=rules.bwa_index.output,
         namedsorted_bam="tmp/{sample}.sorted.bam.gridss.working/tmp.{sample}.sorted.bam.namedsorted.bam",
     output:
-        coordinate_bam="tmp/{sample}.sorted.bam.gridss.working/tmp.{sample}.sorted.bam.coordinate.bam"
+        coordinate_bam=temp("tmp/{sample}.sorted.bam.gridss.working/tmp.{sample}.sorted.bam.coordinate.bam")
     log:
         "log/gridss/compute_sam_tags/{sample}.log"
     wildcard_constraints:
         sample=sample_constraint
     params:
         working_dir="tmp",
-        tmp_sort="tmp/{sample}.sorted.bam.gridss.working/{sample}.sorted.coordinate-tmp",
-        dir="tmp/{sample}.sorted.bam.gridss.working",
+        tmp_sort=temp("tmp/{sample}.sorted.bam.gridss.working/{sample}.sorted.coordinate-tmp"),
+        dir=temp("tmp/{sample}.sorted.bam.gridss.working"),
         picardoptions="",
     conda:
         "../envs/gridss.yaml"
@@ -170,8 +171,8 @@ rule GridssSoftClipsToSplitReads:
         idx=rules.bwa_index.output,
         coordinate_bam="tmp/{sample}.sorted.bam.gridss.working/tmp.{sample}.sorted.bam.coordinate.bam"
     output:
-        primary_sv="tmp/{sample}.sorted.bam.gridss.working/tmp.{sample}.sorted.bam.sc2sr.primary.sv.bam",
-        supp_sv="tmp/{sample}.sorted.bam.gridss.working/tmp.{sample}.sorted.bam.sc2sr.supp.sv.bam",
+        primary_sv=temp("tmp/{sample}.sorted.bam.gridss.working/tmp.{sample}.sorted.bam.sc2sr.primary.sv.bam"),
+        supp_sv=temp("tmp/{sample}.sorted.bam.gridss.working/tmp.{sample}.sorted.bam.sc2sr.supp.sv.bam"),
     log:
         "log/gridss/soft_clips_to_split_reads/{sample}.log"
     wildcard_constraints:
@@ -204,7 +205,7 @@ rule GridssSortSv:
     input:
         supp_sv="{x}.sc2sr.supp.sv.bam"
     output:
-        supp_sv="{x}.sc2sr.suppsorted.sv.bam"
+        supp_sv=temp("{x}.sc2sr.suppsorted.sv.bam")
     params:
         tmp_sort="{x}.suppsorted.sv-tmp",
     conda:
@@ -222,7 +223,7 @@ rule GridssMergeSupported:
         primary_sv="{p}/tmp.{x}.bam.sc2sr.primary.sv.bam",
         supp_sv="{p}/tmp.{x}.bam.sc2sr.suppsorted.sv.bam",
     output:
-        merged="{p}/{x}.bam.sv.bam"
+        merged=temp("{p}/{x}.bam.sv.bam")
     conda:
         "../envs/gridss.yaml"
     # wildcard_constraints:
@@ -274,9 +275,9 @@ rule GridssCollectMetricsGroup:
     input:
         assembly="tmp/group.{group}.bam.gridss.working/group.{group}.bam"
     output:
-        idsv_metrics="tmp/group.{group}.bam.gridss.working/group.{group}.bam.idsv_metrics",
-        mapq_metrics="tmp/group.{group}.bam.gridss.working/group.{group}.bam.mapq_metrics",
-        tag_metrics="tmp/group.{group}.bam.gridss.working/group.{group}.bam.tag_metrics",
+        idsv_metrics=temp("tmp/group.{group}.bam.gridss.working/group.{group}.bam.idsv_metrics"),
+        mapq_metrics=temp("tmp/group.{group}.bam.gridss.working/group.{group}.bam.mapq_metrics"),
+        tag_metrics=temp("tmp/group.{group}.bam.gridss.working/group.{group}.bam.tag_metrics"),
     log:
         "log/gridss/collect_metrics_group/{group}.log"
     wildcard_constraints:
@@ -317,8 +318,8 @@ rule GridssSoftClipsToSplitReadsAssembly:
         mapq_metrics="tmp/group.{group}.bam.gridss.working/group.{group}.bam.mapq_metrics",
         tag_metrics="tmp/group.{group}.bam.gridss.working/group.{group}.bam.tag_metrics",
     output:
-        assembly_primary_sv="tmp/group.{group}.bam.gridss.working/tmp.group.{group}.bam.sc2sr.primary.sv.bam",
-        assembly_supp_sv="tmp/group.{group}.bam.gridss.working/tmp.group.{group}.bam.sc2sr.supp.sv.bam",
+        assembly_primary_sv=temp("tmp/group.{group}.bam.gridss.working/tmp.group.{group}.bam.sc2sr.primary.sv.bam"),
+        assembly_supp_sv=temp("tmp/group.{group}.bam.gridss.working/tmp.group.{group}.bam.sc2sr.supp.sv.bam"),
     log:
         "log/gridss/soft_clips_to_split_reads_assembly/{group}.log"
     wildcard_constraints:
@@ -356,9 +357,10 @@ rule GridssIdentifyVariants:
         assembly_sv_index="tmp/group.{group}.bam.gridss.working/group.{group}.bam.sv.bam.bai",
         assembly="tmp/group.{group}.bam.gridss.working/group.{group}.bam",
         ref="results/refs/genome.fasta",
+        svs=lambda wildcards: " ".join(expand("tmp/{sample}.sorted.bam.gridss.working/{sample}.sorted.bam.sv.bam", sample=get_group_samples(wildcards))),
         idx=rules.bwa_index.output,
     output:
-        unallocated="tmp/group.{group}.vcf.gridss.working/group.{group}.unallocated.vcf"
+        unallocated=temp("tmp/group.{group}.vcf.gridss.working/group.{group}.unallocated.vcf")
     log:
         "log/gridss/indentify_variants/{group}.log"
     wildcard_constraints:
@@ -393,9 +395,10 @@ rule GridssAnnotateVariants:
         unallocated="tmp/group.{group}.vcf.gridss.working/group.{group}.unallocated.vcf",
         ref="results/refs/genome.fasta",
         idx=rules.bwa_index.output,
+        svs=lambda wildcards: " ".join(expand("tmp/{sample}.sorted.bam.gridss.working/{sample}.sorted.bam.sv.bam", sample=get_group_samples(wildcards))),
         assembly="tmp/group.{group}.bam.gridss.working/group.{group}.bam",
     output:
-        allocated="tmp/group.{group}.vcf.gridss.working/group.{group}.allocated.vcf",
+        allocated=temp("tmp/group.{group}.vcf.gridss.working/group.{group}.allocated.vcf"),
     log:
         "log/gridss/annotate_variants/{group}.log"
     wildcard_constraints:
