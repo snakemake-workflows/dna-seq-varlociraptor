@@ -35,8 +35,7 @@ rule GridssCollectMetrics:
         "../envs/gridss.yaml"
     wildcard_constraints:
         sample=sample_constraint
-    shell:
-        """
+    shell: """
 gridss gridss.analysis.CollectGridssMetrics \
 {jvm_args} \
 TMP_DIR={params.tmp_dir} \
@@ -75,8 +74,7 @@ rule GridssCollectMetricsAndExtractSVReads:
         sample=sample_constraint
     threads:
         50
-    shell:
-        """
+    shell: """
 gridss gridss.CollectGridssMetricsAndExtractSVReads \
 {jvm_args} \
 TMP_DIR={params.dir} \
@@ -119,6 +117,8 @@ rule GridssComputeSamTags:
         namedsorted_bam="tmp/{sample}.sorted.bam.gridss.working/tmp.{sample}.sorted.bam.namedsorted.bam",
     output:
         coordinate_bam="tmp/{sample}.sorted.bam.gridss.working/tmp.{sample}.sorted.bam.coordinate.bam"
+    log:
+        "log/gridss/compute_sam_tags/{sample}.log"
     wildcard_constraints:
         sample=sample_constraint
     params:
@@ -130,8 +130,7 @@ rule GridssComputeSamTags:
         "../envs/gridss.yaml"
     threads:
         3
-    shell:
-        """
+    shell: """
 gridss gridss.ComputeSamTags \
 {jvm_args} \
 TMP_DIR={params.dir} \
@@ -161,7 +160,7 @@ ASSUME_SORTED=true \
 -Obam \
 -o {output.coordinate_bam} \
 -@ {threads} \
-/dev/stdin
+/dev/stdin 2> {log}
         """
 
 
@@ -173,6 +172,8 @@ rule GridssSoftClipsToSplitReads:
     output:
         primary_sv="tmp/{sample}.sorted.bam.gridss.working/tmp.{sample}.sorted.bam.sc2sr.primary.sv.bam",
         supp_sv="tmp/{sample}.sorted.bam.gridss.working/tmp.{sample}.sorted.bam.sc2sr.supp.sv.bam",
+    log:
+        "log/gridss/soft_clips_to_split_reads/{sample}.log"
     wildcard_constraints:
         sample=sample_constraint
     params:
@@ -182,8 +183,7 @@ rule GridssSoftClipsToSplitReads:
         "../envs/gridss.yaml"
     threads:
         100
-    shell:
-        """
+    shell: """
 gridss gridss.SoftClipsToSplitReads \
 {jvm_args} \
 -Xmx20G \
@@ -196,7 +196,7 @@ I={input.coordinate_bam} \
 O={output.primary_sv} \
 OUTPUT_UNORDERED_RECORDS={output.supp_sv} \
 WORKER_THREADS={threads} \
-{params.picardoptions}
+{params.picardoptions} 2> {log}
         """
 
 
@@ -239,6 +239,8 @@ rule GridssAssembleBreakends:
         svs=lambda wildcards: expand("tmp/{sample}.sorted.bam.gridss.working/{sample}.sorted.bam.sv.{ending}", sample=get_group_samples(wildcards), ending=["bam", "bam.bai"])
     output:
         assembly="tmp/group.{group}.bam.gridss.working/group.{group}.bam"
+    log:
+        "log/gridss/assemble_breakends/{group}.log"
     wildcard_constraints:
         group=group_constraint
     params:
@@ -251,8 +253,7 @@ rule GridssAssembleBreakends:
         "../envs/gridss.yaml"
     threads:
         100
-    shell:
-        """
+    shell: """
 gridss gridss.AssembleBreakends \
 -Dgridss.gridss.output_to_temp_file=true \
 {jvm_args} \
@@ -265,7 +266,7 @@ REFERENCE_SEQUENCE={input.ref} \
 WORKER_THREADS={threads} \
 O={output.assembly} \
 {params.input_args} \
-{params.picardoptions} \
+{params.picardoptions} 2> {log}
         """
 
 
@@ -276,6 +277,8 @@ rule GridssCollectMetricsGroup:
         idsv_metrics="tmp/group.{group}.bam.gridss.working/group.{group}.bam.idsv_metrics",
         mapq_metrics="tmp/group.{group}.bam.gridss.working/group.{group}.bam.mapq_metrics",
         tag_metrics="tmp/group.{group}.bam.gridss.working/group.{group}.bam.tag_metrics",
+    log:
+        "log/gridss/collect_metrics_group/{group}.log"
     wildcard_constraints:
         group=group_constraint
     params:
@@ -285,8 +288,7 @@ rule GridssCollectMetricsGroup:
         picardoptions="",
     conda:
         "../envs/gridss.yaml"
-    shell:
-        """
+    shell: """
 gridss gridss.analysis.CollectGridssMetrics \
 {jvm_args} \
 I={input.assembly} \
@@ -302,7 +304,7 @@ GRIDSS_PROGRAM=CollectIdsvMetrics \
 GRIDSS_PROGRAM=ReportThresholdCoverage \
 PROGRAM=null \
 PROGRAM=CollectAlignmentSummaryMetrics \
-{params.picardoptions}
+{params.picardoptions} 2> {log}
         """
 
 
@@ -317,6 +319,8 @@ rule GridssSoftClipsToSplitReadsAssembly:
     output:
         assembly_primary_sv="tmp/group.{group}.bam.gridss.working/tmp.group.{group}.bam.sc2sr.primary.sv.bam",
         assembly_supp_sv="tmp/group.{group}.bam.gridss.working/tmp.group.{group}.bam.sc2sr.supp.sv.bam",
+    log:
+        "log/gridss/soft_clips_to_split_reads_assembly/{group}.log"
     wildcard_constraints:
         group=group_constraint
     params:
@@ -326,8 +330,7 @@ rule GridssSoftClipsToSplitReadsAssembly:
         "../envs/gridss.yaml"
     threads:
         100
-    shell:
-        """
+    shell: """
 gridss gridss.SoftClipsToSplitReads \
 {jvm_args} \
 -Xmx50G \
@@ -342,7 +345,7 @@ I={input.assembly} \
 O={output.assembly_primary_sv} \
 OUTPUT_UNORDERED_RECORDS={output.assembly_supp_sv} \
 REALIGN_ENTIRE_READ=true \
-{params.picardoptions}
+{params.picardoptions} >2 {log}
         """
 
 
@@ -356,6 +359,8 @@ rule GridssIdentifyVariants:
         idx=rules.bwa_index.output,
     output:
         unallocated="tmp/group.{group}.vcf.gridss.working/group.{group}.unallocated.vcf"
+    log:
+        "log/gridss/indentify_variants/{group}.log"
     wildcard_constraints:
         group=group_constraint
     params:
@@ -366,8 +371,7 @@ rule GridssIdentifyVariants:
         "../envs/gridss.yaml"
     threads:
         100
-    shell:
-        """
+    shell: """
 gridss gridss.IdentifyVariants \
 -Dgridss.output_to_temp_file=true \
 {jvm_args} \
@@ -378,7 +382,7 @@ REFERENCE_SEQUENCE={input.ref} \
 WORKER_THREADS={threads} \
 {params.input_args} \
 ASSEMBLY={input.assembly} \
-OUTPUT_VCF={output.unallocated} \
+OUTPUT_VCF={output.unallocated} 2> {log}
         """
 
 rule GridssAnnotateVariants:
@@ -392,6 +396,8 @@ rule GridssAnnotateVariants:
         assembly="tmp/group.{group}.bam.gridss.working/group.{group}.bam",
     output:
         allocated="tmp/group.{group}.vcf.gridss.working/group.{group}.allocated.vcf",
+    log:
+        "log/gridss/annotate_variants/{group}.log"
     wildcard_constraints:
         group=group_constraint
     params:
@@ -415,7 +421,7 @@ WORKER_THREADS={threads} \
 ASSEMBLY={input.assembly} \
 INPUT_VCF={input.unallocated} \
 OUTPUT_VCF={output.allocated} \
-{params.picardoptions}
+{params.picardoptions} 2> {log}
         """
 
 rule GridssAnnotateUntemplatedSequence:
@@ -425,6 +431,8 @@ rule GridssAnnotateUntemplatedSequence:
         idx=rules.bwa_index.output,
     output:
         vcf="results/gridss_vcf/{group}.vcf"
+    log:
+        "log/gridss/annotate_untemplated_sequences/{group}.log"
     params:
         working_dir="tmp",
         picardoptions=""
@@ -432,8 +440,7 @@ rule GridssAnnotateUntemplatedSequence:
         "../envs/gridss.yaml"
     threads:
         100
-    shell:
-        """
+    shell: """
 gridss gridss.AnnotateUntemplatedSequence \
 -Dgridss.output_to_temp_file=true \
 -Xmx4g \
@@ -444,5 +451,5 @@ REFERENCE_SEQUENCE={input.ref} \
 WORKER_THREADS={threads} \
 INPUT={input.allocated} \
 OUTPUT={output.vcf} \
-{params.picardoptions}
+{params.picardoptions} 2> {log}
         """
