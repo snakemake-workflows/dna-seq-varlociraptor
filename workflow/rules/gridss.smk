@@ -23,14 +23,14 @@ rule GridssCollectMetrics:
     output:
         insert_size_metrics="tmp/{sample}.sorted.bam.gridss.working/tmp.{sample}.sorted.bam.insert_size_metrics",
         histogram="tmp/{sample}.sorted.bam.gridss.working/tmp.{sample}.sorted.bam.insert_size_histogram.pdf"
+    log:
+        "log/collect_gridss_metrics.{sample}.log"
     params:
         tmp_dir="tmp/{sample}.sorted.bam.gridss.working",
         prefix="tmp/{sample}.sorted.bam.gridss.working/tmp.{sample}.sorted.bam",
         maxcoverage=50000,
         metricsrecords=10000000,
         picardoptions=""
-    log:
-        "log/collect_gridss_metrics.{sample}.log"
     conda:
         "../envs/gridss.yaml"
     wildcard_constraints:
@@ -55,8 +55,6 @@ STOP_AFTER={params.metricsrecords} \
 #tmp/EPF-BUR-012-013.bam.gridss.working/tmp.EPF-BUR-012-013.bam.insert_size_metrics
 
 rule GridssCollectMetricsAndExtractSVReads:
-    threads:
-        50
     input:
         bam="results/recal/{sample}.sorted.bam",
         insert_size_metrics="tmp/{sample}.sorted.bam.gridss.working/tmp.{sample}.sorted.bam.insert_size_metrics",
@@ -73,6 +71,8 @@ rule GridssCollectMetricsAndExtractSVReads:
         "../envs/gridss.yaml"
     wildcard_constraints:
         sample=sample_constraint
+    threads:
+        50
     shell:
         """
 gridss gridss.CollectGridssMetricsAndExtractSVReads \
@@ -111,14 +111,14 @@ INCLUDE_DUPLICATES=true \
 
 
 rule GridssComputeSamTags:
-    threads:
-        3
     input:
         ref="results/refs/genome.fasta",
         idx=rules.bwa_index.output,
         namedsorted_bam="tmp/{sample}.sorted.bam.gridss.working/tmp.{sample}.sorted.bam.namedsorted.bam",
     output:
         coordinate_bam="tmp/{sample}.sorted.bam.gridss.working/tmp.{sample}.sorted.bam.coordinate.bam"
+    wildcard_constraints:
+        sample=sample_constrain
     params:
         working_dir="tmp",
         tmp_sort="tmp/{sample}.sorted.bam.gridss.working/{sample}.sorted.coordinate-tmp",
@@ -126,8 +126,8 @@ rule GridssComputeSamTags:
         picardoptions="",
     conda:
         "../envs/gridss.yaml"
-    wildcard_constraints:
-        sample=sample_constraint
+    threads:
+        3
     shell:
         """
 gridss gridss.ComputeSamTags \
@@ -164,8 +164,6 @@ ASSUME_SORTED=true \
 
 
 rule GridssSoftClipsToSplitReads:
-    threads:
-        100
     input:
         ref="results/refs/genome.fasta",
         idx=rules.bwa_index.output,
@@ -173,13 +171,15 @@ rule GridssSoftClipsToSplitReads:
     output:
         primary_sv="tmp/{sample}.sorted.bam.gridss.working/tmp.{sample}.sorted.bam.sc2sr.primary.sv.bam",
         supp_sv="tmp/{sample}.sorted.bam.gridss.working/tmp.{sample}.sorted.bam.sc2sr.supp.sv.bam",
+    wildcard_constraints:
+        sample=sample_constraint
     params:
         working_dir="tmp",
         picardoptions="",
     conda:
         "../envs/gridss.yaml"
-    wildcard_constraints:
-        sample=sample_constraint
+    threads:
+        100
     shell:
         """
 gridss gridss.SoftClipsToSplitReads \
@@ -199,8 +199,6 @@ WORKER_THREADS={threads} \
 
 
 rule GridssSortSv:
-    threads:
-        64
     input:
         supp_sv="{x}.sc2sr.supp.sv.bam"
     output:
@@ -209,13 +207,15 @@ rule GridssSortSv:
         tmp_sort="{x}.suppsorted.sv-tmp",
     conda:
         "../envs/gridss.yaml"
+    threads:
+        100
     shell:
         "samtools sort -m 100G -@ {threads} -T {params.tmp_sort} -Obam -o {output.supp_sv} {input.supp_sv}"
 
 
 rule GridssMergeSupported:
     threads:
-        64
+        100
     input:
         primary_sv="{p}/tmp.{x}.bam.sc2sr.primary.sv.bam",
         supp_sv="{p}/tmp.{x}.bam.sc2sr.suppsorted.sv.bam",
@@ -230,8 +230,6 @@ rule GridssMergeSupported:
 
 
 rule GridssAssembleBreakends:
-    threads:
-        64
     input:
         ref="results/refs/genome.fasta",
         idx=rules.bwa_index.output,
@@ -239,16 +237,18 @@ rule GridssAssembleBreakends:
         svs=lambda wildcards: expand("tmp/{sample}.sorted.bam.gridss.working/{sample}.sorted.bam.sv.{ending}", sample=get_group_samples(wildcards), ending=["bam", "bam.bai"])
     output:
         assembly="tmp/group.{group}.bam.gridss.working/group.{group}.bam"
-    conda:
-        "../envs/gridss.yaml"
+    wildcard_constraints:
+        group=group_constraint
     params:
         jobindex="0",
         jobnodes="1",
         working_dir="tmp",
         picardoptions="",
         input_args=lambda wildcards: " ".join(expand("INPUT=results/recal/{sample}.sorted.bam", sample=get_group_samples(wildcards)))
-    wildcard_constraints:
-        group=group_constraint
+    conda:
+        "../envs/gridss.yaml"
+    threads:
+        100
     shell:
         """
 gridss gridss.AssembleBreakends \
@@ -274,6 +274,8 @@ rule GridssCollectMetricsGroup:
         idsv_metrics="tmp/group.{group}.bam.gridss.working/group.{group}.bam.idsv_metrics",
         mapq_metrics="tmp/group.{group}.bam.gridss.working/group.{group}.bam.mapq_metrics",
         tag_metrics="tmp/group.{group}.bam.gridss.working/group.{group}.bam.tag_metrics",
+    wildcard_constraints:
+        group=group_constraint
     params:
         prefix="tmp/group.{group}.bam.gridss.working/group.{group}.bam",
         working_dir="tmp/group.{group}.bam.gridss.working",
@@ -281,8 +283,6 @@ rule GridssCollectMetricsGroup:
         picardoptions="",
     conda:
         "../envs/gridss.yaml"
-    wildcard_constraints:
-        group=group_constraint
     shell:
         """
 gridss gridss.analysis.CollectGridssMetrics \
@@ -305,8 +305,6 @@ PROGRAM=CollectAlignmentSummaryMetrics \
 
 
 rule GridssSoftClipsToSplitReadsAssembly:
-    threads:
-        64
     input:
         ref="results/refs/genome.fasta",
         idx=rules.bwa_index.output,
@@ -317,13 +315,15 @@ rule GridssSoftClipsToSplitReadsAssembly:
     output:
         assembly_primary_sv="tmp/group.{group}.bam.gridss.working/tmp.group.{group}.bam.sc2sr.primary.sv.bam",
         assembly_supp_sv="tmp/group.{group}.bam.gridss.working/tmp.group.{group}.bam.sc2sr.supp.sv.bam",
+    wildcard_constraints:
+        group=group_constraint
     params:
         working_dir="tmp",
         picardoptions="",
     conda:
         "../envs/gridss.yaml"
-    wildcard_constraints:
-        group=group_constraint
+    threads:
+        100
     shell:
         """
 gridss gridss.SoftClipsToSplitReads \
@@ -345,8 +345,6 @@ REALIGN_ENTIRE_READ=true \
 
 
 rule GridssIdentifyVariants:
-    threads:
-        64
     input:
         bams=lambda wildcards: expand("results/recal/{sample}.sorted.bam", sample=get_group_samples(wildcards)),
         assembly_sv="tmp/group.{group}.bam.gridss.working/group.{group}.bam.sv.bam",
@@ -356,14 +354,16 @@ rule GridssIdentifyVariants:
         idx=rules.bwa_index.output,
     output:
         unallocated="tmp/group.{group}.vcf.gridss.working/group.{group}.unallocated.vcf"
+    wildcard_constraints:
+        group=group_constraint
     params:
         input_args=lambda wildcards: " ".join(expand("INPUT=results/recal/{sample}.sorted.bam", sample=get_group_samples(wildcards))),
         working_dir="tmp",
         picardoptions=""
     conda:
         "../envs/gridss.yaml"
-    wildcard_constraints:
-        group=group_constraint
+    threads:
+        100
     shell:
         """
 gridss gridss.IdentifyVariants \
@@ -380,8 +380,6 @@ OUTPUT_VCF={output.unallocated} \
         """
 
 rule GridssAnnotateVariants:
-    threads:
-        7
     input:
         bams=lambda wildcards: expand("results/recal/{sample}.sorted.bam", sample=get_group_samples(wildcards)),
         assembly_sv="tmp/group.{group}.bam.gridss.working/group.{group}.bam.sv.bam",
@@ -392,14 +390,16 @@ rule GridssAnnotateVariants:
         assembly="tmp/group.{group}.bam.gridss.working/group.{group}.bam",
     output:
         allocated="tmp/group.{group}.vcf.gridss.working/group.{group}.allocated.vcf",
+    wildcard_constraints:
+        group=group_constraint
     params:
         input_args=lambda wildcards: " ".join(expand("INPUT=results/recal/{sample}.sorted.bam", sample=get_group_samples(wildcards))),
         working_dir="tmp",
         picardoptions=""
     conda:
         "../envs/gridss.yaml"
-    wildcard_constraints:
-        group=group_constraint
+    threads:
+        7
     shell:        """
 gridss gridss.AnnotateVariants \
 -Dgridss.output_to_temp_file=true \
