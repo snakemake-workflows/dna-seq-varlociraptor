@@ -76,6 +76,7 @@ if is_activated("annotations/dbnsfp"):
             "logs/extract-dbnsfp.log"
         conda:
             "../envs/htslib.yaml"
+        cache: True
         shell:
             """
             (unzip -p {input} "*_variant.chr1.gz" | zcat |

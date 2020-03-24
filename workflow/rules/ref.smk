@@ -8,6 +8,7 @@ rule get_genome:
         datatype="dna",
         build=config["ref"]["build"],
         release=config["ref"]["release"]
+    cache: True
     wrapper:
         "0.45.1/bio/reference/ensembl-sequence"
 
@@ -19,6 +20,7 @@ rule genome_faidx:
         "results/refs/genome.fasta.fai"
     log:
         "logs/genome-faidx.log"
+    cache: True
     wrapper:
         "0.45.1/bio/samtools/faidx"
 
@@ -30,6 +32,7 @@ rule genome_dict:
         "results/refs/genome.dict"
     log:
         "logs/picard/create_dict.log"
+    cache: True
     wrapper:
         "0.45.1/bio/picard/createsequencedictionary"
 
@@ -46,6 +49,7 @@ rule get_known_variants:
         species=config["ref"]["species"],
         release=config["ref"]["release"],
         type="all"
+    cache: True
     wrapper:
         "0.45.1/bio/reference/ensembl-variation"
 
@@ -59,6 +63,7 @@ rule remove_iupac_codes:
         "logs/fix-iupac-alleles.log"
     conda:
         "../envs/rbt.yaml"
+    cache: True
     shell:
         "rbt vcf-fix-iupac-alleles < {input} | bcftools view -Oz > {output}"
 
@@ -72,6 +77,7 @@ rule tabix_known_variants:
         "logs/tabix/{prefix}.log"
     params:
         "-p vcf"
+    cache: True
     wrapper:
         "0.45.1/bio/tabix"
 
@@ -85,5 +91,6 @@ rule bwa_index:
         "logs/bwa_index.log"
     resources:
         mem_mb=369000
+    cache: True
     wrapper:
         "0.45.1/bio/bwa/index"
