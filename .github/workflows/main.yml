@@ -15,13 +15,13 @@ jobs:
     - name: Checkout submodules
       uses: textbook/git-checkout-submodule-action@2.0.0
     - name: Test workflow (local FASTQs)
-      uses: snakemake/snakemake-github-action@master
+      uses: snakemake/snakemake-github-action@v1
       with:
         directory: .test
         snakefile: workflow/Snakefile
         args: "--use-conda --show-failed-logs -j 10"
     - name: Test workflow (SRA FASTQs)
-      uses: snakemake/snakemake-github-action@master
+      uses: snakemake/snakemake-github-action@v1
       with:
         directory: .test
         snakefile: workflow/Snakefile
