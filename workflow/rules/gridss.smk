@@ -36,7 +36,7 @@ rule GridssCollectMetrics:
     wildcard_constraints:
         sample=sample_constraint
     shell: """
-gridss gridss.analysis.CollectGridssMetrics \
+(gridss gridss.analysis.CollectGridssMetrics \
 {jvm_args} \
 TMP_DIR={params.tmp_dir} \
 ASSUME_SORTED=true \
@@ -48,7 +48,7 @@ GRIDSS_PROGRAM=null \
 PROGRAM=null \
 PROGRAM=CollectInsertSizeMetrics \
 STOP_AFTER={params.metricsrecords} \
-{params.picardoptions} 2> {log}
+{params.picardoptions}) > {log} 2>&1
         """
 
 #tmp/EPF-BUR-012-013.bam.gridss.working/tmp.EPF-BUR-012-013.bam.insert_size_metrics
@@ -75,7 +75,7 @@ rule GridssCollectMetricsAndExtractSVReads:
     threads:
         50
     shell: """
-gridss gridss.CollectGridssMetricsAndExtractSVReads \
+(gridss gridss.CollectGridssMetricsAndExtractSVReads \
 {jvm_args} \
 TMP_DIR={params.dir} \
 ASSUME_SORTED=true \
@@ -106,7 +106,7 @@ INCLUDE_DUPLICATES=true \
 -Obam \
 -o {output.namedsorted_bam} \
 -@ {threads} \
-/dev/stdin 2> {log}
+/dev/stdin) > {log} 2>&1
         """
 
 
@@ -131,7 +131,7 @@ rule GridssComputeSamTags:
     threads:
         3
     shell: """
-gridss gridss.ComputeSamTags \
+(gridss gridss.ComputeSamTags \
 {jvm_args} \
 TMP_DIR={params.dir} \
 WORKING_DIR="{params.working_dir}" \
@@ -160,7 +160,7 @@ ASSUME_SORTED=true \
 -Obam \
 -o {output.coordinate_bam} \
 -@ {threads} \
-/dev/stdin 2> {log}
+/dev/stdin) > {log} 2>&1
         """
 
 
@@ -184,7 +184,7 @@ rule GridssSoftClipsToSplitReads:
     threads:
         100
     shell: """
-gridss gridss.SoftClipsToSplitReads \
+(gridss gridss.SoftClipsToSplitReads \
 {jvm_args} \
 -Xmx20G \
 -Dsamjdk.create_index=false \
@@ -196,7 +196,7 @@ I={input.coordinate_bam} \
 O={output.primary_sv} \
 OUTPUT_UNORDERED_RECORDS={output.supp_sv} \
 WORKER_THREADS={threads} \
-{params.picardoptions} 2> {log}
+{params.picardoptions}) > {log} 2>&1
         """
 
 
@@ -254,7 +254,7 @@ rule GridssAssembleBreakends:
     threads:
         100
     shell: """
-gridss gridss.AssembleBreakends \
+(gridss gridss.AssembleBreakends \
 -Dgridss.gridss.output_to_temp_file=true \
 {jvm_args} \
 -Xmx100g \
@@ -266,7 +266,7 @@ REFERENCE_SEQUENCE={input.ref} \
 WORKER_THREADS={threads} \
 O={output.assembly} \
 {params.input_args} \
-{params.picardoptions} 2> {log}
+{params.picardoptions}) > {log} 2>&1
         """
 
 
@@ -289,7 +289,7 @@ rule GridssCollectMetricsGroup:
     conda:
         "../envs/gridss.yaml"
     shell: """
-gridss gridss.analysis.CollectGridssMetrics \
+(gridss gridss.analysis.CollectGridssMetrics \
 {jvm_args} \
 I={input.assembly} \
 O={params.prefix} \
@@ -304,7 +304,7 @@ GRIDSS_PROGRAM=CollectIdsvMetrics \
 GRIDSS_PROGRAM=ReportThresholdCoverage \
 PROGRAM=null \
 PROGRAM=CollectAlignmentSummaryMetrics \
-{params.picardoptions} 2> {log}
+{params.picardoptions}) > {log} 2>&1
         """
 
 
@@ -331,7 +331,7 @@ rule GridssSoftClipsToSplitReadsAssembly:
     threads:
         100
     shell: """
-gridss gridss.SoftClipsToSplitReads \
+(gridss gridss.SoftClipsToSplitReads \
 {jvm_args} \
 -Xmx50G \
 -Dgridss.async.buffersize=16 \
@@ -345,7 +345,7 @@ I={input.assembly} \
 O={output.assembly_primary_sv} \
 OUTPUT_UNORDERED_RECORDS={output.assembly_supp_sv} \
 REALIGN_ENTIRE_READ=true \
-{params.picardoptions} >2 {log}
+{params.picardoptions}) > {log} 2>&1
         """
 
 
@@ -372,7 +372,7 @@ rule GridssIdentifyVariants:
     threads:
         100
     shell: """
-gridss gridss.IdentifyVariants \
+(gridss gridss.IdentifyVariants \
 -Dgridss.output_to_temp_file=true \
 {jvm_args} \
 -Xmx50g \
@@ -382,7 +382,7 @@ REFERENCE_SEQUENCE={input.ref} \
 WORKER_THREADS={threads} \
 {params.input_args} \
 ASSEMBLY={input.assembly} \
-OUTPUT_VCF={output.unallocated} 2> {log}
+OUTPUT_VCF={output.unallocated}) > {log} 2>&1
         """
 
 rule GridssAnnotateVariants:
@@ -409,7 +409,7 @@ rule GridssAnnotateVariants:
     threads:
         7
     shell:        """
-gridss gridss.AnnotateVariants \
+(gridss gridss.AnnotateVariants \
 -Dgridss.output_to_temp_file=true \
 {jvm_args} \
 -Xmx50g \
@@ -421,7 +421,7 @@ WORKER_THREADS={threads} \
 ASSEMBLY={input.assembly} \
 INPUT_VCF={input.unallocated} \
 OUTPUT_VCF={output.allocated} \
-{params.picardoptions} 2> {log}
+{params.picardoptions}) > {log} 2>&1
         """
 
 rule GridssAnnotateUntemplatedSequence:
@@ -441,7 +441,7 @@ rule GridssAnnotateUntemplatedSequence:
     threads:
         100
     shell: """
-gridss gridss.AnnotateUntemplatedSequence \
+(gridss gridss.AnnotateUntemplatedSequence \
 -Dgridss.output_to_temp_file=true \
 -Xmx4g \
 {jvm_args} \
@@ -451,5 +451,5 @@ REFERENCE_SEQUENCE={input.ref} \
 WORKER_THREADS={threads} \
 INPUT={input.allocated} \
 OUTPUT={output.vcf} \
-{params.picardoptions} 2> {log}
+{params.picardoptions}) > {log} 2>&1
         """
