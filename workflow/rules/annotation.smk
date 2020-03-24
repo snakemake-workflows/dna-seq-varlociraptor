@@ -14,23 +14,6 @@ rule snpeff:
         "0.50.4/bio/snpeff"
 
 
-annotations = [(e, os.path.join("results", f)) for e, f in config["annotations"]["vcfs"].items() if e != "activate"]
-
-def get_annotation_pipes(wildcards, input):
-     if annotations:
-         return "| " + " | ".join(
-             ["SnpSift annotate -name {prefix}_ {path} /dev/stdin".format(prefix=prefix, path=path)
-              for (prefix, _), path in zip(annotations, input.annotations)]
-         )
-     else:
-         return ""
-
-
-def get_annotation_vcfs(idx=False):
-    fmt = lambda f: f if not idx else f + ".tbi"
-    return [fmt(f) for _, f in annotations]
-
-
 # TODO What about multiple ID Fields?
 rule annotate_vcfs:
     threads:

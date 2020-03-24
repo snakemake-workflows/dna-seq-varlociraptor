@@ -1,10 +1,3 @@
-def get_oncoprint_batch(wildcards):
-    if wildcards.batch == "all":
-        groups = samples["group"].unique()
-    else:
-        groups = samples.loc[samples[config["oncoprint"]["stratify"]["by-column"]] == wildcards.batch, "group"].unique()
-    return expand("results/merged-calls/{group}.{{event}}.fdr-controlled.bcf", group=groups)
-
 rule build_oncoprint_table:
     input:
         bcf=get_oncoprint_batch

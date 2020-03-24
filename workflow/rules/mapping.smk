@@ -1,6 +1,6 @@
 rule map_reads:
     input:
-        reads=get_merged,
+        reads=get_map_reads_input,
         idx=rules.bwa_index.output
     output:
         temp("results/mapped/{sample}.sorted.bam")

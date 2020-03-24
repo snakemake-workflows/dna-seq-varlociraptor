@@ -1,5 +1,3 @@
-import glob
-
 rule get_sra:
     output:
         "sra/{accession}_1.fastq",
@@ -10,35 +8,9 @@ rule get_sra:
         "0.49.0/bio/sra-tools/fasterq-dump"
 
 
-def get_raw_fastq(wildcards):
-    unit = units.loc[wildcards.sample].loc[wildcards.unit]
-    if unit["fq1"].endswith("gz"):
-        ending = ".gz"
-    else:
-        ending = ""
-
-    if pd.isna(unit["fq1"]):
-        # SRA sample (always paired-end for now)
-        accession = unit["sra"]
-        return expand("sra/{accession}_{read}.fastq", accession=accession, read=[1, 2])
-    if pd.isna(unit["fq2"]):
-        # single end local sample
-        return "pipe/cutadapt/{S}-{U}.fq1.fastq{E}".format(S=unit.sample_name, U=unit.unit_name, E=ending)
-    else:
-        # paired end local sample
-        return expand("pipe/cutadapt/{S}-{U}.{{read}}.fastq{E}".format(S=unit.sample_name, U=unit.unit_name, E=ending), read=["fq1","fq2"])
-
-
-def cutadapt_pipe_input(wildcards):
-    files = list(sorted(glob.glob(units.loc[wildcards.sample].loc[wildcards.unit, wildcards.fq])))
-    #print(wc, units.loc[wc.sample].loc[wc.unit, wc.fq])
-    assert(len(files) > 0)
-    return files
-
-
 rule cutadapt_pipe:
     input:
-        cutadapt_pipe_input
+        get_cutadapt_pipe_input
     output:
         pipe('pipe/cutadapt/{sample}-{unit}.{fq}.{ext}')
     log:
@@ -52,7 +24,7 @@ rule cutadapt_pipe:
 
 rule cutadapt_pe:
     input:
-        get_raw_fastq
+        get_cutadapt_input
     output:
         fastq1="results/trimmed/{sample}-{unit}.1.fastq.gz",
         fastq2="results/trimmed/{sample}-{unit}.2.fastq.gz",
@@ -68,7 +40,7 @@ rule cutadapt_pe:
 
 rule cutadapt_se:
     input:
-        get_raw_fastq
+        get_cutadapt_input
     output:
         fastq="results/trimmed/{sample}-{unit}.single.fastq.gz",
         qc="results/trimmed/{sample}-{unit}.single.qc.txt"

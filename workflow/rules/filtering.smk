@@ -30,19 +30,10 @@ rule control_fdr:
         "--events {params.events} --fdr {params.threshold} > {output}"
 
 
-def get_merge_input(ext=".bcf"):
-    def inner(wildcards):
-        return expand("results/calls/{{group}}.{vartype}.{{event}}.{filter}.fdr-controlled{ext}",
-                      ext=ext,
-                      vartype=["SNV", "INS", "DEL", "MNV"],
-                      filter=config["calling"]["fdr-control"]["events"][wildcards.event]["filter"])
-    return inner
-
-
 rule merge_calls:
     input:
-        calls=get_merge_input(".bcf"),
-        idx=get_merge_input(".bcf.csi")
+        calls=get_merge_calls_input(".bcf"),
+        idx=get_merge_calls_input(".bcf.csi")
     output:
         "results/merged-calls/{group}.{event}.fdr-controlled.bcf"
     log:

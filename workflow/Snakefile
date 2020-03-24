@@ -1,12 +1,11 @@
-# The main entry point of your workflow.
-# After configuring, running snakemake -n in a clone of this repository should successfully execute a dry-run of the workflow.
-
+from snakemake.utils import min_version
+min_version("5.12.0")
 
 configfile: "config/config.yaml"
 report: "report/workflow.rst"
 
 # Allow users to fix the underlying OS via singularity.
-singularity: "docker://continuumio/miniconda3"
+container: "docker://continuumio/miniconda3"
 
 include: "rules/common.smk"
 include: "rules/ref.smk"
