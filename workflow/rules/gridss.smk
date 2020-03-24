@@ -235,8 +235,8 @@ rule GridssAssembleBreakends:
     input:
         ref="results/refs/genome.fasta",
         idx=rules.bwa_index.output,
-        bams=lambda wc: expand("results/recal/{sample}.sorted.{ending}", sample=get_group_samples(wc), ending=["bam", "bam.bai"]),
-        svs=lambda wc: expand("tmp/{sample}.sorted.bam.gridss.working/{sample}.sorted.bam.sv.{ending}", sample=get_group_samples(wc), ending=["bam", "bam.bai"])
+        bams=lambda wildcards: expand("results/recal/{sample}.sorted.{ending}", sample=get_group_samples(wildcards), ending=["bam", "bam.bai"]),
+        svs=lambda wildcards: expand("tmp/{sample}.sorted.bam.gridss.working/{sample}.sorted.bam.sv.{ending}", sample=get_group_samples(wildcards), ending=["bam", "bam.bai"])
     output:
         assembly="tmp/group.{group}.bam.gridss.working/group.{group}.bam"
     conda:
@@ -246,7 +246,7 @@ rule GridssAssembleBreakends:
         jobnodes="1",
         working_dir="tmp",
         picardoptions="",
-        input_args=lambda wc: " ".join(expand("INPUT=results/recal/{sample}.sorted.bam", sample=get_group_samples(wc)))
+        input_args=lambda wildcards: " ".join(expand("INPUT=results/recal/{sample}.sorted.bam", sample=get_group_samples(wildcards)))
     wildcard_constraints:
         group=group_constraint
     shell:
@@ -348,7 +348,7 @@ rule GridssIdentifyVariants:
     threads:
         64
     input:
-        bams=lambda wc: expand("results/recal/{sample}.sorted.bam", sample=get_group_samples(wc)),
+        bams=lambda wildcards: expand("results/recal/{sample}.sorted.bam", sample=get_group_samples(wildcards)),
         assembly_sv="tmp/group.{group}.bam.gridss.working/group.{group}.bam.sv.bam",
         assembly_sv_index="tmp/group.{group}.bam.gridss.working/group.{group}.bam.sv.bam.bai",
         assembly="tmp/group.{group}.bam.gridss.working/group.{group}.bam",
@@ -357,7 +357,7 @@ rule GridssIdentifyVariants:
     output:
         unallocated="tmp/group.{group}.vcf.gridss.working/group.{group}.unallocated.vcf"
     params:
-        input_args=lambda wc: " ".join(expand("INPUT=results/recal/{sample}.sorted.bam", sample=get_group_samples(wc))),
+        input_args=lambda wildcards: " ".join(expand("INPUT=results/recal/{sample}.sorted.bam", sample=get_group_samples(wildcards))),
         working_dir="tmp",
         picardoptions=""
     conda:
@@ -383,7 +383,7 @@ rule GridssAnnotateVariants:
     threads:
         7
     input:
-        bams=lambda wc: expand("results/recal/{sample}.sorted.bam", sample=get_group_samples(wc)),
+        bams=lambda wildcards: expand("results/recal/{sample}.sorted.bam", sample=get_group_samples(wildcards)),
         assembly_sv="tmp/group.{group}.bam.gridss.working/group.{group}.bam.sv.bam",
         assembly_sv_index="tmp/group.{group}.bam.gridss.working/group.{group}.bam.sv.bam.bai",
         unallocated="tmp/group.{group}.vcf.gridss.working/group.{group}.unallocated.vcf",
@@ -393,7 +393,7 @@ rule GridssAnnotateVariants:
     output:
         allocated="tmp/group.{group}.vcf.gridss.working/group.{group}.allocated.vcf",
     params:
-        input_args=lambda wc: " ".join(expand("INPUT=results/recal/{sample}.sorted.bam", sample=get_group_samples(wc))),
+        input_args=lambda wildcards: " ".join(expand("INPUT=results/recal/{sample}.sorted.bam", sample=get_group_samples(wildcards))),
         working_dir="tmp",
         picardoptions=""
     conda:
