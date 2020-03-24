@@ -11,8 +11,8 @@ rule bcf_index:
 
 rule bam_index:
     input:
-        "{prefix}.sorted.bam"
+        "{prefix}.bam"
     output:
-        "{prefix}.sorted.bam.bai"
+        "{prefix}.bam.bai"
     wrapper:
         "0.39.0/bio/samtools/index"

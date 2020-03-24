@@ -1,0 +1,12 @@
+channels:
+  - conda-forge
+  - bioconda
+  - r
+dependencies:
+  - samtools=1.1.0
+  - ldc=1.13
+  - sambamba=0.7.1
+  - openjdk=11.0.1
+  - r=3.6.0
+  - bwa=0.7.17
+  - gridss=2.8

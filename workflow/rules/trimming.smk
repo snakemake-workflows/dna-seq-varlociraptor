@@ -42,7 +42,7 @@ rule cutadapt_pipe:
     output:
         pipe('pipe/cutadapt/{sample}-{unit}.{fq}.{ending}')
     wildcard_constraints:
-        dataset="fastq|fastq.gz"
+        ending="fastq|fastq.gz"
     threads: 0
     shell:
         "cat {input} > {output}"
