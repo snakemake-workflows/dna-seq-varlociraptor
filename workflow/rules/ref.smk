@@ -1,6 +1,6 @@
 rule get_genome:
     output:
-        "results/refs/genome.fasta"
+        "resources/genome.fasta"
     log:
         "logs/get-genome.log"
     params:
@@ -15,9 +15,9 @@ rule get_genome:
 
 rule genome_faidx:
     input:
-        "results/refs/genome.fasta"
+        "resources/genome.fasta"
     output:
-        "results/refs/genome.fasta.fai"
+        "resources/genome.fasta.fai"
     log:
         "logs/genome-faidx.log"
     cache: True
@@ -27,9 +27,9 @@ rule genome_faidx:
 
 rule genome_dict:
     input:
-        "results/refs/genome.fasta"
+        "resources/genome.fasta"
     output:
-        "results/refs/genome.dict"
+        "resources/genome.dict"
     log:
         "logs/picard/create_dict.log"
     cache: True
@@ -40,9 +40,9 @@ rule genome_dict:
 rule get_known_variants:
     input:
         # use fai to annotate contig lengths for GATK BQSR
-        fai="results/refs/genome.fasta.fai"
+        fai="resources/genome.fasta.fai"
     output:
-        vcf="results/refs/variation.vcf.gz"
+        vcf="resources/variation.vcf.gz"
     log:
         "logs/get-known-variants.log"
     params:
@@ -56,9 +56,9 @@ rule get_known_variants:
 
 rule remove_iupac_codes:
     input:
-        "results/refs/variation.vcf.gz"
+        "resources/variation.vcf.gz"
     output:
-        "results/refs/variation.noiupac.vcf.gz"
+        "resources/variation.noiupac.vcf.gz"
     log:
         "logs/fix-iupac-alleles.log"
     conda:
@@ -70,9 +70,9 @@ rule remove_iupac_codes:
 
 rule tabix_known_variants:
     input:
-        "results/refs/{prefix}.vcf.gz"
+        "resources/{prefix}.vcf.gz"
     output:
-        "results/refs/{prefix}.vcf.gz.tbi"
+        "resources/{prefix}.vcf.gz.tbi"
     log:
         "logs/tabix/{prefix}.log"
     params:
@@ -84,9 +84,9 @@ rule tabix_known_variants:
 
 rule bwa_index:
     input:
-        "results/refs/genome.fasta"
+        "resources/genome.fasta"
     output:
-        multiext("results/refs/genome.fasta", ".amb", ".ann", ".bwt", ".pac", ".sa")
+        multiext("resources/genome.fasta", ".amb", ".ann", ".bwt", ".pac", ".sa")
     log:
         "logs/bwa_index.log"
     resources:

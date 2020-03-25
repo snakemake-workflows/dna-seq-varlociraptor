@@ -1,8 +1,8 @@
 rule igv_report:
     input:
         bcf="results/merged-calls/{group}.{event}.fdr-controlled.bcf",
-        ref="results/refs/genome.fasta",
-        ref_idx="results/refs/genome.fasta.fai",
+        ref="resources/genome.fasta",
+        ref_idx="resources/genome.fasta.fai",
         bams=get_group_bams,
         bais=get_group_bais
     output:

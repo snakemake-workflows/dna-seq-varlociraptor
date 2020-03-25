@@ -94,7 +94,7 @@ annotations:
   vcfs:
     activate: true
     # annotate with known variants from ensembl
-    known: refs/variation.vcf.gz
+    known: resources/variation.vcf.gz
     # add more external VCFs as needed
     # cosmic: path/to/cosmic.vcf.gz
   dgidb:

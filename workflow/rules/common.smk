@@ -155,7 +155,7 @@ caller=list(filter(None, ["freebayes" if is_activated("calling/freebayes") else 
 
 ###### Annotations ########
 
-annotations = [(e, os.path.join("results", f)) for e, f in config["annotations"]["vcfs"].items() if e != "activate"]
+annotations = [(e, f) for e, f in config["annotations"]["vcfs"].items() if e != "activate"]
 
 def get_annotation_pipes(wildcards, input):
      if annotations:

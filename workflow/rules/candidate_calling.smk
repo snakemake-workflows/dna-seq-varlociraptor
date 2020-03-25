@@ -1,7 +1,7 @@
 rule freebayes:
     input:
-        ref="results/refs/genome.fasta",
-        ref_idx="results/refs/genome.fasta.fai",
+        ref="resources/genome.fasta",
+        ref_idx="resources/genome.fasta.fai",
         # you can have a list of samples here
         samples=get_group_bams
     output:
@@ -18,8 +18,8 @@ rule freebayes:
 
 rule delly:
     input:
-        ref="results/refs/genome.fasta",
-        ref_idx="results/refs/genome.fasta.fai",
+        ref="resources/genome.fasta",
+        ref_idx="resources/genome.fasta.fai",
         samples=get_group_bams,
         index=get_group_bais,
     output:

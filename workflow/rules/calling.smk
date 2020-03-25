@@ -14,8 +14,8 @@ rule render_scenario:
 
 rule varlociraptor_preprocess:
     input:
-        ref="results/refs/genome.fasta",
-        ref_idx="results/refs/genome.fasta.fai",
+        ref="resources/genome.fasta",
+        ref_idx="resources/genome.fasta.fai",
         candidates="results/candidate-calls/{group}.{caller}.bcf",
         bam="results/recal/{sample}.sorted.bam",
         bai="results/recal/{sample}.sorted.bam.bai"

@@ -1,6 +1,6 @@
 rule download_snpeff_db:
     output:
-        directory("results/refs/snpeff/{ref}")
+        directory("resources/snpeff/{ref}")
     params:
         db_dir=lambda _, output: Path(output[0]).parent.resolve()
     cache: True
@@ -12,7 +12,7 @@ rule download_snpeff_db:
 rule snpeff:
     input:
         calls="results/calls/{group}.bcf",
-        db="results/refs/snpeff/{build}.{snpeff_release}".format(**config["ref"])
+        db="resources/snpeff/{build}.{snpeff_release}".format(**config["ref"])
     output:
         calls="results/calls/{group}.annotated.bcf",
         stats="results/snpeff/{group}.html",
