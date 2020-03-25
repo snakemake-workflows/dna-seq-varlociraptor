@@ -19,7 +19,7 @@ rule cutadapt_pipe:
         ext=r"fastq|fastq\.gz"
     threads: 0 # this does not need CPU
     shell:
-        "cat {input} > {output}"
+        "cat {input} > {output} 2> {log}"
 
 
 rule cutadapt_pe:
@@ -63,4 +63,4 @@ rule merge_fastqs:
     wildcard_constraints:
         read="single|1|2"
     shell:
-        "cat {input} > {output}"
+        "cat {input} > {output} 2> {log}"

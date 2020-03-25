@@ -1,13 +1,15 @@
 rule download_snpeff_db:
     output:
         directory("resources/snpeff/{ref}")
+    log:
+        "logs/download-snpeff-db/{ref}.log"
     params:
         db_dir=lambda _, output: Path(output[0]).parent.resolve()
-    cache: True
     conda:
         "../envs/snpeff.yaml"
+    cache: True
     shell:
-        "snpEff download -dataDir {params.db_dir} {wildcards.ref}"
+        "snpEff download -dataDir {params.db_dir} {wildcards.ref} 2> {log}"
 
 rule snpeff:
     input:
@@ -46,7 +48,7 @@ rule annotate_vcfs:
     conda:
         "../envs/snpsift.yaml"
     shell:
-        "bcftools view --threads {threads} {input.bcf} {params.pipes} | bcftools view --threads {threads} -Ob > {output}"
+        "(bcftools view --threads {threads} {input.bcf} {params.pipes} | bcftools view --threads {threads} -Ob > {output}) 2> {log}"
 
 
 rule annotate_dgidb:
@@ -63,7 +65,7 @@ rule annotate_dgidb:
     resources:
         dgidb_requests=1
     shell:
-        "rbt vcf-annotate-dgidb {input} > {output}"
+        "rbt vcf-annotate-dgidb {input} > {output} 2> {log}"
 
 
 if is_activated("annotations/dbnsfp"):
@@ -76,7 +78,7 @@ if is_activated("annotations/dbnsfp"):
         params:
             zip = config["annotations"]["dbnsfp"]["url"]
         shell:
-            "wget {params.zip} -O {output}"
+            "wget {params.zip} -O {output} 2> {log}"
 
 
     rule extract_dbnsfp:
@@ -93,9 +95,9 @@ if is_activated("annotations/dbnsfp"):
         cache: True
         shell:
             """
-            (unzip -p {input} "*_variant.chr1.gz" | zcat |
+            ((unzip -p {input} "*_variant.chr1.gz" | zcat |
             head -n 1 ; unzip -p {input} "*_variant.chr*" |
-            zcat | grep -v '^#' ) | bgzip -l9 -@ {threads} > {output}
+            zcat | grep -v '^#' ) | bgzip -l9 -@ {threads} > {output}) 2> {log}
             """
     
     rule annotate_dbnsfp:
@@ -115,8 +117,8 @@ if is_activated("annotations/dbnsfp"):
         conda:
             "../envs/snpsift.yaml"
         shell:
-            "bcftools view --threads {threads} {input.bcf} | SnpSift dbnsfp -db {input.db} -f {params.fields} {params.extra} /dev/stdin | "
-            "sed 's/\\(^##INFO=<ID=dbNSFP_\\w*,Number=\\)A/\\1./g' | bcftools view -Ob --threads {threads} > {output}"
+            "(bcftools view --threads {threads} {input.bcf} | SnpSift dbnsfp -db {input.db} -f {params.fields} {params.extra} /dev/stdin | "
+            "sed 's/\\(^##INFO=<ID=dbNSFP_\\w*,Number=\\)A/\\1./g' | bcftools view -Ob --threads {threads} > {output}) 2> {log}"
 
 
     rule create_dbnsfp_tabix_index:
@@ -129,4 +131,4 @@ if is_activated("annotations/dbnsfp"):
         conda:
             "../envs/htslib.yaml"
         shell:
-            "tabix -s 1 -b 2 -e 2 {input}"
+            "tabix -s 1 -b 2 -e 2 {input} 2> {log}"

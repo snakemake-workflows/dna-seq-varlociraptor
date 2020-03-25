@@ -10,7 +10,7 @@ rule filter_by_annotation:
     conda:
         "../envs/snpsift.yaml"
     shell:
-        "bcftools view {input} | SnpSift filter \"{params.filter}\" | bcftools view -Ob > {output}"
+        "(bcftools view {input} | SnpSift filter \"{params.filter}\" | bcftools view -Ob > {output}) 2> {log}"
 
 
 rule control_fdr:
@@ -27,7 +27,7 @@ rule control_fdr:
         "../envs/varlociraptor.yaml"
     shell:
         "varlociraptor filter-calls control-fdr {input} --var {wildcards.vartype} "
-        "--events {params.events} --fdr {params.threshold} > {output}"
+        "--events {params.events} --fdr {params.threshold} > {output} 2> {log}"
 
 
 rule merge_calls:

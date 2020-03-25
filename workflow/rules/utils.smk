@@ -8,7 +8,7 @@ rule bcf_index:
     conda:
         "../envs/bcftools.yaml"
     shell:
-        "bcftools index {input}"
+        "bcftools index {input} 2> {log}"
 
 
 rule bam_index:

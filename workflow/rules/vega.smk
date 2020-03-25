@@ -8,4 +8,4 @@ rule vg2svg:
     conda:
         "../envs/vega.yaml"
     shell:
-        "vl2svg {input} {output}"
+        "vl2svg {input} {output} 2> {log}"

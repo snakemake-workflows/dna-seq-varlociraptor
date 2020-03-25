@@ -15,4 +15,4 @@ if config["tmb"]["activate"]:
             "--coding-genome-size {params.coding_genome_size} "
             "--somatic-tumor-events {params.somatic_events} "
             "--tumor-sample {params.tumor_sample} "
-            "< {input} > {output}"
+            "< {input} > {output} 2> {log}"
