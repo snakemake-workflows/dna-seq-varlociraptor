@@ -1,6 +1,6 @@
 rule map_reads:
     input:
-        reads=get_merged,
+        reads=get_map_reads_input,
         idx=rules.bwa_index.output
     output:
         temp("results/mapped/{sample}.sorted.bam")
@@ -34,16 +34,16 @@ rule recalibrate_base_qualities:
     input:
         bam="results/dedup/{sample}.sorted.bam",
         bai="results/dedup/{sample}.sorted.bam.bai",
-        ref="results/refs/genome.fasta",
-        ref_dict="results/refs/genome.dict",
-        ref_fai="results/refs/genome.fasta.fai",
-        known="results/refs/variation.noiupac.vcf.gz",
-        tbi="results/refs/variation.noiupac.vcf.gz.tbi",
+        ref="resources/genome.fasta",
+        ref_dict="resources/genome.dict",
+        ref_fai="resources/genome.fasta.fai",
+        known="resources/variation.noiupac.vcf.gz",
+        tbi="resources/variation.noiupac.vcf.gz.tbi",
+    log:
+        "logs/gatk/bqsr/{sample}.log"
     output:
         bam=protected("results/recal/{sample}.sorted.bam")
     params:
         extra=config["params"]["gatk"]["BaseRecalibrator"]
-    log:
-        "logs/gatk/bqsr/{sample}.log"
     wrapper:
         "0.47.0/bio/gatk/baserecalibrator"

@@ -3,12 +3,14 @@ rule filter_by_annotation:
         get_annotated_bcf
     output:
         "results/calls/{group}.{filter}.filtered.bcf"
+    log:
+        "logs/filter-calls/{group}.{filter}.log"
     params:
         filter=lambda w: config["calling"]["filter"][w.filter]
     conda:
         "../envs/snpsift.yaml"
     shell:
-        "bcftools view {input} | SnpSift filter \"{params.filter}\" | bcftools view -Ob > {output}"
+        "(bcftools view {input} | SnpSift filter \"{params.filter}\" | bcftools view -Ob > {output}) 2> {log}"
 
 
 rule control_fdr:
@@ -16,6 +18,8 @@ rule control_fdr:
         "results/calls/{group}.{filter}.filtered.bcf"
     output:
         "results/calls/{group}.{vartype}.{event}.{filter}.fdr-controlled.bcf"
+    log:
+        "logs/control-fdr/{group}.{vartype}.{event}.{filter}.log"
     params:
         threshold=config["calling"]["fdr-control"]["threshold"],
         events=lambda wc: config["calling"]["fdr-control"]["events"][wc.event]["varlociraptor"]
@@ -23,24 +27,17 @@ rule control_fdr:
         "../envs/varlociraptor.yaml"
     shell:
         "varlociraptor filter-calls control-fdr {input} --var {wildcards.vartype} "
-        "--events {params.events} --fdr {params.threshold} > {output}"
-
-
-def get_merge_input(ext=".bcf"):
-    def inner(wildcards):
-        return expand("results/calls/{{group}}.{vartype}.{{event}}.{filter}.fdr-controlled{ext}",
-                      ext=ext,
-                      vartype=["SNV", "INS", "DEL", "MNV"],
-                      filter=config["calling"]["fdr-control"]["events"][wildcards.event]["filter"])
-    return inner
+        "--events {params.events} --fdr {params.threshold} > {output} 2> {log}"
 
 
 rule merge_calls:
     input:
-        calls=get_merge_input(".bcf"),
-        idx=get_merge_input(".bcf.csi")
+        calls=get_merge_calls_input(".bcf"),
+        idx=get_merge_calls_input(".bcf.csi")
     output:
         "results/merged-calls/{group}.{event}.fdr-controlled.bcf"
+    log:
+        "logs/merge-calls/{group}.{event}.log"
     params:
         "-a -Ob"
     wrapper:
