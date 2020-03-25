@@ -5,7 +5,7 @@ rule download_snpeff_db:
         db_dir=lambda _, output: Path(output[0]).parent.resolve()
     cache: True
     conda:
-        "../../envs/snpeff.yaml"
+        "../envs/snpeff.yaml"
     shell:
         "snpEff download -dataDir {params.db_dir} {wildcards.ref}"
 
