@@ -1,8 +1,8 @@
 rule download_snpeff_db:
     output:
-        directory("{working_dir}/results/databases/{{ref}}".format(working_dir=os.getcwd()))
+        directory("results/refs/snpeff/{ref}")
     params:
-        db_dir=os.path.join(os.getcwd(), "results/databases/")
+        db_dir=lambda _, output: Path(output).parent.resolve()
     cache: True
     conda:
         "../../envs/snpeff.yaml"
@@ -12,7 +12,7 @@ rule download_snpeff_db:
 rule snpeff:
     input:
         calls="results/calls/{group}.bcf",
-        db="{working_dir}/results/databases/{build}.{release}".format(working_dir=os.getcwd(), build=config["ref"]["build"], release=config["ref"]["snpeff_release"])
+        db="results/refs/snpeff/{build}.{release}".format(build=config["ref"]["build"], release=config["ref"]["snpeff_release"])
     output:
         calls="results/calls/{group}.annotated.bcf",
         stats="results/snpeff/{group}.html",
@@ -21,7 +21,7 @@ rule snpeff:
         "logs/snpeff/{group}.log"
     params:
         reference="{}.{}".format(config["ref"]["build"], config["ref"]["snpeff_release"]),
-        data_dir = os.path.join(os.getcwd(), "results/databases/"),
+        data_dir = lambda _, input: Path(input.db).parent.resolve(),
         extra="-Xmx4g -nodownload"
     wrapper:
         "0.50.4/bio/snpeff"
