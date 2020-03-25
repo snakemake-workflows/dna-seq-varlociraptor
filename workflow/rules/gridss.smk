@@ -58,7 +58,7 @@ rule GridssCollectMetricsAndExtractSVReads:
         bam="results/recal/{sample}.sorted.bam",
         insert_size_metrics="tmp/{sample}.sorted.bam.gridss.working/tmp.{sample}.sorted.bam.insert_size_metrics",
     output:
-        sv_metrics=temp("tmp/{sample}.sorted.bam.gridss.working/{sample}.bam.sv_metrics"),
+        sv_metrics=temp("tmp/{sample}.sorted.bam.gridss.working/{sample}.sorted.bam.sv_metrics"),
         namedsorted_bam=temp("tmp/{sample}.sorted.bam.gridss.working/tmp.{sample}.sorted.bam.namedsorted.bam"),
         metrics=temp(multiext("tmp/{sample}.sorted.bam.gridss.working/{sample}.sorted.bam", ".cigar_metrics", ".coverage.blacklist.bed", ".idsv_metrics", ".insert_size_histogram.pdf", ".insert_size_metrics", ".mapq_metrics", ".tag_metrics")),
     log:
