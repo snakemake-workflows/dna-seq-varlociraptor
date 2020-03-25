@@ -1,4 +1,4 @@
-jvm_args = f"-Dreference_fasta=results/refs/genome.fasta -Dsamjdk.use_async_io_read_samtools=true -Dsamjdk.use_async_io_write_samtools=true -Dsamjdk.use_async_io_write_tribble=true -Dsamjdk.buffer_size=4194304"
+jvm_args = f"-Dreference_fasta=resources/genome.fasta -Dsamjdk.use_async_io_read_samtools=true -Dsamjdk.use_async_io_write_samtools=true -Dsamjdk.use_async_io_write_tribble=true -Dsamjdk.buffer_size=4194304"
 
 rule GridssCollectMetrics:
     input:
@@ -31,7 +31,6 @@ PROGRAM=CollectInsertSizeMetrics \
 STOP_AFTER={params.metricsrecords} \
 {params.picardoptions}) > {log} 2>&1
         """
-
 
 rule GridssCollectMetricsAndExtractSVReads:
     input:
@@ -91,7 +90,7 @@ INCLUDE_DUPLICATES=true \
 
 rule GridssComputeSamTags:
     input:
-        ref="results/refs/genome.fasta",
+        ref="resources/genome.fasta",
         idx=rules.bwa_index.output,
         namedsorted_bam="tmp/{sample}.sorted.bam.gridss.working/tmp.{sample}.sorted.bam.namedsorted.bam",
     output:
@@ -143,7 +142,7 @@ ASSUME_SORTED=true \
 
 rule GridssSoftClipsToSplitReads:
     input:
-        ref="results/refs/genome.fasta",
+        ref="resources/genome.fasta",
         idx=rules.bwa_index.output,
         coordinate_bam="tmp/{sample}.sorted.bam.gridss.working/tmp.{sample}.sorted.bam.coordinate.bam"
     output:
@@ -206,7 +205,7 @@ rule GridssMergeSupported:
 
 rule GridssAssembleBreakends:
     input:
-        ref="results/refs/genome.fasta",
+        ref="resources/genome.fasta",
         idx=rules.bwa_index.output,
         bams=lambda wildcards: expand("results/recal/{sample}.sorted.{ending}", sample=get_group_samples(wildcards), ending=["bam", "bam.bai"]),
         svs=lambda wildcards: expand("tmp/{sample}.sorted.bam.gridss.working/{sample}.sorted.bam.sv.{ending}", sample=get_group_samples(wildcards), ending=["bam", "bam.bai"])
@@ -279,7 +278,7 @@ PROGRAM=CollectAlignmentSummaryMetrics \
 
 rule GridssSoftClipsToSplitReadsAssembly:
     input:
-        ref="results/refs/genome.fasta",
+        ref="resources/genome.fasta",
         idx=rules.bwa_index.output,
         assembly="tmp/group.{group}.bam.gridss.working/group.{group}.bam",
         idsv_metrics="tmp/group.{group}.bam.gridss.working/group.{group}.bam.idsv_metrics",
@@ -322,7 +321,7 @@ rule GridssIdentifyVariants:
         assembly_sv="tmp/group.{group}.bam.gridss.working/group.{group}.bam.sv.bam",
         assembly_sv_index="tmp/group.{group}.bam.gridss.working/group.{group}.bam.sv.bam.bai",
         assembly="tmp/group.{group}.bam.gridss.working/group.{group}.bam",
-        ref="results/refs/genome.fasta",
+        ref="resources/genome.fasta",
         svs=lambda wildcards: " ".join(expand("tmp/{sample}.sorted.bam.gridss.working/{sample}.sorted.bam.sv.bam", sample=get_group_samples(wildcards))),
         idx=rules.bwa_index.output,
     output:
@@ -357,7 +356,7 @@ rule GridssAnnotateVariants:
         assembly_sv="tmp/group.{group}.bam.gridss.working/group.{group}.bam.sv.bam",
         assembly_sv_index="tmp/group.{group}.bam.gridss.working/group.{group}.bam.sv.bam.bai",
         unallocated="tmp/group.{group}.vcf.gridss.working/group.{group}.unallocated.vcf",
-        ref="results/refs/genome.fasta",
+        ref="resources/genome.fasta",
         idx=rules.bwa_index.output,
         svs=lambda wildcards: " ".join(expand("tmp/{sample}.sorted.bam.gridss.working/{sample}.sorted.bam.sv.bam", sample=get_group_samples(wildcards))),
         assembly="tmp/group.{group}.bam.gridss.working/group.{group}.bam",
@@ -392,7 +391,7 @@ OUTPUT_VCF={output.allocated} \
 rule GridssAnnotateUntemplatedSequence:
     input:
         allocated="tmp/group.{group}.vcf.gridss.working/group.{group}.allocated.vcf",
-        ref="results/refs/genome.fasta",
+        ref="resources/genome.fasta",
         idx=rules.bwa_index.output,
     output:
         vcf="results/gridss_vcf/{group}.vcf"
