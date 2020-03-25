@@ -123,9 +123,9 @@ if is_activated("annotations/dbnsfp"):
 
     rule create_dbnsfp_tabix_index:
         input:
-            "resources/{file}.gz",
+            "resources/{file}.txt.gz",
         output:
-            "resources/{file}.gz.tbi"
+            "resources/{file}.txt.gz.tbi"
         log:
             "logs/tabix/{file}.log"
         conda:
