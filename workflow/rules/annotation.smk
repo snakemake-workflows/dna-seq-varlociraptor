@@ -4,7 +4,7 @@ rule download_snpeff_db:
     log:
         "logs/download-snpeff-db/{ref}.log"
     params:
-        db_dir=lambda _, output: Path(output[0]).parent.resolve()
+        db_dir=lambda _, output: str(Path(output[0]).parent.resolve())
     conda:
         "../envs/snpeff.yaml"
     cache: True
