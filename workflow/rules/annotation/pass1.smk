@@ -23,5 +23,7 @@ rule snpeff:
         reference="{build}.{snpeff_release}".format(**config["ref"]),
         data_dir=lambda _, input: Path(input.db).parent.resolve(),
         extra="-Xmx4g -nodownload"
+    resources:
+        mem_mb=4000
     wrapper:
         "0.50.4/bio/snpeff"
