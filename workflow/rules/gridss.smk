@@ -1,24 +1,7 @@
-#configfile: "config/config.yaml"
-#include: "rules/common.smk"
-
-#reference = "../strling/ref_bwa/GCA_000001405.15_GRCh38_no_alt_plus_hs38d1_analysis_set.fna"
-
 jvm_args = f"-Dreference_fasta=results/refs/genome.fasta -Dsamjdk.use_async_io_read_samtools=true -Dsamjdk.use_async_io_write_samtools=true -Dsamjdk.use_async_io_write_tribble=true -Dsamjdk.buffer_size=4194304"
-
-group_names = samples["group"].unique()
-sample_names = samples.sample_name.values
-
-sample_constraint = "|".join(sample_names)
-group_constraint = "|".join(group_names)
-
-# rule all:
-#     input:
-#         expand("results/gridss_vcf/group.{group}.vcf", group=group_names)
-
 
 rule GridssCollectMetrics:
     input:
-        #bam="{sample.bam}"
         bam="results/recal/{sample}.sorted.bam"
     output:
         insert_size_metrics=temp("tmp/{sample}.sorted.bam.gridss.working/tmp.{sample}.sorted.bam.insert_size_metrics"),
@@ -33,8 +16,6 @@ rule GridssCollectMetrics:
         picardoptions=""
     conda:
         "../envs/gridss.yaml"
-    wildcard_constraints:
-        sample=sample_constraint
     shell: """
 (gridss gridss.analysis.CollectGridssMetrics \
 {jvm_args} \
@@ -51,7 +32,6 @@ STOP_AFTER={params.metricsrecords} \
 {params.picardoptions}) > {log} 2>&1
         """
 
-#tmp/EPF-BUR-012-013.bam.gridss.working/tmp.EPF-BUR-012-013.bam.insert_size_metrics
 
 rule GridssCollectMetricsAndExtractSVReads:
     input:
@@ -71,8 +51,6 @@ rule GridssCollectMetricsAndExtractSVReads:
         picardoptions="",
     conda:
         "../envs/gridss.yaml"
-    wildcard_constraints:
-        sample=sample_constraint
     threads:
         50
     shell: """
@@ -120,8 +98,6 @@ rule GridssComputeSamTags:
         coordinate_bam=temp("tmp/{sample}.sorted.bam.gridss.working/tmp.{sample}.sorted.bam.coordinate.bam")
     log:
         "log/gridss/compute_sam_tags/{sample}.log"
-    wildcard_constraints:
-        sample=sample_constraint
     params:
         working_dir="tmp",
         tmp_sort=temp("tmp/{sample}.sorted.bam.gridss.working/{sample}.sorted.coordinate-tmp"),
@@ -175,8 +151,6 @@ rule GridssSoftClipsToSplitReads:
         supp_sv=temp("tmp/{sample}.sorted.bam.gridss.working/tmp.{sample}.sorted.bam.sc2sr.supp.sv.bam"),
     log:
         "log/gridss/soft_clips_to_split_reads/{sample}.log"
-    wildcard_constraints:
-        sample=sample_constraint
     params:
         working_dir="tmp",
         picardoptions="",
@@ -226,8 +200,6 @@ rule GridssMergeSupported:
         merged=temp("{p}/{x}.bam.sv.bam")
     conda:
         "../envs/gridss.yaml"
-    # wildcard_constraints:
-    #     x=sample_constraint + "|" + group_constraint
     shell:
         "samtools merge -@ {threads} {output.merged} {input.primary_sv} {input.supp_sv}"
 
@@ -242,8 +214,6 @@ rule GridssAssembleBreakends:
         assembly="tmp/group.{group}.bam.gridss.working/group.{group}.bam"
     log:
         "log/gridss/assemble_breakends/{group}.log"
-    wildcard_constraints:
-        group=group_constraint
     params:
         jobindex="0",
         jobnodes="1",
@@ -280,8 +250,6 @@ rule GridssCollectMetricsGroup:
         tag_metrics=temp("tmp/group.{group}.bam.gridss.working/group.{group}.bam.tag_metrics"),
     log:
         "log/gridss/collect_metrics_group/{group}.log"
-    wildcard_constraints:
-        group=group_constraint
     params:
         prefix="tmp/group.{group}.bam.gridss.working/group.{group}.bam",
         working_dir="tmp/group.{group}.bam.gridss.working",
@@ -322,8 +290,6 @@ rule GridssSoftClipsToSplitReadsAssembly:
         assembly_supp_sv=temp("tmp/group.{group}.bam.gridss.working/tmp.group.{group}.bam.sc2sr.supp.sv.bam"),
     log:
         "log/gridss/soft_clips_to_split_reads_assembly/{group}.log"
-    wildcard_constraints:
-        group=group_constraint
     params:
         working_dir="tmp",
         picardoptions="",
@@ -363,8 +329,6 @@ rule GridssIdentifyVariants:
         unallocated=temp("tmp/group.{group}.vcf.gridss.working/group.{group}.unallocated.vcf")
     log:
         "log/gridss/indentify_variants/{group}.log"
-    wildcard_constraints:
-        group=group_constraint
     params:
         input_args=lambda wildcards: " ".join(expand("INPUT=results/recal/{sample}.sorted.bam", sample=get_group_samples(wildcards))),
         working_dir="tmp",
@@ -401,8 +365,6 @@ rule GridssAnnotateVariants:
         allocated=temp("tmp/group.{group}.vcf.gridss.working/group.{group}.allocated.vcf"),
     log:
         "log/gridss/annotate_variants/{group}.log"
-    wildcard_constraints:
-        group=group_constraint
     params:
         input_args=lambda wildcards: " ".join(expand("INPUT=results/recal/{sample}.sorted.bam", sample=get_group_samples(wildcards))),
         working_dir="tmp",
