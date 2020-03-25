@@ -12,7 +12,7 @@ rule download_snpeff_db:
 rule snpeff:
     input:
         calls="results/calls/{group}.bcf",
-        db="results/refs/snpeff/{build}.{release}".format(build=config["ref"]["build"], release=config["ref"]["snpeff_release"])
+        db="results/refs/snpeff/{build}.{snpeff_release}".format(**config["ref"])
     output:
         calls="results/calls/{group}.annotated.bcf",
         stats="results/snpeff/{group}.html",
@@ -20,8 +20,8 @@ rule snpeff:
     log:
         "logs/snpeff/{group}.log"
     params:
-        reference="{}.{}".format(config["ref"]["build"], config["ref"]["snpeff_release"]),
-        data_dir = lambda _, input: Path(input.db).parent.resolve(),
+        reference="{build}.{snpeff_release}".format(**config["ref"]),
+        data_dir=lambda _, input: Path(input.db).parent.resolve(),
         extra="-Xmx4g -nodownload"
     wrapper:
         "0.50.4/bio/snpeff"
