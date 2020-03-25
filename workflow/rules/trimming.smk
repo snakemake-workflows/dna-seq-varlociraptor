@@ -16,13 +16,8 @@ rule cutadapt_pipe:
     log:
         "logs/pipe-fastqs/{sample}-{unit}.{fq}.{ext}"
     wildcard_constraints:
-<<<<<<< HEAD
-        ending="fastq|fastq.gz"
-    threads: 0
-=======
         ext=r"fastq|fastq\.gz"
     threads: 0 # this does not need CPU
->>>>>>> master
     shell:
         "cat {input} > {output} 2> {log}"
 
