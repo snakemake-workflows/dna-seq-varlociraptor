@@ -2,7 +2,7 @@ rule download_snpeff_db:
     output:
         directory("results/refs/snpeff/{ref}")
     params:
-        db_dir=lambda _, output: Path(output).parent.resolve()
+        db_dir=lambda _, output: Path(output[0]).parent.resolve()
     cache: True
     conda:
         "../../envs/snpeff.yaml"
