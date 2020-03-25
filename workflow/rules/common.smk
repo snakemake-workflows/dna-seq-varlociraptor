@@ -1,6 +1,4 @@
-from snakemake.utils import min_version
-
-min_version("5.7.0")
+import glob
 
 import pandas as pd
 from snakemake.remote import FTP
@@ -35,6 +33,32 @@ validate(samples, schema="../schemas/samples.schema.yaml")
 units = pd.read_csv(config["units"], sep="\t", dtype={"sample_name": str, "unit_name": str}).set_index(["sample_name", "unit_name"], drop=False).sort_index()
 validate(units, schema="../schemas/units.schema.yaml")
 
+
+def get_cutadapt_input(wildcards):
+    unit = units.loc[wildcards.sample].loc[wildcards.unit]
+    if unit["fq1"].endswith("gz"):
+        ending = ".gz"
+    else:
+        ending = ""
+
+    if pd.isna(unit["fq1"]):
+        # SRA sample (always paired-end for now)
+        accession = unit["sra"]
+        return expand("sra/{accession}_{read}.fastq", accession=accession, read=[1, 2])
+    if pd.isna(unit["fq2"]):
+        # single end local sample
+        return "pipe/cutadapt/{S}-{U}.fq1.fastq{E}".format(S=unit.sample_name, U=unit.unit_name, E=ending)
+    else:
+        # paired end local sample
+        return expand("pipe/cutadapt/{S}-{U}.{{read}}.fastq{E}".format(S=unit.sample_name, U=unit.unit_name, E=ending), read=["fq1","fq2"])
+
+
+def get_cutadapt_pipe_input(wildcards):
+    files = list(sorted(glob.glob(units.loc[wildcards.sample].loc[wildcards.unit, wildcards.fq])))
+    assert(len(files) > 0)
+    return files
+
+
 def is_paired_end(sample):
     sample_units = units.loc[sample]
     fq2_null = sample_units["fq2"].isnull()
@@ -45,7 +69,7 @@ def is_paired_end(sample):
     assert all_single or all_paired, "invalid units for sample {}, must be all paired end or all single end".format(sample)
     return all_paired
 
-def get_merged(wildcards):
+def get_map_reads_input(wildcards):
     if is_paired_end(wildcards.sample):
         return ["results/merged/{sample}.1.fastq.gz",
                 "results/merged/{sample}.2.fastq.gz"]
@@ -74,8 +98,6 @@ def get_group_bais(wildcards):
 def is_activated(xpath):
     c = config
     for entry in xpath.split("/"):
-        if entry == "results":
-            continue
         c = c.get(entry, {})
     return bool(c.get("activate", False))
 
@@ -107,9 +129,44 @@ def get_annotated_bcf(wildcards, group=None):
     return "results/calls/{group}{selection}.bcf".format(group=group, selection=selection)
 
 
+def get_oncoprint_batch(wildcards):
+    if wildcards.batch == "all":
+        groups = samples["group"].unique()
+    else:
+        groups = samples.loc[samples[config["oncoprint"]["stratify"]["by-column"]] == wildcards.batch, "group"].unique()
+    return expand("results/merged-calls/{group}.{{event}}.fdr-controlled.bcf", group=groups)
+
+
+def get_merge_calls_input(ext=".bcf"):
+    def inner(wildcards):
+        return expand("results/calls/{{group}}.{vartype}.{{event}}.{filter}.fdr-controlled{ext}",
+                      ext=ext,
+                      vartype=["SNV", "INS", "DEL", "MNV"],
+                      filter=config["calling"]["fdr-control"]["events"][wildcards.event]["filter"])
+    return inner
+
+
 wildcard_constraints:
     group="|".join(samples["group"].unique()),
     sample="|".join(samples["sample_name"]),
     caller="|".join(["freebayes", "delly"])
 
-caller=list(filter(None, ["freebayes" if is_activated("results/calling/freebayes") else None, "delly" if is_activated("calling/delly") else None]))
+caller=list(filter(None, ["freebayes" if is_activated("calling/freebayes") else None, "delly" if is_activated("calling/delly") else None]))
+
+###### Annotations ########
+
+annotations = [(e, f) for e, f in config["annotations"]["vcfs"].items() if e != "activate"]
+
+def get_annotation_pipes(wildcards, input):
+     if annotations:
+         return "| " + " | ".join(
+             ["SnpSift annotate -name {prefix}_ {path} /dev/stdin".format(prefix=prefix, path=path)
+              for (prefix, _), path in zip(annotations, input.annotations)]
+         )
+     else:
+         return ""
+
+
+def get_annotation_vcfs(idx=False):
+    fmt = lambda f: f if not idx else f + ".tbi"
+    return [fmt(f) for _, f in annotations]

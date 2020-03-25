@@ -3,7 +3,7 @@ samples: config/samples.tsv
 units: config/units.tsv
 
 igv_report:
-  activate: false
+  activate: true
 
 ref:
   # Number of chromosomes to consider for calling.
@@ -54,7 +54,7 @@ annotations:
     activate: false
   vcfs:
     activate: true
-    known: refs/variation.vcf.gz
+    known: resources/variation.vcf.gz
   dgidb:
     activate: true
 

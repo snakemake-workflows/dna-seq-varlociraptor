@@ -8,20 +8,32 @@ on:
     branches_ignore: []
 
 jobs:
-  run-workflow:
+  Linting:
     runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v1
+    - name: Lint workflow
+      uses: snakemake/snakemake-github-action@v1.5.1
+      with:
+        directory: .
+        snakefile: workflow/Snakefile
+        args: "--lint"
+
+  Testing:
+    runs-on: ubuntu-latest
+    needs: Linting
     steps:
     - uses: actions/checkout@v1
     - name: Checkout submodules
       uses: textbook/git-checkout-submodule-action@2.0.0
     - name: Test workflow (local FASTQs)
-      uses: snakemake/snakemake-github-action@master
+      uses: snakemake/snakemake-github-action@v1.5.1
       with:
         directory: .test
         snakefile: workflow/Snakefile
         args: "--use-conda --show-failed-logs -j 10"
     - name: Test workflow (SRA FASTQs)
-      uses: snakemake/snakemake-github-action@master
+      uses: snakemake/snakemake-github-action@v1.5.1
       with:
         directory: .test
         snakefile: workflow/Snakefile
