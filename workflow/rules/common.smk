@@ -170,3 +170,11 @@ def get_annotation_pipes(wildcards, input):
 def get_annotation_vcfs(idx=False):
     fmt = lambda f: f if not idx else f + ".tbi"
     return [fmt(f) for _, f in annotations]
+
+
+def get_tabix_params(wildcards):
+    if wc.format == "vcf":
+        return "-p vcf"
+    if wc.format == "txt":
+        return "-s 1 -b 2 -e 2"
+    return ""

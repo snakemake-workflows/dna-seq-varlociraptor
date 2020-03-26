@@ -67,21 +67,6 @@ rule remove_iupac_codes:
     shell:
         "rbt vcf-fix-iupac-alleles < {input} | bcftools view -Oz > {output}"
 
-
-rule tabix_known_variants:
-    input:
-        "resources/{prefix}.vcf.gz"
-    output:
-        "resources/{prefix}.vcf.gz.tbi"
-    log:
-        "logs/tabix/{prefix}.log"
-    params:
-        "-p vcf"
-    cache: True
-    wrapper:
-        "0.45.1/bio/tabix"
-
-
 rule bwa_index:
     input:
         "resources/genome.fasta"

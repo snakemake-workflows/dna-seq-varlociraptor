@@ -119,16 +119,3 @@ if is_activated("annotations/dbnsfp"):
         shell:
             "(bcftools view --threads {threads} {input.bcf} | SnpSift dbnsfp -db {input.db} -f {params.fields} {params.extra} /dev/stdin | "
             "sed 's/\\(^##INFO=<ID=dbNSFP_\\w*,Number=\\)A/\\1./g' | bcftools view -Ob --threads {threads} > {output}) 2> {log}"
-
-
-    rule create_dbnsfp_tabix_index:
-        input:
-            "resources/{file}.txt.gz",
-        output:
-            "resources/{file}.txt.gz.tbi"
-        log:
-            "logs/tabix/{file}.log"
-        conda:
-            "../envs/htslib.yaml"
-        shell:
-            "tabix -s 1 -b 2 -e 2 {input} 2> {log}"

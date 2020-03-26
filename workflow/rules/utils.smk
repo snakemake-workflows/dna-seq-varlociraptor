@@ -20,3 +20,17 @@ rule bam_index:
         "logs/bam-index/{prefix}.log"
     wrapper:
         "0.39.0/bio/samtools/index"
+
+
+rule tabix_known_variants:
+    input:
+        "resources/{prefix}.{format}.gz"
+    output:
+        "resources/{prefix}.{format}.gz.tbi"
+    log:
+        "logs/tabix/{prefix}.{format}.log"
+    params:
+        get_tabix_params
+    cache: True
+    wrapper:
+        "0.45.1/bio/tabix"
