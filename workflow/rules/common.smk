@@ -173,8 +173,8 @@ def get_annotation_vcfs(idx=False):
 
 
 def get_tabix_params(wildcards):
-    if wc.format == "vcf":
+    if wildcards.format == "vcf":
         return "-p vcf"
-    if wc.format == "txt":
+    if wildcards.format == "txt":
         return "-s 1 -b 2 -e 2"
     return ""
