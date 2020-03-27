@@ -95,11 +95,9 @@ if is_activated("annotations/dbnsfp"):
             "../envs/htslib.yaml"
         cache: True
         shell:
-            """
-            ((unzip -p {input} "*_variant.chr1.gz" | zcat |
-            head -n 1 ; unzip -p {input} "*_variant.chr*" |
-            zcat | grep -v '^#' ) | bgzip -l9 -@ {threads} > {output}) 2> {log}
-            """
+            "cat <(unzip -p {input} '*_variant.chr1.gz' | zcat | "
+            "head -n 1) <(unzip -p {input} '*_variant.chr*' | "
+            "zcat | grep -v '^#') | bgzip -l9 -@ {threads} > {output} 2> {log}"
     
     rule annotate_dbnsfp:
         threads:
