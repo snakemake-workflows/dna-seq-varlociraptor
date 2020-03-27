@@ -31,10 +31,12 @@ rule genome_dict:
     output:
         "resources/genome.dict"
     log:
-        "logs/picard/create_dict.log"
+        "logs/samtools/create_dict.log"
+    conda:
+        "../envs/samtools.yaml"
     cache: True
-    wrapper:
-        "0.45.1/bio/picard/createsequencedictionary"
+    shell:
+        "samtools dict {input} > {output} 2> {log} "
 
 
 rule get_known_variants:
