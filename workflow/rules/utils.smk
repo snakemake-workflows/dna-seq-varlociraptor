@@ -7,8 +7,10 @@ rule bcf_index:
         "logs/bcf-index/{prefix}.log"
     conda:
         "../envs/bcftools.yaml"
+    threads:
+        8
     shell:
-        "bcftools index {input} 2> {log}"
+        "bcftools index --threads {threads} {input} 2> {log}"
 
 
 rule bam_index:

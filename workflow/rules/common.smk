@@ -159,7 +159,7 @@ annotations = [(e, f) for e, f in config["annotations"]["vcfs"].items() if e != 
 
 def get_annotation_pipes(wildcards, input):
      if annotations:
-         return "| " + " | ".join(
+         return " | ".join(
              ["SnpSift annotate -name {prefix}_ {path} /dev/stdin".format(prefix=prefix, path=path)
               for (prefix, _), path in zip(annotations, input.annotations)]
          )
