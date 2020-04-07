@@ -44,7 +44,7 @@ rule bam_regions:
     log:
         "logs/bam-regions/{sample}.log"
     conda:
-        "../bedregions.yaml"
+        "../envs/bedregions.yaml"
     shell:
         "samtools view -b {input.bam} | genomeCoverageBed -ibam stdin -g {input.ref} > {output} 2> {log}"
 
@@ -56,6 +56,6 @@ rule merge_regions:
     log:
         "logs/merge-regions/{group}.log"
     conda:
-        "../bedtools.yaml"
+        "../envs/bedtools.yaml"
     shell:
         "cat {input} | sort -k1,1 -k2,2n | bedtools merge -i stdin > {output} 2> {log} "
