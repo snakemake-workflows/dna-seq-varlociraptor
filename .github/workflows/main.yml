@@ -38,3 +38,9 @@ jobs:
         directory: .test
         snakefile: workflow/Snakefile
         args: "--use-conda -n -j 10"
+    - name: Test report
+      uses: snakemake/snakemake-github-action@v1.5.1
+      with:
+        directory: .test
+        snakefile: workflow/Snakefile
+        args: "--report report.zip"

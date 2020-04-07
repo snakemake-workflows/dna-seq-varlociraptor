@@ -6,7 +6,7 @@ rule igv_report:
         bams=get_group_bams,
         bais=get_group_bais
     output:
-        report("results/igv-report/{group}.{event}.html", caption="../results/report/calls.rst", category="Variant calls")
+        report("results/igv-report/{group}.{event}.html", caption="../report/calls.rst", category="Variant calls")
     log:
         "logs/igv-report/{group}.{event}.log"
     params:
