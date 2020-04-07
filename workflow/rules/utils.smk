@@ -34,3 +34,28 @@ rule tabix_known_variants:
     cache: True
     wrapper:
         "0.45.1/bio/tabix"
+
+rule bam_regions:
+    input:
+        ref="resources/genome.fasta",
+        bam="results/recal/{sample}.sorted.bam"
+    output:
+        temp("results/regions/{sample}.bed")
+    log:
+        "logs/bam-regions/{sample}.log"
+    conda:
+        "../bedregions.yaml"
+    shell:
+        "samtools view -b {input.bam} | genomeCoverageBed -ibam stdin -g {input.ref} > {output} 2> {log}"
+
+rule merge_regions:
+    input:
+        get_group_beds
+    output:
+        "results/regions/{group}.bed"
+    log:
+        "logs/merge-regions/{group}.log"
+    conda:
+        "../bedtools.yaml"
+    shell:
+        "cat {input} | sort -k1,1 -k2,2n | bedtools merge -i stdin > {output} 2> {log} "

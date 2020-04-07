@@ -4,16 +4,16 @@ rule freebayes:
         ref_idx="resources/genome.fasta.fai",
         # you can have a list of samples here
         samples=get_group_bams
+        regions="results/regions/{group}.bed"
     output:
         "results/candidate-calls/{group}.freebayes.bcf"
     log:
         "logs/freebayes/{group}.log"
     params:
         extra=config["params"].get("freebayes", ""),
-        chunksize=100000
     threads: 100 # use all available cores for calling
     wrapper:
-        "0.50.3/bio/freebayes"
+        "0.50.3/bio/freebayes" #Needs update
 
 
 rule delly:
