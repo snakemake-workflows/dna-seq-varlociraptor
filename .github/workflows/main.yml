@@ -27,7 +27,7 @@ jobs:
     - name: Checkout submodules
       uses: textbook/git-checkout-submodule-action@2.0.0
     - name: Test workflow (local FASTQs)
-      uses: snakemake/snakemake-github-action@v1.5.1
+      uses: snakemake/snakemake-github-action@v1.5.3
       with:
         directory: .test
         snakefile: workflow/Snakefile
