@@ -20,6 +20,7 @@ include: "rules/tmb.smk"
 include: "rules/vega.smk"
 include: "rules/utils.smk"
 include: "rules/oncoprint.smk"
+include: "rules/gridss.smk"
 
 groups = samples["group"].unique()
 
@@ -30,8 +31,9 @@ if is_activated("oncoprint/stratify"):
 
 rule all:
     input:
+        get_gridss_targets(),
         get_final_output(),
         get_tmb_targets(),
         expand("results/plots/oncoprint/{batch}.{event}.pdf",
-               event=config["calling"]["fdr-control"]["events"],
-               batch=batches)
+                event=config["calling"]["fdr-control"]["events"],
+                batch=batches)

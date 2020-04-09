@@ -116,6 +116,14 @@ def get_tmb_targets():
         return []
 
 
+def get_gridss_targets():
+    if is_activated("calling/gridss"):
+        return expand("results/gridss_vcf/{group}.vcf",
+                      group=groups)
+    else:
+        return []
+
+
 def get_annotated_bcf(wildcards, group=None):
     if group is None:
         group = wildcards.group
