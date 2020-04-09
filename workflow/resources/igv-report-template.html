@@ -305,7 +305,7 @@
                 data.push({ data: column })
             }
             for (column of ['ID', 'cosmic_LEGACY_ID', 'GENE', 'dgiDB_drugs', 'DNA ALTERATION', 'IMPACT']) {
-                if (column == "_dgiDB_drugs") {
+                if (column == 'dgiDB_drugs') {
                     data.push({ data: 'dgiDB_drugs', render: $.fn.dataTable.render.multi([parse_dgidb_data, $.fn.dataTable.render.ellipsis(15, true)]) })
                 } else {
                     data.push({ data: column, render: $.fn.dataTable.render.multi([parse_column_data, $.fn.dataTable.render.ellipsis(15, true)]) })
