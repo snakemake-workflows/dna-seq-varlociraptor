@@ -24,11 +24,11 @@ rule bam_index:
 
 rule tabix_known_variants:
     input:
-        "resources/{prefix}.{format}.gz"
+        "resources/{prefix}"
     output:
-        "resources/{prefix}.{format}.gz.tbi"
+        "resources/{prefix}.tbi"
     log:
-        "logs/tabix/{prefix}.{format}.log"
+        "logs/tabix/{prefix}.log"
     params:
         get_tabix_params
     cache: True
