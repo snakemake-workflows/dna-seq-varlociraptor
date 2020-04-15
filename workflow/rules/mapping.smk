@@ -15,6 +15,15 @@ rule map_reads:
     wrapper:
         "0.39.0/bio/bwa/mem"
 
+rule index_reads:
+    input: 
+        "results/mapped/{sample}.sorted.bam"
+    output:
+        "results/mapped/{sample}.sorted.bam.bai"
+    conda:
+        "../envs/samtools.yaml"
+    shell:
+        "samtools index {input}"
 
 rule mark_duplicates:
     input:
@@ -32,8 +41,8 @@ rule mark_duplicates:
 
 rule recalibrate_base_qualities:
     input:
-        bam="results/dedup/{sample}.sorted.bam",
-        bai="results/dedup/{sample}.sorted.bam.bai",
+        bam=get_recalibrate_quality_bam_input,
+        bai=get_recalibrate_quality_bai_input,
         ref="resources/genome.fasta",
         ref_dict="resources/genome.dict",
         ref_fai="resources/genome.fasta.fai",

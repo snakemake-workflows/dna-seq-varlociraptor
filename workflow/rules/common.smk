@@ -33,6 +33,17 @@ validate(samples, schema="../schemas/samples.schema.yaml")
 units = pd.read_csv(config["units"], sep="\t", dtype={"sample_name": str, "unit_name": str}).set_index(["sample_name", "unit_name"], drop=False).sort_index()
 validate(units, schema="../schemas/units.schema.yaml")
 
+def get_recalibrate_quality_bam_input(wildcards):
+    if config["duplicates"]["filtering"] == "activate":
+        return "results/dedup/{}.sorted.bam".format(wildcards.sample)
+    else:
+        return "results/mapped/{}.sorted.bam".format(wildcards.sample)
+
+def get_recalibrate_quality_bai_input(wildcards):
+    if config["duplicates"]["filtering"] == "activate":
+        return "results/dedup/{}.sorted.bam.bai".format(wildcards.sample)
+    else:
+        return "results/mapped/{}.sorted.bam.bai".format(wildcards.sample)
 
 def get_cutadapt_input(wildcards):
     unit = units.loc[wildcards.sample].loc[wildcards.unit]

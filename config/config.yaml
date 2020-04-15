@@ -63,6 +63,9 @@ calling:
           - "PRESENT"
         filter: filtername
 
+duplicates:
+  filtering: activate
+
 annotations:
   dbnsfp:
     activate: false
