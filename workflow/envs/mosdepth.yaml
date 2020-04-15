@@ -2,4 +2,4 @@ channels:
   - conda-forge
   - bioconda
 dependencies:
-  - mosdepth =0.2
+  - mosdepth =0.2.9

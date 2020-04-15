@@ -43,7 +43,7 @@ rule get_covered_regions:
     output:
         temp("results/regions/temp/{sample}.quantized.bed.gz")
     params:
-        prefix={output}.strip(".quantized.bed.gz")
+        prefix=lambda wc, output: output[0].strip(".quantized.bed.gz")
     shadow: "shallow"
     log:
         "logs/bam-regions/{sample}.log"
@@ -54,7 +54,7 @@ rule get_covered_regions:
 
 rule unzip_quantized_regions:
     input:
-        "results/regions/temp/{sample}.quantized.bed.gz
+        "results/regions/temp/{sample}.quantized.bed.gz"
     output:
         "results/regions/{sample}.bed"
     shell:
