@@ -2,5 +2,4 @@ channels:
   - conda-forge
   - bioconda
 dependencies:
-  - samtools =1.10
-  - bedtools =2.29
+  - mosdepth =0.2

@@ -39,11 +39,21 @@ rule get_covered_regions:
     input:
         ref="resources/genome.fasta",
         bam="results/recal/{sample}.sorted.bam"
+        bai="results/recal/{sample}.sorted.bam.bai"
     output:
-        temp("results/regions/{sample}.bed")
+        temp("results/regions/{sample}.quantized.bed.gz")
+    params:
     log:
         "logs/bam-regions/{sample}.log"
     conda:
-        "../envs/bedregions.yaml"
+        "../envs/mosdepth.yaml"
     shell:
-        "samtools view -b {input.bam} | bedtools bamtobed -i stdin | bedtools merge -i stdin > {output} 2> {log}"
+        "mosdepth {sample} {input.bam} -q 1: 2> {log}"
+
+rule unzip_quantized_regions:
+    input:
+        "results/regions/{sample}.quantized.bed.gz
+    output:
+        "results/regions/{sample}.bed"
+    shell:
+        "gzip -d {input} -c > {output}"
