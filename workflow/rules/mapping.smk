@@ -16,17 +16,6 @@ rule map_reads:
         "0.39.0/bio/bwa/mem"
 
 
-rule index_reads:
-    input: 
-        "results/mapped/{sample}.sorted.bam"
-    output:
-        "results/mapped/{sample}.sorted.bam.bai"
-    conda:
-        "../envs/samtools.yaml"
-    shell:
-        "samtools index {input}"
-
-
 rule mark_duplicates:
     input:
         "results/mapped/{sample}.sorted.bam"
