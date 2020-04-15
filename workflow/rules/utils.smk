@@ -38,7 +38,7 @@ rule tabix_known_variants:
 rule get_covered_regions:
     input:
         ref="resources/genome.fasta",
-        bam="results/recal/{sample}.sorted.bam"
+        bam="results/recal/{sample}.sorted.bam",
         bai="results/recal/{sample}.sorted.bam.bai"
     output:
         temp("results/regions/temp/{sample}.quantized.bed.gz")
