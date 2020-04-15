@@ -46,7 +46,7 @@ rule get_covered_regions:
     conda:
         "../envs/bedregions.yaml"
     shell:
-        "samtools view -b {input.bam} | genomeCoverageBed -ibam stdin -g {input.ref} > {output} 2> {log}"
+        "samtools view -b {input.bam} | bedtools bamtobed -i stdin | bedtools merge -i stdin > {output} 2> {log}"
 
 rule merge_covered_regions:
     input:
