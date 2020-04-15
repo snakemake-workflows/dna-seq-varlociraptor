@@ -43,7 +43,7 @@ rule get_covered_regions:
     output:
         temp("results/regions/temp/{sample}.quantized.bed.gz")
     params:
-        prefix=lambda wc, output: output[0].strip(".quantized.bed.gz")
+        prefix=lambda wc, output: output[0].split(".quantized.bed.gz")[0]
     log:
         "logs/bam-regions/{sample}.log"
     conda:
