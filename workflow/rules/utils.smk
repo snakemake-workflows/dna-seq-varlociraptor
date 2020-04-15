@@ -35,7 +35,7 @@ rule tabix_known_variants:
     wrapper:
         "0.45.1/bio/tabix"
 
-rule bam_regions:
+rule get_covered_regions:
     input:
         ref="resources/genome.fasta",
         bam="results/recal/{sample}.sorted.bam"
