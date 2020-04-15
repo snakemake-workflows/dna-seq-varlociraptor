@@ -47,15 +47,3 @@ rule get_covered_regions:
         "../envs/bedregions.yaml"
     shell:
         "samtools view -b {input.bam} | bedtools bamtobed -i stdin | bedtools merge -i stdin > {output} 2> {log}"
-
-rule merge_covered_regions:
-    input:
-        get_group_beds
-    output:
-        "results/regions/{group}.bed"
-    log:
-        "logs/merge-regions/{group}.log"
-    conda:
-        "../envs/bedtools.yaml"
-    shell:
-        "cat {input} | sort -k1,1 -k2,2n | bedtools merge -i stdin > {output} 2> {log} "
