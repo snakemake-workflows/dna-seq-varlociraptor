@@ -64,7 +64,7 @@ calling:
         filter: filtername
 
 duplicates:
-  filtering: activate
+  activate: true
 
 annotations:
   dbnsfp:
