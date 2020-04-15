@@ -48,7 +48,7 @@ rule get_covered_regions:
     shell:
         "samtools view -b {input.bam} | genomeCoverageBed -ibam stdin -g {input.ref} > {output} 2> {log}"
 
-rule merge_regions:
+rule merge_covered_regions:
     input:
         get_group_beds
     output:
