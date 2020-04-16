@@ -34,18 +34,12 @@ units = pd.read_csv(config["units"], sep="\t", dtype={"sample_name": str, "unit_
 validate(units, schema="../schemas/units.schema.yaml")
 
 
-def get_recalibrate_quality_bam_input(wildcards):
+def get_recalibrate_quality_input(wildcards, bai=False):
+    ext = ".bai" if bai else ""
     if is_activated("duplicate_filtering"):
-        return "results/dedup/{}.sorted.bam".format(wildcards.sample)
+        return "results/dedup/{}.sorted.bam{}".format(wildcards.sample, ext)
     else:
-        return "results/mapped/{}.sorted.bam".format(wildcards.sample)
-
-
-def get_recalibrate_quality_bai_input(wildcards):
-    if is_activated("duplicate_filtering"):
-        return "results/dedup/{}.sorted.bam.bai".format(wildcards.sample)
-    else:
-        return "results/mapped/{}.sorted.bam.bai".format(wildcards.sample)
+        return "results/mapped/{}.sorted.bam{}".format(wildcards.sample, ext)
 
 
 def get_cutadapt_input(wildcards):
