@@ -190,4 +190,4 @@ def get_tabix_params(wildcards):
 
 def get_trimmed_fastqs(wc):
     subdir = "primers" if is_activated("primers/trimming") else "cutadapt"
-    return expand("results/trimmed/{{subdir}}/{{wc.sample}}/{unit}.{{wc.read}}.fastq.gz", unit=units.loc[wc.sample, "unit_name"])
+    return expand("results/trimmed/{subdir}/{{wc.sample}}/{unit}.{{wc.read}}.fastq.gz", unit=units.loc[wc.sample, "unit_name"], subdir=subdir)
