@@ -17,6 +17,10 @@ ref:
   # Genome build
   build: R64-1-1
 
+primers:
+  trimming:
+    activate: false
+
 # Estimation of tumor mutational burden.
 tmb:
   activate: false
@@ -65,3 +69,8 @@ params:
     MarkDuplicates: ""
   gatk:
     BaseRecalibrator: ""
+  trimmomatic:
+      fasta: "path/to/fasta"
+      seed_mismatch: 1 #Recommandation 1-2
+      palindrom_threshold: 30 #Recommandation range of 30
+      simple_clip_threshold: 7 #Recommandation 7 to 15

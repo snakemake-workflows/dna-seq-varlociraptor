@@ -21,7 +21,6 @@ ref:
 primers:
   trimming:
     activate: false
-    fasta: "path/to/bed-file"
 
 # Estimation of tumor mutational burden.
 tmb:
