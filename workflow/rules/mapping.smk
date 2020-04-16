@@ -33,7 +33,7 @@ rule mark_duplicates:
 rule recalibrate_base_qualities:
     input:
         bam=get_recalibrate_quality_input,
-        bai=lambda wc, _: get_recalibrate_quality_input(wc, True),
+        bai=lambda wc: get_recalibrate_quality_input(wc, True),
         ref="resources/genome.fasta",
         ref_dict="resources/genome.dict",
         ref_fai="resources/genome.fasta.fai",
