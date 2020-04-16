@@ -117,6 +117,12 @@ properties:
       - filter
       - fdr-control
   
+  duplicate_filtering:
+    type: object
+    properties:
+      activate:
+        type: boolean
+
   annotations:
     type: object
     properties:
