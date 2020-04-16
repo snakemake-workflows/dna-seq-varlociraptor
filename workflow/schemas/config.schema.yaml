@@ -45,6 +45,15 @@ properties:
       - build
       - n_chromosomes
 
+  primers:
+    type: object
+    properties:
+      trimming:
+        type: object
+        properties:
+          activate: 
+            type: boolean
+
   oncoprint:
     type: object
     properties:

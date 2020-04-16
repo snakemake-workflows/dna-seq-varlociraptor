@@ -186,3 +186,8 @@ def get_tabix_params(wildcards):
     if wildcards.format == "txt":
         return "-s 1 -b 2 -e 2"
     raise ValueError("Invalid format for tabix: {}".format(wildcards.format))
+
+
+def get_trimmed_fastqs(wc):
+    subdir = "primers" if is_activated("primers/trimming") else "cutadapt"
+    return expand("results/trimmed/{{subdir}}/{{wc.sample}}/{unit}.{{wc.read}}.fastq.gz", unit=units.loc[wc.sample, "unit_name"])
