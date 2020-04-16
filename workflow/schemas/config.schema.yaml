@@ -117,7 +117,7 @@ properties:
       - filter
       - fdr-control
   
-  duplicate_filtering:
+  remove_duplicates:
     type: object
     properties:
       activate:
