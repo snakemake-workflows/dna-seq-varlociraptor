@@ -63,7 +63,7 @@ calling:
           - "PRESENT"
         filter: filtername
 
-duplicates:
+remove_duplicates:
   activate: true
 
 annotations:
