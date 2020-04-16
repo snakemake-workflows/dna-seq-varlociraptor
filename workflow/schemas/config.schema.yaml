@@ -183,7 +183,7 @@ properties:
             type: number
           palindrom_threshold:
             type: number
-          clip_threshold:
+          simple_clip_threshold:
             type: number
     required:
       - gatk

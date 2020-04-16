@@ -116,6 +116,6 @@ params:
     BaseRecalibrator: ""
   trimmomatic:
       fasta: "path/to/fasta"
-      seed_mismatch: 0
-      palindrom_threshold: 0
-      clip_threshold: 0
+      seed_mismatch: 1 #Recommandation 1-2
+      palindrom_threshold: 30 #Recommandation range of 30
+      simple_clip_threshold: 7 #Recommandation 7 to 15
