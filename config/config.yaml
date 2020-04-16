@@ -114,3 +114,8 @@ params:
     MarkDuplicates: "VALIDATION_STRINGENCY=LENIENT"
   gatk:
     BaseRecalibrator: ""
+  trimmomatic:
+      fasta: "path/to/fasta"
+      seed_mismatch: 0
+      palindrom_threshold: 0
+      clip_threshold: 0

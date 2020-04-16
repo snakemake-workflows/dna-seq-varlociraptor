@@ -62,7 +62,7 @@ rule trimmomatic_se:
     log:
         "logs/trimmomatic/{sample}-{unit}.log"
     params:
-        trimmers=["ILLUMINACLIP:{}".format(config["primers"]["trimming"]["fasta"])],
+        trimmers=["ILLUMINACLIP:{}:{}:{}:{}".format(*config["params"]["trimmomatic"].values())],
         extra="",
         compression_level="-9"
     wrapper:
@@ -81,7 +81,7 @@ rule trimmomatic_pe:
     log:
         "logs/trimmomatic/{sample}-{unit}.log"
     params:
-        trimmers=["ILLUMINACLIP:{}".format(config["primers"]["trimming"]["fasta"])],
+        trimmers=["ILLUMINACLIP:{}:{}:{}:{}".format(*config["params"]["trimmomatic"].values())],
         extra="",
         compression_level="-9"
     wrapper:
