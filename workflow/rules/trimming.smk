@@ -26,7 +26,7 @@ rule cutadapt_pe:
     input:
         get_cutadapt_input
     output:
-        fastq1="results/trimmed/cutadapt/{sample}/{unit}.1.fastq.gz",
+        fastq1="results/trimmed/adapters/{sample}/{unit}.1.fastq.gz",
         fastq2="results/trimmed/cutadapt/{sample}/{unit}.2.fastq.gz",
         qc="results/trimmed/cutadapt/{sample}/{unit}.paired.qc.txt"
     log:
