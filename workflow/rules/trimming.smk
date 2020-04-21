@@ -27,7 +27,7 @@ rule cutadapt_pe:
         get_cutadapt_input
     output:
         fastq1="results/trimmed/adapters/{sample}/{unit}.1.fastq.gz",
-        fastq2="results/trimmed/cutadapt/{sample}/{unit}.2.fastq.gz",
+        fastq2="results/trimmed/adapters/{sample}/{unit}.2.fastq.gz",
         qc="results/trimmed/cutadapt/{sample}/{unit}.paired.qc.txt"
     log:
         "logs/cutadapt/{sample}-{unit}.log"
@@ -42,8 +42,8 @@ rule cutadapt_se:
     input:
         get_cutadapt_input
     output:
-        fastq="results/trimmed/cutadapt/{sample}/{unit}.single.fastq.gz",
-        qc="results/trimmed/cutadapt/{sample}/{unit}.single.qc.txt"
+        fastq="results/trimmed/adapters/{sample}/{unit}.single.fastq.gz",
+        qc="results/trimmed/adapters/{sample}/{unit}.single.qc.txt"
     log:
         "logs/cutadapt/{sample}-{unit}.log"
     params:
@@ -56,7 +56,7 @@ rule cutadapt_se:
 
 rule trimmomatic_se:
     input:
-        "results/trimmed/cutadapt/{sample}/{unit}.single.fastq.gz"
+        "results/trimmed/adapters/{sample}/{unit}.single.fastq.gz"
     output:
         "results/trimmed/primers/{sample}/{unit}.single.fastq.gz",
     log:
@@ -71,8 +71,8 @@ rule trimmomatic_se:
 
 rule trimmomatic_pe:
     input:
-        r1="results/trimmed/cutadapt/{sample}/{unit}.1.fastq.gz",
-        r2="results/trimmed/cutadapt/{sample}/{unit}.2.fastq.gz",
+        r1="results/trimmed/adapters/{sample}/{unit}.1.fastq.gz",
+        r2="results/trimmed/adapters/{sample}/{unit}.2.fastq.gz",
     output:
         fastq1="results/trimmed/primers/{sample}/{unit}.1.fastq.gz",
         fastq2="results/trimmed/primers/{sample}/{unit}.2.fastq.gz",
