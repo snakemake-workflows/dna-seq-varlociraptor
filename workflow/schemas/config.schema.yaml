@@ -53,6 +53,17 @@ properties:
         properties:
           activate: 
             type: boolean
+          trimmomatic:
+            type: object
+            properties:
+              fasta:
+                type: string
+              seed_mismatch:
+                type: number
+              palindrom_threshold:
+                type: number
+              simple_clip_threshold:
+                type: number
 
   oncoprint:
     type: object
@@ -174,17 +185,6 @@ properties:
             type: string
         required:
           - MarkDuplicates
-      trimmomatic:
-        type: object
-        properties:
-          fasta:
-            type: string
-          seed_mismatch:
-            type: number
-          palindrom_threshold:
-            type: number
-          simple_clip_threshold:
-            type: number
     required:
       - gatk
       - picard
