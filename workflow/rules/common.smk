@@ -34,6 +34,14 @@ units = pd.read_csv(config["units"], sep="\t", dtype={"sample_name": str, "unit_
 validate(units, schema="../schemas/units.schema.yaml")
 
 
+def get_recalibrate_quality_input(wildcards, bai=False):
+    ext = ".bai" if bai else ""
+    if is_activated("remove_duplicates"):
+        return "results/dedup/{}.sorted.bam{}".format(wildcards.sample, ext)
+    else:
+        return "results/mapped/{}.sorted.bam{}".format(wildcards.sample, ext)
+
+
 def get_cutadapt_input(wildcards):
     unit = units.loc[wildcards.sample].loc[wildcards.unit]
     if unit["fq1"].endswith("gz"):
@@ -47,10 +55,10 @@ def get_cutadapt_input(wildcards):
         return expand("sra/{accession}_{read}.fastq", accession=accession, read=[1, 2])
     if pd.isna(unit["fq2"]):
         # single end local sample
-        return "pipe/cutadapt/{S}-{U}.fq1.fastq{E}".format(S=unit.sample_name, U=unit.unit_name, E=ending)
+        return "pipe/cutadapt/{S}/{U}.fq1.fastq{E}".format(S=unit.sample_name, U=unit.unit_name, E=ending)
     else:
         # paired end local sample
-        return expand("pipe/cutadapt/{S}-{U}.{{read}}.fastq{E}".format(S=unit.sample_name, U=unit.unit_name, E=ending), read=["fq1","fq2"])
+        return expand("pipe/cutadapt/{S}/{U}.{{read}}.fastq{E}".format(S=unit.sample_name, U=unit.unit_name, E=ending), read=["fq1","fq2"])
 
 
 def get_cutadapt_pipe_input(wildcards):
