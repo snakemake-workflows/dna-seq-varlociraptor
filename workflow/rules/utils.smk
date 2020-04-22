@@ -42,7 +42,7 @@ rule get_covered_regions:
         bam="results/recal/{sample}.sorted.bam",
         bai="results/recal/{sample}.sorted.bam.bai"
     output:
-        temp("results/regions/{sample}.quantized.bed.gz")
+        temp("results/regions/temp/{sample}.quantized.bed.gz")
     params:
         prefix=lambda wc, output: output[0].split(".quantized.bed.gz")[0]
     shadow: "minimal"
