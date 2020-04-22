@@ -12,7 +12,7 @@ rule cutadapt_pipe:
     input:
         get_cutadapt_pipe_input
     output:
-        pipe('pipe/cutadapt/{sample}-{unit}.{fq}.{ext}')
+        pipe('pipe/cutadapt/{sample}/{unit}.{fq}.{ext}')
     log:
         "logs/pipe-fastqs/{sample}-{unit}.{fq}.{ext}"
     wildcard_constraints:
@@ -26,9 +26,9 @@ rule cutadapt_pe:
     input:
         get_cutadapt_input
     output:
-        fastq1="results/trimmed/{sample}-{unit}.1.fastq.gz",
-        fastq2="results/trimmed/{sample}-{unit}.2.fastq.gz",
-        qc="results/trimmed/{sample}-{unit}.paired.qc.txt"
+        fastq1="results/trimmed/{sample}/{unit}.1.fastq.gz",
+        fastq2="results/trimmed/{sample}/{unit}.2.fastq.gz",
+        qc="results/trimmed/{sample}/{unit}.paired.qc.txt"
     log:
         "logs/cutadapt/{sample}-{unit}.log"
     params:
@@ -42,8 +42,8 @@ rule cutadapt_se:
     input:
         get_cutadapt_input
     output:
-        fastq="results/trimmed/{sample}-{unit}.single.fastq.gz",
-        qc="results/trimmed/{sample}-{unit}.single.qc.txt"
+        fastq="results/trimmed/{sample}/{unit}.single.fastq.gz",
+        qc="results/trimmed/{sample}/{unit}.single.qc.txt"
     log:
         "logs/cutadapt/{sample}-{unit}.log"
     params:
@@ -55,7 +55,7 @@ rule cutadapt_se:
 
 rule merge_fastqs:
     input:
-        lambda w: expand("results/trimmed/{{sample}}-{unit}.{{read}}.fastq.gz", unit=units.loc[w.sample, "unit_name"])
+        lambda w: expand("results/trimmed/{{sample}}/{unit}.{{read}}.fastq.gz", unit=units.loc[w.sample, "unit_name"])
     output:
         "results/merged/{sample}.{read}.fastq.gz"
     log:
