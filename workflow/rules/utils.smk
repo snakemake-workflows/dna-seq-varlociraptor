@@ -66,4 +66,4 @@ rule merge_regions:
     conda:
         "../envs/bedtools.yaml"
     shell:
-        "cat {input} | sort -k1,1 -k2,2n | bedtools merge -i stdin > {output} 2> {log}"
+        "zcat {input} | sort -k1,1 -k2,2n | bedtools merge -i stdin > {output} 2> {log}"
