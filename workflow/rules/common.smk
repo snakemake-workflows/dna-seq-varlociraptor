@@ -95,7 +95,7 @@ def get_group_bams(wildcards):
     return expand("results/recal/{sample}.sorted.bam", sample=get_group_samples(wildcards))
 
 def get_group_beds(wildcards):
-    return expand("results/regions/{sample}.bed", sample=get_group_samples(wildcards))
+    return expand("results/regions/temp/{sample}.quantized.bed.gz", sample=get_group_samples(wildcards))
 
 def get_group_observations(wildcards):
     return expand("results/observations/{group}/{sample}.{caller}.bcf", 

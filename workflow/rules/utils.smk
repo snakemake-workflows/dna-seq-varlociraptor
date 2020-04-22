@@ -42,26 +42,26 @@ rule get_covered_regions:
         bam="results/recal/{sample}.sorted.bam",
         bai="results/recal/{sample}.sorted.bam.bai"
     output:
-        temp("results/regions/temp/{sample}.quantized.bed.gz")
+        temp("results/regions/{sample}.quantized.bed.gz")
     params:
         prefix=lambda wc, output: output[0].split(".quantized.bed.gz")[0]
     shadow: "minimal"
     log:
         "logs/bam-regions/{sample}.log"
+    group: "covered-regions"
     conda:
         "../envs/mosdepth.yaml"
-    group: "covered-regions"
     shell:
         "mosdepth {params.prefix} {input.bam} -q 1: 2> {log}"
 
 
-rule unzip_quantized_regions:
+rule merge_regions:
     input:
-        "results/regions/temp/{sample}.quantized.bed.gz"
+        get_group_beds,
     output:
-        "results/regions/{sample}.bed"
+        "results/regions/{group}.bed"
     log:
-        "logs/unzip_regions/{sample}.log"
+        "logs/unzip_regions/{group}.log"
     group: "covered-regions"
     shell:
-        "gzip -d {input} -c > {output} 2> {log}"
+        "cat {input} | sort -k1,1 -k2,2n | bedtools merge -i stdin > {output} 2> {log}"
