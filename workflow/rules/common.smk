@@ -177,7 +177,7 @@ def get_annotation_pipes(wildcards, input):
 
 
 def get_annotation_vcfs(idx=False):
-    fmt = lambda f: f if not idx else f + ".tbi"
+    fmt = lambda f: f if not idx else "{}.tbi".format(f)
     return [fmt(f) for _, f in annotations]
 
 
