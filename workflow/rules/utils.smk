@@ -35,6 +35,7 @@ rule tabix_known_variants:
     wrapper:
         "0.45.1/bio/tabix"
 
+
 rule get_covered_regions:
     input:
         ref="resources/genome.fasta",
@@ -52,10 +53,13 @@ rule get_covered_regions:
     shell:
         "mosdepth {params.prefix} {input.bam} -q 1: 2> {log}"
 
+
 rule unzip_quantized_regions:
     input:
         "results/regions/temp/{sample}.quantized.bed.gz"
     output:
         "results/regions/{sample}.bed"
+    log:
+        "logs/unzip_regions/{sample.log}"
     shell:
-        "gzip -d {input} -c > {output}"
+        "gzip -d {input} -c > {output} 2> {log}"
