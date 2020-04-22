@@ -13,7 +13,7 @@ jobs:
     steps:
     - uses: actions/checkout@v1
     - name: Lint workflow
-      uses: snakemake/snakemake-github-action@v1.5.1
+      uses: snakemake/snakemake-github-action@v1.6.0
       with:
         directory: .
         snakefile: workflow/Snakefile
@@ -33,13 +33,13 @@ jobs:
         snakefile: workflow/Snakefile
         args: "--use-conda --show-failed-logs -j 10 --conda-cleanup-pkgs"
     - name: Test workflow (SRA FASTQs)
-      uses: snakemake/snakemake-github-action@v1.5.3
+      uses: snakemake/snakemake-github-action@v1.6.0
       with:
         directory: .test
         snakefile: workflow/Snakefile
-        args: "--use-conda -n -j 10 --conda-cleanup-pkgs"
+        args: "--use-conda -n -j 10 --conda-cleanup-pkgs cache"
     - name: Test report
-      uses: snakemake/snakemake-github-action@v1.5.3
+      uses: snakemake/snakemake-github-action@v1.6.0
       with:
         directory: .test
         snakefile: workflow/Snakefile
