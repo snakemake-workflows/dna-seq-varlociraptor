@@ -2,6 +2,7 @@ rule freebayes:
     input:
         ref="resources/genome.fasta",
         ref_idx="resources/genome.fasta.fai",
+        regions=get_regions,
         # you can have a list of samples here
         samples=get_group_bams
     output:
@@ -10,10 +11,9 @@ rule freebayes:
         "logs/freebayes/{group}.log"
     params:
         extra=config["params"].get("freebayes", ""),
-        chunksize=100000
     threads: 100 # use all available cores for calling
     wrapper:
-        "0.50.3/bio/freebayes"
+        "0.51.3/bio/freebayes"
 
 
 rule delly:

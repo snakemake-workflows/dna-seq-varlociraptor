@@ -94,6 +94,17 @@ def get_group_samples(wildcards):
 def get_group_bams(wildcards):
     return expand("results/recal/{sample}.sorted.bam", sample=get_group_samples(wildcards))
 
+
+def get_regions(wildcards):
+    if is_activated("calling/regions"):
+        return "results/regions/{group}.bed".format(group=wildcards.group)
+    else:
+        return ""
+
+
+def get_group_beds(wildcards):
+    return expand("results/regions/temp/{sample}.quantized.bed.gz", sample=get_group_samples(wildcards))
+
 def get_group_observations(wildcards):
     return expand("results/observations/{group}/{sample}.{caller}.bcf", 
                   caller=wildcards.caller, 
