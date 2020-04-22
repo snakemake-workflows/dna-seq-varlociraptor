@@ -48,7 +48,6 @@ rule get_covered_regions:
     shadow: "minimal"
     log:
         "logs/bam-regions/{sample}.log"
-    group: "covered-regions"
     conda:
         "../envs/mosdepth.yaml"
     shell:
