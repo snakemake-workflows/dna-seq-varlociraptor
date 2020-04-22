@@ -61,7 +61,6 @@ rule merge_regions:
         "results/regions/{group}.bed"
     log:
         "logs/unzip_regions/{group}.log"
-    group: "covered-regions"
     conda:
         "../envs/bedtools.yaml"
     shell:
