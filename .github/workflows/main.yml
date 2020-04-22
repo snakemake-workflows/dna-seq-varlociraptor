@@ -32,7 +32,7 @@ jobs:
       with:
         directory: .test
         snakefile: workflow/Snakefile
-        args: "--use-conda --show-failed-logs -j 10 --conda-cleanup-pkgs"
+        args: "--use-conda --show-failed-logs -j 10 --conda-cleanup-pkgs cache"
 
     - name: Test workflow (SRA FASTQs)
       uses: snakemake/snakemake-github-action@v1.6.0
