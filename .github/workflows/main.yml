@@ -2,10 +2,10 @@ name: Tests
 
 on:
   push:
-    branches:
-      - master
+    branches: [ master ]
   pull_request:
-    branches_ignore: []
+    branches: [ master ]
+
 
 jobs:
   Linting:
@@ -26,18 +26,21 @@ jobs:
     - uses: actions/checkout@v1
     - name: Checkout submodules
       uses: textbook/git-checkout-submodule-action@2.0.0
+
     - name: Test workflow (local FASTQs)
-      uses: snakemake/snakemake-github-action@v1.5.3
+      uses: snakemake/snakemake-github-action@v1.6.0
       with:
         directory: .test
         snakefile: workflow/Snakefile
         args: "--use-conda --show-failed-logs -j 10 --conda-cleanup-pkgs"
+
     - name: Test workflow (SRA FASTQs)
       uses: snakemake/snakemake-github-action@v1.6.0
       with:
         directory: .test
         snakefile: workflow/Snakefile
         args: "--use-conda -n -j 10 --conda-cleanup-pkgs cache"
+
     - name: Test report
       uses: snakemake/snakemake-github-action@v1.6.0
       with:
