@@ -42,14 +42,15 @@ rule get_covered_regions:
         bam="results/recal/{sample}.sorted.bam",
         bai="results/recal/{sample}.sorted.bam.bai"
     output:
-        "results/regions/temp/{sample}.quantized.bed.gz"
+        temp("results/regions/temp/{sample}.quantized.bed.gz")
     params:
         prefix=lambda wc, output: output[0].split(".quantized.bed.gz")[0]
-    shadow: "shallow"
+    shadow: "minimal"
     log:
         "logs/bam-regions/{sample}.log"
     conda:
         "../envs/mosdepth.yaml"
+    group: "covered-regions"
     shell:
         "mosdepth {params.prefix} {input.bam} -q 1: 2> {log}"
 
@@ -61,5 +62,6 @@ rule unzip_quantized_regions:
         "results/regions/{sample}.bed"
     log:
         "logs/unzip_regions/{sample}.log"
+    group: "covered-regions"
     shell:
         "gzip -d {input} -c > {output} 2> {log}"
