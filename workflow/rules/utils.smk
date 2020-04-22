@@ -60,6 +60,6 @@ rule unzip_quantized_regions:
     output:
         "results/regions/{sample}.bed"
     log:
-        "logs/unzip_regions/{sample.log}"
+        "logs/unzip_regions/{sample}.log"
     shell:
         "gzip -d {input} -c > {output} 2> {log}"
