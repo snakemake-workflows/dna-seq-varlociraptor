@@ -22,9 +22,9 @@ primers:
     activate: false
     trimmomatic:
       fasta: "path/to/fasta"
-      seed_mismatch: 1 # recommandation: 1-2
-      palindrom_threshold: 30 # recommandation: range of 30
-      simple_clip_threshold: 7 # recommandation: 7 to 15
+      seed_mismatch: 1 # recommendation: 1-2
+      palindrom_threshold: 30 # recommendation: range of 30
+      simple_clip_threshold: 7 # recommendation: 7 to 15
 
 # Estimation of tumor mutational burden.
 tmb:

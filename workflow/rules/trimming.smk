@@ -28,7 +28,7 @@ rule cutadapt_pe:
     output:
         fastq1="results/trimmed/adapters/{sample}/{unit}.1.fastq.gz",
         fastq2="results/trimmed/adapters/{sample}/{unit}.2.fastq.gz",
-        qc="results/trimmed/cutadapt/{sample}/{unit}.paired.qc.txt"
+        qc="results/trimmed/adapters/{sample}/{unit}.paired.qc.txt"
     log:
         "logs/cutadapt/{sample}-{unit}.log"
     params:
