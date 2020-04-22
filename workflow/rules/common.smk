@@ -178,16 +178,17 @@ annotations = [(e, f) for e, f in config["annotations"]["vcfs"].items() if e != 
 
 def get_annotation_pipes(wildcards, input):
      if annotations:
-         return "| " + " | ".join(
+         return "| {}".format(" | ".join(
              ["SnpSift annotate -name {prefix}_ {path} /dev/stdin".format(prefix=prefix, path=path)
               for (prefix, _), path in zip(annotations, input.annotations)]
+              )
          )
      else:
          return ""
 
 
 def get_annotation_vcfs(idx=False):
-    fmt = lambda f: f if not idx else f + ".tbi"
+    fmt = lambda f: f if not idx else "{}.tbi".format(f)
     return [fmt(f) for _, f in annotations]
 
 
@@ -197,3 +198,8 @@ def get_tabix_params(wildcards):
     if wildcards.format == "txt":
         return "-s 1 -b 2 -e 2"
     raise ValueError("Invalid format for tabix: {}".format(wildcards.format))
+
+
+def get_trimmed_fastqs(wc):
+    subdir = "primers" if is_activated("primers/trimming") else "adapters"
+    return expand("results/trimmed/{subdir}/{sample}/{unit}.{read}.fastq.gz", subdir=subdir, unit=units.loc[wc.sample, "unit_name"], sample=wc.sample, read=wc.read)

@@ -26,9 +26,9 @@ rule cutadapt_pe:
     input:
         get_cutadapt_input
     output:
-        fastq1="results/trimmed/{sample}/{unit}.1.fastq.gz",
-        fastq2="results/trimmed/{sample}/{unit}.2.fastq.gz",
-        qc="results/trimmed/{sample}/{unit}.paired.qc.txt"
+        fastq1="results/trimmed/adapters/{sample}/{unit}.1.fastq.gz",
+        fastq2="results/trimmed/adapters/{sample}/{unit}.2.fastq.gz",
+        qc="results/trimmed/adapters/{sample}/{unit}.paired.qc.txt"
     log:
         "logs/cutadapt/{sample}-{unit}.log"
     params:
@@ -42,8 +42,8 @@ rule cutadapt_se:
     input:
         get_cutadapt_input
     output:
-        fastq="results/trimmed/{sample}/{unit}.single.fastq.gz",
-        qc="results/trimmed/{sample}/{unit}.single.qc.txt"
+        fastq="results/trimmed/adapters/{sample}/{unit}.single.fastq.gz",
+        qc="results/trimmed/adapters/{sample}/{unit}.single.qc.txt"
     log:
         "logs/cutadapt/{sample}-{unit}.log"
     params:
@@ -53,9 +53,44 @@ rule cutadapt_se:
     wrapper:
         "0.42.0/bio/cutadapt/se"
 
+
+rule trimmomatic_se:
+    input:
+        "results/trimmed/adapters/{sample}/{unit}.single.fastq.gz"
+    output:
+        "results/trimmed/primers/{sample}/{unit}.single.fastq.gz",
+    log:
+        "logs/trimmomatic/{sample}-{unit}.log"
+    params:
+        trimmers=["ILLUMINACLIP:{}:{}:{}:{}".format(*config["primers"]["trimming"]["trimmomatic"].values())],
+        extra="",
+        compression_level="-9"
+    wrapper:
+        "0.51.2/bio/trimmomatic/se"
+
+
+rule trimmomatic_pe:
+    input:
+        r1="results/trimmed/adapters/{sample}/{unit}.1.fastq.gz",
+        r2="results/trimmed/adapters/{sample}/{unit}.2.fastq.gz",
+    output:
+        fastq1="results/trimmed/primers/{sample}/{unit}.1.fastq.gz",
+        fastq2="results/trimmed/primers/{sample}/{unit}.2.fastq.gz",
+        r1_unpaired="results/trimmed/primers/{sample}/{unit}.1.unpaired.fastq.gz",
+        r2_unpaired="results/trimmed/primers/{sample}{unit}.2.unpaired.fastq.gz"
+    log:
+        "logs/trimmomatic/{sample}-{unit}.log"
+    params:
+        trimmers=["ILLUMINACLIP:{}:{}:{}:{}".format(*config["primers"]["trimming"]["trimmomatic"].values())],
+        extra="",
+        compression_level="-9"
+    wrapper:
+        "0.51.2/bio/trimmomatic/pe"
+
+
 rule merge_fastqs:
     input:
-        lambda w: expand("results/trimmed/{{sample}}/{unit}.{{read}}.fastq.gz", unit=units.loc[w.sample, "unit_name"])
+        get_trimmed_fastqs
     output:
         "results/merged/{sample}.{read}.fastq.gz"
     log:

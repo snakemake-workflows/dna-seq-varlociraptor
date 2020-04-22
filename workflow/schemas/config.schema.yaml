@@ -45,6 +45,26 @@ properties:
       - build
       - n_chromosomes
 
+  primers:
+    type: object
+    properties:
+      trimming:
+        type: object
+        properties:
+          activate: 
+            type: boolean
+          trimmomatic:
+            type: object
+            properties:
+              fasta:
+                type: string
+              seed_mismatch:
+                type: number
+              palindrom_threshold:
+                type: number
+              simple_clip_threshold:
+                type: number
+
   oncoprint:
     type: object
     properties:
