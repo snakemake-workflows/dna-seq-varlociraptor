@@ -26,6 +26,7 @@ primers:
       seed_mismatch: 1 # recommendation: 1-2
       palindrom_threshold: 30 # recommendation: range of 30
       simple_clip_threshold: 7 # recommendation: 7 to 15
+    ref: "path/to/ref-fasta"
 
 # Estimation of tumor mutational burden.
 tmb:

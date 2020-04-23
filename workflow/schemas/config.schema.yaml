@@ -64,6 +64,8 @@ properties:
                 type: number
               simple_clip_threshold:
                 type: number
+          ref:
+            type: string
 
   oncoprint:
     type: object
@@ -167,9 +169,6 @@ properties:
       - dbnsfp
       - vcfs
       - dgidb
-
-
-
 
   params:
     type: object

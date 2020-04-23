@@ -56,7 +56,7 @@ rule cutadapt_se:
 
 rule trimmomatic_se:
     input:
-        "results/trimmed/adapters/{sample}/{unit}.single.fastq.gz"
+        "results/filtered/primers/{sample}/{unit}.single.fq"
     output:
         "results/trimmed/primers/{sample}/{unit}.single.fastq.gz",
     log:
@@ -71,8 +71,8 @@ rule trimmomatic_se:
 
 rule trimmomatic_pe:
     input:
-        r1="results/trimmed/adapters/{sample}/{unit}.1.fastq.gz",
-        r2="results/trimmed/adapters/{sample}/{unit}.2.fastq.gz",
+        r1="results/filtered/primers/{sample}/{unit}.1.fq",
+        r2="results/filtered/primers/{sample}/{unit}.2.fq"
     output:
         fastq1="results/trimmed/primers/{sample}/{unit}.1.fastq.gz",
         fastq2="results/trimmed/primers/{sample}/{unit}.2.fastq.gz",

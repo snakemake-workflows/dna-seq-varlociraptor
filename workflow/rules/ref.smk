@@ -71,11 +71,11 @@ rule remove_iupac_codes:
 
 rule bwa_index:
     input:
-        "resources/genome.fasta"
+        "{prefix}"
     output:
-        multiext("resources/genome.fasta", ".amb", ".ann", ".bwt", ".pac", ".sa")
+        multiext("{prefix}", ".amb", ".ann", ".bwt", ".pac", ".sa")
     log:
-        "logs/bwa_index.log"
+        "logs/bwa_index/{prefix}.log"
     resources:
         mem_mb=369000
     cache: True

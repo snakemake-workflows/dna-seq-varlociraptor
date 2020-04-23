@@ -1,7 +1,7 @@
 rule map_reads:
     input:
         reads=get_map_reads_input,
-        idx=rules.bwa_index.output
+        idx = multiext("resources/genome.fasta", ".amb", ".ann", ".bwt", ".pac", ".sa")
     output:
         temp("results/mapped/{sample}.sorted.bam")
     log:
@@ -47,3 +47,53 @@ rule recalibrate_base_qualities:
         extra=config["params"]["gatk"]["BaseRecalibrator"]
     wrapper:
         "0.47.0/bio/gatk/baserecalibrator"
+
+
+rule map_primers_se:
+    input:
+        reads=["results/trimmed/adapters/{sample}/{unit}.single.fastq.gz"],
+        idx = multiext(config["primers"]["trimming"]["ref"], ".amb", ".ann", ".bwt", ".pac", ".sa")
+    output:
+        temp("results/mapped/primers/{sample}/{unit}.se.bam")
+    params:
+        index=lambda w, input: os.path.splitext(input.idx[0])[0],
+        extra = "-L 0,0 -U 1000 -O 1000,1000 -k 10 -T 10"
+    wrapper:
+        "0.51.3/bio/bwa/mem"
+
+
+rule map_primers_pe:
+    input:
+        reads=["results/trimmed/adapters/{sample}/{unit}.1.fastq.gz", "results/trimmed/adapters/{sample}/{unit}.2.fastq.gz"],
+        idx = "{}.fai".format(config["primers"]["trimming"]["ref"])
+    output:
+        temp("results/mapped/primers/{sample}/{unit}.pe.bam")
+    params:
+        index=lambda w, input: os.path.splitext(input.idx[0])[0],
+        extra = "-L 0,0 -U 1000 -O 1000,1000 -k 10 -T 10"
+    wrapper:
+        "0.51.3/bio/bwa/mem"
+
+
+rule samtools_bam2fq_se:
+    input:
+        "results/filtered/primers/{sample}/{unit}.pe.bam"
+    output:
+        "results/filtered/primers/{sample}/{unit}.single.fq",
+    threads: 3
+    wrapper:
+        "0.51.3/bio/samtools/bam2fq/interleaved"
+
+
+rule samtools_bam2fq_pe:
+    input:
+        "results/filtered/primers/{sample}/{unit}.se.bam"
+    output:
+        "results/filtered/primers/{sample}/{unit}.1.fq",
+        "results/filtered/primers/{sample}/{unit}.2.fq"
+    params:
+        sort = "-m 4G",
+        bam2fq = "-n"
+    threads: 3
+    wrapper:
+        "0.51.3/bio/samtools/bam2fq/separate"
