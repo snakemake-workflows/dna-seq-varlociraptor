@@ -54,7 +54,7 @@ rule map_primers_se:
         reads=["results/trimmed/adapters/{sample}/{unit}.single.fastq.gz"],
         idx = multiext(config["primers"]["trimming"]["ref"], ".amb", ".ann", ".bwt", ".pac", ".sa")
     output:
-        temp("results/mapped/primers/{sample}/{unit}.se.bam")
+        temp("results/mapped/primers/{sample}/{unit}.single.bam")
     params:
         index=lambda w, input: os.path.splitext(input.idx[0])[0],
         extra = "-L 0,0 -U 1000 -O 1000,1000 -k 10 -T 10"
@@ -64,10 +64,10 @@ rule map_primers_se:
 
 rule map_primers_pe:
     input:
-        reads=["results/trimmed/adapters/{sample}/{unit}.1.fastq.gz", "results/trimmed/adapters/{sample}/{unit}.2.fastq.gz"],
-        idx = "{}.fai".format(config["primers"]["trimming"]["ref"])
+        reads=expand("results/trimmed/adapters/{{sample}}/{{unit}}.{read}.fastq.gz", read=[1,2]),
+        idx = "{}.fai".format(config["primers"]["trimming "]["ref"])
     output:
-        temp("results/mapped/primers/{sample}/{unit}.pe.bam")
+        temp("results/mapped/primers/{sample}/{unit}.paired.bam")
     params:
         index=lambda w, input: os.path.splitext(input.idx[0])[0],
         extra = "-L 0,0 -U 1000 -O 1000,1000 -k 10 -T 10"
@@ -77,7 +77,7 @@ rule map_primers_pe:
 
 rule samtools_bam2fq_se:
     input:
-        "results/filtered/primers/{sample}/{unit}.pe.bam"
+        "results/filtered/primers/{sample}/{unit}.single.bam"
     output:
         "results/filtered/primers/{sample}/{unit}.single.fq",
     threads: 3
@@ -87,7 +87,7 @@ rule samtools_bam2fq_se:
 
 rule samtools_bam2fq_pe:
     input:
-        "results/filtered/primers/{sample}/{unit}.se.bam"
+        "results/filtered/primers/{sample}/{unit}.paired.bam"
     output:
         "results/filtered/primers/{sample}/{unit}.1.fq",
         "results/filtered/primers/{sample}/{unit}.2.fq"
