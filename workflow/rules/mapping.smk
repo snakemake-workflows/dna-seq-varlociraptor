@@ -57,7 +57,8 @@ rule map_primers_se:
         temp("results/mapped/primers/{sample}/{unit}.single.bam")
     params:
         index=lambda w, input: os.path.splitext(input.idx[0])[0],
-        extra = "-L 0,0 -U 1000 -O 1000,1000 -k 10 -T 10"
+        extra = "-L 0 -O 1000 -k 10 -T 10"
+    threads: 8
     wrapper:
         "0.51.3/bio/bwa/mem"
 
@@ -71,6 +72,7 @@ rule map_primers_pe:
     params:
         index=lambda w, input: os.path.splitext(input.idx[0])[0],
         extra = "-L 0,0 -U 1000 -O 1000,1000 -k 10 -T 10"
+    threads: 8
     wrapper:
         "0.51.3/bio/bwa/mem"
 
