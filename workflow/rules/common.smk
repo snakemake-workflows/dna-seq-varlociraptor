@@ -79,9 +79,9 @@ def is_paired_end(sample):
 
 def get_map_reads_input(wildcards):
     if is_paired_end(wildcards.sample):
-        return ["results/merged/{sample}.1.fastq.gz",
-                "results/merged/{sample}.2.fastq.gz"]
-    return "results/merged/{sample}.single.fastq.gz"
+        return ["results/merged/{sample}_R1.fastq.gz",
+                "results/merged/{sample}_R2.fastq.gz"]
+    return "results/merged/{sample}_single.fastq.gz"
 
 def get_group_aliases(wildcards):
     return samples.loc[samples["group"] == wildcards.group]["alias"]
@@ -201,5 +201,6 @@ def get_tabix_params(wildcards):
 
 
 def get_trimmed_fastqs(wc):
+    print()
     subdir = "primers" if is_activated("primers/trimming") else "adapters"
-    return expand("results/trimmed/{subdir}/{sample}/{unit}.{read}.fastq.gz", subdir=subdir, unit=units.loc[wc.sample, "unit_name"], sample=wc.sample, read=wc.read)
+    return expand("results/trimmed/{subdir}/{sample}/{unit}_{read}.fastq.gz", subdir=subdir, unit=units.loc[wc.sample, "unit_name"], sample=wc.sample, read=wc.read)

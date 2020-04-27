@@ -26,8 +26,8 @@ rule cutadapt_pe:
     input:
         get_cutadapt_input
     output:
-        fastq1="results/trimmed/adapters/{sample}/{unit}.1.fastq.gz",
-        fastq2="results/trimmed/adapters/{sample}/{unit}.2.fastq.gz",
+        fastq1="results/trimmed/adapters/{sample}/{unit}_R1.fastq.gz",
+        fastq2="results/trimmed/adapters/{sample}/{unit}_R2.fastq.gz",
         qc="results/trimmed/adapters/{sample}/{unit}.paired.qc.txt"
     log:
         "logs/cutadapt/{sample}-{unit}.log"
@@ -65,17 +65,6 @@ rule pipe_ptrimmer_se:
         "cat {input} > {output} 2> {log}"
 
 
-rule pipe_ptrimmer_pe:
-    input:
-        "results/trimmed/adapters/{sample}/{unit}.{read}.fastq.gz"
-    output:
-        pipe("results/trimmed/adapters/{sample}/{unit}.paired_R{read}.fastq.gz")
-    log:
-        "logs/pipe-fastqs/catadapt/{sample}-{unit}.{read}.log"
-    threads: 0 # this does not need CPU
-    shell:
-        "cat {input} > {output} 2> {log}"
-
 rule ptrimmer_se:
     input:
         "results/trimmed/adapters/{sample}/{unit}.single_R1.fastq.gz"
@@ -95,11 +84,11 @@ rule ptrimmer_se:
 
 rule ptrimmer_pe:
     input:
-        r1="results/trimmed/adapters/{sample}/{unit}.paired_R1.fastq.gz",
-        r2="results/trimmed/adapters/{sample}/{unit}.paired_R2.fastq.gz",
+        r1="results/trimmed/adapters/{sample}/{unit}_R1.fastq.gz",
+        r2="results/trimmed/adapters/{sample}/{unit}_R2.fastq.gz",
     output:
-        fastq1="results/trimmed/primers/{sample}/{unit}.1.fastq.gz",
-        fastq2="results/trimmed/primers/{sample}/{unit}.2.fastq.gz",
+        fastq1="results/trimmed/primers/{sample}/{unit}_R1.fastq.gz",
+        fastq2="results/trimmed/primers/{sample}/{unit}_R2.fastq.gz",
     log:
         "logs/ptrimmer/{sample}-{unit}.log"
     params:
@@ -114,10 +103,10 @@ rule merge_fastqs:
     input:
         get_trimmed_fastqs
     output:
-        "results/merged/{sample}.{read}.fastq.gz"
+        "results/merged/{sample}_{read}.fastq.gz"
     log:
-        "logs/merge-fastqs/{sample}.{read}.log"
+        "logs/merge-fastqs/{sample}_{read}.log"
     wildcard_constraints:
-        read="single|1|2"
+        read="single|R1|R2"
     shell:
         "cat {input} > {output} 2> {log}"
