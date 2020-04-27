@@ -80,18 +80,17 @@ rule ptrimmer_se:
     input:
         "results/trimmed/adapters/{sample}/{unit}.single_R1.fastq.gz"
     output:
-        "results/trimmed/primers/{sample}/{unit}.single_trim_R1.fastq.gz",
+        "results/trimmed/primers/{sample}/{unit}.single.fastq.gz",
     log:
         "logs/ptrimmer/{sample}-{unit}.log"
     params:
         primers=config["primers"]["trimming"]["primers"],
-        tmp_fq="results/trimmed/adapters/{sample}/{unit}.single_trim_R1.fq",
-        folder=lambda wc, output: os.path.dirname(output)
+
     conda:
         "../envs/ptrimmer.yaml"
     shell:
-        "ptrimmer -f {input} -a {params.primers} -o {params.folder}"
-        "gzip -c {params.tmp_fq} > {output}"
+        "ptrimmer -f {input} -a {params.primers} -o ./ > {log}"
+        "gzip -c results/trimmed/adapters/{wildcards.sample}/{wildcards.unit}.single_trim_R1.fq > {output}"
 
 
 rule ptrimmer_pe:
@@ -104,14 +103,11 @@ rule ptrimmer_pe:
     log:
         "logs/ptrimmer/{sample}-{unit}.log"
     params:
-        primers=config["primers"]["trimming"]["primers"],
-        tmp_fq1="results/trimmed/adapters/{sample}/{unit}.paired_trim_R1.fq",
-        tmp_fq2="results/trimmed/adapters/{sample}/{unit}.paired_trim_R2.fq",
-        folder=lambda wc, output: os.path.dirname(output.fastq1)
+        primers=config["primers"]["trimming"]["primers"]
     shell:
-        "ptrimmer -f {input.r1} -r {input.r2} -a {params.primers} -o {params.folder}"
-        "gzip -c {params.tmp_fq1} > {output.fastq1}"
-        "gzip -c {params.tmp_fq2} > {output.fastq2}"
+        "ptrimmer -f {input.r1} -r {input.r2} -a {params.primers} -o ./ > {log}"
+        "gzip -c results/trimmed/adapters/{wildcards.sample}/{wildcards.unit}.paired_trim_R1.fq > {output.fastq1}"
+        "gzip -c results/trimmed/adapters/{{wildcards.sample}}/{wildcards.unit}.paired_trim_R2.fq > {output.fastq2}"
 
 
 rule merge_fastqs:
