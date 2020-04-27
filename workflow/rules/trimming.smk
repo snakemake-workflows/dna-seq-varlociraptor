@@ -53,39 +53,61 @@ rule cutadapt_se:
     wrapper:
         "0.42.0/bio/cutadapt/se"
 
-
-rule trimmomatic_se:
+rule pipe_ptrimmer_se:
     input:
         "results/trimmed/adapters/{sample}/{unit}.single.fastq.gz"
     output:
-        "results/trimmed/primers/{sample}/{unit}.single.fastq.gz",
-    log:
-        "logs/trimmomatic/{sample}-{unit}.log"
-    params:
-        trimmers=["ILLUMINACLIP:{}:{}:{}:{}".format(*config["primers"]["trimming"]["trimmomatic"].values())],
-        extra="",
-        compression_level="-9"
-    wrapper:
-        "0.51.2/bio/trimmomatic/se"
+        pipe("results/trimmed/adapters/{sample}/{unit}.single_R1.fastq.gz")
+    threads: 0 # this does not need CPU
+    shell:
+        "cat {input} > {output} 2> {log}"
 
 
-rule trimmomatic_pe:
+rule pipe_ptrimmer_pe:
     input:
-        r1="results/trimmed/adapters/{sample}/{unit}.1.fastq.gz",
-        r2="results/trimmed/adapters/{sample}/{unit}.2.fastq.gz",
+        "results/trimmed/adapters/{sample}/{unit}.{read}.fastq.gz"
+    output:
+        pipe("results/trimmed/adapters/{sample}/{unit}.paired_R{read}.fastq.gz")
+    threads: 0 # this does not need CPU
+    shell:
+        "cat {input} > {output} 2> {log}"
+
+rule ptrimmer_se:
+    input:
+        "results/trimmed/adapters/{sample}/{unit}.single_R1.fastq.gz"
+    output:
+        "results/trimmed/primers/{sample}/{unit}.single_trim_R1.fastq.gz",
+    log:
+        "logs/ptrimmer/{sample}-{unit}.log"
+    params:
+        primers=config["primers"]["trimming"]["primers"],
+        tmp_fq="results/trimmed/adapters/{sample}/{unit}.single_trim_R1.fq",
+        folder=lambda wc, output: os.path.dirname(output)
+    conda:
+        "../envs/ptrimmer.yaml"
+    shell:
+        "ptrimmer -f {input} -a {params.primers} -o {params.folder}"
+        "gzip -c {params.tmp_fq} > {output}"
+
+
+rule ptrimmer_pe:
+    input:
+        r1="results/trimmed/adapters/{sample}/{unit}.paired_R1.fastq.gz",
+        r2="results/trimmed/adapters/{sample}/{unit}.paired_R2.fastq.gz",
     output:
         fastq1="results/trimmed/primers/{sample}/{unit}.1.fastq.gz",
         fastq2="results/trimmed/primers/{sample}/{unit}.2.fastq.gz",
-        r1_unpaired="results/trimmed/primers/{sample}/{unit}.1.unpaired.fastq.gz",
-        r2_unpaired="results/trimmed/primers/{sample}{unit}.2.unpaired.fastq.gz"
     log:
-        "logs/trimmomatic/{sample}-{unit}.log"
+        "logs/ptrimmer/{sample}-{unit}.log"
     params:
-        trimmers=["ILLUMINACLIP:{}:{}:{}:{}".format(*config["primers"]["trimming"]["trimmomatic"].values())],
-        extra="",
-        compression_level="-9"
-    wrapper:
-        "0.51.2/bio/trimmomatic/pe"
+        primers=config["primers"]["trimming"]["primers"],
+        tmp_fq1="results/trimmed/adapters/{sample}/{unit}.paired_trim_R1.fq",
+        tmp_fq2="results/trimmed/adapters/{sample}/{unit}.paired_trim_R2.fq",
+        folder=lambda wc, output: os.path.dirname(output.fastq1)
+    shell:
+        "ptrimmer -f {input.r1} -r {input.r2} -a {params.primers} -o {params.folder}"
+        "gzip -c {params.tmp_fq1} > {output.fastq1}"
+        "gzip -c {params.tmp_fq2} > {output.fastq2}"
 
 
 rule merge_fastqs:
