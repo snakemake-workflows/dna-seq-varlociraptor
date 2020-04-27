@@ -14,7 +14,7 @@ rule cutadapt_pipe:
     output:
         pipe('pipe/cutadapt/{sample}/{unit}.{fq}.{ext}')
     log:
-        "logs/pipe-fastqs/{sample}-{unit}.{fq}.{ext}"
+        "logs/pipe-fastqs/catadapt/{sample}-{unit}.{fq}.{ext}"
     wildcard_constraints:
         ext=r"fastq|fastq\.gz"
     threads: 0 # this does not need CPU
@@ -58,6 +58,8 @@ rule pipe_ptrimmer_se:
         "results/trimmed/adapters/{sample}/{unit}.single.fastq.gz"
     output:
         pipe("results/trimmed/adapters/{sample}/{unit}.single_R1.fastq.gz")
+    log:
+        "logs/pipe-fastqs/ptrimmer/{sample}-{unit}.single.log"
     threads: 0 # this does not need CPU
     shell:
         "cat {input} > {output} 2> {log}"
@@ -68,6 +70,8 @@ rule pipe_ptrimmer_pe:
         "results/trimmed/adapters/{sample}/{unit}.{read}.fastq.gz"
     output:
         pipe("results/trimmed/adapters/{sample}/{unit}.paired_R{read}.fastq.gz")
+    log:
+        "logs/pipe-fastqs/catadapt/{sample}-{unit}.{read}.{log}"
     threads: 0 # this does not need CPU
     shell:
         "cat {input} > {output} 2> {log}"
