@@ -71,7 +71,7 @@ rule pipe_ptrimmer_pe:
     output:
         pipe("results/trimmed/adapters/{sample}/{unit}.paired_R{read}.fastq.gz")
     log:
-        "logs/pipe-fastqs/catadapt/{sample}-{unit}.{read}.{log}"
+        "logs/pipe-fastqs/catadapt/{sample}-{unit}.{read}.log"
     threads: 0 # this does not need CPU
     shell:
         "cat {input} > {output} 2> {log}"
