@@ -430,6 +430,7 @@
                 var alt_dna = alts_dna[i].innerHTML
                 var alt_aa = alts_aa[i].innerHTML
                 createLink(cell, `https://clinicaltrials.gov/ct2/results?cond=&term=${gene}&cntry=&state=&city=&dist=`, "ClinicalTrials")
+                createLink(cell, `https://www.cbioportal.org/ln?q=${gene}`, "cBioPortal")
                 createLink(cell, `https://oncokb.org/gene/${gene}`, "OncoKB")
                 createLink(cell, `https://www.ensembl.org/homo_sapiens/Gene/Summary?db=core;g=${ensembl_ids[i - 1]}`, "Ensembl")
                 createLink(cell, `https://www.google.com/search?q=${gene}&as_epq=${alt_dna}`, "Google (DNA)")
