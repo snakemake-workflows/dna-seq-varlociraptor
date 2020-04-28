@@ -21,11 +21,9 @@ ref:
 primers:
   trimming:
     activate: false
-    trimmomatic:
-      fasta: "path/to/fasta"
-      seed_mismatch: 1 # recommendation: 1-2
-      palindrom_threshold: 30 # recommendation: range of 30
-      simple_clip_threshold: 7 # recommendation: 7 to 15
+    # path to amplicon file in the format defined by ptrimmer:
+    # https://github.com/DMU-lilab/pTrimmer
+    primers: "path/to/primer-txt"
 
 # Estimation of tumor mutational burden.
 tmb:
