@@ -21,6 +21,8 @@ ref:
 primers:
   trimming:
     activate: false
+    # path to amplicon file in the format defined by ptrimmer:
+    # https://github.com/DMU-lilab/pTrimmer
     primers: "path/to/primer-txt"
 
 # Estimation of tumor mutational burden.
