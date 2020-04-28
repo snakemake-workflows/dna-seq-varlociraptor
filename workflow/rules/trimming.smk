@@ -53,6 +53,7 @@ rule cutadapt_se:
     wrapper:
         "0.42.0/bio/cutadapt/se"
 
+#TODO Remove rule and set input of ptrimmer_se to unit_R1 (patch pTrimmer)
 rule pipe_ptrimmer_se:
     input:
         "results/trimmed/adapters/{sample}/{unit}.single.fastq.gz"
