@@ -71,16 +71,16 @@ rule ptrimmer_se:
         "results/trimmed/adapters/{sample}/{unit}.single_R1.fastq.gz"
     output:
         "results/trimmed/primers/{sample}/{unit}.single.fastq.gz",
-    log:
-        "logs/ptrimmer/{sample}-{unit}.log"
     params:
         primers=config["primers"]["trimming"]["primers"],
-
+        output_dir=lambda wc, output: os.path.dirname(output)
+    log:
+        "logs/ptrimmer/{sample}-{unit}.log"
     conda:
         "../envs/ptrimmer.yaml"
     shell:
-        "ptrimmer -f {input} -a {params.primers} -o ./ > {log}"
-        "gzip -c results/trimmed/adapters/{wildcards.sample}/{wildcards.unit}.single_trim_R1.fq > {output}"
+        "ptrimmer -s single -f {input} -a {params.primers} -o {params.output_dir} &> {log} && "
+        "gzip -c results/trimmed/primers/{wildcards.sample}/{wildcards.unit}.single_trim_R1.fq > {output}"
 
 
 rule ptrimmer_pe:
@@ -88,16 +88,20 @@ rule ptrimmer_pe:
         r1="results/trimmed/adapters/{sample}/{unit}_R1.fastq.gz",
         r2="results/trimmed/adapters/{sample}/{unit}_R2.fastq.gz",
     output:
-        fastq1="results/trimmed/primers/{sample}/{unit}_R1.fastq.gz",
-        fastq2="results/trimmed/primers/{sample}/{unit}_R2.fastq.gz",
+        r1="results/trimmed/primers/{sample}/{unit}_R1.fastq.gz",
+        r2="results/trimmed/primers/{sample}/{unit}_R2.fastq.gz",
+    params:
+        primers=config["primers"]["trimming"]["primers"],
+        output_dir=lambda wc, output: os.path.dirname(output.r1)
     log:
         "logs/ptrimmer/{sample}-{unit}.log"
-    params:
-        primers=config["primers"]["trimming"]["primers"]
+    conda:
+        "../envs/ptrimmer.yaml"
     shell:
-        "ptrimmer -f {input.r1} -r {input.r2} -a {params.primers} -o ./ > {log}"
-        "gzip -c results/trimmed/adapters/{wildcards.sample}/{wildcards.unit}.paired_trim_R1.fq > {output.fastq1}"
-        "gzip -c results/trimmed/adapters/{{wildcards.sample}}/{wildcards.unit}.paired_trim_R2.fq > {output.fastq2}"
+        "ptrimmer -s pair -f {input.r1} -r {input.r2} -a {params.primers} -o {params.output_dir} &> {log} && "
+        "(gzip -c -9 results/trimmed/primers/{wildcards.sample}/{wildcards.unit}_trim_R1.fq > {output.r1} & "
+        "gzip -c -9 results/trimmed/primers/{wildcards.sample}/{wildcards.unit}_trim_R2.fq > {output.r1})"
+
 
 
 rule merge_fastqs:
