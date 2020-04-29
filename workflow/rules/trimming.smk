@@ -99,8 +99,8 @@ rule ptrimmer_pe:
         "../envs/ptrimmer.yaml"
     shell:
         "ptrimmer -s pair -f {input.r1} -r {input.r2} -a {params.primers} -o {params.output_dir} &> {log} && "
-        "(gzip -c -9 results/trimmed/primers/{wildcards.sample}/{wildcards.unit}_trim_R1.fq > {output.r1} & "
-        "gzip -c -9 results/trimmed/primers/{wildcards.sample}/{wildcards.unit}_trim_R2.fq > {output.r2})"
+        "gzip -c -9 results/trimmed/primers/{wildcards.sample}/{wildcards.unit}_trim_R1.fq > {output.r1} && "
+        "gzip -c -9 results/trimmed/primers/{wildcards.sample}/{wildcards.unit}_trim_R2.fq > {output.r2}"
 
 
 
