@@ -80,7 +80,8 @@ rule ptrimmer_se:
         "../envs/ptrimmer.yaml"
     shell:
         "ptrimmer -s single -f {input} -a {params.primers} -o {params.output_dir} &> {log} && "
-        "gzip -c results/trimmed/primers/{wildcards.sample}/{wildcards.unit}.single_trim_R1.fq > {output}"
+        "gzip -c results/trimmed/primers/{wildcards.sample}/{wildcards.unit}.single_trim_R1.fq > {output} && "
+        "rm gzip -c results/trimmed/primers/{wildcards.sample}/{wildcards.unit}.single_trim_R1.fq"
 
 
 rule ptrimmer_pe:
@@ -100,7 +101,9 @@ rule ptrimmer_pe:
     shell:
         "ptrimmer -s pair -f {input.r1} -r {input.r2} -a {params.primers} -o {params.output_dir} &> {log} && "
         "gzip -c -9 results/trimmed/primers/{wildcards.sample}/{wildcards.unit}_trim_R1.fq > {output.r1} && "
-        "gzip -c -9 results/trimmed/primers/{wildcards.sample}/{wildcards.unit}_trim_R2.fq > {output.r2}"
+        "gzip -c -9 results/trimmed/primers/{wildcards.sample}/{wildcards.unit}_trim_R2.fq > {output.r2} && "
+        "rm results/trimmed/primers/{wildcards.sample}/{wildcards.unit}_trim_R1.fq && "
+        "rm results/trimmed/primers/{wildcards.sample}/{wildcards.unit}_trim_R2.fq"
 
 
 
