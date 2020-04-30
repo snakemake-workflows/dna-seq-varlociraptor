@@ -4,7 +4,7 @@ rule plot_oncoprint:
     output:
         report("results/plots/oncoprint/{batch}.{event}.html", category="Oncoprint", caption="../report/oncoprint.rst")
     params: 
-        input=lambda w: expand("{group}=results/merged-calls/{group}.{event}.fdr-controlled.bcf", group=get_oncoprint_batch(w), event=w.event)
+        groups=lambda w, input: expand("{group}={path}", zip, group=get_oncoprint_batch(w), path=input)
     log:
         "logs/oncoprint/{batch}.{event}.plot.log"
     conda:
