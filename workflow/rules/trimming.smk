@@ -81,7 +81,7 @@ rule ptrimmer_se:
     shell:
         "ptrimmer -s single -f {input} -a {params.primers} -o {params.output_dir} &> {log} && "
         "gzip -c results/trimmed/primers/{wildcards.sample}/{wildcards.unit}.single_trim_R1.fq > {output} && "
-        "rm -c results/trimmed/primers/{wildcards.sample}/{wildcards.unit}.single_trim_R1.fq"
+        "rm results/trimmed/primers/{wildcards.sample}/{wildcards.unit}.single_trim_R1.fq"
 
 
 rule ptrimmer_pe:
