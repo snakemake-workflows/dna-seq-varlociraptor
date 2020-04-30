@@ -1,24 +1,13 @@
-rule build_oncoprint_table:
-    input:
-        bcf=get_oncoprint_batch
-    output:
-        "results/plots/oncoprint/{batch}.{event}.tsv"
-    log:
-        "logs/oncoprint/{batch}.{event}.table.log"
-    conda:
-        "../envs/oncoprinttable.yaml"
-    script:
-        "../scripts/build_oncoprint_matrix.py"
-
 rule plot_oncoprint:
     input:
-        "results/plots/oncoprint/{batch}.{event}.tsv"
+        bcfs=lambda w: expand("results/merged-calls/{group}.{{event}}.fdr-controlled.bcf", group=get_oncoprint_batch(w))
     output:
-        report("results/plots/oncoprint/{batch}.{event}.pdf", category="Oncoprint", caption="../report/oncoprint.rst")
+        report("results/plots/oncoprint/{batch}.{event}.html", category="Oncoprint", caption="../report/oncoprint.rst")
+    params: 
+        groups=lambda w, input: expand("{group}={path}", zip, group=get_oncoprint_batch(w), path=input)
     log:
         "logs/oncoprint/{batch}.{event}.plot.log"
     conda:
-        "../envs/oncoprint.yaml"
-    script:
-        "../scripts/oncoprint.R"
-    
+        "../envs/rbt.yaml"
+    shell:
+        "rbt oncoprint {params.groups} > {output} 2> {log}"
