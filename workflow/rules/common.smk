@@ -156,6 +156,14 @@ def get_oncoprint_batch(wildcards):
     return expand("results/merged-calls/{group}.{{event}}.fdr-controlled.bcf", group=groups)
 
 
+def get_oncoprint_groups(wildcards):
+    if wildcards.batch == "all":
+        groups = samples["group"].unique()
+    else:
+        groups = samples.loc[samples[config["oncoprint"]["stratify"]["by-column"]] == wildcards.batch, "group"].unique()
+    return groups
+
+
 def get_merge_calls_input(ext=".bcf"):
     def inner(wildcards):
         return expand("results/calls/{{group}}.{vartype}.{{event}}.{filter}.fdr-controlled{ext}",
