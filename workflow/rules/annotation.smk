@@ -1,16 +1,13 @@
-rule download_snpeff_db:
+rule snpeff_download:
     output:
-        directory("resources/snpeff/{ref}")
+        directory("resources/snpeff/{reference}")
     log:
-        "logs/download-snpeff-db/{ref}.log"
+        "logs/snpeff/download/{reference}.log"
     params:
-        db_dir=lambda _, output: str(Path(output[0]).parent.resolve()),
-        ref="{ref}"
-    conda:
-        "../envs/snpeff.yaml"
+        reference="{reference}"
     cache: True
-    shell:
-        "snpEff download -dataDir {params.db_dir} {params.ref} 2> {log}"
+    wrapper:
+        "0.52.0/bio/snpeff/download"
 
 rule snpeff:
     input:
