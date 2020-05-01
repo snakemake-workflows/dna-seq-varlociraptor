@@ -20,13 +20,11 @@ rule snpeff:
     log:
         "logs/snpeff/{group}.log"
     params:
-        reference="{build}.{snpeff_release}".format(**config["ref"]),
-        data_dir=lambda _, input: Path(input.db).parent.resolve(),
         extra="-Xmx4g -nodownload"
     resources:
         mem_mb=4000
     wrapper:
-        "0.50.4/bio/snpeff"
+        "0.52.0/bio/snpeff"
 
 # TODO What about multiple ID Fields?
 rule annotate_vcfs:
