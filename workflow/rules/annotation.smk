@@ -24,7 +24,7 @@ rule snpeff:
     resources:
         mem_mb=4000
     wrapper:
-        "0.52.0/bio/snpeff"
+        "0.52.0/bio/snpeff/annotate"
 
 # TODO What about multiple ID Fields?
 rule annotate_vcfs:
