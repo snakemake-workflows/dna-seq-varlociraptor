@@ -1,16 +1,13 @@
-rule download_snpeff_db:
+rule snpeff_download:
     output:
-        directory("resources/snpeff/{ref}")
+        directory("resources/snpeff/{reference}")
     log:
-        "logs/download-snpeff-db/{ref}.log"
+        "logs/snpeff/download/{reference}.log"
     params:
-        db_dir=lambda _, output: str(Path(output[0]).parent.resolve()),
-        ref="{ref}"
-    conda:
-        "../envs/snpeff.yaml"
+        reference="{reference}"
     cache: True
-    shell:
-        "snpEff download -dataDir {params.db_dir} {params.ref} 2> {log}"
+    wrapper:
+        "0.52.0/bio/snpeff/download"
 
 rule snpeff:
     input:
@@ -23,13 +20,11 @@ rule snpeff:
     log:
         "logs/snpeff/{group}.log"
     params:
-        reference="{build}.{snpeff_release}".format(**config["ref"]),
-        data_dir=lambda _, input: Path(input.db).parent.resolve(),
         extra="-Xmx4g -nodownload"
     resources:
         mem_mb=4000
     wrapper:
-        "0.50.4/bio/snpeff"
+        "0.52.0/bio/snpeff/annotate"
 
 # TODO What about multiple ID Fields?
 rule annotate_vcfs:

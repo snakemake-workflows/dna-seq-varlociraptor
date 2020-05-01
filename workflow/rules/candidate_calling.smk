@@ -13,7 +13,7 @@ rule freebayes:
         extra=config["params"].get("freebayes", ""),
     threads: 100 # use all available cores for calling
     wrapper:
-        "0.51.3/bio/freebayes"
+        "0.52.0/bio/freebayes"
 
 
 rule delly:
