@@ -323,6 +323,9 @@
         }
 
         function parse_dgidb_data(data) {
+            if (data == undefined) {
+                return ""
+            }
             var parsed_drugs = []
             var entries = data.split(",").map(row => row.split("|")[1])
             entries = entries.filter(function (entry) { return entry != '.' })
@@ -331,6 +334,9 @@
         }
 
         function parse_column_data(data) {
+            if (data == undefined) {
+                return ""
+            }
             var parsed_ids = []
             var entries = data.split(/[,\|]/)
             entries = entries.filter(function (entry) { return entry != '.' })
