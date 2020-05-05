@@ -279,8 +279,12 @@
         }
 
         function initDataTable() {
-            var samples = Object.keys(tableJson[0]).filter(function (key) { return key.endsWith(":AF") }).map(function (entry) { return entry.slice(0, -3) })
-            var columns = ['Chrom', 'Position', 'ID', 'Cosmic IDs', 'Gene', 'dgiDB drugs', 'DNA alteration', 'Impact']
+            if (tableJson.length > 0) {
+                var samples = Object.keys(tableJson[0]).filter(function (key) { return key.endsWith(":AF") }).map(function (entry) { return entry.slice(0, -3) })
+            } else {
+                var samples = []
+            }
+                var columns = ['Chrom', 'Position', 'ID', 'Cosmic IDs', 'Gene', 'dgiDB drugs', 'DNA alteration', 'Impact']
             var sample_columns = []
             for (sample of samples) {
                 sample_columns.push(`${sample}:AF`)
