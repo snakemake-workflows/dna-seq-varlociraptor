@@ -69,6 +69,7 @@ rule remove_iupac_codes:
     shell:
         "rbt vcf-fix-iupac-alleles < {input} | bcftools view -Oz > {output}"
 
+
 rule bwa_index:
     input:
         "resources/genome.fasta"
@@ -81,3 +82,25 @@ rule bwa_index:
     cache: True
     wrapper:
         "0.50.4/bio/bwa/index"
+
+
+rule get_vep_cache:
+    output:
+        directory("resources/vep/cache")
+    params:
+        species=config["ref"]["species"],
+        build=config["ref"]["build"],
+        release=config["ref"]["release"]
+    log:
+        "logs/vep/cache.log"
+    wrapper:
+        "0.55.0/bio/vep/cache"
+
+
+rule get_vep_plugins:
+    output:
+        directory("resources/vep/plugins")
+    params:
+        release=config["ref"]["release"]
+    wrapper:
+        "0.55.0/bio/vep/plugins"
