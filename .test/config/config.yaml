@@ -19,8 +19,8 @@ ref:
 
 primers:
   trimming:
-    activate: false
-    primers: "path/to/primers-txt"
+    activate: true
+    primers: "primers.txt"
 
 
 # Estimation of tumor mutational burden.
