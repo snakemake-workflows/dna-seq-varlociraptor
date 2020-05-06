@@ -279,8 +279,12 @@
         }
 
         function initDataTable() {
-            var samples = Object.keys(tableJson[0]).filter(function (key) { return key.endsWith(":AF") }).map(function (entry) { return entry.slice(0, -3) })
-            var columns = ['Chrom', 'Position', 'ID', 'Cosmic IDs', 'Gene', 'dgiDB drugs', 'DNA alteration', 'Impact']
+            if (tableJson.length > 0) {
+                var samples = Object.keys(tableJson[0]).filter(function (key) { return key.endsWith(":AF") }).map(function (entry) { return entry.slice(0, -3) })
+            } else {
+                var samples = []
+            }
+                var columns = ['Chrom', 'Position', 'ID', 'Cosmic IDs', 'Gene', 'dgiDB drugs', 'DNA alteration', 'Impact']
             var sample_columns = []
             for (sample of samples) {
                 sample_columns.push(`${sample}:AF`)
@@ -323,6 +327,9 @@
         }
 
         function parse_dgidb_data(data) {
+            if (data == undefined) {
+                return ""
+            }
             var parsed_drugs = []
             var entries = data.split(",").map(row => row.split("|")[1])
             entries = entries.filter(function (entry) { return entry != '.' })
@@ -331,6 +338,9 @@
         }
 
         function parse_column_data(data) {
+            if (data == undefined) {
+                return ""
+            }
             var parsed_ids = []
             var entries = data.split(/[,\|]/)
             entries = entries.filter(function (entry) { return entry != '.' })
