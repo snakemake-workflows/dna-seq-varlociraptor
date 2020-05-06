@@ -14,7 +14,7 @@ rule annotate_variants:
     log:
         "logs/vep/{group}.annotate.log"
     wrapper:
-        "0.55.0/bio/vep/annotate"
+        "0.55.1/bio/vep/annotate"
 
 
 # TODO What about multiple ID Fields?
