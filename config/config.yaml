@@ -13,8 +13,6 @@ ref:
   species: homo_sapiens
   # Ensembl release
   release: 98
-  # Ensembl release to use for SnpEff annotation (sometimes, the latest Ensembl release is not available in SnpEff)
-  snpeff_release: 86
   # Genome build
   build: GRCh38
 

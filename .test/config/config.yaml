@@ -13,7 +13,6 @@ ref:
   species: saccharomyces_cerevisiae
   # Ensembl release (make sure to take one where snpeff data is available, check 'snpEff databases' output)
   release: 98
-  snpeff_release: 86
   # Genome build
   build: R64-1-1
 

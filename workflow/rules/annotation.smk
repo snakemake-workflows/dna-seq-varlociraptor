@@ -9,8 +9,8 @@ rule annotate_variants:
     params:
         # Pass a list of plugins to use, see https://www.ensembl.org/info/docs/tools/vep/script/vep_plugins.html
         # Plugin args can be added as well, e.g. via an entry "MyPlugin,1,FOO", see docs.
-        plugins=config["params"]["vep"]["plugins"],
-        extra=config["params"]["vep"]["extra"]
+        plugins=config["annotations"]["vep"]["plugins"],
+        extra=config["annotations"]["vep"]["extra"]
     log:
         "logs/vep/{group}.annotate.log"
     wrapper:
