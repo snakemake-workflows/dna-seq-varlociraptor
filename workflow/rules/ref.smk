@@ -10,7 +10,7 @@ rule get_genome:
         release=config["ref"]["release"]
     cache: True
     wrapper:
-        "0.50.4/bio/reference/ensembl-sequence"
+        "0.55.1/bio/reference/ensembl-sequence"
 
 
 rule genome_faidx:
@@ -22,7 +22,7 @@ rule genome_faidx:
         "logs/genome-faidx.log"
     cache: True
     wrapper:
-        "0.50.4/bio/samtools/faidx"
+        "0.55.1/bio/samtools/faidx"
 
 
 rule genome_dict:
@@ -53,7 +53,7 @@ rule get_known_variants:
         type="all"
     cache: True
     wrapper:
-        "0.51.1/bio/reference/ensembl-variation"
+        "0.55.1/bio/reference/ensembl-variation"
 
 
 rule remove_iupac_codes:
@@ -80,4 +80,4 @@ rule bwa_index:
         mem_mb=369000
     cache: True
     wrapper:
-        "0.50.4/bio/bwa/index"
+        "0.55.1/bio/bwa/index"
