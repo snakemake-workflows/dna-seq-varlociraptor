@@ -7,7 +7,7 @@ rule snpeff_download:
         reference="{reference}"
     cache: True
     wrapper:
-        "0.52.0/bio/snpeff/download"
+        "0.55.1/bio/snpeff/download"
 
 rule snpeff:
     input:
@@ -24,7 +24,7 @@ rule snpeff:
     resources:
         mem_mb=4000
     wrapper:
-        "0.52.0/bio/snpeff/annotate"
+        "0.55.1/bio/snpeff/annotate"
 
 # TODO What about multiple ID Fields?
 rule annotate_vcfs:

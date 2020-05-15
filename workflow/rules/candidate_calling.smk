@@ -13,7 +13,7 @@ rule freebayes:
         extra=config["params"].get("freebayes", ""),
     threads: 100 # use all available cores for calling
     wrapper:
-        "0.52.0/bio/freebayes"
+        "0.55.1/bio/freebayes"
 
 
 rule delly:
@@ -30,4 +30,4 @@ rule delly:
         extra=config["params"].get("delly", "")
     threads: lambda _, input: len(input.samples) # delly parallelizes over the number of samples
     wrapper:
-        "0.43.0/bio/delly"
+        "0.55.1/bio/delly"
