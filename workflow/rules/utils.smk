@@ -19,7 +19,7 @@ rule bam_index:
     log:
         "logs/bam-index/{prefix}.log"
     wrapper:
-        "0.39.0/bio/samtools/index"
+        "0.55.1/bio/samtools/index"
 
 
 rule tabix_known_variants:
@@ -33,7 +33,7 @@ rule tabix_known_variants:
         get_tabix_params
     cache: True
     wrapper:
-        "0.45.1/bio/tabix"
+        "0.55.1/bio/tabix"
 
 
 rule get_covered_regions:
