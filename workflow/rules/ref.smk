@@ -50,6 +50,7 @@ rule get_known_variants:
     params:
         species=config["ref"]["species"],
         release=config["ref"]["release"],
+        build=config["ref"]["build"]
         type="all"
     cache: True
     wrapper:
