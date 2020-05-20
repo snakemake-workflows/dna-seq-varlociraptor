@@ -22,6 +22,7 @@ rule delly:
         ref_idx="resources/genome.fasta.fai",
         samples=get_group_bams,
         index=get_group_bais,
+        exclude=get_excluded_regions
     output:
         "results/candidate-calls/{group}.delly.bcf"
     log:

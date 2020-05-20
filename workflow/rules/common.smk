@@ -97,9 +97,15 @@ def get_group_bams(wildcards):
     return expand("results/recal/{sample}.sorted.bam", sample=get_group_samples(wildcards))
 
 
-def get_regions(wildcards):
+def get_regions():
     if is_activated("calling/regions"):
         return config["calling"]["regions"]["bed"]
+    else:
+        return []
+
+def get_excluded_regions():
+    if is_activated("calling/regions"):
+        return "results/excluded_regions.bed"
     else:
         return []
 
