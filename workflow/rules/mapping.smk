@@ -13,7 +13,7 @@ rule map_reads:
         sort_order="coordinate"
     threads: 8
     wrapper:
-        "0.55.1/bio/bwa/mem"
+        "0.56.0/bio/bwa/mem"
 
 
 rule mark_duplicates:
@@ -27,7 +27,7 @@ rule mark_duplicates:
     params:
         config["params"]["picard"]["MarkDuplicates"]
     wrapper:
-        "0.55.1/bio/picard/markduplicates"
+        "0.56.0/bio/picard/markduplicates"
 
 
 rule recalibrate_base_qualities:
@@ -46,4 +46,4 @@ rule recalibrate_base_qualities:
     params:
         extra=config["params"]["gatk"]["BaseRecalibrator"]
     wrapper:
-        "0.55.1/bio/gatk/baserecalibrator"
+        "0.56.0/bio/gatk/baserecalibrator"
