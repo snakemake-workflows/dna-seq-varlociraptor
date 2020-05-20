@@ -110,6 +110,8 @@ properties:
         properties:
           activate:
             type: boolean
+          bed:
+            type: string
       scenario:
         type: string
       filter:

@@ -99,13 +99,9 @@ def get_group_bams(wildcards):
 
 def get_regions(wildcards):
     if is_activated("calling/regions"):
-        return "results/regions/{group}.bed".format(group=wildcards.group)
+        return config["calling"]["regions"]["bed"]
     else:
-        return ""
-
-
-def get_group_beds(wildcards):
-    return expand("results/regions/temp/{sample}.quantized.bed.gz", sample=get_group_samples(wildcards))
+        return []
 
 def get_group_observations(wildcards):
     return expand("results/observations/{group}/{sample}.{caller}.bcf", 

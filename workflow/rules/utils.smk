@@ -34,34 +34,3 @@ rule tabix_known_variants:
     cache: True
     wrapper:
         "0.56.0/bio/tabix"
-
-
-rule get_covered_regions:
-    input:
-        ref="resources/genome.fasta",
-        bam="results/recal/{sample}.sorted.bam",
-        bai="results/recal/{sample}.sorted.bam.bai"
-    output:
-        temp("results/regions/temp/{sample}.quantized.bed.gz")
-    params:
-        prefix=lambda wc, output: output[0].split(".quantized.bed.gz")[0]
-    shadow: "minimal"
-    log:
-        "logs/bam-regions/{sample}.log"
-    conda:
-        "../envs/mosdepth.yaml"
-    shell:
-        "mosdepth {params.prefix} {input.bam} -q 1: 2> {log}"
-
-
-rule merge_regions:
-    input:
-        get_group_beds,
-    output:
-        "results/regions/{group}.bed"
-    log:
-        "logs/unzip_regions/{group}.log"
-    conda:
-        "../envs/bedtools.yaml"
-    shell:
-        "zcat {input} | sort -k1,1 -k2,2n | bedtools merge -i stdin > {output} 2> {log}"
