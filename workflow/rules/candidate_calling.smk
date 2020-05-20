@@ -2,7 +2,7 @@ rule freebayes:
     input:
         ref="resources/genome.fasta",
         ref_idx="resources/genome.fasta.fai",
-        regions=get_regions,
+        regions=get_regions(),
         # you can have a list of samples here
         samples=get_group_bams
     output:
@@ -22,7 +22,7 @@ rule delly:
         ref_idx="resources/genome.fasta.fai",
         samples=get_group_bams,
         index=get_group_bais,
-        exclude=get_excluded_regions
+        exclude=get_excluded_regions()
     output:
         "results/candidate-calls/{group}.delly.bcf"
     log:

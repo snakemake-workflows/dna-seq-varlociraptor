@@ -38,10 +38,11 @@ rule tabix_known_variants:
 
 rule build_genome_bed:
     input:
-        ref_idx="resources/genome.fasta.fai",
-        chroms=config["ref"]["n_chromosomes"]
+        "resources/genome.fasta.fai"
     output:
         "results/regions/genome_regions.bed"
+    params:
+        chroms=config["ref"]["n_chromosomes"]
     log:
         "logs/regions/genome_regions.log"
     script:
@@ -54,9 +55,9 @@ rule build_excluded_regions:
         genome_regions="results/regions/genome_regions.bed"
     output:
         "results/regions/excluded_regions.bed"
-    log:		
-         "logs/regions/excluded_regions.log"		
-    conda:		
+    log:
+         "logs/regions/excluded_regions.log"
+    conda:
         "../envs/bedtools.yaml"
     shell:
         "bedtools complement -i {input.target_regions} -g {input.genome_regions} > {output} 2> {log}"
