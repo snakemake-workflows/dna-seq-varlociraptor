@@ -105,7 +105,7 @@ def get_regions():
 
 def get_excluded_regions():
     if is_activated("calling/regions"):
-        return "results/excluded_regions.bed"
+        return "results/regions/excluded_regions.bed"
     else:
         return []
 
