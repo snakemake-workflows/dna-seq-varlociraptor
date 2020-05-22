@@ -53,7 +53,9 @@ properties:
         properties:
           activate: 
             type: boolean
-          primers:
+          primers_fq1:
+            type: string
+          primers_fq2:
             type: string
 
 
@@ -105,13 +107,6 @@ properties:
         properties:
           activate:
             type: boolean
-      regions:
-        type: object
-        properties:
-          activate:
-            type: boolean
-          bed:
-            type: string
       scenario:
         type: string
       filter:

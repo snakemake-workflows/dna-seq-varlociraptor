@@ -68,31 +68,42 @@ rule pipe_ptrimmer_se:
 
 rule ptrimmer_se:
     input:
-        r1="results/trimmed/adapters/{sample}/{unit}.single_R1.fastq.gz"
+        "results/trimmed/adapters/{sample}/{unit}.single_R1.fastq.gz",
+        primers="results/primers/primers.txt",
     output:
-        r1="results/trimmed/primers/{sample}/{unit}.single.fastq.gz",
+        "results/trimmed/primers/{sample}/{unit}.single.fastq.gz",
     params:
-        primers=config["primers"]["trimming"]["primers"],
+        output_dir=lambda wc, output: os.path.dirname(output)
     log:
         "logs/ptrimmer/{sample}-{unit}.log"
-    wrapper:
-        "0.57.0/bio/ptrimmer"
+    conda:
+        "../envs/ptrimmer.yaml"
+    shell:
+        "ptrimmer -s single -f {input} -a {input.primers} -o {params.output_dir} &> {log} && "
+        "gzip -c results/trimmed/primers/{wildcards.sample}/{wildcards.unit}.single_trim_R1.fq > {output} && "
+        "rm results/trimmed/primers/{wildcards.sample}/{wildcards.unit}.single_trim_R1.fq"
 
 
 rule ptrimmer_pe:
     input:
         r1="results/trimmed/adapters/{sample}/{unit}_R1.fastq.gz",
         r2="results/trimmed/adapters/{sample}/{unit}_R2.fastq.gz",
+        primers="results/primers/primers.txt",
     output:
         r1="results/trimmed/primers/{sample}/{unit}_R1.fastq.gz",
         r2="results/trimmed/primers/{sample}/{unit}_R2.fastq.gz",
     params:
-        primers=config["primers"]["trimming"]["primers"]
+        output_dir=lambda wc, output: os.path.dirname(output.r1)
     log:
         "logs/ptrimmer/{sample}-{unit}.log"
-    wrapper:
-        "0.57.0/bio/ptrimmer"
-
+    conda:
+        "../envs/ptrimmer.yaml"
+    shell:
+        "ptrimmer -s pair -f {input.r1} -r {input.r2} -a {input.primers} -o {params.output_dir} &> {log} && "
+        "gzip -c -9 results/trimmed/primers/{wildcards.sample}/{wildcards.unit}_trim_R1.fq > {output.r1} && "
+        "gzip -c -9 results/trimmed/primers/{wildcards.sample}/{wildcards.unit}_trim_R2.fq > {output.r2} && "
+        "rm results/trimmed/primers/{wildcards.sample}/{wildcards.unit}_trim_R1.fq && "
+        "rm results/trimmed/primers/{wildcards.sample}/{wildcards.unit}_trim_R2.fq"
 
 
 rule merge_fastqs:
