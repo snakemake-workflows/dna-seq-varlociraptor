@@ -21,9 +21,9 @@ ref:
 primers:
   trimming:
     activate: false
-    # path to fastq files containg primer sequences
-    primers_fq1: "path/to/primer-fq1"
-    primers_fq2: "path/to/primer-fq2"
+    # path to fasta files containg primer sequences
+    primers_fa1: "path/to/primer-fa1"
+    primers_fa2: "path/to/primer-fa2"
 
 # Estimation of tumor mutational burden.
 tmb:

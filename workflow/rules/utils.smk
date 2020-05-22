@@ -38,7 +38,7 @@ rule tabix_known_variants:
 
 rule map_primers:
     input:
-        reads=[config["primers"]["trimming"]["primers_fq1"], config["primers"]["trimming"]["primers_fq2"]],
+        reads=[config["primers"]["trimming"]["primers_fa1"], config["primers"]["trimming"]["primers_fa2"]],
         idx=rules.bwa_index.output
     output:
         "results/mapped/primers.bam"

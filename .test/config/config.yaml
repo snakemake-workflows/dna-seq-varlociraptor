@@ -20,8 +20,8 @@ ref:
 primers:
   trimming:
     activate: true
-    primers_fq1: "primers_1.fa"
-    primers_fq2: "primers_2.fa"
+    primers_fa1: "primers_1.fa"
+    primers_fa2: "primers_2.fa"
 
 
 # Estimation of tumor mutational burden.
