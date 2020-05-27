@@ -65,7 +65,7 @@ rule get_primer_insert:
     conda:
         "../envs/bedtools.yaml"
     shell:
-        "bedtools bamtobed -i {input} -bedpe| awk '{{print $1 \"\t\" $5-$3}}' > {output}"
+        "bamToBed -i {input} -bedpe | awk '{{print $1 \"\t\" $5-$3}}' > {output}"
 
 
 rule get_primer_interval:
@@ -78,7 +78,7 @@ rule get_primer_interval:
     conda:
         "../envs/bedtools.yaml"
     shell:
-        "bedtools bamtobed -i {input} -bedpe| awk '{{print $1 \"\t\" $2 \"\t\" $6}}' > {output}"
+        "bamToBed -i {input} -bedpe | awk '{{print $1 \"\t\" $2 \"\t\" $6}}' | sort -k1,1 -k2,2n | mergeBed -i - > {output}"
 
 
 rule build_genome_bed:
@@ -105,4 +105,4 @@ rule build_excluded_regions:
     conda:
         "../envs/bedtools.yaml"
     shell:
-        "bedtools complement -i {input.target_regions} -g {input.genome_regions} > {output} 2> {log}"
+        "complementBed -i {input.target_regions} -g {input.genome_regions} > {output} 2> {log}"
