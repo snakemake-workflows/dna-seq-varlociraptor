@@ -106,4 +106,4 @@ rule build_excluded_regions:
     conda:
         "../envs/bedtools.yaml"
     shell:
-        "complementBed -i {input.target_regions} -g {input.genome_regions} > {output} 2> {log}"
+        "complementBed -i {input.target_regions} -g <(sort -k1,1 -k2,2n {input.genome_regions}) > {output} 2> {log}"

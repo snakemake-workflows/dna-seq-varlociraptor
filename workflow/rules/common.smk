@@ -98,13 +98,13 @@ def get_group_bams(wildcards):
 
 
 def get_regions():
-    if is_activated("primmers/trimming"):
-        return "results/primers/target_regions.txt"
+    if is_activated("primers/trimming"):
+        return "results/primers/target_regions.bed"
     else:
         return []
 
 def get_excluded_regions():
-    if is_activated("primmers/trimming"):
+    if is_activated("primers/trimming"):
         return "results/primers/excluded_regions.bed"
     else:
         return []
