@@ -13,9 +13,9 @@ rule bcf_index:
 
 rule bam_index:
     input:
-        "{prefix}.sorted.bam"
+        "{prefix}.bam"
     output:
-        "{prefix}.sorted.bam.bai"
+        "{prefix}.bam.bai"
     log:
         "logs/bam-index/{prefix}.log"
     wrapper:
@@ -47,7 +47,7 @@ rule map_primers:
     params:
         index=lambda w, input: os.path.splitext(input.idx[0])[0],
         sort="samtools",
-        sort_order="queryname",
+        sort_order="coordinate",
         extra="-T 10 -k 8 -c 5000"
 
     threads: 8
@@ -57,15 +57,16 @@ rule map_primers:
 
 rule get_primer_insert:
     input:
-        "results/mapped/primers.bam"
+        "results/mapped/primers.bam",
+        "results/mapped/primers.bam.bai"
     output:
         "results/primers/primers.txt"
     log:
         "logs/primers/primers.log"
     conda:
-        "../envs/bedtools.yaml"
-    shell:
-        "bamToBed -i {input} -bedpe | awk '{{print $1 \"\t\" $5-$3}}' > {output}"
+        "../envs/pysam.yaml"
+    script:
+        "../scripts/extract_primers_insert.py"
 
 
 rule get_primer_interval:
@@ -78,7 +79,7 @@ rule get_primer_interval:
     conda:
         "../envs/bedtools.yaml"
     shell:
-        "bamToBed -i {input} -bedpe | awk '{{print $1 \"\t\" $2 \"\t\" $6}}' | sort -k1,1 -k2,2n | mergeBed -i - > {output}"
+        "samtools sort -n {input} | bamToBed -i - -bedpe | awk '{{print $1 \"\t\" $2 \"\t\" $6}}' | sort -k1,1 -k2,2n | mergeBed -i - > {output}"
 
 
 rule build_genome_bed:
