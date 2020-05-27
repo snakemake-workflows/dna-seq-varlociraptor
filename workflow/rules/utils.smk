@@ -79,7 +79,9 @@ rule get_primer_interval:
     conda:
         "../envs/bedtools.yaml"
     shell:
-        "samtools sort -n {input} | bamToBed -i - -bedpe | awk '{{print $1 \"\t\" $2 \"\t\" $6}}' | sort -k1,1 -k2,2n | mergeBed -i - > {output}"
+        "samtools sort -n {input} | bamToBed -i - -bedpe | "
+        "awk '{{print $1 \"\t\" $2 \"\t\" $6}}' | "
+        "sort -k1,1 -k2,2n | mergeBed -i - > {output}"
 
 
 rule build_genome_bed:
