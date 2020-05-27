@@ -20,8 +20,8 @@ ref:
 primers:
   trimming:
     activate: true
-    primers_fa1: "primers_1.fa"
-    primers_fa2: "primers_2.fa"
+    primers_fa1: "a.scerevisiae.1_primers.fa"
+    primers_fa2: "a.scerevisiae.2_primers.fa"
 
 
 # Estimation of tumor mutational burden.

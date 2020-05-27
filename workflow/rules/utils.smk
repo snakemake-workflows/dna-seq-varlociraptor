@@ -47,7 +47,9 @@ rule map_primers:
     params:
         index=lambda w, input: os.path.splitext(input.idx[0])[0],
         sort="samtools",
-        sort_order="coordinate"
+        sort_order="queryname",
+        extra="-T 10 -k 8 -c 5000"
+
     threads: 8
     wrapper:
         "0.56.0/bio/bwa/mem"
