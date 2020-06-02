@@ -11,8 +11,8 @@ ref:
   n_chromosomes: 25
   # Ensembl species name
   species: saccharomyces_cerevisiae
-  # Ensembl release (make sure to take one where snpeff data is available, check 'snpEff databases' output)
-  release: 98
+  # Ensembl release
+  release: 100
   # Genome build
   build: R64-1-1
 

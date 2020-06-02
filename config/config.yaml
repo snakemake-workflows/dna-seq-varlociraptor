@@ -12,7 +12,7 @@ ref:
   # Ensembl species name
   species: homo_sapiens
   # Ensembl release
-  release: 98
+  release: 100
   # Genome build
   build: GRCh38
 
