@@ -5,7 +5,7 @@ rule get_sra:
     log:
         "logs/get-sra/{accession}.log"
     wrapper:
-        "0.49.0/bio/sra-tools/fasterq-dump"
+        "0.56.0/bio/sra-tools/fasterq-dump"
 
 
 rule cutadapt_pipe:
@@ -36,7 +36,7 @@ rule cutadapt_pe:
         adapters = lambda w: str(units.loc[w.sample].loc[w.unit, "adapters"]),
     threads: 8
     wrapper:
-        "0.42.0/bio/cutadapt/pe"
+        "0.56.0/bio/cutadapt/pe"
 
 rule cutadapt_se:
     input:
@@ -51,7 +51,7 @@ rule cutadapt_se:
         adapters_r1 = lambda w: str(units.loc[w.sample].loc[w.unit, "adapters"])
     threads: 8
     wrapper:
-        "0.42.0/bio/cutadapt/se"
+        "0.56.0/bio/cutadapt/se"
 
 #TODO Remove rule and set input of ptrimmer_se to unit_R1 (patch pTrimmer)
 rule pipe_ptrimmer_se:

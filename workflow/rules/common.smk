@@ -44,15 +44,17 @@ def get_recalibrate_quality_input(wildcards, bai=False):
 
 def get_cutadapt_input(wildcards):
     unit = units.loc[wildcards.sample].loc[wildcards.unit]
-    if unit["fq1"].endswith("gz"):
-        ending = ".gz"
-    else:
-        ending = ""
 
     if pd.isna(unit["fq1"]):
         # SRA sample (always paired-end for now)
         accession = unit["sra"]
         return expand("sra/{accession}_{read}.fastq", accession=accession, read=[1, 2])
+
+    if unit["fq1"].endswith("gz"):
+        ending = ".gz"
+    else:
+        ending = ""
+
     if pd.isna(unit["fq2"]):
         # single end local sample
         return "pipe/cutadapt/{S}/{U}.fq1.fastq{E}".format(S=unit.sample_name, U=unit.unit_name, E=ending)

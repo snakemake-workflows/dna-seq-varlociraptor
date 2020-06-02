@@ -74,6 +74,7 @@ properties:
       activate:
         type: boolean
       coding_genome_size:
+        # TODO allow integer here!
         type: string
       tumor_sample:
         type: string
