@@ -103,5 +103,7 @@ rule get_vep_plugins:
         directory("resources/vep/plugins")
     params:
         release=config["ref"]["release"]
+    log:
+        "logs/vep/plugins.log"
     wrapper:
         "0.59.2/bio/vep/plugins"
