@@ -34,14 +34,11 @@ properties:
         type: string
       release:
         type: integer
-      snpeff_release:
-        type: integer
       build:
         type: string
     required:
       - species
       - release
-      - snpeff_release
       - build
       - n_chromosomes
 
@@ -144,10 +141,6 @@ properties:
   annotations:
     type: object
     properties:
-      dbnsfp:
-        properties:
-          activate:
-            type: boolean
       vcfs:
         properties:
           activate:
@@ -156,8 +149,19 @@ properties:
         properties:
           activate:
             type: boolean
+      vep:
+        properties:
+          params:
+            type: string
+          plugins:
+            type: array
+            items:
+              type: string
+        required:
+          - params
+          - plugins
     required:
-      - dbnsfp
+      - vep
       - vcfs
       - dgidb
 
