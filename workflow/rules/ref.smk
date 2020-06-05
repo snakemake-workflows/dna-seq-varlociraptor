@@ -10,7 +10,7 @@ rule get_genome:
         release=config["ref"]["release"]
     cache: True
     wrapper:
-        "0.56.0/bio/reference/ensembl-sequence"
+        "0.59.2/bio/reference/ensembl-sequence"
 
 
 rule genome_faidx:
@@ -22,7 +22,7 @@ rule genome_faidx:
         "logs/genome-faidx.log"
     cache: True
     wrapper:
-        "0.56.0/bio/samtools/faidx"
+        "0.59.2/bio/samtools/faidx"
 
 
 rule genome_dict:
@@ -54,7 +54,7 @@ rule get_known_variants:
         type="all"
     cache: True
     wrapper:
-        "0.56.0/bio/reference/ensembl-variation"
+        "0.59.2/bio/reference/ensembl-variation"
 
 
 rule remove_iupac_codes:
@@ -70,6 +70,7 @@ rule remove_iupac_codes:
     shell:
         "rbt vcf-fix-iupac-alleles < {input} | bcftools view -Oz > {output}"
 
+
 rule bwa_index:
     input:
         "resources/genome.fasta"
@@ -81,4 +82,28 @@ rule bwa_index:
         mem_mb=369000
     cache: True
     wrapper:
-        "0.56.0/bio/bwa/index"
+        "0.59.2/bio/bwa/index"
+
+
+rule get_vep_cache:
+    output:
+        directory("resources/vep/cache")
+    params:
+        species=config["ref"]["species"],
+        build=config["ref"]["build"],
+        release=config["ref"]["release"]
+    log:
+        "logs/vep/cache.log"
+    wrapper:
+        "0.59.2/bio/vep/cache"
+
+
+rule get_vep_plugins:
+    output:
+        directory("resources/vep/plugins")
+    params:
+        release=config["ref"]["release"]
+    log:
+        "logs/vep/plugins.log"
+    wrapper:
+        "0.59.2/bio/vep/plugins"

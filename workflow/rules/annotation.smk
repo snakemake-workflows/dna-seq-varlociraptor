@@ -1,30 +1,21 @@
-rule snpeff_download:
-    output:
-        directory("resources/snpeff/{reference}")
-    log:
-        "logs/snpeff/download/{reference}.log"
-    params:
-        reference="{reference}"
-    cache: True
-    wrapper:
-        "0.56.0/bio/snpeff/download"
-
-rule snpeff:
+rule annotate_variants:
     input:
         calls="results/calls/{group}.bcf",
-        db="resources/snpeff/{build}.{snpeff_release}".format(**config["ref"])
+        cache="resources/vep/cache",
+        plugins="resources/vep/plugins"
     output:
         calls="results/calls/{group}.annotated.bcf",
-        stats="results/snpeff/{group}.html",
-        csvstats="results/snpeff/{group}.csv"
-    log:
-        "logs/snpeff/{group}.log"
+        stats=report("results/calls/{group}.stats.html", caption="../report/stats.rst", category="QC")
     params:
-        extra="-Xmx4g -nodownload"
-    resources:
-        mem_mb=4000
+        # Pass a list of plugins to use, see https://www.ensembl.org/info/docs/tools/vep/script/vep_plugins.html
+        # Plugin args can be added as well, e.g. via an entry "MyPlugin,1,FOO", see docs.
+        plugins=config["annotations"]["vep"]["plugins"],
+        extra="{} --vcf_info_field ANN".format(config["annotations"]["vep"]["params"])
+    log:
+        "logs/vep/{group}.annotate.log"
     wrapper:
-        "0.56.0/bio/snpeff/annotate"
+        "0.59.2/bio/vep/annotate"
+
 
 # TODO What about multiple ID Fields?
 rule annotate_vcfs:
@@ -62,54 +53,3 @@ rule annotate_dgidb:
         dgidb_requests=1
     shell:
         "rbt vcf-annotate-dgidb {input} > {output} 2> {log}"
-
-
-if is_activated("annotations/dbnsfp"):
-    #TODO create wrapper of this entire block
-    rule download_dbnsfp:
-        output:
-            "resources/dbnsfp.zip"
-        log:
-            "logs/download-dbnsfp.log"
-        params:
-            zip = config["annotations"]["dbnsfp"]["url"]
-        shell:
-            "wget {params.zip} -O {output} 2> {log}"
-
-
-    rule extract_dbnsfp:
-        threads:
-             4
-        input:
-            "resources/dbnsfp.zip"
-        output:
-            "resources/dbnsfp.txt.gz"
-        log:
-            "logs/extract-dbnsfp.log"
-        conda:
-            "../envs/htslib.yaml"
-        cache: True
-        shell:
-            "cat <(unzip -p {input} '*_variant.chr1.gz' | zcat | "
-            "head -n 1) <(unzip -p {input} '*_variant.chr*' | "
-            "zcat | grep -v '^#') | bgzip -l9 -@ {threads} > {output} 2> {log}"
-    
-    rule annotate_dbnsfp:
-        threads:
-            4
-        input:
-            bcf="results/calls/{prefix}.bcf",
-            db="resources/dbnsfp.txt.gz",
-            idx="resources/dbnsfp.txt.gz.tbi"
-        output:
-            "results/calls/{prefix}.dbnsfp.bcf"
-        log:
-            "logs/annotate-dbnsfp/{prefix}.log"
-        params:
-            extra="-Xmx4g",
-            fields = ",".join(config["annotations"]["dbnsfp"]["fields"])
-        conda:
-            "../envs/snpsift.yaml"
-        shell:
-            "(bcftools view --threads {threads} {input.bcf} | SnpSift dbnsfp -db {input.db} -f {params.fields} {params.extra} /dev/stdin | "
-            "sed 's/\\(^##INFO=<ID=dbNSFP_\\w*,Number=\\)A/\\1./g' | bcftools view -Ob --threads {threads} > {output}) 2> {log}"
