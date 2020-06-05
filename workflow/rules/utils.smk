@@ -13,9 +13,9 @@ rule bcf_index:
 
 rule bam_index:
     input:
-        "{prefix}.sorted.bam"
+        "{prefix}.bam"
     output:
-        "{prefix}.sorted.bam.bai"
+        "{prefix}.bam.bai"
     log:
         "logs/bam-index/{prefix}.log"
     wrapper:
@@ -36,32 +36,66 @@ rule tabix_known_variants:
         "0.59.2/bio/tabix"
 
 
-rule get_covered_regions:
+rule map_primers:
     input:
-        ref="resources/genome.fasta",
-        bam="results/recal/{sample}.sorted.bam",
-        bai="results/recal/{sample}.sorted.bam.bai"
+        reads=[config["primers"]["trimming"]["primers_fa1"], config["primers"]["trimming"]["primers_fa2"]],
+        idx=rules.bwa_index.output
     output:
-        temp("results/regions/temp/{sample}.quantized.bed.gz")
+        "results/mapped/primers.bam"
+    log:
+        "logs/bwa_mem/primers.log"
     params:
-        prefix=lambda wc, output: output[0].split(".quantized.bed.gz")[0]
-    shadow: "minimal"
-    log:
-        "logs/bam-regions/{sample}.log"
-    conda:
-        "../envs/mosdepth.yaml"
-    shell:
-        "mosdepth {params.prefix} {input.bam} -q 1: 2> {log}"
+        index=lambda w, input: os.path.splitext(input.idx[0])[0],
+        sort="samtools",
+        sort_order="coordinate",
+        extra="-T 10 -k 8 -c 5000"
+    threads: 8
+    wrapper:
+        "0.56.0/bio/bwa/mem"
 
 
-rule merge_regions:
+rule get_primer_insert:
     input:
-        get_group_beds,
+        "results/mapped/primers.bam",
+        "results/mapped/primers.bam.bai"
     output:
-        "results/regions/{group}.bed"
+        "results/primers/primers.txt"
     log:
-        "logs/unzip_regions/{group}.log"
+        "logs/primers/primers.log"
+    conda:
+        "../envs/pysam.yaml"
+    script:
+        "../scripts/extract_primers_insert.py"
+
+
+rule get_primer_interval:
+    input:
+        "results/mapped/primers.bam"
+    output:
+        "results/primers/target_regions.bed"
+    log:
+        "logs/primers/target_regions.log"
     conda:
         "../envs/bedtools.yaml"
     shell:
-        "zcat {input} | sort -k1,1 -k2,2n | bedtools merge -i stdin > {output} 2> {log}"
+        "samtools sort -n {input} | bamToBed -i - -bedpe | "
+        "cut -f 1,2,6 | "
+        "sort -k1,1 -k2,2n | mergeBed -i - > {output}"
+
+
+rule build_excluded_regions:
+    input:
+        target_regions="results/primers/target_regions.bed",
+        genome_index = "resources/genome.fasta.fai"
+    output:
+        "results/primers/excluded_regions.bed"
+    params:
+        chroms=config["ref"]["n_chromosomes"]
+    log:
+         "logs/regions/excluded_regions.log"
+    conda:
+        "../envs/bedtools.yaml"
+    shell:
+        "(complementBed -i {input.target_regions} -g <(head "
+        "-n {params.chroms} {input.genome_index} | cut "
+        "-f 1,2 | sort -k1,1 -k 2,2n) > {output}) 2> {log}"

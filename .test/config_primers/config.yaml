@@ -11,16 +11,17 @@ ref:
   n_chromosomes: 17
   # Ensembl species name
   species: saccharomyces_cerevisiae
-  # Ensembl release
-  release: 100
+  # Ensembl release (make sure to take one where snpeff data is available, check 'snpEff databases' output)
+  release: 98
+  snpeff_release: 86
   # Genome build
   build: R64-1-1
 
 primers:
   trimming:
-    activate: false
-    primers_fa1: ""
-    primers_fa2: ""
+    activate: true
+    primers_fa1: "a.scerevisiae.1_primers.fa"
+    primers_fa2: "a.scerevisiae.2_primers.fa"
 
 
 # Estimation of tumor mutational burden.
@@ -56,17 +57,13 @@ calling:
         filter: moderate
 
 annotations:
+  dbnsfp:
+    activate: false
   vcfs:
     activate: true
     known: resources/variation.vcf.gz
   dgidb:
     activate: true
-  vep:
-    params: --everything
-    plugins:
-      # Add any plugin from https://www.ensembl.org/info/docs/tools/vep/script/vep_plugins.html
-      # Plugin args can be passed as well, e.g. "LoFtool,path/to/custom/scores.txt".
-      - LoFtool
 
 
 params:
