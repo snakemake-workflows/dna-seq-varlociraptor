@@ -35,7 +35,7 @@ jobs:
         args: "--use-conda --show-failed-logs -j 10 --conda-cleanup-pkgs cache"
 
     - name: Test workflow (local FASTQs primer)
-      uses: snakemake/snakemake-github-actions@v1.9.0
+      uses: snakemake/snakemake-github-action@v1.9.0
       with:
         directory: .test
         snakefile: workflow/Snakefile
