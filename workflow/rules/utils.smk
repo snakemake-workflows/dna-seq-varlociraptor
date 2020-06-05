@@ -84,28 +84,19 @@ rule get_primer_interval:
         "sort -k1,1 -k2,2n | mergeBed -i - > {output}"
 
 
-rule build_genome_bed:
-    input:
-        "resources/genome.fasta.fai"
-    output:
-        "results/regions/genome_regions.bed"
-    params:
-        chroms=config["ref"]["n_chromosomes"]
-    log:
-        "logs/regions/genome_regions.log"
-    script:
-        "../scripts/fasta_generate_genome.py"
-
-
 rule build_excluded_regions:
     input:
         target_regions="results/primers/target_regions.bed",
-        genome_regions="results/regions/genome_regions.bed"
+        genome_index = "resources/genome.fasta.fai"
     output:
         "results/primers/excluded_regions.bed"
+    params:
+        chroms=config["ref"]["n_chromosomes"]
     log:
          "logs/regions/excluded_regions.log"
     conda:
         "../envs/bedtools.yaml"
     shell:
-        "complementBed -i {input.target_regions} -g <(sort -k1,1 -k2,2n {input.genome_regions}) > {output} 2> {log}"
+        "complementBed -i {input.target_regions} -g <(head "
+        "-n {params.chroms} {input.genome_index} | cut "
+        "-f 1,2 > {output}) > {output} 2> {log}"
