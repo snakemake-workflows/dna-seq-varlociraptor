@@ -51,7 +51,7 @@ annotations:
     activate: false
   vcfs:
     activate: true
-    known: refs/variation.vcf.gz
+    known: resources/variation.vcf.gz
   dgidb:
     activate: true
 
