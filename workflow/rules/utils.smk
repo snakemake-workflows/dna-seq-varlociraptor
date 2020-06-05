@@ -49,7 +49,6 @@ rule map_primers:
         sort="samtools",
         sort_order="coordinate",
         extra="-T 10 -k 8 -c 5000"
-
     threads: 8
     wrapper:
         "0.56.0/bio/bwa/mem"

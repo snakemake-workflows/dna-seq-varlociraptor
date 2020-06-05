@@ -68,7 +68,7 @@ rule pipe_ptrimmer_se:
 
 rule ptrimmer_se:
     input:
-        "results/trimmed/adapters/{sample}/{unit}.single_R1.fastq.gz",
+        fastq="results/trimmed/adapters/{sample}/{unit}.single_R1.fastq.gz",
         primers="results/primers/primers.txt",
     output:
         "results/trimmed/primers/{sample}/{unit}.single.fastq.gz",
@@ -79,7 +79,7 @@ rule ptrimmer_se:
     conda:
         "../envs/ptrimmer.yaml"
     shell:
-        "ptrimmer -s single -f {input} -a {input.primers} -o {params.output_dir} &> {log} && "
+        "ptrimmer -s single -f {input.fastq} -a {input.primers} -o {params.output_dir} &> {log} && "
         "gzip -c results/trimmed/primers/{wildcards.sample}/{wildcards.unit}.single_trim_R1.fq > {output} && "
         "rm results/trimmed/primers/{wildcards.sample}/{wildcards.unit}.single_trim_R1.fq"
 
