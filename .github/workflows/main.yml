@@ -32,7 +32,7 @@ jobs:
       with:
         directory: .test
         snakefile: workflow/Snakefile
-        args: "--use-conda --show-failed-logs -j 10 --conda-cleanup-pkgs cache"
+        args: "--use-conda --show-failed-logs -j 10 --conda-cleanup-pkgs cache --conda-frontend mamba"
 
     - name: Test workflow (local FASTQs primer)
       uses: snakemake/snakemake-github-action@v1.9.0
@@ -46,7 +46,7 @@ jobs:
       with:
         directory: .test
         snakefile: workflow/Snakefile
-        args: "--use-conda -n -j 10 --conda-cleanup-pkgs cache"
+        args: "--configfile config-sra/config.yaml --show-failed-logs --use-conda -n -j 10 --conda-cleanup-pkgs cache --conda-frontend mamba"
 
     - name: Test report
       uses: snakemake/snakemake-github-action@v1.9.0
