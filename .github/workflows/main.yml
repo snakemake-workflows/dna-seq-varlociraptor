@@ -39,7 +39,7 @@ jobs:
       with:
         directory: .test
         snakefile: workflow/Snakefile
-        args: "--configfile config-sra/config.yaml --show-failed-logs --use-conda -n -j 10 --conda-cleanup-pkgs cache --conda-frontend mamba"
+        args: "--configfile .test/config-sra/config.yaml --show-failed-logs --use-conda -n -j 10 --conda-cleanup-pkgs cache --conda-frontend mamba"
 
     - name: Test report
       uses: snakemake/snakemake-github-action@v1.9.0
