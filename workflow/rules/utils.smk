@@ -79,7 +79,7 @@ rule get_primer_interval:
         "../envs/bedtools.yaml"
     shell:
         "samtools sort -n {input} | bamToBed -i - -bedpe | "
-        "awk '{{print $1 \"\t\" $2 \"\t\" $6}}' | "
+        "cut -f 1,2,6 | "
         "sort -k1,1 -k2,2n | mergeBed -i - > {output}"
 
 
@@ -96,6 +96,6 @@ rule build_excluded_regions:
     conda:
         "../envs/bedtools.yaml"
     shell:
-        "complementBed -i {input.target_regions} -g <(head "
+        "(complementBed -i {input.target_regions} -g <(head "
         "-n {params.chroms} {input.genome_index} | cut "
-        "-f 1,2 > {output}) > {output} 2> {log}"
+        "-f 1,2 | sort -k1,1 -k 2,2n) > {output}) 2> {log}"
