@@ -40,6 +40,7 @@ jobs:
         directory: .test
         snakefile: workflow/Snakefile
         args: "--configfile .test/config_primers/config.yaml --use-conda --show-failed-logs -j 10 --conda-cleanup-pkgs cache --conda-frontend mamba"
+        stagin: "rm -rf .test/resources .test/results"
 
     - name: Test workflow (SRA FASTQs)
       uses: snakemake/snakemake-github-action@v1.9.0
