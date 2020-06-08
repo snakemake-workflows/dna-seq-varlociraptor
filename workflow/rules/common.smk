@@ -99,7 +99,7 @@ def get_group_bams(wildcards):
 
 def get_regions():
     if is_activated("primers/trimming"):
-        return "results/primers/target_regions.bed"
+        return "results/primers/target_regions.merged.bed"
     else:
         return []
 
