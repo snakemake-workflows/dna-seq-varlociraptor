@@ -5,7 +5,7 @@ with open(snakemake.input[0], "r") as primer_file:
     for line in primer_file.readlines():
         line = line.strip().split("\t")
         chr_1 = line[0]
-        chr_2 = line[1]
+        chr_2 = line[3]
         if chr_1 == chr_2:
             print(
                 "{chr}\t{start}\t{end}".format(chr=chr_1, start=line[1], end=line[5]),
