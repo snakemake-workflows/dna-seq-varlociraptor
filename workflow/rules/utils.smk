@@ -86,7 +86,7 @@ rule build_target_regions:
     output:
         "results/primers/target_regions.bed"
     log:
-        "/logs/primers/build_target_regions.log"
+        "logs/primers/build_target_regions.log"
     script:
         "../scripts/build_target_regions.py"
 
