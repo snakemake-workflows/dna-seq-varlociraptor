@@ -22,3 +22,5 @@ for data_primers in pd.read_csv(
         data_primers[~valid_primers].to_csv(sep="\t", index=False, header=False),
         file=log_file,
     )
+log_file.close()
+out.close()
