@@ -68,24 +68,45 @@ rule get_primer_insert:
         "../scripts/extract_primers_insert.py"
 
 
-rule get_primer_interval:
+rule primer_to_bedpe:
     input:
         "results/mapped/primers.bam"
     output:
-        "results/primers/target_regions.bed"
+        "results/primers/primers.bedpe"
     log:
         "logs/primers/target_regions.log"
     conda:
         "../envs/bedtools.yaml"
     shell:
-        "samtools sort -n {input} | bamToBed -i - -bedpe | "
-        "cut -f 1,2,6 | "
-        "sort -k1,1 -k2,2n | mergeBed -i - > {output}"
+        "samtools sort -n {input} | bamToBed -i - -bedpe > {output} 2> {log}"
+
+rule build_target_regions:
+    input:
+        "results/primers/primers.bedpe"
+    output:
+        "results/primers/target_regions.bed"
+    log:
+        "logs/primers/build_target_regions.log"
+    script:
+        "../scripts/build_target_regions.py"
+
+
+rule merge_target_regions:
+    input:
+        "results/primers/target_regions.bed"
+    output:
+        "results/primers/target_regions.merged.bed"
+    log:
+        "logs/primers/merge_target_regions.log"
+    conda:
+        "../envs/bedtools.yaml"
+    shell:
+        "sort -k1,1 -k2,2n {input} | mergeBed -i - > {output} 2> {log}"
 
 
 rule build_excluded_regions:
     input:
-        target_regions="results/primers/target_regions.bed",
+        target_regions="results/primers/target_regions.merged.bed",
         genome_index = "resources/genome.fasta.fai"
     output:
         "results/primers/excluded_regions.bed"
