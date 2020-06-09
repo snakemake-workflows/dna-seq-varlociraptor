@@ -87,6 +87,8 @@ rule build_target_regions:
         "results/primers/target_regions.bed"
     log:
         "logs/primers/build_target_regions.log"
+    conda:
+        "../envs/pandas.yaml"
     script:
         "../scripts/build_target_regions.py"
 
