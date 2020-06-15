@@ -85,6 +85,11 @@ def get_map_reads_input(wildcards):
                 "results/merged/{sample}_R2.fastq.gz"]
     return "results/merged/{sample}_single.fastq.gz"
 
+def get_mapped_bams(wildcards):
+    if is_paired_end(wildcards.sample) and is_activated("primers/trimming"):
+        return "results/mapped/{sample}.trimmed.bam"
+    return "results/mapped/{sample}.sorted.bam"
+
 def get_group_aliases(wildcards):
     return samples.loc[samples["group"] == wildcards.group]["alias"]
 
@@ -204,6 +209,5 @@ def get_tabix_params(wildcards):
     raise ValueError("Invalid format for tabix: {}".format(wildcards.format))
 
 
-def get_trimmed_fastqs(wc):
-    subdir = "primers" if is_activated("primers/trimming") else "adapters"
-    return expand("results/trimmed/{subdir}/{sample}/{unit}_{read}.fastq.gz", subdir=subdir, unit=units.loc[wc.sample, "unit_name"], sample=wc.sample, read=wc.read)
+def get_fastqs(wc):
+    return expand("results/trimmed/{sample}/{unit}_{read}.fastq.gz", unit=units.loc[wc.sample, "unit_name"], sample=wc.sample, read=wc.read)

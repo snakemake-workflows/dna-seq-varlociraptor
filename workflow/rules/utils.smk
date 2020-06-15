@@ -54,20 +54,6 @@ rule map_primers:
         "0.56.0/bio/bwa/mem"
 
 
-rule get_primer_insert:
-    input:
-        "results/mapped/primers.bam",
-        "results/mapped/primers.bam.bai"
-    output:
-        "results/primers/primers.txt"
-    log:
-        "logs/primers/primers.log"
-    conda:
-        "../envs/pysam.yaml"
-    script:
-        "../scripts/extract_primers_insert.py"
-
-
 rule primer_to_bedpe:
     input:
         "results/mapped/primers.bam"
@@ -79,6 +65,17 @@ rule primer_to_bedpe:
         "../envs/bedtools.yaml"
     shell:
         "samtools sort -n {input} | bamToBed -i - -bedpe > {output} 2> {log}"
+
+rule build_primer_regions:
+    input:
+        "results/primers/primers.bedpe"
+    output:
+        "results/primers/primer_regions.tsv"
+    log:
+        "logs/primers/build_primer_regions.log"
+    script:
+        "../scripts/build_primer_regions.py"
+
 
 rule build_target_regions:
     input:
