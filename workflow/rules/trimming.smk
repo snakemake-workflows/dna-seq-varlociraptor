@@ -54,6 +54,21 @@ rule cutadapt_se:
         "0.59.2/bio/cutadapt/se"
 
 
+rule trim_primers:
+    input:
+        bams="results/mapped/{sample}.sorted.bam",
+        primers="results/primers/primer_regions.tsv"
+    output:
+        "results/mapped/{sample}.trimmed.bam"
+    params:
+        sort_order="Coordinate"
+    conda:
+        "../envs/fgbio.yaml"
+    log:
+        "logs/trimming/{sample}.log"
+    shell:
+        "fgbio TrimPrimers -H -i {input.bams} -p {input.primers} -s {params.sort_order} -o {output} > {log}"
+
 
 rule merge_fastqs:
     input:
