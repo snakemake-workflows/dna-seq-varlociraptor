@@ -58,7 +58,6 @@ rule trim_primers:
     input:
         bams="results/mapped/{sample}.sorted.bam",
         primers="results/primers/primer_regions.tsv",
-        ref="resources/genome.fasta"
     output:
         "results/mapped/{sample}.trimmed.bam"
     params:
@@ -68,7 +67,7 @@ rule trim_primers:
     log:
         "logs/trimming/{sample}.log"
     shell:
-        "fgbio TrimPrimers -H -i {input.bams} -p {input.primers} -s {params.sort_order} -r {input.ref} -o {output} > {log}"
+        "fgbio TrimPrimers -H -i {input.bams} -p {input.primers} -s {params.sort_order} -o {output} > {log}"
 
 
 rule merge_fastqs:
