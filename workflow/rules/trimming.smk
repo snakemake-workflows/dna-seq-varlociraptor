@@ -26,9 +26,9 @@ rule cutadapt_pe:
     input:
         get_cutadapt_input
     output:
-        fastq1="results/trimmed/adapters/{sample}/{unit}_R1.fastq.gz",
-        fastq2="results/trimmed/adapters/{sample}/{unit}_R2.fastq.gz",
-        qc="results/trimmed/adapters/{sample}/{unit}.paired.qc.txt"
+        fastq1="results/trimmed/{sample}/{unit}_R1.fastq.gz",
+        fastq2="results/trimmed/{sample}/{unit}_R2.fastq.gz",
+        qc="results/trimmed/{sample}/{unit}.paired.qc.txt"
     log:
         "logs/cutadapt/{sample}-{unit}.log"
     params:
@@ -53,17 +53,6 @@ rule cutadapt_se:
     wrapper:
         "0.59.2/bio/cutadapt/se"
 
-#TODO Remove rule and set input of ptrimmer_se to unit_R1 (patch pTrimmer)
-rule pipe_ptrimmer_se:
-    input:
-        "results/trimmed/adapters/{sample}/{unit}.single.fastq.gz"
-    output:
-        pipe("results/trimmed/{sample}/{unit}.single_R1.fastq.gz")
-    log:
-        "logs/pipe-fastqs/ptrimmer/{sample}-{unit}.single.log"
-    threads: 0 # this does not need CPU
-    shell:
-        "cat {input} > {output} 2> {log}"
 
 
 rule merge_fastqs:

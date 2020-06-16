@@ -39,6 +39,8 @@ def get_recalibrate_quality_input(wildcards, bai=False):
     if is_activated("remove_duplicates"):
         return "results/dedup/{}.sorted.bam{}".format(wildcards.sample, ext)
     else:
+        if is_paired_end(wildcards.sample) and is_activated("primers/trimming"):
+            return "results/mapped/{}.trimmed.bam{}".format(wildcards.sample, ext)
         return "results/mapped/{}.sorted.bam{}".format(wildcards.sample, ext)
 
 

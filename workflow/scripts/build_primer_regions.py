@@ -16,7 +16,7 @@ with open(snakemake.output[0], "w") as out:
             print(
                 valid_data
                 .drop(columns=[3])
-                .to_csv(sep="\t", index=False, header=False),
+                .to_csv(sep="\t", index=False, header=["chrom", "left_start", "left_end", "right_start", "right_end"]),
                 file=out,
             )
             print(

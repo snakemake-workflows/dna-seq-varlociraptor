@@ -16,9 +16,9 @@ rule map_reads:
         "0.56.0/bio/bwa/mem"
 
 
-rule trim_pe:
+rule trim_primers:
     input:
-        bams="results/mapped/{sample}.sorted.bam"
+        bams="results/mapped/{sample}.sorted.bam",
         primers="results/primers/primer_regions.tsv"
     output:
         "results/mapped/{sample}.trimmed.bam"
@@ -27,7 +27,7 @@ rule trim_pe:
     conda:
         "../envs/fgbio.yaml"
     shell:
-        "fgbio TrimPrimers -i {output.bams} -p {input.primers} -s {params.sort_order} -o {output}"
+        "fgbio TrimPrimers -i {input.bams} -p {input.primers} -s {params.sort_order} -o {output} > {log}"
 
 
 rule mark_duplicates:
