@@ -15,6 +15,18 @@ rule map_reads:
     wrapper:
         "0.56.0/bio/bwa/mem"
 
+rule filter_primerless_reads:
+    input:
+        bam="results/mapped/{sample}.sorted.bam",
+        regions="results/primers/primers.bed"
+    output:
+        "results/mapped/{sample}.filtered.bam"
+    log:
+        "logs/primers/{sample}_filter_reads.log"
+    conda:
+        "../envs/samtools.yaml"
+    shell:
+        "samtools view -h -b -L {input.regions} {input.bam} > {output} 2> {log}"
 
 rule mark_duplicates:
     input:

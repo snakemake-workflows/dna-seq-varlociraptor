@@ -26,7 +26,7 @@ rule varlociraptor_preprocess:
     conda:
         "../envs/varlociraptor.yaml"
     shell:
-        "varlociraptor preprocess variants --candidates {input.candidates} "
+        "varlociraptor preprocess variants --omit-insert-size --candidates {input.candidates} "
         "{input.ref} --bam {input.bam} --output {output} 2> {log}"
 
 rule varlociraptor_call:

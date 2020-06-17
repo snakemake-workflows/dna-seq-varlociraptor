@@ -56,7 +56,7 @@ rule cutadapt_se:
 
 rule trim_primers:
     input:
-        bams="results/mapped/{sample}.sorted.bam",
+        bams="results/mapped/{sample}.filtered.bam",
         primers="results/primers/primer_regions.tsv",
     output:
         "results/mapped/{sample}.trimmed.bam"

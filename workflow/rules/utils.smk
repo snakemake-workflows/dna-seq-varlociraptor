@@ -60,11 +60,24 @@ rule primer_to_bedpe:
     output:
         "results/primers/primers.bedpe"
     log:
-        "logs/primers/target_regions.log"
+        "logs/primers/primers_bedpe.log"
     conda:
         "../envs/bedtools.yaml"
     shell:
         "samtools sort -n {input} | bamToBed -i - -bedpe > {output} 2> {log}"
+
+
+rule primer_to_bed:
+    input:
+        "results/mapped/primers.bam"
+    output:
+        "results/primers/primers.bed"
+    log:
+        "logs/primers/primers_bed.log"
+    conda:
+        "../envs/bedtools.yaml"
+    shell:
+        "samtools sort -n {input} | bamToBed -i - > {output} 2> {log}"
 
 rule build_primer_regions:
     input:
