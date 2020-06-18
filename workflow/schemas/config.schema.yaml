@@ -55,9 +55,9 @@ properties:
           primers_fq2:
             type: string
           library_error:
-            type: int
+            type: string
           library_length:
-            type: int
+            type: string
 
 
   oncoprint:
