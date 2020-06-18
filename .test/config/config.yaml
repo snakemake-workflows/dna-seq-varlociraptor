@@ -21,6 +21,8 @@ primers:
     activate: false
     primers_fa1: ""
     primers_fa2: ""
+    library_error: 0
+    library_length: 0
 
 
 # Estimation of tumor mutational burden.
