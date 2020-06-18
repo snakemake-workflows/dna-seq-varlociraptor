@@ -13,6 +13,14 @@ ref:
   # Genome build
   build: R64-1-1
 
+primers:
+  trimming:
+    activate: false
+    primers_fa1: ""
+    primers_fa2: ""
+    library_error: 0
+    library_length: 0
+
 # Estimation of tumor mutational burden.
 tmb:
   activate: false
