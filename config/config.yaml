@@ -23,9 +23,9 @@ primers:
     primers_fa1: "path/to/primer-fa1"
     primers_fa2: "path/to/primer-fa2"
     # Library error max insert size of primers
-    library_error: ""
+    library_error: 0
     # Library Length mean insert size of primers
-    library_length: ""
+    library_length: 0
 
 # Estimation of tumor mutational burden.
 tmb:
