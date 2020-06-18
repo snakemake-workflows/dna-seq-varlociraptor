@@ -22,6 +22,10 @@ primers:
     # path to fasta files containg primer sequences
     primers_fa1: "path/to/primer-fa1"
     primers_fa2: "path/to/primer-fa2"
+    # Library error max insert size of primers
+    library_error: ""
+    # Library Length mean insert size of primers
+    library_length: ""
 
 # Estimation of tumor mutational burden.
 tmb:
