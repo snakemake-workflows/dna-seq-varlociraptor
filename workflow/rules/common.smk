@@ -101,7 +101,7 @@ def get_group_samples(wildcards):
 def get_group_bams(wildcards, bai=False):
     ext = ".bai" if bai else ""
     if group_is_paired_end(wildcards) and is_activated("primers/trimming"):
-        return expand("results/mapped/{sample}.trimmed.bam{ext}", sample=get_group_samples(wildcards), ext=ext)
+        return expand("results/trimmed/{sample}.trimmed.bam{ext}", sample=get_group_samples(wildcards), ext=ext)
     return expand("results/recal/{sample}.sorted.bam{ext}", sample=get_group_samples(wildcards), ext=ext)
 
 

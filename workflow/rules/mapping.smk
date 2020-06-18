@@ -54,7 +54,7 @@ rule filter_primerless_reads:
         bam="results/recal/{sample}.sorted.bam",
         regions="results/primers/primers.bed"
     output:
-        "results/mapped/{sample}.filtered.bam"
+        "results/recal/{sample}.filtered.bam"
     log:
         "logs/primers/{sample}_filter_reads.log"
     conda:
