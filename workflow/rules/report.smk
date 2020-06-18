@@ -3,8 +3,8 @@ rule igv_report:
         bcf="results/merged-calls/{group}.{event}.fdr-controlled.bcf",
         ref="resources/genome.fasta",
         ref_idx="resources/genome.fasta.fai",
-        bams=get_group_bams,
-        bais=get_group_bais
+        bams=lambda w: get_group_bams(w),
+        bais=lambda w: get_group_bams(w, bai=True)
     output:
         report("results/igv-report/{group}.{event}.html", caption="../report/calls.rst", category="Variant calls")
     log:

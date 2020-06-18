@@ -4,8 +4,8 @@ rule freebayes:
         ref_idx="resources/genome.fasta.fai",
         regions=get_regions(),
         # you can have a list of samples here
-        samples=get_group_bams,
-        index=get_group_bais,
+        samples=lambda w: get_group_bams(w),
+        index=lambda w: get_group_bams(w, bai=True),
     output:
         "results/candidate-calls/{group}.freebayes.bcf"
     log:
@@ -21,8 +21,8 @@ rule delly:
     input:
         ref="resources/genome.fasta",
         ref_idx="resources/genome.fasta.fai",
-        samples=get_group_bams,
-        index=get_group_bais,
+        samples=lambda w: get_group_bams(w),
+        index=lambda w: get_group_bams(w, bai=True),
         exclude=get_excluded_regions()
     output:
         "results/candidate-calls/{group}.delly.bcf"
