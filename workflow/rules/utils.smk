@@ -39,19 +39,19 @@ rule tabix_known_variants:
 rule map_primers:
     input:
         reads=[config["primers"]["trimming"]["primers_fa1"], config["primers"]["trimming"]["primers_fa2"]],
-        idx=rules.bwa_index.output
+        ref="resources/genome.fasta"
     output:
         "results/mapped/primers.bam"
     log:
-        "logs/bwa_mem/primers.log"
+        "logs/razers3/primers.log"
     params:
-        index=lambda w, input: os.path.splitext(input.idx[0])[0],
-        sort="samtools",
-        sort_order="coordinate",
-        extra="-T 10 -k 8 -c 5000"
-    threads: 8
-    wrapper:
-        "0.56.0/bio/bwa/mem"
+        library_error = config["primers"]["trimming"]["library_error"],
+        library_len = config["primers"]["trimming"]["library_length"],
+        sort_order="1"
+    conda:
+        "../envs/razers3.yaml"
+    shell:
+        "razers3 -i 95 -rr 99 -m 100 -so {params.sort_order} -ll {params.library_len} -le {params.library_error} -o {output} {input.ref} {input.reads} "
 
 
 rule primer_to_bedpe:
