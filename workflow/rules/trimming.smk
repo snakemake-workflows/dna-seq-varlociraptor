@@ -80,4 +80,4 @@ rule trim_primers:
     log:
         "logs/trimming/{sample}.log"
     shell:
-        "fgbio TrimPrimers -H -i {input.bams} -p {input.primers} -s {params.sort_order} -o {output} > {log}"
+        "fgbio TrimPrimers -H -i {input.bams} -p {input.primers} -s {params.sort_order} -o {output} &> {log}"
