@@ -8,9 +8,9 @@ rule filter_by_annotation:
     params:
         filter=lambda w: config["calling"]["filter"][w.filter]
     conda:
-        "../envs/snpsift.yaml"
+        "../envs/vep.yaml"
     shell:
-        "(bcftools view {input} | SnpSift filter \"{params.filter}\" | bcftools view -Ob > {output}) 2> {log}"
+        "(bcftools view {input} | filter_vep --filter \"{params.filter}\" --vcf_info_field ANN | bcftools view -Ob > {output}) 2> {log}"
 
 
 rule control_fdr:
