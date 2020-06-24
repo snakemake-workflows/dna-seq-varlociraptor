@@ -1,0 +1,6 @@
+channels:
+  - conda-forge
+  - bioconda
+dependencies:
+  - ensembl-vep =100
+  - bcftools =1.9
