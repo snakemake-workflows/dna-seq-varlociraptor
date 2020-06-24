@@ -37,6 +37,7 @@ rule tabix_known_variants:
 
 
 rule map_primers:
+    threads: 12
     input:
         reads=[config["primers"]["trimming"]["primers_fa1"], config["primers"]["trimming"]["primers_fa2"]],
         ref="resources/genome.fasta"
@@ -51,7 +52,7 @@ rule map_primers:
     conda:
         "../envs/razers3.yaml"
     shell:
-        "razers3 -i 95 -rr 99 -m 100 -so {params.sort_order} -ll {params.library_len} -le {params.library_error} -o {output} {input.ref} {input.reads} "
+        "razers3 -i 95 -rr 99 -m 100 -tc {threads} -so {params.sort_order} -ll {params.library_len} -le {params.library_error} -o {output} {input.ref} {input.reads}"
 
 
 rule primer_to_bedpe:
