@@ -12,21 +12,25 @@ rule filter_by_annotation:
     shell:
         "(bcftools view {input} | filter_vep --filter \"{params.filter}\" --vcf_info_field ANN | bcftools view -Ob > {output}) 2> {log}"
 
+
 rule filter_odds:
     input:
         "results/calls/{group}.{filter}.filtered_ann.bcf"
     output:
-        "results/calls/{group}.{filter}.filtered_odds.bcf"
+        "results/calls/{group}.{event}.{filter}.filtered_odds.bcf"
+    params:
+        events=lambda wc: config["calling"]["fdr-control"]["events"][wc.event]["varlociraptor"]
     log:
-        "logs/filter-calls/posterior_odds/{group}.{filter}.log"
+        "logs/filter-calls/posterior_odds/{group}.{event}.{filter}.log"
     conda:
         "../envs/varlociraptor.yaml"
     shell:
-        "varlociraptor filter-calls posterior-odds {input} --events SOMATIC_TUMOR --odds barely > {output} 2> {log"
+        "varlociraptor filter-calls posterior-odds --events {params.events} --odds barely < {input} > {output} 2> {log}"
+
 
 rule control_fdr:
     input:
-        "results/calls/{group}.{filter}.filtered_odds.bcf"
+        "results/calls/{group}.{event}.{filter}.filtered_odds.bcf"
     output:
         "results/calls/{group}.{vartype}.{event}.{filter}.fdr-controlled.bcf"
     log:
