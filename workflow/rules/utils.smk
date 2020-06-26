@@ -107,7 +107,7 @@ rule primer_to_bedpe:
 
 rule primer_to_bed:
     input:
-        "results/primers/primers.filterd.bam"
+        "results/primers/primers.filtered.bam"
     output:
         "results/primers/primers.bed"
     log:
