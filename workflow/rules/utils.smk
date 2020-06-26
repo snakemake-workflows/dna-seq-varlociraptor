@@ -85,7 +85,7 @@ rule filter_unmapped_primers:
     output:
         "results/primers/primers.filtered.bam"
     params:
-        "-b -f 2"
+        "-b -f 1 -F 12"
     log:
         "logs/primers/filtered.log"
     wrapper:
