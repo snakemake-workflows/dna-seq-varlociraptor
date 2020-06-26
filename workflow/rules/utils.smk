@@ -36,23 +36,40 @@ rule tabix_known_variants:
         "0.59.2/bio/tabix"
 
 
+rule yara_index:
+    input:
+        "resources/genome.fasta"
+    output:
+        "resources/genome.txt.size",
+        "resources/genome.txt.limits",
+        "resources/genome.txt.concat",
+        "resources/genome.rid.concat",
+        "resources/genome.rid.limits",
+    log:
+        "logs/yara/index.log"
+    conda:
+        "../envs/yara.yaml"
+    shell:
+        "yara_indexer {input} &> {log}"
+
 rule map_primers:
     threads: 12
     input:
         reads=[config["primers"]["trimming"]["primers_fa1"], config["primers"]["trimming"]["primers_fa2"]],
-        ref="resources/genome.fasta"
+        ref="resources/genome.fasta",
+        idx=rules.yara_index.output
     output:
         "results/mapped/primers.bam"
-    log:
-        "logs/razers3/primers.log"
     params:
         library_error = config["primers"]["trimming"]["library_error"],
         library_len = config["primers"]["trimming"]["library_length"],
-        sort_order="1"
+        ref_prefix=lambda w, input: os.path.splitext(input.ref)[0]
+    log:
+        "logs/yara/map_primers.log"
     conda:
-        "../envs/razers3.yaml"
+        "../envs/yara.yaml"
     shell:
-        "razers3 -i 95 -rr 99 -m 100 -tc {threads} -so {params.sort_order} -ll {params.library_len} -le {params.library_error} -o {output} {input.ref} {input.reads}"
+        "yara_mapper -t {threads} -ll {params.library_len} -le {params.library_error} -o {output} {params.ref_prefix} {input.reads} &> {log}"
 
 
 rule primer_to_bedpe:
