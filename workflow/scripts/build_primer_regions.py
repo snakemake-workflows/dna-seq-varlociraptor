@@ -12,11 +12,19 @@ with open(snakemake.output[0], "w") as out:
         ):
             valid_primers = data_primers[0] == data_primers[3]
             valid_data = data_primers[valid_primers]
-            valid_data.iloc[: ,[1,4]] += 1
+            valid_data.iloc[:, [1, 4]] += 1
             print(
-                valid_data
-                .drop(columns=[3])
-                .to_csv(sep="\t", index=False, header=["chrom", "left_start", "left_end", "right_start", "right_end"]),
+                valid_data.drop(columns=[3]).to_csv(
+                    sep="\t",
+                    index=False,
+                    header=[
+                        "chrom",
+                        "left_start",
+                        "left_end",
+                        "right_start",
+                        "right_end",
+                    ],
+                ),
                 file=out,
             )
             print(

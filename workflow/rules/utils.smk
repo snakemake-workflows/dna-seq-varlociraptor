@@ -45,6 +45,13 @@ rule yara_index:
         "resources/genome.txt.concat",
         "resources/genome.rid.concat",
         "resources/genome.rid.limits",
+        "resources/genome.sa.len",
+        "resources/genome.sa.val",
+        "resources/genome.sa.ind",
+        "resources/genome.lf.drp",
+        "resources/genome.lf.drs",
+        "resources/genome.lf.drv",
+        "resources/genome.lf.pst"
     log:
         "logs/yara/index.log"
     conda:
@@ -59,7 +66,7 @@ rule map_primers:
         ref="resources/genome.fasta",
         idx=rules.yara_index.output
     output:
-        "results/mapped/primers.bam"
+        "results/primers/primers.bam"
     params:
         library_error = config["primers"]["trimming"]["library_error"],
         library_len = config["primers"]["trimming"]["library_length"],
@@ -69,12 +76,25 @@ rule map_primers:
     conda:
         "../envs/yara.yaml"
     shell:
-        "yara_mapper -t {threads} -ll {params.library_len} -le {params.library_error} -o {output} {params.ref_prefix} {input.reads} &> {log}"
+        "yara_mapper -t {threads} -ll {params.library_len} -ld {params.library_error} -o {output} {params.ref_prefix} {input.reads} > {log}"
+
+
+rule filter_unmapped_primers:
+    input:
+        "results/primers/primers.bam"
+    output:
+        "results/primers/primers.filtered.bam"
+    params:
+        "-b -f 2"
+    log:
+        "logs/primers/filtered.log"
+    wrapper:
+        "0.61.0/bio/samtools/view"
 
 
 rule primer_to_bedpe:
     input:
-        "results/mapped/primers.bam"
+        "results/primers/primers.filtered.bam"
     output:
         "results/primers/primers.bedpe"
     log:
@@ -87,7 +107,7 @@ rule primer_to_bedpe:
 
 rule primer_to_bed:
     input:
-        "results/mapped/primers.bam"
+        "results/primers/primers.filterd.bam"
     output:
         "results/primers/primers.bed"
     log:
