@@ -119,6 +119,7 @@ rule primer_to_bed:
     shell:
         "samtools sort -n {input} | bamToBed -i - > {output} 2> {log}"
 
+
 rule build_primer_regions:
     input:
         "results/primers/primers.bedpe"
