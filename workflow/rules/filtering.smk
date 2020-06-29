@@ -10,7 +10,7 @@ rule filter_by_annotation:
     conda:
         "../envs/vep.yaml"
     shell:
-        "(bcftools view {input} | filter_vep --filter \"{params.filter}\" --vcf_info_field ANN | bcftools view -Ob > {output}) 2> {log}"
+        "(bcftools view {input} | filter_vep --filter \"{params.filter}\" --vcf_info_field ANN --only_matched | bcftools view -Ob > {output}) 2> {log}"
 
 
 rule filter_odds:
