@@ -59,6 +59,8 @@ rule yara_index:
     shell:
         "yara_indexer {input} &> {log}"
 
+
+# ToDO Return all best matches. Requires replacing bamToBed-rules
 rule map_primers:
     threads: 12
     input:
