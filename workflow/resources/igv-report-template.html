@@ -238,16 +238,16 @@
                     <div class="accordion-content" data-tab-content style="overflow: auto">
                         <div class="accordion-item is-active" data-accordion-item>
                             <!-- Accordion tab title -->
-                            <a href="#" class="accordion-title">Sift Score</a>
+                            <a href="#" class="accordion-title">Any Isoform</a>
                             <div class="accordion-content" data-tab-content style="overflow: auto">
-                                <div id="PlotSiftScores" class="grid-x align-left"></div>
+                                <div id="PlotdbSNFPScoresIsoform" class="grid-x align-left"></div>
                             </div>
                         </div>
                         <div class="accordion-item is-active" data-accordion-item>
                             <!-- Accordion tab title -->
-                            <a href="#" class="accordion-title">PolyPhen-2 Score</a>
+                            <a href="#" class="accordion-title">Ensembl Transcripts</a>
                             <div class="accordion-content" data-tab-content style="overflow: auto">
-                                <div id="PlotPolyphenScores" class="grid-x align-left"></div>
+                                <div id="PlotsdbSNFPScoresEnsembl" class="grid-x align-left"></div>
                             </div>
                         </div>
                     </div>
@@ -364,8 +364,8 @@
             createPlotCell("PlotProbDiv", "Prob");
             createPlotCell("PlotAFDiv", "AlleleFreq");
             createPlotCell("PlotObservationsDiv", "Obs");
-            createPlotCell("PlotSiftScores", "sift_scores_rowid");
-            createPlotCell("PlotPolyphenScores", "polyphen_scores_rowid")
+            createPlotCell("PlotSift", "scores_sift");
+            createPlotCell("PlotPolyphen", "scores_polyphen")
         }
 
 
@@ -396,6 +396,69 @@
                 cell_value.innerHTML = value
             }
         }
+
+        function collect_scores(scores, score_type, score_list, transcript_list) {
+        	var transcripts = transcript_list.split(",");
+            $.each(score_list.split(","), function (idx, variant_value) {
+                if (!(variant_value == "")) {
+                    var effect_bins = build_effect_bins(score_type, parseFloat(variant_value))
+                    for (bin of effect_bins) {
+                        var effect_idx = score_scales[score_type]["entries"].indexOf(bin.effect)
+						scores.push({
+							"name": score_type,
+							"transcript": transcripts[idx],
+							"size": bin.size,
+							"effect": bin.effect,
+							"effect_idx": effect_idx
+						})
+					}
+                }
+            })
+            return scores
+		}
+
+		function plotScores(score_type, scores, cell_id) {
+			$(`#${cell_id}`).empty()
+			if (scores.length > 0) {
+				var ScoreSpec = {
+					"$schema": "https://vega.github.io/schema/vega-lite/v3.json",
+					"data": {
+						values: scores
+					},
+					"mark": "bar",
+					"encoding": {
+						"y": {
+							"field": "transcript",
+							"type": "nominal",
+							"title": "Transcript"
+						},
+						"x": {
+							"field": "size",
+							"type": "quantitative",
+							"title": "Score",
+						},
+						"color": {
+							"field": "effect",
+							"type": "nominal",
+							"title": "Effect",
+							"sort": score_scales[score_type]["entries"],
+							"scale": {
+								"domain": score_scales[score_type]["entries"],
+								"range": score_scales[score_type]["colors"]
+							}
+						},
+						"order": { "field": "effect_idx", "type": "quantitative" },
+						"tooltip": null
+					},
+					"config": {
+						"axisX": {
+							"labelAngle": 90
+						}
+					}
+				};
+				vegaEmbed(`#${cell_id}`, ScoreSpec)
+			}
+		}
 
         function addVariantDetailsRow(key, value) {
             var tbody = document.getElementById("variant_details_table_tbody")
@@ -542,11 +605,11 @@
 
         score_thresholds = {}
         score_thresholds["PolyPhen"] = { "Benign": [0, 0.149], "Possibly Damaging": [0.15, 0.849], "Probably Damaging": [0.85, 1] }
-        score_thresholds["SIFT"] = {"Damaging": [0, 0.05], "Tolerated": [0.051, 1] }
+        score_thresholds["SIFT"] = {"Damaging": [0, 0.05], "Benign": [0.051, 1] }
 
 
         score_scales = {}
-        score_scales["SIFT"] = { "colors": ["#2ba6cb", "#ff5555"], "entries": ["Tolerated", "Damaging"] }
+        score_scales["SIFT"] = { "colors": ["#ff5555", "#2ba6cb"], "entries": ["Damaging", "Benign"] }
         score_scales["PolyPhen"] = { "colors": ["#2ba6cb", "#ffa3a3", "#ff5555"], "entries": ["Benign", "Possibly Damaging", "Probably Damaging"] }
 
 
@@ -627,9 +690,9 @@
                 var observations = [];
                 var probabilites = [];
                 var binom_dist = [];
+                var sift_scores = [];
+                var polyphen_scores = [];
                 var coverage = {};
-                var sift_scores = {};
-                var polyphen_scores = {};
                 var regex = /([0-9]+)(N|B|P|S|V|n|b|p|s|v)(\+|\-|\*)/g;
                 var effects = {
                     "N": "None",
@@ -679,37 +742,12 @@
                     } else if (variant_columns.includes(key)) {
                         addVariantDetailsRow(key, value)
                     } else if (key == "SIFT" || key == "PolyPhen") {
-                        if (!(value == "None")) {
-                            var effect_bins = build_effect_bins(name, parseFloat(value))
-                            for (bin of effect_bins) {
-                                var effect_idx = score_scales[name]["entries"].indexOf(bin.effect)
-                                if (key == "SIFT") {
-                                    sift_scores[name].push({
-                                    "name": name,
-                                    "size": bin.size,
-                                    "effect": bin.effect,
-                                    "effect_idx": effect_idx
-                                  })
-                                } else {
-                                    polyphen_scores[name].push({
-                                    "name": name,
-                                    "size": bin.size,
-                                    "effect": bin.effect,
-                                    "effect_idx": effect_idx
-                                    })
-                                }
-
-                            }
-                        } else {
-                            var effect = extract_effect(name, value)
-                            var effect_idx = score_scales[name]["entries"].indexOf(effect)
-                            scores[name].push({
-                                "name": name,
-                                "size": value,
-                                "effect": effect,
-                                "effect_idx": effect_idx
-                            })
-                        }
+                    	if (key == "SIFT") {
+                    		sift_scores = collect_scores(sift_scores, key, value, init_row["TRANSCRIPT"])
+                    	} else {
+                    		polyphen_scores = collect_scores(polyphen_scores, key, value, init_row["TRANSCRIPT"])
+                    	}
+                    	
                     } else if (key == "cosmic_LEGACY_ID") {
                         addCommonDetailsRow(key, value)
                     } else if (key == "ID") {
@@ -723,6 +761,8 @@
                 })
                 addLinkoutsRow(init_row['GENE_ID'].split(','))
                 addDgidbLinkouts(init_row["GENE"].split(','), interaction_drugs_dict)
+                plotScores("SIFT", sift_scores, "scores_sift")
+                plotScores("PolyPhen", polyphen_scores, "scores_polyphen")
 
                 //Plot Binomial Distribution
                 $("#AlleleFreq").empty()
@@ -933,121 +973,6 @@
                     }
                 };
                 vegaEmbed('#Obs', obsSpec);
-
-                var score_transformation = (g) => { if (g == "p-value") { return "-10 * log(datum.size + (1e-15))/log(10)" } else { return "datum.size" } }
-                var score_title = (g) => {
-                    if (g == "p-value") {
-                        return "p-value (PHRED-scaled)"
-                    } else if (g == "Probability") {
-                        return "Probability"
-                    } else {
-                        return "Score"
-                    }
-                }
-                var score_legend = (g) => {
-                    if ((g == "p-value") || (g == "Probability")) {
-                        return ""
-                    } else {
-                        return "effect"
-                    }
-                }
-
-                $("#sift_scores").empty()
-                if (Object.keys(sift_scores).length > 0) {
-                    var rowId = `sift_scores_rowid`
-                    addPlotCellRow("sift_scores", rowId)
-                    var SiftSpec = {
-                        "$schema": "https://vega.github.io/schema/vega-lite/v3.json",
-                        "data": {
-                            values: sift_scores["SIFT"]
-                        },
-                        "transform": [{ "calculate": score_transformation("SIFT"), "as": "transformed_score" }],
-                        "mark": "bar",
-                        "encoding": {
-                            "y": {
-                                "field": "name",
-                                "type": "nominal",
-                                "title": "Type"
-                            },
-                            "x": {
-                                "field": "transformed_score",
-                                "type": "quantitative",
-                                "title": score_title("SIFT"),
-                            },
-                            "color": {
-                                "field": score_legend("SIFT"),
-                                "type": "nominal",
-                                "title": "Effect",
-                                "sort": score_scales["SIFT"]["entries"],
-                                "scale": {
-                                    "domain": score_scales["SIFT"]["entries"],
-                                    "range": score_scales["SIFT"]["colors"]
-                                }
-                            },
-                            "order": { "field": "effect_idx", "type": "quantitative" },
-                            "tooltip": null
-                        },
-                        "config": {
-                            "axisX": {
-                                "labelAngle": 90
-                            }
-                        }
-                    };
-                    vegaEmbed(`#${rowId}`, SiftSpec)
-                }
-
-                $("#polyphen_scores").empty()
-                if (Object.keys(polyphen_scores).length > 0) {
-                    var rowId = `polyphen_scores_rowid`
-                    addPlotCellRow("polyphen_scores", rowId)
-                    var PolyphenSpec = {
-                        "$schema": "https://vega.github.io/schema/vega-lite/v3.json",
-                        "data": {
-                            values: polyphen_scores["PolyPhen"]
-                        },
-                        "transform": [{ "calculate": score_transformation("PolyPhen"), "as": "transformed_score" }],
-                        "facet": {
-                            "column": {
-                                "field": "ensemblId",
-                                "type": "nominal",
-                                "title": "EnsemblID"
-                            }
-                        },
-                        "spec": {
-                            "mark": "bar",
-                            "encoding": {
-                                "y": {
-                                    "field": "name",
-                                    "type": "nominal",
-                                    "title": "Type"
-                                },
-                                "x": {
-                                    "field": "transformed_score",
-                                    "type": "quantitative",
-                                    "title": score_title("PolyPhen"),
-                                },
-                                "color": {
-                                    "field": score_legend("PolyPhen"),
-                                    "type": "nominal",
-                                    "title": "Effect",
-                                    "sort": score_scales["PolyPhen"]["entries"],
-                                    "scale": {
-                                        "domain": score_scales["PolyPhen"]["entries"],
-                                        "range": score_scales["PolyPhen"]["colors"]
-                                    }
-                                },
-                                "order": { "field": "effect_idx", "type": "quantitative" },
-                                "tooltip": null
-                            }
-                        },
-                        "config": {
-                            "axisX": {
-                                "labelAngle": 90
-                            }
-                        }
-                    };
-                    vegaEmbed(`#${rowId}`, PolyphenSpec)
-                }
             });
         });
 

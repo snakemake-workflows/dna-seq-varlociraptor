@@ -16,6 +16,6 @@ rule igv_report:
     shell:
         "bcftools view {input.bcf} > {output}.vcf;"
         "create_report {output}.vcf {input.ref} --flanking 100 "
-        "--info-columns ANN dgiDB_drugs cosmic_LEGACY_ID --info-columns-prefixes PROB_ dbNSFP_ --sample-columns DP AF OBS"
+        "--info-columns ANN dgiDB_drugs cosmic_LEGACY_ID --info-columns-prefixes PROB_ --sample-columns DP AF OBS"
         " --template {params} --tracks {input.bams} --output {output} --standalone 2>&1 > {log}; "
         "rm {output}.vcf"
