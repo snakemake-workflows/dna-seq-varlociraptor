@@ -658,7 +658,7 @@
             if (!(name in score_thresholds)) {
                 return "Effect not found"
             }
-            var effects = scroe_thresholds[name]
+            var effects = score_thresholds[name]
             for (var key in effects) {
                 if ((value >= effects[key][0]) && (value <= effects[key][1])) {
                     return key
