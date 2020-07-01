@@ -63,9 +63,10 @@ calling:
     threshold: 0.05
     events: 
       # Add any number of events here to filter for.
-      present:
+      somatic:
         varlociraptor: 
-          - "PRESENT"
+          - "SOMATIC_TUMOR_HIGH"
+          - "SOMATIC_TUMOR_MEDIUM"
         filter: filtername
 
 remove_duplicates:
