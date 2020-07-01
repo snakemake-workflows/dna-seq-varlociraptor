@@ -10,4 +10,4 @@ rule plot_oncoprint:
     conda:
         "../envs/rbt.yaml"
     shell:
-        "rbt oncoprint {params.groups} > {output} 2> {log}"
+        "rbt oncoprint --vep-annotation {params.groups} > {output} 2> {log}"
