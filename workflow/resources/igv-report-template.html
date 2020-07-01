@@ -205,6 +205,26 @@
             <div class="accordion" data-accordion data-allow-all-closed="true" data-multi-expand="true">
                 <div class="accordion-item is-active" data-accordion-item>
                     <!-- Accordion tab title -->
+                    <a href="#" class="accordion-title">Functional Prediction</a>
+                    <div class="accordion-content" data-tab-content style="overflow: auto">
+                        <div class="accordion-item is-active" data-accordion-item>
+                            <!-- Accordion tab title -->
+                            <a href="#" class="accordion-title">Sift Scores</a>
+                            <div class="accordion-content" data-tab-content style="overflow: auto">
+                                <div id="PlotSift" class="grid-x align-left"></div>
+                            </div>
+                        </div>
+                        <div class="accordion-item is-active" data-accordion-item>
+                            <!-- Accordion tab title -->
+                            <a href="#" class="accordion-title">PolyPhen-2 Scores</a>
+                            <div class="accordion-content" data-tab-content style="overflow: auto">
+                                <div id="PlotPolyphen" class="grid-x align-left"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="accordion-item is-active" data-accordion-item>
+                    <!-- Accordion tab title -->
                     <a href="#" class="accordion-title">Variant Details</a>
                     <div class="accordion-content" data-tab-content>
                         <div id="tableCommonDetailsDiv" style="overflow: auto"></div>
@@ -230,26 +250,6 @@
                     <a href="#" class="accordion-title">Observations</a>
                     <div class="accordion-content" data-tab-content style="overflow: auto">
                         <div id="PlotObservationsDiv" class="grid-x align-left"></div>
-                    </div>
-                </div>
-                <div class="accordion-item is-active" data-accordion-item>
-                    <!-- Accordion tab title -->
-                    <a href="#" class="accordion-title">Functional Prediction</a>
-                    <div class="accordion-content" data-tab-content style="overflow: auto">
-                        <div class="accordion-item is-active" data-accordion-item>
-                            <!-- Accordion tab title -->
-                            <a href="#" class="accordion-title">Any Isoform</a>
-                            <div class="accordion-content" data-tab-content style="overflow: auto">
-                                <div id="PlotdbSNFPScoresIsoform" class="grid-x align-left"></div>
-                            </div>
-                        </div>
-                        <div class="accordion-item is-active" data-accordion-item>
-                            <!-- Accordion tab title -->
-                            <a href="#" class="accordion-title">Ensembl Transcripts</a>
-                            <div class="accordion-content" data-tab-content style="overflow: auto">
-                                <div id="PlotsdbSNFPScoresEnsembl" class="grid-x align-left"></div>
-                            </div>
-                        </div>
                     </div>
                 </div>
             </div>
