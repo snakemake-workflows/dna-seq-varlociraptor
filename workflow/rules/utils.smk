@@ -127,6 +127,8 @@ rule build_primer_regions:
         "results/primers/primer_regions.tsv"
     log:
         "logs/primers/build_primer_regions.log"
+    conda:
+        "../envs/pandas.yaml"
     script:
         "../scripts/build_primer_regions.py"
 
@@ -138,6 +140,8 @@ rule build_target_regions:
         "results/primers/target_regions.bed"
     log:
         "logs/primers/build_target_regions.log"
+    conda:
+        "../envs/pandas.yaml"
     script:
         "../scripts/build_target_regions.py"
 
