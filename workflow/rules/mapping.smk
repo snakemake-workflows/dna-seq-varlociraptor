@@ -47,17 +47,3 @@ rule recalibrate_base_qualities:
         extra=config["params"]["gatk"]["BaseRecalibrator"]
     wrapper:
         "0.59.2/bio/gatk/baserecalibrator"
-
-
-rule filter_primerless_reads:
-    input:
-        bam="results/recal/{sample}.sorted.bam",
-        regions="results/primers/primers.bed"
-    output:
-        "results/recal/{sample}.filtered.bam"
-    log:
-        "logs/primers/{sample}_filter_reads.log"
-    conda:
-        "../envs/samtools.yaml"
-    shell:
-        "samtools view -h -b -L {input.regions} {input.bam} > {output} 2> {log}"

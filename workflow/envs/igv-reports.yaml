@@ -6,4 +6,4 @@ dependencies:
   - pysam =0.15
   - bcftools =1.9
   - pip:
-      - git+https://github.com/felixmoelder/igv-reports.git
+      - git+https://github.com/felixmoelder/igv-reports.git  # TODO this will be replaced by a specialized report soon.

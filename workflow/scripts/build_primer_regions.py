@@ -11,7 +11,7 @@ with open(snakemake.output[0], "w") as out:
             usecols=[0, 1, 2, 3, 4, 5],
         ):
             valid_primers = data_primers[0] == data_primers[3]
-            valid_data = data_primers[valid_primers]
+            valid_data = data_primers[valid_primers].copy()
             valid_data.iloc[:, [1, 4]] += 1
             print(
                 valid_data.drop(columns=[3]).to_csv(
