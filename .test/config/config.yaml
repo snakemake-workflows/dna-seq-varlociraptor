@@ -21,6 +21,8 @@ primers:
     activate: false
     primers_fa1: ""
     primers_fa2: ""
+    library_error: 0
+    library_length: 0
 
 
 # Estimation of tumor mutational burden.
@@ -46,7 +48,7 @@ calling:
   scenario: config/scenario.yaml
   # See http://snpeff.sourceforge.net/SnpSift.html#filter
   filter:
-    moderate: "ANN[*].IMPACT has 'MODERATE'"
+    moderate: "IMPACT is MODERATE"
   fdr-control:
     threshold: 0.05
     events: 

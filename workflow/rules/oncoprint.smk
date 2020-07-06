@@ -8,6 +8,6 @@ rule plot_oncoprint:
     log:
         "logs/oncoprint/{batch}.{event}.plot.log"
     conda:
-        "../envs/rbt.yaml"
+        "../envs/oncoprint.yaml"
     shell:
-        "rbt oncoprint {params.groups} > {output} 2> {log}"
+        "rbt oncoprint --vep-annotation {params.groups} > {output} 2> {log}"

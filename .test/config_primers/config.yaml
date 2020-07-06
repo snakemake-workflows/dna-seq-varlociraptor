@@ -22,6 +22,8 @@ primers:
     activate: true
     primers_fa1: "a.scerevisiae.1_primers.fa"
     primers_fa2: "a.scerevisiae.2_primers.fa"
+    library_error: 174
+    library_length: 104
 
 
 # Estimation of tumor mutational burden.
@@ -47,7 +49,7 @@ calling:
   scenario: config/scenario.yaml
   # See http://snpeff.sourceforge.net/SnpSift.html#filter
   filter:
-    moderate: "ANN[*].IMPACT has 'MODERATE'"
+    moderate: "IMPACT is MODERATE"
   fdr-control:
     threshold: 0.05
     events: 

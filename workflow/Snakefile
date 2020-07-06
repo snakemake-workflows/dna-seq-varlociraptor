@@ -20,6 +20,7 @@ include: "rules/tmb.smk"
 include: "rules/vega.smk"
 include: "rules/utils.smk"
 include: "rules/oncoprint.smk"
+include: "rules/primers.smk"
 
 groups = samples["group"].unique()
 

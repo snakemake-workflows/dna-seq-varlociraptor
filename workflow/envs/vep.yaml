@@ -2,4 +2,5 @@ channels:
   - conda-forge
   - bioconda
 dependencies:
-  - varlociraptor =1.8
+  - ensembl-vep =100
+  - bcftools =1.9

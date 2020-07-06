@@ -4,5 +4,6 @@ channels:
 dependencies:
   - python==3.7
   - pysam =0.15
-  - igv-reports =0.9.5
   - bcftools =1.9
+  - pip:
+      - git+https://github.com/felixmoelder/igv-reports.git  # TODO this will be replaced by a specialized report soon.

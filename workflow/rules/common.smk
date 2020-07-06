@@ -79,11 +79,16 @@ def is_paired_end(sample):
     assert all_single or all_paired, "invalid units for sample {}, must be all paired end or all single end".format(sample)
     return all_paired
 
+def group_is_paired_end(wildcards):
+    samples = get_group_samples(wildcards)
+    return all([is_paired_end(sample) for sample in samples])
+
 def get_map_reads_input(wildcards):
     if is_paired_end(wildcards.sample):
         return ["results/merged/{sample}_R1.fastq.gz",
                 "results/merged/{sample}_R2.fastq.gz"]
     return "results/merged/{sample}_single.fastq.gz"
+
 
 def get_group_aliases(wildcards):
     return samples.loc[samples["group"] == wildcards.group]["alias"]
@@ -93,8 +98,11 @@ def get_group_samples(wildcards):
     return samples.loc[samples["group"] == wildcards.group]["sample_name"]
 
 
-def get_group_bams(wildcards):
-    return expand("results/recal/{sample}.sorted.bam", sample=get_group_samples(wildcards))
+def get_group_bams(wildcards, bai=False):
+    ext = ".bai" if bai else ""
+    if group_is_paired_end(wildcards) and is_activated("primers/trimming"):
+        return expand("results/trimmed/{sample}.trimmed.bam{ext}", sample=get_group_samples(wildcards), ext=ext)
+    return expand("results/recal/{sample}.sorted.bam{ext}", sample=get_group_samples(wildcards), ext=ext)
 
 
 def get_regions():
@@ -114,9 +122,6 @@ def get_group_observations(wildcards):
                   caller=wildcards.caller, 
                   group=wildcards.group,
                   sample=get_group_samples(wildcards))
-
-def get_group_bais(wildcards):
-    return expand("results/recal/{sample}.sorted.bam.bai", sample=get_group_samples(wildcards))
 
 def is_activated(xpath):
     c = config
@@ -204,6 +209,5 @@ def get_tabix_params(wildcards):
     raise ValueError("Invalid format for tabix: {}".format(wildcards.format))
 
 
-def get_trimmed_fastqs(wc):
-    subdir = "primers" if is_activated("primers/trimming") else "adapters"
-    return expand("results/trimmed/{subdir}/{sample}/{unit}_{read}.fastq.gz", subdir=subdir, unit=units.loc[wc.sample, "unit_name"], sample=wc.sample, read=wc.read)
+def get_fastqs(wc):
+    return expand("results/trimmed/{sample}/{unit}_{read}.fastq.gz", unit=units.loc[wc.sample, "unit_name"], sample=wc.sample, read=wc.read)

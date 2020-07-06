@@ -213,6 +213,26 @@
                 </div>
                 <div class="accordion-item is-active" data-accordion-item>
                     <!-- Accordion tab title -->
+                    <a href="#" class="accordion-title">Functional Prediction</a>
+                    <div class="accordion-content" data-tab-content style="overflow: auto">
+                        <div class="accordion-item is-active" data-accordion-item>
+                            <!-- Accordion tab title -->
+                            <a href="#" class="accordion-title">Sift Scores</a>
+                            <div class="accordion-content" data-tab-content style="overflow: auto">
+                                <div id="PlotSift" class="grid-x align-left"></div>
+                            </div>
+                        </div>
+                        <div class="accordion-item is-active" data-accordion-item>
+                            <!-- Accordion tab title -->
+                            <a href="#" class="accordion-title">PolyPhen-2 Scores</a>
+                            <div class="accordion-content" data-tab-content style="overflow: auto">
+                                <div id="PlotPolyphen" class="grid-x align-left"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="accordion-item is-active" data-accordion-item>
+                    <!-- Accordion tab title -->
                     <a href="#" class="accordion-title">Event probabilities</a>
                     <div class="accordion-content" data-tab-content style="overflow: auto">
                         <div id="PlotProbDiv" class="grid-x align-left"></div>
@@ -232,26 +252,6 @@
                         <div id="PlotObservationsDiv" class="grid-x align-left"></div>
                     </div>
                 </div>
-                <div class="accordion-item is-active" data-accordion-item>
-                    <!-- Accordion tab title -->
-                    <a href="#" class="accordion-title">Functional Prediction</a>
-                    <div class="accordion-content" data-tab-content style="overflow: auto">
-                        <div class="accordion-item is-active" data-accordion-item>
-                            <!-- Accordion tab title -->
-                            <a href="#" class="accordion-title">Any Isoform</a>
-                            <div class="accordion-content" data-tab-content style="overflow: auto">
-                                <div id="PlotdbSNFPScoresIsoform" class="grid-x align-left"></div>
-                            </div>
-                        </div>
-                        <div class="accordion-item is-active" data-accordion-item>
-                            <!-- Accordion tab title -->
-                            <a href="#" class="accordion-title">Ensembl Transcripts</a>
-                            <div class="accordion-content" data-tab-content style="overflow: auto">
-                                <div id="PlotsdbSNFPScoresEnsembl" class="grid-x align-left"></div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
             </div>
         </div>
     </div>
@@ -267,6 +267,7 @@
             initDetailsTables();
             initDataTable();
         });
+
 
         $.fn.dataTable.render.multi = function (renderArray) {
             return function (d, type, row, meta) {
@@ -364,8 +365,8 @@
             createPlotCell("PlotProbDiv", "Prob");
             createPlotCell("PlotAFDiv", "AlleleFreq");
             createPlotCell("PlotObservationsDiv", "Obs");
-            createPlotCell("PlotdbSNFPScoresIsoform", "dbNSFP_Isoform");
-            createPlotCell("PlotsdbSNFPScoresEnsembl", "dbNSFP_Ensembl_scores")
+            createPlotCell("PlotSift", "scores_sift");
+            createPlotCell("PlotPolyphen", "scores_polyphen")
         }
 
 
@@ -394,6 +395,76 @@
                 }
             } else {
                 cell_value.innerHTML = value
+            }
+        }
+
+        function collect_scores(scores, score_type, score_list, transcript_list) {
+            var transcripts = transcript_list.split(",");
+            $.each(score_list.split(","), function (idx, variant_value) {
+                if (!(variant_value == "")) {
+                    if (score_type == "SIFT") {
+                        score = 1 - parseFloat(variant_value)
+                    } else {
+                        score = parseFloat(variant_value)
+                    }
+                    var effect_bins = build_effect_bins(score_type, score)
+                    for (bin of effect_bins) {
+                        var effect_idx = score_scales[score_type]["entries"].indexOf(bin.effect)
+                        scores.push({
+                            "name": score_type,
+                            "transcript": transcripts[idx],
+                            "size": bin.size,
+                            "effect": bin.effect,
+                            "effect_idx": effect_idx
+                        })
+                    }
+                }
+            })
+            return scores
+        }
+
+        function plotScores(score_type, scores, cell_id) {
+            var x_title = {"SIFT": "1-score", "PolyPhen": "Score"}
+            $(`#${cell_id}`).empty()
+            if (scores.length > 0) {
+                var ScoreSpec = {
+                    "$schema": "https://vega.github.io/schema/vega-lite/v3.json",
+                    "data": {
+                        values: scores
+                    },
+                    "mark": "bar",
+                    "encoding": {
+                        "y": {
+                            "field": "transcript",
+                            "type": "nominal",
+                            "title": "Transcript"
+                        },
+                        "x": {
+                            "field": "size",
+                            "type": "quantitative",
+                            "scale": {"domain": [0, 1]},
+                            "title": x_title[score_type],
+                        },
+                        "color": {
+                            "field": "effect",
+                            "type": "nominal",
+                            "title": "Effect",
+                            "sort": score_scales[score_type]["entries"],
+                            "scale": {
+                                "domain": score_scales[score_type]["entries"],
+                                "range": score_scales[score_type]["colors"]
+                            }
+                        },
+                        "order": { "field": "effect_idx", "type": "quantitative" },
+                        "tooltip": null
+                    },
+                    "config": {
+                        "axisX": {
+                            "labelAngle": 90
+                        }
+                    }
+                };
+                vegaEmbed(`#${cell_id}`, ScoreSpec)
             }
         }
 
@@ -540,53 +611,21 @@
         }
 
 
-        dbnsfp_thresholds = {}
-        dbnsfp_thresholds["REVEL"] = { "Probability": [0, 1] }
-        dbnsfp_thresholds["MutPred"] = { "Probability": [0, 1] }
-        dbnsfp_thresholds["LRT"] = { "p-value": [0, 1] }
-        dbnsfp_thresholds["VEST4"] = { "p-value": [0, 1] }
-        dbnsfp_thresholds["MetaSVM"] = { "Tolerated": [-2, -0.001], "Damaging": [0, 3] }
-        dbnsfp_thresholds["MetaLR"] = { "Tolerated": [0, 0.549], "Damaging": [0.5, 1] }
-        dbnsfp_thresholds["M_CAP"] = { "Tolerated": [0, 0.0249], "Damaging": [0.025, 1] }
-        dbnsfp_thresholds["PrimateAI"] = { "Tolerated": [0, 0.802], "Damaging": [0.803, 1] }
-        dbnsfp_thresholds["DEOGEN2"] = { "Tolerated": [0, 0.499], "Damaging": [0.5, 1] }
-        dbnsfp_thresholds["MutationAssessor"] = { "Neutral": [-5.17, 0.799], "Low": [0.8, 1.9349], "Medium": [1.935, 3.499], "High": [3.5, 6.49] }
-        dbnsfp_thresholds["Polyphen2_HDIV"] = { "Benign": [0, 0.452], "Possibly Damaging": [0.453, 0.956], "Probably Damaging": [0.957, 1] }
-        dbnsfp_thresholds["Polyphen2_HVAR"] = { "Benign": [0, 0.446], "Possibly Damaging": [0.447, 0.908], "Probably Damaging": [0.909, 1] }
-        dbnsfp_thresholds["FATHMM"] = { "Tolerated": [-1.49, 10.64], "Damaging": [-16.13, -1.5] }
-        dbnsfp_thresholds["PROVEAN"] = { "Tolerated": [-2.49, 14], "Damaging": [-14, -2.5] }
-        dbnsfp_thresholds["SIFT"] = { "Tolerated": [0.05, 1], "Damaging": [0, 0.0499] }
-        dbnsfp_thresholds["SIFT4G"] = { "Tolerated": [0.05, 1], "Damaging": [0, 0.0499] }
-        dbnsfp_thresholds["MVP"] = { "Tolerated": [0, 0.7], "Damaging": [0.701, 1] }
-        dbnsfp_thresholds["MutationTaster"] = { "Tolerated": [0, 0.499], "Damaging": [0.5, 1] }
+        score_thresholds = {}
+        score_thresholds["PolyPhen"] = { "Benign": [0, 0.149], "Possibly Damaging": [0.15, 0.849], "Probably Damaging": [0.85, 1] }
+        score_thresholds["SIFT"] = {"Benign": [0, 0.05], "Damaging": [0.051, 1] }
 
-        dbnsfp_groups_scales = {}
-        dbnsfp_groups_scales["TD"] = { "colors": ["#2ba6cb", "#ff5555"], "entries": ["Tolerated", "Damaging"] }
-        dbnsfp_groups_scales["NLMH"] = { "colors": ["#2ba6cb", "#afdfee", "#ffa3a3", "#ff5555"], "entries": ["Neutral", "Low", "Medium", "High"] }
-        dbnsfp_groups_scales["BPP"] = { "colors": ["#2ba6cb", "#ffa3a3", "#ff5555"], "entries": ["Benign", "Possibly Damaging", "Probably Damaging"] }
-        dbnsfp_groups_scales["p-value"] = { "colors": ["#000000"], "entries": ["p-value"] }
-        dbnsfp_groups_scales["Probability"] = { "colors": ["#000000"], "entries": ["Probability"] }
 
-        dbnsfp_groups = {}
-        for (name of ["MetaSVM", "MetaLR", "M_CAP", "PrimateAI", "DEOGEN2", "FATHMM", "PROVEAN", "SIFT", "SIFT4G", "MVP", "MutationTaster"]) {
-            dbnsfp_groups[name] = "TD"
-        }
-        for (name of ["Polyphen2_HDIV", "Polyphen2_HVAR"]) {
-            dbnsfp_groups[name] = "BPP"
-        }
-        for (name of ["REVEL", "MutPred"]) {
-            dbnsfp_groups[name] = "Probability"
-        }
-        for (name of ["VEST4", "LRT"]) {
-            dbnsfp_groups[name] = "p-value"
-        }
-        dbnsfp_groups["MutationAssessor"] = "NLMH"
+        score_scales = {}
+        score_scales["SIFT"] = { "colors": ["#2ba6cb", "#ff5555"], "entries": ["Benign", "Damaging"] }
+        score_scales["PolyPhen"] = { "colors": ["#2ba6cb", "#ffa3a3", "#ff5555"], "entries": ["Benign", "Possibly Damaging", "Probably Damaging"] }
+
 
         function build_effect_bins(name, score) {
-            var effects = dbnsfp_thresholds[name]
+            var effects = score_thresholds[name]
             var effect_bins = []
             if ((Object.keys(effects).length == 1) || score == 0) {
-                var effect = extract_dbnsfp_effect(name, score)
+                var effect = extract_effect(name, score)
                 effect_bins.push({ "effect": effect, "size": score })
             } else {
                 var score_greater_zero = (score, left_boundary, right_boundary) => {
@@ -623,11 +662,11 @@
             return effect_bins
         }
 
-        function extract_dbnsfp_effect(name, value) {
-            if (!(name in dbnsfp_thresholds)) {
+        function extract_effect(name, value) {
+            if (!(name in score_thresholds)) {
                 return "Effect not found"
             }
-            var effects = dbnsfp_thresholds[name]
+            var effects = score_thresholds[name]
             for (var key in effects) {
                 if ((value >= effects[key][0]) && (value <= effects[key][1])) {
                     return key
@@ -656,17 +695,12 @@
                 reinitalize_table("common_details_table")
                 reinitalize_table("variant_details_table")
                 var init_row = tableJson[row_idx]
-                var ensembl_ids = null
-                if ("dbNSFP_Ensembl_transcriptid" in init_row) {
-                    ensembl_ids = init_row["dbNSFP_Ensembl_transcriptid"].split(",")
-                }
-                var isoform_score_names = ["MetaSVM", "MetaLR", "M_CAP", "REVEL", "MutPred", "PrimateAI", "LRT"]
                 var observations = [];
                 var probabilites = [];
                 var binom_dist = [];
+                var sift_scores = [];
+                var polyphen_scores = [];
                 var coverage = {};
-                var dbnsfp_isoform_scores = {}
-                var dbnsfp_transcript_scores = {}
                 var regex = /([0-9]+)(N|B|P|S|V|n|b|p|s|v)(\+|\-|\*)/g;
                 var effects = {
                     "N": "None",
@@ -678,7 +712,6 @@
                 var nucleotides = { "A": 1, "C": 2, "G": 3, "T": 4 }
                 var ref_nc = -1
                 var interaction_drugs_dict = parse_interaction_drugs(init_row["dgiDB_drugs"])
-                var dbnsfp_excluded = ["MPC", "SIFT", "SIFT4G"] //TODO: Implementation of SIFT(4G) ranges
                 $.each(init_row, function (key, value) {
                     if (skip_entries.includes(key)) {
                         //pass
@@ -716,68 +749,13 @@
                         binom_dist = binom_dist.concat(calcBinomDist(parseFloat(value), coverage[sample_type + ":DP"], sample_type));
                     } else if (variant_columns.includes(key)) {
                         addVariantDetailsRow(key, value)
-                    } else if (key.startsWith("dbNSFP")) {
-                        var name = key.substring(7, key.length - 6)
-                        if (isoform_score_names.includes(name)) {
-                            var group = dbnsfp_groups[name]
-                            if (!(group in dbnsfp_isoform_scores)) {
-                                dbnsfp_isoform_scores[group] = []
-                            }
-                            if (!(value == "None")) {
-                                var effect_bins = build_effect_bins(name, parseFloat(value))
-                                for (bin of effect_bins) {
-                                    var effect_idx = dbnsfp_groups_scales[group]["entries"].indexOf(bin.effect)
-                                    dbnsfp_isoform_scores[group].push({
-                                        "name": name,
-                                        "size": bin.size,
-                                        "effect": bin.effect,
-                                        "effect_idx": effect_idx
-                                    })
-                                }
-                            } else {
-                                var effect = extract_dbnsfp_effect(name, value)
-                                var effect_idx = dbnsfp_groups_scales[group]["entries"].indexOf(effect)
-                                dbnsfp_isoform_scores[group].push({
-                                    "name": name,
-                                    "size": value,
-                                    "effect": effect,
-                                    "effect_idx": effect_idx
-                                })
-                            }
-                        } else if (key.endsWith("score") && (!dbnsfp_excluded.includes(name))) {
-                            var values = value.split(",")
-                            if (ensembl_ids.length == values.length) {
-                                for (entry_pair of zip(ensembl_ids, values)) {
-                                    var group = dbnsfp_groups[name]
-                                    if (!(group in dbnsfp_transcript_scores)) {
-                                        dbnsfp_transcript_scores[group] = []
-                                    }
-                                    if (!(entry_pair[1] == "None")) {
-                                        var effect_bins = build_effect_bins(name, parseFloat(entry_pair[1]))
-                                        for (bin of effect_bins) {
-                                            var effect_idx = dbnsfp_groups_scales[group]["entries"].indexOf(bin.effect)
-                                            dbnsfp_transcript_scores[group].push({
-                                                "name": name,
-                                                "size": bin.size,
-                                                "effect": bin.effect,
-                                                "effect_idx": effect_idx,
-                                                "ensemblId": entry_pair[0]
-                                            })
-                                        }
-                                    } else {
-                                        var effect = extract_dbnsfp_effect(name, entry_pair[1])
-                                        var effect_idx = dbnsfp_groups_scales[group]["entries"].indexOf(bin.effect)
-                                        dbnsfp_transcript_scores[group].push({
-                                            "name": name,
-                                            "size": entry_pair[1],
-                                            "effect": effect,
-                                            "effect_idx": effect_idx,
-                                            "ensemblId": entry_pair[0]
-                                        })
-                                    }
-                                }
-                            }
+                    } else if (key == "SIFT" || key == "PolyPhen") {
+                        if (key == "SIFT") {
+                            sift_scores = collect_scores(sift_scores, key, value, init_row["TRANSCRIPT"])
+                        } else {
+                            polyphen_scores = collect_scores(polyphen_scores, key, value, init_row["TRANSCRIPT"])
                         }
+                        
                     } else if (key == "cosmic_LEGACY_ID") {
                         addCommonDetailsRow(key, value)
                     } else if (key == "ID") {
@@ -791,6 +769,8 @@
                 })
                 addLinkoutsRow(init_row['GENE_ID'].split(','))
                 addDgidbLinkouts(init_row["GENE"].split(','), interaction_drugs_dict)
+                plotScores("SIFT", sift_scores, "scores_sift")
+                plotScores("PolyPhen", polyphen_scores, "scores_polyphen")
 
                 //Plot Binomial Distribution
                 $("#AlleleFreq").empty()
@@ -1001,125 +981,6 @@
                     }
                 };
                 vegaEmbed('#Obs', obsSpec);
-
-                var score_transformation = (g) => { if (g == "p-value") { return "-10 * log(datum.size + (1e-15))/log(10)" } else { return "datum.size" } }
-                var score_title = (g) => {
-                    if (g == "p-value") {
-                        return "p-value (PHRED-scaled)"
-                    } else if (g == "Probability") {
-                        return "Probability"
-                    } else {
-                        return "Score"
-                    }
-                }
-                var score_legend = (g) => {
-                    if ((g == "p-value") || (g == "Probability")) {
-                        return ""
-                    } else {
-                        return "effect"
-                    }
-                }
-
-                $("#dbNSFP_Isoform").empty()
-                if (Object.keys(dbnsfp_isoform_scores).length > 0) {
-                    for (var group in dbnsfp_isoform_scores) {
-                        var rowId = `dbnsfp_isoforms_${group}`
-                        addPlotCellRow("dbNSFP_Isoform", rowId)
-                        var IsoformSpec = {
-                            "$schema": "https://vega.github.io/schema/vega-lite/v3.json",
-                            "data": {
-                                values: dbnsfp_isoform_scores[group]
-                            },
-                            "transform": [{ "calculate": score_transformation(group), "as": "transformed_score" }],
-                            "mark": "bar",
-                            "encoding": {
-                                "y": {
-                                    "field": "name",
-                                    "type": "nominal",
-                                    "title": "Type"
-                                },
-                                "x": {
-                                    "field": "transformed_score",
-                                    "type": "quantitative",
-                                    "title": score_title(group),
-                                },
-                                "color": {
-                                    "field": score_legend(group),
-                                    "type": "nominal",
-                                    "title": "Effect",
-                                    "sort": dbnsfp_groups_scales[group]["entries"],
-                                    "scale": {
-                                        "domain": dbnsfp_groups_scales[group]["entries"],
-                                        "range": dbnsfp_groups_scales[group]["colors"]
-                                    }
-                                },
-                                "order": { "field": "effect_idx", "type": "quantitative" },
-                                "tooltip": null
-                            },
-                            "config": {
-                                "axisX": {
-                                    "labelAngle": 90
-                                }
-                            }
-                        };
-                        vegaEmbed(`#${rowId}`, IsoformSpec)
-                    }
-                }
-
-                $("#dbNSFP_Ensembl_scores").empty()
-                if (Object.keys(dbnsfp_transcript_scores).length > 0) {
-                    for (var group in dbnsfp_transcript_scores) {
-                        var rowId = `dbnsfp_transcripts_${group}`
-                        addPlotCellRow("dbNSFP_Ensembl_scores", rowId)
-                        var dbNSFPSpec = {
-                            "$schema": "https://vega.github.io/schema/vega-lite/v3.json",
-                            "data": {
-                                values: dbnsfp_transcript_scores[group]
-                            },
-                            "transform": [{ "calculate": score_transformation(group), "as": "transformed_score" }],
-                            "facet": {
-                                "column": {
-                                    "field": "ensemblId",
-                                    "type": "nominal",
-                                    "title": "EnsemblID"
-                                }
-                            },
-                            "spec": {
-                                "mark": "bar",
-                                "encoding": {
-                                    "y": {
-                                        "field": "name",
-                                        "type": "nominal",
-                                        "title": "Type"
-                                    },
-                                    "x": {
-                                        "field": "transformed_score",
-                                        "type": "quantitative",
-                                        "title": score_title(group),
-                                    },
-                                    "color": {
-                                        "field": score_legend(group),
-                                        "type": "nominal",
-                                        "title": "Effect",
-                                        "sort": dbnsfp_groups_scales[group]["entries"],
-                                        "scale": {
-                                            "domain": dbnsfp_groups_scales[group]["entries"],
-                                            "range": dbnsfp_groups_scales[group]["colors"]
-                                        }
-                                    },
-                                    "order": { "field": "effect_idx", "type": "quantitative" },
-                                    "tooltip": null
-                                }
-                            },
-                            "config": {
-                                "axisX": {
-                                    "labelAngle": 90
-                                }
-                            }
-                        };
-                        vegaEmbed(`#${rowId}`, dbNSFPSpec)
-                    }
-                }
             });
         });
 
