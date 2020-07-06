@@ -268,6 +268,7 @@
             initDataTable();
         });
 
+
         $.fn.dataTable.render.multi = function (renderArray) {
             return function (d, type, row, meta) {
                 for (var r = 0; r < renderArray.length; r++) {
@@ -398,67 +399,74 @@
         }
 
         function collect_scores(scores, score_type, score_list, transcript_list) {
-        	var transcripts = transcript_list.split(",");
+            var transcripts = transcript_list.split(",");
             $.each(score_list.split(","), function (idx, variant_value) {
                 if (!(variant_value == "")) {
-                    var effect_bins = build_effect_bins(score_type, parseFloat(variant_value))
+                    if (score_type == "SIFT") {
+                        score = 1 - parseFloat(variant_value)
+                    } else {
+                        score = parseFloat(variant_value)
+                    }
+                    var effect_bins = build_effect_bins(score_type, score)
                     for (bin of effect_bins) {
                         var effect_idx = score_scales[score_type]["entries"].indexOf(bin.effect)
-						scores.push({
-							"name": score_type,
-							"transcript": transcripts[idx],
-							"size": bin.size,
-							"effect": bin.effect,
-							"effect_idx": effect_idx
-						})
-					}
+                        scores.push({
+                            "name": score_type,
+                            "transcript": transcripts[idx],
+                            "size": bin.size,
+                            "effect": bin.effect,
+                            "effect_idx": effect_idx
+                        })
+                    }
                 }
             })
             return scores
-		}
+        }
 
-		function plotScores(score_type, scores, cell_id) {
-			$(`#${cell_id}`).empty()
-			if (scores.length > 0) {
-				var ScoreSpec = {
-					"$schema": "https://vega.github.io/schema/vega-lite/v3.json",
-					"data": {
-						values: scores
-					},
-					"mark": "bar",
-					"encoding": {
-						"y": {
-							"field": "transcript",
-							"type": "nominal",
-							"title": "Transcript"
-						},
-						"x": {
-							"field": "size",
-							"type": "quantitative",
-							"title": "Score",
-						},
-						"color": {
-							"field": "effect",
-							"type": "nominal",
-							"title": "Effect",
-							"sort": score_scales[score_type]["entries"],
-							"scale": {
-								"domain": score_scales[score_type]["entries"],
-								"range": score_scales[score_type]["colors"]
-							}
-						},
-						"order": { "field": "effect_idx", "type": "quantitative" },
-						"tooltip": null
-					},
-					"config": {
-						"axisX": {
-							"labelAngle": 90
-						}
-					}
-				};
-				vegaEmbed(`#${cell_id}`, ScoreSpec)
-			}
-		}
+        function plotScores(score_type, scores, cell_id) {
+            var x_title = {"SIFT": "1-score", "PolyPhen": "Score"}
+            $(`#${cell_id}`).empty()
+            if (scores.length > 0) {
+                var ScoreSpec = {
+                    "$schema": "https://vega.github.io/schema/vega-lite/v3.json",
+                    "data": {
+                        values: scores
+                    },
+                    "mark": "bar",
+                    "encoding": {
+                        "y": {
+                            "field": "transcript",
+                            "type": "nominal",
+                            "title": "Transcript"
+                        },
+                        "x": {
+                            "field": "size",
+                            "type": "quantitative",
+                            "scale": {"domain": [0, 1]},
+                            "title": x_title[score_type],
+                        },
+                        "color": {
+                            "field": "effect",
+                            "type": "nominal",
+                            "title": "Effect",
+                            "sort": score_scales[score_type]["entries"],
+                            "scale": {
+                                "domain": score_scales[score_type]["entries"],
+                                "range": score_scales[score_type]["colors"]
+                            }
+                        },
+                        "order": { "field": "effect_idx", "type": "quantitative" },
+                        "tooltip": null
+                    },
+                    "config": {
+                        "axisX": {
+                            "labelAngle": 90
+                        }
+                    }
+                };
+                vegaEmbed(`#${cell_id}`, ScoreSpec)
+            }
+        }
 
         function addVariantDetailsRow(key, value) {
             var tbody = document.getElementById("variant_details_table_tbody")
@@ -605,11 +613,11 @@
 
         score_thresholds = {}
         score_thresholds["PolyPhen"] = { "Benign": [0, 0.149], "Possibly Damaging": [0.15, 0.849], "Probably Damaging": [0.85, 1] }
-        score_thresholds["SIFT"] = {"Damaging": [0, 0.05], "Benign": [0.051, 1] }
+        score_thresholds["SIFT"] = {"Benign": [0, 0.05], "Damaging": [0.051, 1] }
 
 
         score_scales = {}
-        score_scales["SIFT"] = { "colors": ["#ff5555", "#2ba6cb"], "entries": ["Damaging", "Benign"] }
+        score_scales["SIFT"] = { "colors": ["#2ba6cb", "#ff5555"], "entries": ["Benign", "Damaging"] }
         score_scales["PolyPhen"] = { "colors": ["#2ba6cb", "#ffa3a3", "#ff5555"], "entries": ["Benign", "Possibly Damaging", "Probably Damaging"] }
 
 
@@ -742,12 +750,12 @@
                     } else if (variant_columns.includes(key)) {
                         addVariantDetailsRow(key, value)
                     } else if (key == "SIFT" || key == "PolyPhen") {
-                    	if (key == "SIFT") {
-                    		sift_scores = collect_scores(sift_scores, key, value, init_row["TRANSCRIPT"])
-                    	} else {
-                    		polyphen_scores = collect_scores(polyphen_scores, key, value, init_row["TRANSCRIPT"])
-                    	}
-                    	
+                        if (key == "SIFT") {
+                            sift_scores = collect_scores(sift_scores, key, value, init_row["TRANSCRIPT"])
+                        } else {
+                            polyphen_scores = collect_scores(polyphen_scores, key, value, init_row["TRANSCRIPT"])
+                        }
+                        
                     } else if (key == "cosmic_LEGACY_ID") {
                         addCommonDetailsRow(key, value)
                     } else if (key == "ID") {
