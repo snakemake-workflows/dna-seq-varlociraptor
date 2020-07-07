@@ -64,12 +64,17 @@ def get_cutadapt_input(wildcards):
 
 
 def get_cutadapt_pipe_input(wildcards):
-    files = sorted(glob.glob(units.loc[wildcards.sample].loc[wildcards.unit, wildcards.fq]))
-    if not files:
-        raise ValueError(
-            "No raw fastq files found for unit {} (sample {}). "
-            "Please check the paths in your sample sheet.".format(wildcards.unit, wildcards.sample)
-        )
+    pattern = units.loc[wildcards.sample].loc[wildcards.unit, wildcards.fq]
+    if "*" in pattern:
+        files = sorted(glob.glob(units.loc[wildcards.sample].loc[wildcards.unit, wildcards.fq]))
+        if not files:
+            raise ValueError(
+                "No raw fastq files found for unit pattern {} (sample {}). "
+                "Please check the your sample sheet.".format(wildcards.unit, wildcards.sample)
+            )
+    else:
+        files = [pattern]
+
     return files
 
 

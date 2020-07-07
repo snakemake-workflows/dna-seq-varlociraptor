@@ -2,8 +2,7 @@ ruleorder: chm_eval_sample > map_reads
 
 rule chm_eval_sample:
     output:
-        bam="results/mapped/chm.sorted.bam",
-        bai="results/mapped/chm.sorted.bam.bai"
+        bam="resources/chm.bam"
     params:
         # Optionally only grab the first 100 records.
         # This is for testing, remove next line to grab all records.
@@ -14,6 +13,33 @@ rule chm_eval_sample:
     wrapper:
         "0.63.0/bio/benchmark/chm-eval-sample"
 
+
+rule chm_namesort:
+    input:
+        "resources/chm.bam"
+    output:
+        pipe("resources/chm.namesorted.bam")
+    params:
+        "-n -m 4G"
+    log:
+        "logs/benchmarking/samtools-namesort.log"
+    threads: workflow.cores - 1
+    wrapper:
+        "0.63.0/bio/samtools/sort"
+
+
+rule chm_to_fastq:
+    input:
+        "resources/chm.namesorted.bam"
+    output:
+        fq1="resources/chm.1.fq.gz",
+        fq2="resources/chm.2.fq.gz"
+    log:
+        "logs/benchmarking/samtools-fastq.log"
+    conda:
+        "../envs/samtools.yaml"
+    shell:
+        "samtools fastq {input} -1 {output.fq1} -2 {output.fq2} 2> {log}"
 
 rule chm_eval_kit:
     output:
