@@ -1,0 +1,2 @@
+sample_name	unit_name	fq1	fq2	adapters	sra
+chm	lane1	dummy.1.fastq	dummy.2.fastq	"-a ACGGCTAGCTA -A AGATCGGAAGAGCACACGTCTGAACTCCAGTCAC"	
