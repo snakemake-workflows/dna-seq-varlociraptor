@@ -65,7 +65,11 @@ def get_cutadapt_input(wildcards):
 
 def get_cutadapt_pipe_input(wildcards):
     files = list(sorted(glob.glob(units.loc[wildcards.sample].loc[wildcards.unit, wildcards.fq])))
-    assert(len(files) > 0)
+    if not files:
+        raise ValueError(
+            "No raw fastq files found for unit {} (sample {}). "
+            "Please check the paths in your sample sheet.".format(wildcards.unit, wildcards.sample)
+        )
     return files
 
 
