@@ -10,6 +10,7 @@ rule chm_eval_sample:
         first_n=100
     log:
         "logs/benchmarking/chm-eval-sample.log"
+    cache: True
     wrapper:
         "0.63.0/bio/benchmark/chm-eval-sample"
 
