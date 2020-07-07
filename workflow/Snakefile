@@ -8,6 +8,7 @@ report: "report/workflow.rst"
 container: "docker://continuumio/miniconda3"
 
 include: "rules/common.smk"
+include: "rules/benchmarking.smk"
 include: "rules/ref.smk"
 include: "rules/trimming.smk"
 include: "rules/mapping.smk"
