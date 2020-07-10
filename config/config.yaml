@@ -22,9 +22,9 @@ primers:
     # path to fasta files containg primer sequences
     primers_fa1: "path/to/primer-fa1"
     primers_fa2: "path/to/primer-fa2"
-    # Library error max insert size of primers
+     # Library mean + error determines the maximum insert size between the outer primer ends.
     library_error: 0
-    # Library Length mean insert size of primers
+    # Mean insert size between the outer primer ends.
     library_length: 0
 
 # Estimation of tumor mutational burden.
@@ -62,7 +62,7 @@ calling:
     # and can be referred in FDR control below to generate calls for different events.
     # In particular, you can also filter by ID or dbsnp annotations here.
     # See http://snpeff.sourceforge.net/SnpSift.html#filter
-    filtername: "ANN[*].IMPACT has 'MODERATE'"
+    filtername: \"ANN['IMPACT'] == 'MODERATE'\"
   fdr-control:
     threshold: 0.05
     events: 

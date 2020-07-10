@@ -8,9 +8,9 @@ rule filter_by_annotation:
     params:
         filter=lambda w: config["calling"]["filter"][w.filter]
     conda:
-        "../envs/vep.yaml"
+        "../envs/vembrane.yaml"
     shell:
-        "(bcftools view {input} | filter_vep --filter \"{params.filter}\" --vcf_info_field ANN --only_matched | bcftools view -Ob > {output}) 2> {log}"
+        "vembrane {input} \"{params.filter}\" --output-fmt bcf --output {output} &> {log}"
 
 
 rule filter_odds:
