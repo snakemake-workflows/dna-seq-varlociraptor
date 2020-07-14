@@ -34,6 +34,11 @@ tmb:
   # Attention: when doing panel sequencing, set this to the
   # CAPTURED coding genome, not the entire one!
   coding_genome_size: 3e7
+  # Plotting modes - hist (stratified histogram)
+  # or curve (stratified curve)
+  mode:
+    - hist
+    - curve
   # Name of the tumor sample in the scenario.yaml.
   tumor_sample: tumor
   somatic_events:
