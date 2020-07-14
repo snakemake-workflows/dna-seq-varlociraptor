@@ -138,8 +138,9 @@ def get_read_group(wildcards):
 
 def get_tmb_targets():
     if is_activated("tmb"):
-        return expand("results/plots/tmb/{group}.tmb.svg",
-                      group=groups)
+        return expand("results/plots/tmb/{group}.{mode}.tmb.svg",
+                      group=groups,
+                      mode=config["tmb"].get("mode", "curve"))
     else:
         return []
 
