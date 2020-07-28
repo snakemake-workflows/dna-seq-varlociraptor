@@ -1,11 +1,11 @@
 rule map_reads:
     input:
         reads=get_map_reads_input,
-        idx=rules.bwa_index.output
+        idx=rules.bwa_mem2_index.output
     output:
         temp("results/mapped/{sample}.sorted.bam")
     log:
-        "logs/bwa_mem/{sample}.log"
+        "logs/bwa_mem2/{sample}.log"
     params:
         index=lambda w, input: os.path.splitext(input.idx[0])[0],
         extra=get_read_group,
@@ -13,7 +13,7 @@ rule map_reads:
         sort_order="coordinate"
     threads: 8
     wrapper:
-        "0.56.0/bio/bwa/mem"
+        "0.64.0/bio/bwa-mem2/mem"
 
 
 rule mark_duplicates:
