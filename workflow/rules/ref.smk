@@ -71,18 +71,18 @@ rule remove_iupac_codes:
         "rbt vcf-fix-iupac-alleles < {input} | bcftools view -Oz > {output}"
 
 
-rule bwa_index:
+rule bwa_mem2_index:
     input:
         "resources/genome.fasta"
     output:
-        multiext("resources/genome.fasta", ".amb", ".ann", ".bwt", ".pac", ".sa")
+        multiext("resources/genome.fasta", ".0123", ".amb", ".ann", ".bwt.2bit.64", ".bwt.8bit.32", ".pac")
     log:
-        "logs/bwa_index.log"
+        "logs/bwa_mem2_index.log"
     resources:
         mem_mb=369000
     cache: True
     wrapper:
-        "0.59.2/bio/bwa/index"
+        "0.64.0/bio/bwa-mem2/index"
 
 
 rule get_vep_cache:
