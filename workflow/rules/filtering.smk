@@ -8,7 +8,7 @@ rule split_multi_alleles:
     conda:
         "../envs/bcftools.yaml"
     shell:
-        "bcftools norm -m-any {input} -o {output} > {log}"
+        "bcftools norm -m-any {input} -o {output} &> {log}"
 
 
 rule filter_by_annotation:
