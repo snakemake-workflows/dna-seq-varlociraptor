@@ -66,6 +66,8 @@ annotations:
     known: resources/variation.vcf.gz
   dgidb:
     activate: true
+    datasources:
+      - DrugBank
 
 
 params:

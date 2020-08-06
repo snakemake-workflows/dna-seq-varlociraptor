@@ -43,13 +43,15 @@ rule annotate_dgidb:
         4
     input:
         "results/calls/{prefix}.bcf"
+    params:
+        datasources = "-s {}".format(" ".join(config["annotations"]["dgidb"]["datasources"])) if config["annotations"]["dgidb"].get("datasources", "") else ""
     output:
         "results/calls/{prefix}.dgidb.bcf"
     log:
         "logs/annotate-dgidb/{prefix}.log"
     conda:
-        "../envs/annotate_dgidb.yaml"
+        "../envs/rbt.yaml"
     resources:
         dgidb_requests=1
     shell:
-        "rbt vcf-annotate-dgidb {input} > {output} 2> {log}"
+        "rbt vcf-annotate-dgidb {input} {params.datasources} > {output} 2> {log}"

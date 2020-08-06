@@ -150,6 +150,10 @@ properties:
         properties:
           activate:
             type: boolean
+          datasources:
+            type: array
+            items: 
+              type: string
       vep:
         properties:
           params:

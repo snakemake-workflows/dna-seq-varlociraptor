@@ -90,6 +90,10 @@ annotations:
     # cosmic: path/to/cosmic.vcf.gz
   dgidb:
     activate: true
+    # List of datasources for filtering dgidb entries
+    # Available sources can be found on http://dgidb.org/api/v2/interaction_sources.json
+    datasources:
+      - DrugBank
   vep:
     params: --everything
     plugins:
