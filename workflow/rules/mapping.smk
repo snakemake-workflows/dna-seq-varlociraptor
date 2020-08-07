@@ -64,7 +64,7 @@ rule apply_bqsr:
     log:
         "logs/gatk/gatk_applybqsr/{sample}.log"
     params:
-        extra="",  # optional
+        extra=config["params"]["gatk"]["applyBQSR"],  # optional
         java_opts="", # optional
     wrapper:
         "0.62.0/bio/gatk/applybqsr"

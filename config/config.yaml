@@ -103,3 +103,4 @@ params:
     MarkDuplicates: "VALIDATION_STRINGENCY=LENIENT"
   gatk:
     BaseRecalibrator: ""
+    applyBQSR: ""
