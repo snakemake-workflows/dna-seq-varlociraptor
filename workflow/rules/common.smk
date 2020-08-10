@@ -151,8 +151,6 @@ def get_annotated_bcf(wildcards, group=None):
     selection = ".annotated"
     if is_activated("annotations/vcfs"):
         selection += ".db-annotated"
-    if is_activated("annotations/dbnsfp"):
-        selection += ".dbnsfp"
     if is_activated("annotations/dgidb"):
         selection += ".dgidb"
     return "results/calls/{group}{selection}.bcf".format(group=group, selection=selection)

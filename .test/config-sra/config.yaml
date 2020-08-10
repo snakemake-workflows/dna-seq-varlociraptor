@@ -44,7 +44,7 @@ calling:
   scenario: config-sra/scenario.yaml
   # See http://snpeff.sourceforge.net/SnpSift.html#filter
   filter:
-    moderate: "IMPACT is MODERATE"
+    moderate: "ANN['IMPACT'] == 'MODERATE'"
   fdr-control:
     threshold: 0.05
     events: 

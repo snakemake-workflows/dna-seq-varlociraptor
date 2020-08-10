@@ -1,6 +1,19 @@
-rule filter_by_annotation:
+rule split_multi_alleles:
     input:
         get_annotated_bcf
+    output:
+        "results/calls/{group}.{filter}.splitted_alleles.bcf"
+    log:
+        "logs/split-alleles/{group}.{filter}.log"
+    conda:
+        "../envs/bcftools.yaml"
+    shell:
+        "bcftools norm -m-any {input} -o {output} &> {log}"
+
+
+rule filter_by_annotation:
+    input:
+        "results/calls/{group}.{filter}.splitted_alleles.bcf"
     output:
         "results/calls/{group}.{filter}.filtered_ann.bcf"
     log:
@@ -8,9 +21,9 @@ rule filter_by_annotation:
     params:
         filter=lambda w: config["calling"]["filter"][w.filter]
     conda:
-        "../envs/vep.yaml"
+        "../envs/vembrane.yaml"
     shell:
-        "(bcftools view {input} | filter_vep --filter \"{params.filter}\" --vcf_info_field ANN --only_matched | bcftools view -Ob > {output}) 2> {log}"
+        "vembrane {params.filter:q} {input} --output-fmt bcf --output {output} &> {log}"
 
 
 rule filter_odds:
