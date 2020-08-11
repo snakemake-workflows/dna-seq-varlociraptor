@@ -79,3 +79,4 @@ params:
     MarkDuplicates: ""
   gatk:
     BaseRecalibrator: ""
+    applyBQSR: ""
