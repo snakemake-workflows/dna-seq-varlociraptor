@@ -1,19 +1,6 @@
-rule split_multi_alleles:
-    input:
-        get_annotated_bcf
-    output:
-        "results/calls/{group}.{filter}.splitted_alleles.bcf"
-    log:
-        "logs/split-alleles/{group}.{filter}.log"
-    conda:
-        "../envs/bcftools.yaml"
-    shell:
-        "bcftools norm -m-any {input} -o {output} &> {log}"
-
-
 rule filter_by_annotation:
     input:
-        "results/calls/{group}.{filter}.splitted_alleles.bcf"
+        get_annotated_bcf
     output:
         "results/calls/{group}.{filter}.filtered_ann.bcf"
     log:
