@@ -183,8 +183,11 @@ properties:
         properties:
           BaseRecalibrator:
             type: string
+          applyBQSR:
+            type: string
         required:
           - BaseRecalibrator
+          - applyBQSR
       picard:
         type: object
         properties:
