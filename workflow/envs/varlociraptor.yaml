@@ -2,4 +2,4 @@ channels:
   - conda-forge
   - bioconda
 dependencies:
-  - varlociraptor =1.8
+  - varlociraptor =2.1

@@ -153,8 +153,9 @@ def get_read_group(wildcards):
 
 def get_tmb_targets():
     if is_activated("tmb"):
-        return expand("results/plots/tmb/{group}.tmb.svg",
-                      group=groups)
+        return expand("results/plots/tmb/{group}.{mode}.tmb.svg",
+                      group=groups,
+                      mode=config["tmb"].get("mode", "curve"))
     else:
         return []
 
@@ -165,8 +166,6 @@ def get_annotated_bcf(wildcards, group=None):
     selection = ".annotated"
     if is_activated("annotations/vcfs"):
         selection += ".db-annotated"
-    if is_activated("annotations/dbnsfp"):
-        selection += ".dbnsfp"
     if is_activated("annotations/dgidb"):
         selection += ".dgidb"
     return "results/calls/{group}{selection}.bcf".format(group=group, selection=selection)
@@ -177,6 +176,8 @@ def get_oncoprint_batch(wildcards):
         groups = samples["group"].unique()
     else:
         groups = samples.loc[samples[config["oncoprint"]["stratify"]["by-column"]] == wildcards.batch, "group"].unique()
+    if not any(groups):
+        raise ValueError("No samples found. Is your sample sheet empty?")
     return groups
 
 
