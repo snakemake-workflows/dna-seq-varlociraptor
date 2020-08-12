@@ -78,6 +78,12 @@ def get_cutadapt_pipe_input(wildcards):
     return files
 
 
+def get_cutadapt_adapters(wildcards):
+    adapters = units.loc[wildcards.sample].loc[wildcards.unit, "adapters"]
+    if isinstance(adapters, str):
+        return adapters
+    return ""
+
 def is_paired_end(sample):
     sample_units = units.loc[sample]
     fq2_null = sample_units["fq2"].isnull()

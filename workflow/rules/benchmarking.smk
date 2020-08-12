@@ -3,15 +3,11 @@ ruleorder: chm_eval_sample > map_reads
 rule chm_eval_sample:
     output:
         bam="resources/chm.bam"
-    params:
-        # Optionally only grab the first 100 records.
-        # This is for testing, remove next line to grab all records.
-        first_n=100
     log:
         "logs/benchmarking/chm-eval-sample.log"
     cache: True
     wrapper:
-        "0.63.0/bio/benchmark/chm-eval-sample"
+        "master/bio/benchmark/chm-eval-sample"
 
 
 rule chm_namesort:
