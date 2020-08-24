@@ -1,7 +1,11 @@
 from snakemake.utils import min_version
 min_version("5.12.0")
 
+envvars:
+  "TEMPDIR"
+
 configfile: "config/config.yaml"
+
 report: "report/workflow.rst"
 
 # Allow users to fix the underlying OS via singularity.
