@@ -133,7 +133,8 @@ def get_excluded_regions():
         return []
 
 def get_group_observations(wildcards):
-    return expand("results/observations/{group}/{sample}.{caller}.bcf", 
+    # TODO if group contains only a single sample, do not require sorting.
+    return expand("results/observations/{group}/{sample}.{caller}.sorted.bcf", 
                   caller=wildcards.caller, 
                   group=wildcards.group,
                   sample=get_group_samples(wildcards))

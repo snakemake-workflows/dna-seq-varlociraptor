@@ -20,7 +20,7 @@ rule varlociraptor_preprocess:
         bam="results/recal/{sample}.sorted.bam",
         bai="results/recal/{sample}.sorted.bam.bai"
     output:
-        "results/observations/{group}/{sample}.{caller}.bcf"
+        temp("results/observations/{group}/{sample}.{caller}.bcf")
     params:
         omit_isize = "--omit-insert-size" if is_activated("primers/trimming") else ""
     log:
@@ -33,6 +33,21 @@ rule varlociraptor_preprocess:
     shell:
         "varlociraptor preprocess variants {params.omit_isize} --candidates {input.candidates} "
         "{input.ref} --bam {input.bam} --output {output} --threads {threads} 2> {log}"
+
+
+rule sort_observations:
+    input:
+       "results/observations/{group}/{sample}.{caller}.bcf"
+    output:
+        "results/observations/{group}/{sample}.{caller}.sorted.bcf"
+    log:
+        "logs/sort-observations/{group}.{sample}.{caller}.log"
+    conda:
+        "../envs/bcftools.yaml"
+    shell:
+        "bcftools sort --temp-dir $TEMPDIR "
+        "-Ob {input} > {output} 2> {log}"
+
 
 rule varlociraptor_call:
     input:
@@ -53,7 +68,7 @@ rule varlociraptor_call:
         "--scenario {input.scenario} > {output} 2> {log}"
 
 
-rule bcftools_sort:
+rule sort_calls:
     input:
        "results/calls/{group}.{caller}.bcf",
     output:
