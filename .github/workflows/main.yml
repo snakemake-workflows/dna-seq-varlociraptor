@@ -18,6 +18,9 @@ jobs:
         directory: .
         snakefile: workflow/Snakefile
         args: "--lint"
+        stagein: |
+          export TEMPDIR=/tmp
+
 
   Testing:
     runs-on: ubuntu-latest
