@@ -28,8 +28,8 @@ rule varlociraptor_preprocess:
     threads: workflow.cores
     benchmark:
         "benchmarks/varlociraptor/preprocess/{group}/{sample}.{caller}.tsv"
-    #conda:
-    #    "../envs/varlociraptor.yaml"
+    conda:
+        "../envs/varlociraptor.yaml"
     shell:
         "varlociraptor preprocess variants {params.omit_isize} --candidates {input.candidates} "
         "{input.ref} --bam {input.bam} --output {output} --threads {threads} 2> {log}"
@@ -44,9 +44,9 @@ rule varlociraptor_call:
         "logs/varlociraptor/call/{group}.{caller}.log"
     params:
         obs=lambda w, input: ["{}={}".format(s, f) for s, f in zip(get_group_aliases(w), input.obs)]
-    threads: workflow.cores
-    #conda:
-    #    "../envs/varlociraptor.yaml"
+    threads: lambda w: workflow.cores if w.caller == "freebayes" else 2  # for SVs parallelization does not yet scale very well
+    conda:
+        "../envs/varlociraptor.yaml"
     shell:
         "varlociraptor "
         "call variants --threads {threads} generic --obs {params.obs} "
