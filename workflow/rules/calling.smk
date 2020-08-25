@@ -45,7 +45,7 @@ rule sort_observations:
     conda:
         "../envs/bcftools.yaml"
     shell:
-        "bcftools sort --temp-dir $TEMPDIR "
+        "bcftools sort --temp-dir $TMPDIR "
         "-Ob {input} > {output} 2> {log}"
 
 
@@ -78,7 +78,7 @@ rule sort_calls:
     conda:
         "../envs/bcftools.yaml"
     shell:
-        "bcftools sort --temp-dir $TEMPDIR "
+        "bcftools sort --temp-dir $TMPDIR "
         "-Ob {input} > {output} 2> {log}"
 
 
