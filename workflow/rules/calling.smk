@@ -44,7 +44,7 @@ rule varlociraptor_call:
         "logs/varlociraptor/call/{group}.{caller}.log"
     params:
         obs=lambda w, input: ["{}={}".format(s, f) for s, f in zip(get_group_aliases(w), input.obs)]
-    threads: lambda w: workflow.cores if w.caller == "freebayes" else 2  # for SVs parallelization does not yet scale very well
+    threads: workflow.cores
     conda:
         "../envs/varlociraptor.yaml"
     shell:
