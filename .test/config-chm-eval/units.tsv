@@ -1,0 +1,2 @@
+sample_name	unit_name	fq1	fq2	adapters	sra
+chm	lane1	resources/chm.1.fq.gz	resources/chm.2.fq.gz	""	

@@ -65,10 +65,24 @@ def get_cutadapt_input(wildcards):
 
 def get_cutadapt_pipe_input(wildcards):
     pattern = units.loc[wildcards.sample].loc[wildcards.unit, wildcards.fq]
-    files = list(sorted(glob.glob(pattern)))
-    assert(len(files) > 0), "no files found at {}".format(pattern)
+    if "*" in pattern:
+        files = sorted(glob.glob(units.loc[wildcards.sample].loc[wildcards.unit, wildcards.fq]))
+        if not files:
+            raise ValueError(
+                "No raw fastq files found for unit pattern {} (sample {}). "
+                "Please check the your sample sheet.".format(wildcards.unit, wildcards.sample)
+            )
+    else:
+        files = [pattern]
+
     return files
 
+
+def get_cutadapt_adapters(wildcards):
+    adapters = units.loc[wildcards.sample].loc[wildcards.unit, "adapters"]
+    if isinstance(adapters, str):
+        return adapters
+    return ""
 
 def is_paired_end(sample):
     sample_units = units.loc[sample]
@@ -119,7 +133,8 @@ def get_excluded_regions():
         return []
 
 def get_group_observations(wildcards):
-    return expand("results/observations/{group}/{sample}.{caller}.bcf", 
+    # TODO if group contains only a single sample, do not require sorting.
+    return expand("results/observations/{group}/{sample}.{caller}.sorted.bcf", 
                   caller=wildcards.caller, 
                   group=wildcards.group,
                   sample=get_group_samples(wildcards))

@@ -20,16 +20,34 @@ rule varlociraptor_preprocess:
         bam="results/recal/{sample}.sorted.bam",
         bai="results/recal/{sample}.sorted.bam.bai"
     output:
-        "results/observations/{group}/{sample}.{caller}.bcf"
+        temp("results/observations/{group}/{sample}.{caller}.bcf")
     params:
         omit_isize = "--omit-insert-size" if is_activated("primers/trimming") else ""
     log:
         "logs/varlociraptor/preprocess/{group}/{sample}.{caller}.log"
+    threads: workflow.cores
+    benchmark:
+        "benchmarks/varlociraptor/preprocess/{group}/{sample}.{caller}.tsv"
     conda:
         "../envs/varlociraptor.yaml"
     shell:
         "varlociraptor preprocess variants {params.omit_isize} --candidates {input.candidates} "
-        "{input.ref} --bam {input.bam} --output {output} 2> {log}"
+        "{input.ref} --bam {input.bam} --output {output} --threads {threads} 2> {log}"
+
+
+rule sort_observations:
+    input:
+       "results/observations/{group}/{sample}.{caller}.bcf"
+    output:
+        "results/observations/{group}/{sample}.{caller}.sorted.bcf"
+    log:
+        "logs/sort-observations/{group}.{sample}.{caller}.log"
+    conda:
+        "../envs/bcftools.yaml"
+    shell:
+        "bcftools sort --temp-dir $TEMPDIR "
+        "-Ob {input} > {output} 2> {log}"
+
 
 rule varlociraptor_call:
     input:
@@ -41,21 +59,37 @@ rule varlociraptor_call:
         "logs/varlociraptor/call/{group}.{caller}.log"
     params:
         obs=lambda w, input: ["{}={}".format(s, f) for s, f in zip(get_group_aliases(w), input.obs)]
+    threads: workflow.cores
     conda:
         "../envs/varlociraptor.yaml"
     shell:
         "varlociraptor "
-        "call variants generic --obs {params.obs} "
+        "call variants --threads {threads} generic --obs {params.obs} "
         "--scenario {input.scenario} > {output} 2> {log}"
+
+
+rule sort_calls:
+    input:
+       "results/calls/{group}.{caller}.bcf",
+    output:
+        temp("results/calls/{group}.{caller}.sorted.bcf")
+    log:
+        "logs/bcf-sort/{group}.{caller}.log"
+    conda:
+        "../envs/bcftools.yaml"
+    shell:
+        "bcftools sort --temp-dir $TEMPDIR "
+        "-Ob {input} > {output} 2> {log}"
+
 
 rule bcftools_concat:
     input:
         calls = expand(
-            "results/calls/{{group}}.{caller}.bcf",
+            "results/calls/{{group}}.{caller}.sorted.bcf",
             caller=caller
         ),
         indexes = expand(
-            "results/calls/{{group}}.{caller}.bcf.csi",
+            "results/calls/{{group}}.{caller}.sorted.bcf.csi",
             caller=caller
         )
     output:

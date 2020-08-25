@@ -1,13 +1,18 @@
 from snakemake.utils import min_version
 min_version("5.12.0")
 
+envvars:
+  "TEMPDIR"
+
 configfile: "config/config.yaml"
+
 report: "report/workflow.rst"
 
 # Allow users to fix the underlying OS via singularity.
 container: "docker://continuumio/miniconda3"
 
 include: "rules/common.smk"
+include: "rules/benchmarking.smk"
 include: "rules/ref.smk"
 include: "rules/trimming.smk"
 include: "rules/mapping.smk"

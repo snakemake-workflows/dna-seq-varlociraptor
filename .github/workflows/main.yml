@@ -18,6 +18,9 @@ jobs:
         directory: .
         snakefile: workflow/Snakefile
         args: "--lint"
+        stagein: |
+          export TEMPDIR=/tmp
+
 
   Testing:
     runs-on: ubuntu-latest
@@ -33,6 +36,8 @@ jobs:
         directory: .test
         snakefile: workflow/Snakefile
         args: "--use-conda --show-failed-logs -j 10 --conda-cleanup-pkgs cache --conda-frontend mamba"
+        stagein: |
+          export TEMPDIR=/tmp
 
     - name: Test workflow (local FASTQs primer)
       uses: snakemake/snakemake-github-action@v1.9.0
@@ -40,7 +45,9 @@ jobs:
         directory: .test
         snakefile: workflow/Snakefile
         args: "--configfile .test/config_primers/config.yaml --use-conda --show-failed-logs -j 10 --conda-cleanup-pkgs cache --conda-frontend mamba"
-        stagein: "rm -rf .test/resources .test/results"
+        stagein: |
+          rm -rf .test/resources .test/results
+          export TEMPDIR=/tmp
 
     - name: Test report
       uses: snakemake/snakemake-github-action@v1.9.0
@@ -48,6 +55,8 @@ jobs:
         directory: .test
         snakefile: workflow/Snakefile
         args: "--report report.zip"
+        stagein:
+          export TEMPDIR=/tmp
 
     - name: Test workflow (SRA FASTQs)
       uses: snakemake/snakemake-github-action@v1.9.0
@@ -55,4 +64,6 @@ jobs:
         directory: .test
         snakefile: workflow/Snakefile
         args: "--configfile .test/config-sra/config.yaml --show-failed-logs --use-conda -n -j 10 --conda-cleanup-pkgs cache --conda-frontend mamba"
-        stagein: "rm -rf .test/resources .test/results"
+        stagein: |
+          rm -rf .test/resources .test/results
+          export TEMPDIR=/tmp
