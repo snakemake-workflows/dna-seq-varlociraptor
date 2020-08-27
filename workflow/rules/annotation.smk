@@ -13,6 +13,7 @@ rule annotate_variants:
         extra="{} --vcf_info_field ANN".format(config["annotations"]["vep"]["params"])
     log:
         "logs/vep/{group}.annotate.log"
+    threads: workflow.cores
     wrapper:
         "0.59.2/bio/vep/annotate"
 
