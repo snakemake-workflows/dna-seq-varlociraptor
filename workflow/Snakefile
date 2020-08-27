@@ -2,7 +2,7 @@ from snakemake.utils import min_version
 min_version("5.12.0")
 
 envvars:
-  "TEMPDIR"
+  "TMPDIR"
 
 configfile: "config/config.yaml"
 
