@@ -186,7 +186,7 @@ def get_merge_calls_input(ext=".bcf"):
     def inner(wildcards):
         return expand("results/calls/{{group}}.{vartype}.{{event}}.{filter}.fdr-controlled{ext}",
                       ext=ext,
-                      vartype=["SNV", "INS", "DEL", "MNV"],
+                      vartype=["SNV", "INS", "DEL", "MNV", "BND", "INV", "DUP", "REP"],
                       filter=config["calling"]["fdr-control"]["events"][wildcards.event]["filter"])
     return inner
 
