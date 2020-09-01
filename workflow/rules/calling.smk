@@ -44,8 +44,10 @@ rule sort_observations:
         "logs/sort-observations/{group}.{sample}.{caller}.log"
     conda:
         "../envs/bcftools.yaml"
+    resources:
+        mem_mb=8000
     shell:
-        "bcftools sort --temp-dir $TMPDIR "
+        "bcftools sort --max-mem {resources.mem_mb}M --temp-dir `mktemp -d` "
         "-Ob {input} > {output} 2> {log}"
 
 
@@ -77,8 +79,10 @@ rule sort_calls:
         "logs/bcf-sort/{group}.{caller}.log"
     conda:
         "../envs/bcftools.yaml"
+    resources:
+        mem_mb=8000
     shell:
-        "bcftools sort --temp-dir $TMPDIR "
+        "bcftools sort --max-mem {resources.mem_mb}M --temp-dir `mktemp -d` "
         "-Ob {input} > {output} 2> {log}"
 
 
