@@ -1,9 +1,6 @@
 from snakemake.utils import min_version
 min_version("5.12.0")
 
-envvars:
-  "TMPDIR"
-
 configfile: "config/config.yaml"
 
 report: "report/workflow.rst"
