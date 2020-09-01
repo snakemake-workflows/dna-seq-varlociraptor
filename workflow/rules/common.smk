@@ -191,6 +191,13 @@ def get_merge_calls_input(ext=".bcf"):
     return inner
 
 
+def get_vep_threads():
+    n = len(samples)
+    if n:
+        return max(workflow.cores / n, 1)
+    else:
+        return 1
+
 wildcard_constraints:
     group="|".join(samples["group"].unique()),
     sample="|".join(samples["sample_name"]),
