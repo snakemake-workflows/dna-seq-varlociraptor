@@ -51,10 +51,35 @@ rule chm_eval_kit:
         "0.63.0/bio/benchmark/chm-eval-kit"
 
 
+rule chromosome_map:
+    input:
+        "resources/genome.fasta.fai"
+    output:
+        "resources/genome.chrmap.txt"
+    conda:
+        "../envs/awk.yaml"
+    shell:
+        "awk '{{ print $1,\"chr\"$1 }}' OFS='\t' {input} > {output}"
+
+
+rule rename_chromosomes:
+    input:
+        bcf="results/merged-calls/chm.present.fdr-controlled.bcf",
+        map="resources/genome.chrmap.txt"
+    output:
+        "benchmarking/chr-mapped.vcf"
+    params:
+        targets=",".join(list(map("chr{}".format, range(23))) + ["chrX", "chrY"])
+    conda:
+        "../envs/bcftools.yaml"
+    shell:
+        "bcftools annotate --rename-chrs {input.map} {input} | bcftools view --targets {params.targets} > {output}"
+
+
 rule chm_eval:
     input:
         kit="resources/benchmarking/chm-eval-kit",
-        vcf="results/merged-calls/chm.present.fdr-controlled.bcf"
+        vcf="benchmarking/chr-mapped.vcf"
     output:
         summary="benchmarking/chm.summary", # summary statistics
         bed="benchmarking/chm.err.bed.gz" # bed file with errors
