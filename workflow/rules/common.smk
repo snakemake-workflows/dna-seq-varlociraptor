@@ -35,11 +35,11 @@ validate(units, schema="../schemas/units.schema.yaml")
 
 
 def get_recalibrate_quality_input(wildcards, bai=False):
-    ext = ".bai" if bai else ""
+    ext = "bai" if bai else "bam"
     if is_activated("remove_duplicates"):
-        return "results/dedup/{}.sorted.bam{}".format(wildcards.sample, ext)
+        return "results/dedup/{}.sorted.{}".format(wildcards.sample, ext)
     else:
-        return "results/mapped/{}.sorted.bam{}".format(wildcards.sample, ext)
+        return "results/mapped/{}.sorted.{}".format(wildcards.sample, ext)
 
 
 def get_cutadapt_input(wildcards):
@@ -114,10 +114,10 @@ def get_group_samples(wildcards):
 
 
 def get_group_bams(wildcards, bai=False):
-    ext = ".bai" if bai else ""
+    ext = "bai" if bai else "bam"
     if group_is_paired_end(wildcards) and is_activated("primers/trimming"):
-        return expand("results/trimmed/{sample}.trimmed.bam{ext}", sample=get_group_samples(wildcards), ext=ext)
-    return expand("results/recal/{sample}.sorted.bam{ext}", sample=get_group_samples(wildcards), ext=ext)
+        return expand("results/trimmed/{sample}.trimmed.{ext}", sample=get_group_samples(wildcards), ext=ext)
+    return expand("results/recal/{sample}.sorted.{ext}", sample=get_group_samples(wildcards), ext=ext)
 
 
 def get_regions():

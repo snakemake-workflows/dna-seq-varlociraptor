@@ -60,7 +60,8 @@ rule apply_bqsr:
         ref_fai="resources/genome.fasta.fai",
         recal_table="results/recal/{sample}.grp"
     output:
-        bam=protected("results/recal/{sample}.sorted.bam")
+        bam=protected("results/recal/{sample}.sorted.bam"),
+        bai="results/recal/{sample}.sorted.bai"
     log:
         "logs/gatk/gatk_applybqsr/{sample}.log"
     params:

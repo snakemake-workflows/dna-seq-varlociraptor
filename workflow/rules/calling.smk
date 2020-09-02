@@ -18,7 +18,7 @@ rule varlociraptor_preprocess:
         ref_idx="resources/genome.fasta.fai",
         candidates="results/candidate-calls/{group}.{caller}.bcf",
         bam="results/recal/{sample}.sorted.bam",
-        bai="results/recal/{sample}.sorted.bam.bai"
+        bai="results/recal/{sample}.sorted.bai"
     output:
         temp("results/observations/{group}/{sample}.{caller}.bcf")
     params:

@@ -15,7 +15,7 @@ rule bam_index:
     input:
         "{prefix}.bam"
     output:
-        "{prefix}.bam.bai"
+        "{prefix}.bai"
     log:
         "logs/bam-index/{prefix}.log"
     wrapper:
