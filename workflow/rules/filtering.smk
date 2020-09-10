@@ -38,8 +38,8 @@ rule control_fdr:
         "logs/control-fdr/{group}.{vartype}.{event}.{filter}.log"
     params:
         query=get_fdr_control_params
-    #conda:
-    #    "../envs/varlociraptor.yaml"
+    conda:
+        "../envs/varlociraptor.yaml"
     shell:
         "varlociraptor filter-calls control-fdr {input} --var {wildcards.vartype} "
         "--events {params.query[events]} --fdr {params.query[threshold]} > {output} 2> {log}"
