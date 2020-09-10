@@ -92,8 +92,3 @@ rule chm_eval:
         "0.63.0/bio/benchmark/chm-eval"
 
 
-#rule plot_benchmark_results:
-#    input:
-#        expand("benchmarking/{query}.summary", query=config["calling"]["fdr-control"]["events"])
-#     output:
-
