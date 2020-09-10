@@ -64,10 +64,10 @@ rule chromosome_map:
 
 rule rename_chromosomes:
     input:
-        bcf="results/merged-calls/chm.present.fdr-controlled.bcf",
+        bcf="results/merged-calls/chm.{query}.fdr-controlled.bcf",
         map="resources/genome.chrmap.txt"
     output:
-        "benchmarking/chr-mapped.vcf"
+        "benchmarking/{query}.chr-mapped.vcf"
     params:
         targets=",".join(list(map("chr{}".format, range(23))) + ["chrX", "chrY"])
     conda:
@@ -79,14 +79,21 @@ rule rename_chromosomes:
 rule chm_eval:
     input:
         kit="resources/benchmarking/chm-eval-kit",
-        vcf="benchmarking/chr-mapped.vcf"
+        vcf="benchmarking/{query}.chr-mapped.vcf"
     output:
-        summary="benchmarking/chm.summary", # summary statistics
-        bed="benchmarking/chm.err.bed.gz" # bed file with errors
+        summary="benchmarking/{query}.summary", # summary statistics
+        bed="benchmarking/{query}.err.bed.gz" # bed file with errors
     params:
         extra="",
         build="38"
     log:
-        "logs/benchmarking/chm-eval.log"
+        "logs/benchmarking/{query}.chm-eval.log"
     wrapper:
         "0.63.0/bio/benchmark/chm-eval"
+
+
+#rule plot_benchmark_results:
+#    input:
+#        expand("benchmarking/{query}.summary", query=config["calling"]["fdr-control"]["events"])
+#     output:
+

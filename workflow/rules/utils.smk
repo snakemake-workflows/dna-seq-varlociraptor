@@ -45,7 +45,8 @@ rule testcase:
     log:
         "logs/varlociraptor/testcase/{group}.{caller}.{locus}.log"
     params:
-        obs=lambda w, input: ["{}={}".format(s, f) for s, f in zip(get_group_aliases(w), input.obs)]
+        obs=lambda w, input: ["{}={}".format(s, f) for s, f in zip(get_group_aliases(w), input.obs)],
+        parent=lambda w, output: os.path.dirname(output[0])
     threads: workflow.cores
     conda:
         "../envs/varlociraptor.yaml"
@@ -53,4 +54,4 @@ rule testcase:
         "varlociraptor "
         "call variants --testcase-prefix {output} --testcase-locus {wildcards.locus} "
         "generic --obs {params.obs} "
-        "--scenario {input.scenario} > {output} 2> {log}"
+        "--scenario {input.scenario} 2> {log}"

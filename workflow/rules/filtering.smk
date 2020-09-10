@@ -30,19 +30,19 @@ rule filter_odds:
 
 rule control_fdr:
     input:
-        "results/calls/{group}.{event}.{filter}.filtered_odds.bcf"
+        ("results/calls/{group}.{event}.{filter}.filtered_odds.bcf"
+         if not is_activated("benchmarking") else "results/calls/{group}.bcf") 
     output:
         "results/calls/{group}.{vartype}.{event}.{filter}.fdr-controlled.bcf"
     log:
         "logs/control-fdr/{group}.{vartype}.{event}.{filter}.log"
     params:
-        threshold=config["calling"]["fdr-control"]["threshold"],
-        events=lambda wc: config["calling"]["fdr-control"]["events"][wc.event]["varlociraptor"]
-    conda:
-        "../envs/varlociraptor.yaml"
+        query=get_fdr_control_params
+    #conda:
+    #    "../envs/varlociraptor.yaml"
     shell:
         "varlociraptor filter-calls control-fdr {input} --var {wildcards.vartype} "
-        "--events {params.events} --fdr {params.threshold} > {output} 2> {log}"
+        "--events {params.query[events]} --fdr {params.query[threshold]} > {output} 2> {log}"
 
 
 rule merge_calls:

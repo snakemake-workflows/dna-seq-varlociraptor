@@ -198,6 +198,14 @@ def get_vep_threads():
     else:
         return 1
 
+
+def get_fdr_control_params(wildcards):
+    query = config["calling"]["fdr-control"]["events"][wildcards.event]
+    threshold = query.get("threshold", config["calling"]["fdr-control"].get("threshold", 0.05))
+    events = query["varlociraptor"]
+    return {"threshold": threshold, "events": events}
+
+
 wildcard_constraints:
     group="|".join(samples["group"].unique()),
     sample="|".join(samples["sample_name"]),
@@ -235,3 +243,6 @@ def get_tabix_params(wildcards):
 
 def get_fastqs(wc):
     return expand("results/trimmed/{sample}/{unit}_{read}.fastq.gz", unit=units.loc[wc.sample, "unit_name"], sample=wc.sample, read=wc.read)
+
+
+

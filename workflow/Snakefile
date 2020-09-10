@@ -38,3 +38,8 @@ rule all:
         expand("results/plots/oncoprint/{batch}.{event}.html",
                event=config["calling"]["fdr-control"]["events"],
                batch=batches)
+
+
+rule benchmark:
+    input:
+        expand("benchmarking/{query}.summary", query=config["calling"]["fdr-control"]["events"])

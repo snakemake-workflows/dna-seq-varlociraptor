@@ -51,6 +51,9 @@ rule recalibrate_base_qualities:
         "0.62.0/bio/gatk/baserecalibratorspark"
 
 
+ruleorder: apply_bqsr > bam_index
+
+
 rule apply_bqsr:
     input:
         bam=get_recalibrate_quality_input,

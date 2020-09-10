@@ -43,14 +43,67 @@ calling:
   # See https://varlociraptor.github.io/docs/calling/#generic-variant-calling
   scenario: config-chm-eval/scenario.yaml
   # See http://snpeff.sourceforge.net/SnpSift.html#filter
-  filter: {}
+  filter:
+    dummy: ""
   fdr-control:
-    threshold: 0.05
     events: 
-      present:
+      fdr001:
+        threshold: 0.01
         varlociraptor: 
           - "PRESENT"
-        #filter: moderate
+        filter: dummy
+      fdr005:
+        threshold: 0.05
+        varlociraptor: 
+          - "PRESENT"
+        filter: dummy
+      fdr01:
+        threshold: 0.1
+        varlociraptor: 
+          - "PRESENT"
+        filter: dummy
+      fdr015:
+        threshold: 0.15
+        varlociraptor: 
+          - "PRESENT"
+        filter: dummy
+      fdr02:
+        threshold: 0.2
+        varlociraptor: 
+          - "PRESENT"
+        filter: dummy
+      fdr025:
+        threshold: 0.25
+        varlociraptor: 
+          - "PRESENT"
+        filter: dummy
+      fdr03:
+        threshold: 0.3
+        varlociraptor: 
+          - "PRESENT"
+        filter: dummy
+      fdr035:
+        threshold: 0.35
+        varlociraptor: 
+          - "PRESENT"
+        filter: dummy
+      fdr04:
+        threshold: 0.4
+        varlociraptor: 
+          - "PRESENT"
+        filter: dummy
+      fdr045:
+        threshold: 0.45
+        varlociraptor: 
+          - "PRESENT"
+        filter: dummy
+      fdr10:
+        threshold: 1.0
+        varlociraptor:
+          - "PRESENT"
+        filter: dummy
+
+
 
 annotations:
   vcfs:
@@ -66,3 +119,7 @@ params:
     MarkDuplicates: "VALIDATION_STRINGENCY=lenient"
   gatk:
     BaseRecalibrator: ""
+
+benchmarking:
+  # this disables odds filtering and annotation
+  activate: true
