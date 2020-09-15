@@ -11,7 +11,7 @@ rule filter_candidates_by_annotation:
         "../envs/vembrane.yaml"
     shell:
         "vembrane {params.filter:q} {input} --output-fmt bcf --output {output} &> {log}"
-    
+
 
 rule filter_by_annotation:
     input:
