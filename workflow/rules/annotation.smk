@@ -1,6 +1,8 @@
 rule annotate_candidate_variants:
     input:
-        "results/candidate-calls/{group}.{caller}.bcf"
+        calls="results/candidate-calls/{group}.{caller}.bcf",
+        cache="resources/vep/cache",
+        plugins="resources/vep/plugins"
     output:
         calls="results/candidate-calls/{group}.{caller}.annotated.bcf",
         stats="results/candidate-calls/{group}.{caller}.stats.html"
