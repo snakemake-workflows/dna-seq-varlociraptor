@@ -56,10 +56,12 @@ rule chromosome_map:
         "resources/genome.fasta.fai"
     output:
         "resources/genome.chrmap.txt"
+    log:
+        "logs/benchmarking/chromosome-map.log"
     conda:
         "../envs/awk.yaml"
     shell:
-        "awk '{{ print $1,\"chr\"$1 }}' OFS='\t' {input} > {output}"
+        "awk '{{ print $1,\"chr\"$1 }}' OFS='\t' {input} > {output} 2> {log}"
 
 
 rule rename_chromosomes:
@@ -70,10 +72,13 @@ rule rename_chromosomes:
         "benchmarking/{query}.chr-mapped.vcf"
     params:
         targets=",".join(list(map("chr{}".format, range(23))) + ["chrX", "chrY"])
+    log:
+        "logs/benchmarking/{query}.rename-chromosomes.log"
     conda:
         "../envs/bcftools.yaml"
     shell:
-        "bcftools annotate --rename-chrs {input.map} {input} | bcftools view --targets {params.targets} > {output}"
+        "(bcftools annotate --rename-chrs {input.map} {input} | "
+        "bcftools view --targets {params.targets} > {output}) 2> {log} "
 
 
 rule chm_eval:
