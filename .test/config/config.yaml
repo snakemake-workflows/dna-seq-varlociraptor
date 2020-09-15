@@ -48,6 +48,7 @@ calling:
   scenario: config/scenario.yaml
   # See http://snpeff.sourceforge.net/SnpSift.html#filter
   filter:
+    candidates: "ANN['IMPACT'] != 'LOW'"
     moderate: "ANN['IMPACT'] == 'MODERATE'"
   fdr-control:
     threshold: 0.05

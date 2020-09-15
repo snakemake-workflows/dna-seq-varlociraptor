@@ -172,6 +172,14 @@ def get_annotated_bcf(wildcards, group=None):
     return "results/calls/{group}{selection}.bcf".format(group=group, selection=selection)
 
 
+def get_candidate_calls(wildcards):
+    filter = config["calling"]["filter"].get("candidates")
+    if filter:
+        return "results/candidate-calls/{group}.{caller}.filtered.bcf"
+    else:
+        return "results/candidate-calls/{group}.{caller}.bcf"
+
+
 def get_oncoprint_batch(wildcards):
     if wildcards.batch == "all":
         groups = samples["group"].unique()
