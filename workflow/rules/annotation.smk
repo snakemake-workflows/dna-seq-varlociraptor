@@ -1,3 +1,17 @@
+rule annotate_candidate_variants:
+    input:
+        "results/candidate-calls/{group}.{caller}.bcf"
+    output:
+        "results/candidate-calls/{group}.{caller}.annotated.bcf"
+    params:
+        extra="--vcf_info_field ANN"
+    log:
+        "logs/vep/{group}.{caller}.annotate_candidates.log"
+    threads: get_vep_threads()
+    wrapper:
+        "0.65.0/bio/vep/annotate"
+
+
 rule annotate_variants:
     input:
         calls="results/calls/{group}.bcf",

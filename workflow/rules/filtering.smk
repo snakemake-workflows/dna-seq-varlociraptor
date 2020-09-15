@@ -1,3 +1,18 @@
+rule filter_candidates_by_annotation:
+    input:
+        "results/candidate-calls/{group}.{caller}.annotated.bcf"
+    output:
+        "results/candidate-calls/{group}.{caller}.filtered.bcf"
+    log:
+        "logs/filter-calls/annotation/{group}.{caller}.log"
+    params:
+        filter=lambda w: config["calling"]["filter"]["candidates"]
+    conda:
+        "../envs/vembrane.yaml"
+    shell:
+        "vembrane {params.filter:q} {input} --output-fmt bcf --output {output} &> {log}"
+    
+
 rule filter_by_annotation:
     input:
         get_annotated_bcf
