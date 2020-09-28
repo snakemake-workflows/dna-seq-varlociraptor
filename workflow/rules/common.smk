@@ -12,7 +12,7 @@ samples = pd.read_csv(config["samples"], sep="\t", dtype={"sample_name": str, "g
 
 def get_final_output():
     if config["igv_report"]["activate"]:
-        final_output = expand("results/igv-report/{group}.{event}.html",
+        final_output = expand("results/igv-report/{group}.{event}/",
                         group=groups,
                         event=config["calling"]["fdr-control"]["events"]),
     else:
@@ -119,6 +119,15 @@ def get_group_bams(wildcards, bai=False):
         return expand("results/trimmed/{sample}.trimmed.{ext}", sample=get_group_samples(wildcards), ext=ext)
     return expand("results/recal/{sample}.sorted.{ext}", sample=get_group_samples(wildcards), ext=ext)
 
+def get_group_bams_report(wildcards, bai=False):
+    ext = "bai" if bai else "bam"
+    if group_is_paired_end(wildcards) and is_activated("primers/trimming"):
+        return expand("{{group}}.{vartype}.{{event}}.{filter}=results/trimmed/{sample}.trimmed.{ext}",
+                    sample=get_group_samples(wildcards),
+                    vartype=["SNV", "INS", "DEL", "MNV", "BND", "INV", "DUP", "REP"],
+                    filter=config["calling"]["fdr-control"]["events"][wildcards.event]["filter"],
+                    ext=ext)
+    return expand("{sample}=results/recal/{sample}.sorted.{ext}", sample=get_group_samples(wildcards), ext=ext)
 
 def get_regions():
     if is_activated("primers/trimming"):
@@ -198,6 +207,11 @@ def get_merge_calls_input(ext=".bcf"):
                       filter=config["calling"]["fdr-control"]["events"][wildcards.event]["filter"])
     return inner
 
+def get_merge_calls_input_report(wildcards, ext=".bcf"):
+    return expand("{{group}}.{vartype}.{{event}}.{filter}=results/calls/{{group}}.{vartype}.{{event}}.{filter}.fdr-controlled{ext}",
+                    ext=ext,
+                    vartype=["SNV", "INS", "DEL", "MNV", "BND", "INV", "DUP", "REP"],
+                    filter=config["calling"]["fdr-control"]["events"][wildcards.event]["filter"])
 
 def get_vep_threads():
     n = len(samples)

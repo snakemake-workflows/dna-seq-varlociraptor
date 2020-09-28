@@ -1,21 +1,16 @@
 rule igv_report:
     input:
-        bcf="results/merged-calls/{group}.{event}.fdr-controlled.bcf",
         ref="resources/genome.fasta",
-        ref_idx="resources/genome.fasta.fai",
         bams=lambda w: get_group_bams(w),
-        bais=lambda w: get_group_bams(w, bai=True)
+        bcfs= get_merge_calls_input(".bcf")
     output:
-        report("results/igv-report/{group}.{event}.html", caption="../report/calls.rst", category="Variant calls")
+        report(directory("results/igv-report/{group}.{event}/"), caption="../report/calls.rst", category="Variant calls")
+    params:
+        bcfs=lambda w: [bcf.format(group=w.group, event=w.event) for bcf in get_merge_calls_input_report(w, ".bcf")],
+        bams=lambda w: [bam.format(group=w.group, event=w.event) for bam in get_group_bams_report(w)]
     log:
         "logs/igv-report/{group}.{event}.log"
-    params:
-        os.path.join(os.path.dirname(workflow.snakefile), "resources/igv-report-template.html")
     conda:
-        "../envs/igv-reports.yaml"
+        "../envs/rbt.yaml"
     shell:
-        "bcftools view {input.bcf} > {output}.vcf;"
-        "create_report {output}.vcf {input.ref} --flanking 100 "
-        "--info-columns ANN dgiDB_drugs cosmic_LEGACY_ID --info-columns-prefixes PROB_ --sample-columns DP AF OBS"
-        " --template {params} --tracks {input.bams} --output {output} --standalone 2>&1 > {log}; "
-        "rm {output}.vcf"
+        "rbt vcf-report {input.ref} --bams {params.bams} --vcfs {params.bcfs} -- {output}"
