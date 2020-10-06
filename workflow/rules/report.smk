@@ -1,15 +1,15 @@
-rule igv_report:
+rule vcf_report:
     input:
         ref="resources/genome.fasta",
-        bams=lambda w: get_group_bams(w),
-        bcfs= get_merge_calls_input(".bcf")
+        bams=lambda w: get_batch_bams(w),
+        bcfs=lambda w: expand("results/merged-calls/{group}.{{event}}.fdr-controlled.bcf", group=get_report_batch(w))
     output:
-        report(directory("results/igv-report/{group}.{event}/"), caption="../report/calls.rst", category="Variant calls")
+        report(directory("results/vcf-report/{batch}.{event}/"), caption="../report/calls.rst", category="Variant calls")
     params:
-        bcfs=lambda w: [bcf.format(group=w.group, event=w.event) for bcf in get_merge_calls_input_report(w, ".bcf")],
-        bams=lambda w: [bam.format(group=w.group, event=w.event) for bam in get_group_bams_report(w)]
+        bcfs=lambda w: expand("{group}=results/merged-calls/{group}.{event}.fdr-controlled.bcf", group=get_report_batch(w), event=w.event),
+        bams=lambda w: get_batch_bams(w, True)
     log:
-        "logs/igv-report/{group}.{event}.log"
+        "logs/igv-report/{batch}.{event}.log"
     conda:
         "../envs/rbt.yaml"
     shell:

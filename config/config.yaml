@@ -47,9 +47,10 @@ tmb:
     - SOMATIC_TUMOR_HIGH
 
 # printing of variants in a matrix, sorted by recurrence
-oncoprint:
+report:
   # if stratificatio is deactivated, one oncoprint for all
   # samples will be created.
+  activate: true
   stratify:
     activate: false
     # select a sample sheet column for stratification
