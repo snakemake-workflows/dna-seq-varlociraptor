@@ -48,7 +48,7 @@ jobs:
       with:
         directory: .test
         snakefile: workflow/Snakefile
-        args: "--report report.zip"
+        args: "--configfile .test/config_primers/config.yaml --report report.zip"
 
     - name: Test workflow (SRA FASTQs)
       uses: snakemake/snakemake-github-action@v1.10.0
