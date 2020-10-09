@@ -4,7 +4,7 @@ rule vcf_report:
         bams=lambda w: get_batch_bams(w),
         bcfs=lambda w: expand("results/merged-calls/{group}.{{event}}.fdr-controlled.bcf", group=get_report_batch(w))
     output:
-        report("results/vcf-report/{batch}.{event}/index.html", caption="../report/calls.rst", category="Variant calls")
+        report(directory("results/vcf-report/{batch}.{event}/"), htmlindex="index.html", caption="../report/calls.rst", category="Variant calls")
     params:
         bcfs=lambda w: expand("{group}=results/merged-calls/{group}.{event}.fdr-controlled.bcf", group=get_report_batch(w), event=w.event),
         bams=lambda w: get_batch_bams(w, True)

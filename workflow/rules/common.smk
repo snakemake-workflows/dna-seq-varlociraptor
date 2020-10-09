@@ -12,7 +12,7 @@ samples = pd.read_csv(config["samples"], sep="\t", dtype={"sample_name": str, "g
 
 def get_final_output():
     if config["report"]["activate"]:
-        final_output = expand("results/vcf-report/all.{event}/index.html",
+        final_output = expand("results/vcf-report/all.{event}/",
                         event=config["calling"]["fdr-control"]["events"]),
     else:
         final_output = expand("results/merged-calls/{group}.{event}.fdr-controlled.bcf",
