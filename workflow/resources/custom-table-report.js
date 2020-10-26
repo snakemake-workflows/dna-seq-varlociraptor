@@ -306,9 +306,9 @@ $(document).ready(function () {
 
         var binom_dist = []
         af = $(this).data("format")["DP"]
-        $.each($(this).data("format")["AF"]), function(sample_name, allele_frequency) {
+        $.each($(this).data("format")["AF"], function(sample_name, allele_frequency) {
             binom_dist = binom_dist.concat(calcBinomDist(parseFloat(allele_frequency), af[sample_name]));
-        }
+        })
         if (binom_dist.length > 0) {
             $('#custom-sidebar').append('<div id="AlleleFreq">');
             $('#custom-sidebar').append('</div>');
