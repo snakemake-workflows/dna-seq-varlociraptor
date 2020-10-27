@@ -10,7 +10,7 @@ rule vcf_report:
         bams=lambda w: get_batch_bams(w, True),
         format_field = "-f DP AF OBS",
         info_field = "-i PROB_FFPE_ARTIFACT PROB_PRESENT PROB_ARTIFACT PROB_ABSENT",
-        template = os.path.join(os.path.dirname(workflow.snakefile), "resources/custom-table-report.js")
+        template = Path(Path(workflow.snakefile).parent, "resources/custom-table-report.js")
     log:
         "logs/igv-report/{batch}.{event}.log"
     conda:
