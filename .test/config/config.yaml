@@ -81,6 +81,7 @@ params:
 
 report:
   activate: true
+  max_read_depth: 250
   stratify:
     activate: false
     by-column: condition
