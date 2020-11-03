@@ -3,7 +3,18 @@ let column_values = ['id', 'position', 'reference', 'alternatives', 'type'];
 // customize which parts of the annotation field to display at the sidebar
 let ann_values = [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15]
 
+let score_thresholds = {}
+score_thresholds["PolyPhen"] = { "Benign": [0, 0.149], "Possibly Damaging": [0.15, 0.849], "Probably Damaging": [0.85, 1] }
+score_thresholds["SIFT"] = {"Benign": [0, 0.05], "Damaging": [0.051, 1] }
+
+let score_scales = {}
+score_scales["SIFT"] = { "colors": ["#2ba6cb", "#ff5555"], "entries": ["Benign", "Damaging"] }
+score_scales["PolyPhen"] = { "colors": ["#2ba6cb", "#ffa3a3", "#ff5555"], "entries": ["Benign", "Possibly Damaging", "Probably Damaging"] }
+
 $(document).ready(function () {
+
+
+
     $("html").on('click', '.variant-row', function () {
         let vis_len = $(this).data('vislen');
         if ($(this).data('packed')) {
@@ -85,7 +96,17 @@ $(document).ready(function () {
         });
         $('#ann-sidebar').append('<tr>');
         $('#ann-sidebar').append('<th class="thead-dark" style="position: sticky; left:-1px; z-index: 1; background: white">Linkouts</th>');
+        var sift_scores = []
+        var polyphen_scores = []
         for (let j = 1; j <= ann_length; j++) {
+            var transcript = $(that).data('ann[' + j + '][7]')
+            sift_score = $(that).data('ann[' + j + '][34]')
+            sift_scores = parse_score(sift_scores, sift_score, "SIFT", transcript)
+
+            polyphen_score = $(that).data('ann[' + j + '][35]')
+            alert(polyphen_score)
+            polyphen_scores = parse_score(polyphen_scores, polyphen_score, "PolyPhen", transcript)
+
             gene_field = 'ann[' + j + '][4]'
             ensembl_field = 'ann[' + j + '][5]'
             gene = $(that).data(gene_field)
@@ -97,7 +118,7 @@ $(document).ready(function () {
             $('#Linkout'+ j).append('<a href="https://www.ensembl.org/homo_sapiens/Gene/Summary?db=core;g='+ ensembl_id +'" target="_blank">Ensembl</a>');
         }
         $('#ann-sidebar').append('</tr>');
-        
+
 
         $('custom-sidebar').empty()
         var probabilities = []
@@ -391,6 +412,12 @@ $(document).ready(function () {
             vegaEmbed('#AlleleFreq', distSpec);
         }
 
+        if (sift_scores.length > 0) {
+            $('#custom-sidebar').append('<div id="SiftScores">');
+            $('#custom-sidebar').append('</div>');
+            plotScores("SIFT", sift_scores, "SiftScores")
+        }
+
         function calcBinomDist(alleleFreq, coverage, sample_name) {
             var binomValues = [];
             var frequency = 0;
@@ -407,7 +434,7 @@ $(document).ready(function () {
             return binomValues;
         }
 
-        function BinomialCoefficient(n, k)  {
+        function BinomialCoefficient(n, k) {
             if (k + k > n) { k = n - k }
             if (k < 0) { return 0 }
             else {
@@ -418,5 +445,126 @@ $(document).ready(function () {
               return result
             }
           }
+
+
+        function parse_score(scores, variant_value, score_type, transcript) {
+            if (!(variant_value == "")) {
+                if (score_type == "SIFT") {
+                    score = 1 - parseFloat(variant_value)
+                } else {
+                    score = parseFloat(variant_value)
+                }
+                var effect_bins = build_effect_bins(score_type, score)
+                for (bin of effect_bins) {
+                    var effect_idx = score_scales[score_type]["entries"].indexOf(bin.effect)
+                    scores.push({
+                        "name": score_type,
+                        "transcript": transcript,
+                        "size": bin.size,
+                        "effect": bin.effect,
+                        "effect_idx": effect_idx
+                    })
+                }
+            }
+            return scores
+        }
+
+
+
+        function build_effect_bins(name, score) {
+            var effects = score_thresholds[name]
+            var effect_bins = []
+            if ((Object.keys(effects).length == 1) || score == 0) {
+                var effect = extract_effect(name, score)
+                effect_bins.push({ "effect": effect, "size": score })
+            } else {
+                var score_greater_zero = (score, left_boundary, right_boundary) => {
+                    if (score < right_boundary) {
+                        return (left_boundary > 0) ? (score - left_boundary) : score
+                    } else {
+                        return (left_boundary > 0) ? (right_boundary - left_boundary) : right_boundary
+                    }
+                }
+                var score_less_zero = (score, left_boundary, right_boundary) => {
+                    if (score > left_boundary) {
+                        return (right_boundary < 0) ? (score - right_boundary) : score
+                    } else {
+                        return (right_boundary < 0) ? (left_boundary - right_boundary) : left_boundary
+                    }
+                }
+                for (var effect in effects) {
+                    var effect_boundarys = effects[effect]
+                    if (score > 0) {
+                        if ((effect_boundarys[1] > 0) && (score > effect_boundarys[0])) {
+                            var size = score_greater_zero(score, effect_boundarys[0], effect_boundarys[1])
+                            effect_bins.push({ "effect": effect, "size": size })
+                        }
+                    } else if (score < 0) {
+                        if ((effect_boundarys[0] < 0) && (score < effect_boundarys[1])) {
+                            var size = score_less_zero(score, effect_boundarys[0], effect_boundarys[1])
+                            effect_bins.push({ "effect": effect, "size": size })
+                        }
+                    } else {
+                        alert(`Value error: ${score}`)
+                    }
+                }
+            }
+            return effect_bins
+        }
+
+        function extract_effect(name, value) {
+            if (!(name in score_thresholds)) {
+                return "Effect not found"
+            }
+            var effects = score_thresholds[name]
+            for (var key in effects) {
+                if ((value >= effects[key][0]) && (value <= effects[key][1])) {
+                    return key
+                }
+            }
+            return "Score out of range"
+        }
+
+        function plotScores(score_type, scores, cell_id) {
+            var x_title = {"SIFT": "1-score", "PolyPhen": "Score"}
+            var ScoreSpec = {
+                "$schema": "https://vega.github.io/schema/vega-lite/v3.json",
+                "data": {
+                    values: scores
+                },
+                "mark": "bar",
+                "encoding": {
+                    "y": {
+                        "field": "transcript",
+                        "type": "nominal",
+                        "title": "Transcript"
+                    },
+                    "x": {
+                        "field": "size",
+                        "type": "quantitative",
+                        "scale": {"domain": [0, 1]},
+                        "title": x_title[score_type],
+                    },
+                    "color": {
+                        "field": "effect",
+                        "type": "nominal",
+                        "title": "Effect",
+                        "sort": score_scales[score_type]["entries"],
+                        "scale": {
+                            "domain": score_scales[score_type]["entries"],
+                            "range": score_scales[score_type]["colors"]
+                        }
+                    },
+                    "order": { "field": "effect_idx", "type": "quantitative" },
+                    "tooltip": null
+                },
+                "config": {
+                    "axisX": {
+                        "labelAngle": 90
+                    }
+                }
+            };
+            vegaEmbed(`#${cell_id}`, ScoreSpec)
+        }
     })
 })
