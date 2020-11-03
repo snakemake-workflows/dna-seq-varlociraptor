@@ -104,7 +104,6 @@ $(document).ready(function () {
             sift_scores = parse_score(sift_scores, sift_score, "SIFT", transcript)
 
             polyphen_score = $(that).data('ann[' + j + '][35]')
-            alert(polyphen_score)
             polyphen_scores = parse_score(polyphen_scores, polyphen_score, "PolyPhen", transcript)
 
             gene_field = 'ann[' + j + '][4]'
