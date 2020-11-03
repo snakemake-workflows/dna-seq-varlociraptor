@@ -83,6 +83,21 @@ $(document).ready(function () {
             }
             $('#ann-sidebar').append('</tr>');
         });
+        $('#ann-sidebar').append('<tr>');
+        $('#ann-sidebar').append('<th class="thead-dark" style="position: sticky; left:-1px; z-index: 1; background: white">Linkouts</th>');
+        for (let j = 1; j <= ann_length; j++) {
+            gene_field = 'ann[' + j + '][4]'
+            ensembl_field = 'ann[' + j + '][5]'
+            gene = $(that).data(gene_field)
+            ensembl_id = $(that).data(ensembl_field)
+            $('#ann-sidebar').append('<td id="Linkout' + j +'">')
+            $('#Linkout'+ j).append('<a href="https://clinicaltrials.gov/ct2/results?cond=&term=' + gene + '&cntry=&state=&city=&dist=" target="_blank">ClinicalTrials</a><br>');
+            $('#Linkout'+ j).append('<a href="https://www.cbioportal.org/ln?q=' + gene +'" target="_blank">cBioPortal</a><br>');
+            $('#Linkout'+ j).append('<a href="https://oncokb.org/gene/' + gene + '" target="_blank">OncoKB</a><br>');
+            $('#Linkout'+ j).append('<a href="https://www.ensembl.org/homo_sapiens/Gene/Summary?db=core;g='+ ensembl_id +'" target="_blank">Ensembl</a>');
+        }
+        $('#ann-sidebar').append('</tr>');
+        
 
         $('custom-sidebar').empty()
         var probabilities = []
@@ -116,7 +131,10 @@ $(document).ready(function () {
                         "as": "prob"
                     }
                     ],
-                    "mark": "circle",
+                    "mark": {
+                        "type": "circle",
+                        "size": 45,
+                    },
                     "title": null,
                     "encoding": {
                         "y": {
@@ -141,7 +159,7 @@ $(document).ready(function () {
                             "field": "alpha",
                             "scale": {
                                 "domain": [0, 1],
-                                "range": ["#00000000", "#32a852"]
+                                "range": ["#00000000", "#4682b4"]
                             },
                             "legend": null
                         },
@@ -229,7 +247,7 @@ $(document).ready(function () {
             vegaEmbed('#Prob', probSpec);
         }
 
-        var regex = /([0-9]+)(N|B|P|S|V|n|b|p|s|v)(s|p)(\+|\-|\*)/g;
+        var regex = /([0-9]+)(N|B|P|S|V|n|b|p|s|v)(s|p)(\+|\-|\*)(\>|\<|\*|\!)/g;
         var effects = {
             "N": "None",
             "B": "Barely",
@@ -238,6 +256,12 @@ $(document).ready(function () {
             "V": "Very Strong"
         }
         var observations = [];
+        var orientation = {
+            "*": "unknown",
+            ">": "F1R2",
+            "<": "F2R1",
+            "!": "non standard"
+        }
         $.each($(this).data("format")["OBS"], function(sample_name, observation) {
             while ((result = regex.exec(observation)) != null) {
                 strand = result[4].replace("*", "±")
@@ -249,9 +273,11 @@ $(document).ready(function () {
                 observations.push({
                     "sample": sample_name,
                     "strand": strand,
+                    "strand_orientation": strand + ' ' + orientation[result[5]], 
                     "effect": effect,
                     "times": parseFloat(result[1]),
-                    "Quality": quality
+                    "quality": quality,
+                    "orientation": orientation[result[5]] 
                 })
             }
         })
@@ -271,12 +297,12 @@ $(document).ready(function () {
                         "title": "Sample"
                     },
                     "row": {
-                        "field": "Quality",
+                        "field": "quality",
                         "type": "ordinal",
                         "title": null
                     },
                     "x": {
-                        "field": "strand",
+                        "field": "strand_orientation",
                         "type": "ordinal",
                         "title": "Strand"
                     },
@@ -294,11 +320,24 @@ $(document).ready(function () {
                             "domain": ["None", "Barely", "Positive", "Strong", "Very Strong"],
                             "range": ["#999999", "#2ba6cb", "#afdfee", "#ffa3a3", "#ff5555"]
                         }
-                    }
+                    },
+                    "tooltip": [ {
+                        "field": "strand",
+                        "type": "nominative",
+                        "title": "Strand"
+                    }, {
+                        "field": "orientation",
+                        "type": "nominal",
+                        "title": "Orientation"
+                    }, {
+                        "field": "times",
+                        "type": "quantitative",
+                        "title": "Counts"
+                    }]
                 },
                 "config": {
                     "axisX": {
-                        "labelAngle": 0
+                        "labelAngle": -45
                     }
                 }
             };
@@ -308,7 +347,7 @@ $(document).ready(function () {
         var binom_dist = []
         af = $(this).data("format")["DP"]
         $.each($(this).data("format")["AF"], function(sample_name, allele_frequency) {
-            binom_dist = binom_dist.concat(calcBinomDist(parseFloat(allele_frequency), af[sample_name]));
+            binom_dist = binom_dist.concat(calcBinomDist(parseFloat(allele_frequency), af[sample_name], sample_name));
         })
         if (binom_dist.length > 0) {
             $('#custom-sidebar').append('<div id="AlleleFreq">');
@@ -337,13 +376,22 @@ $(document).ready(function () {
                         "field": "binomProb",
                         "type": "quantitative",
                         "title": "Density"
-                    }
+                    },
+                    "tooltip": [{
+                        "field": "binomProb",
+                        "type": "quantitative",
+                        "title": "Density"
+                    }, {
+                        "field": "frequency",
+                        "type": "quantitative",
+                        "title": "Frequency"
+                    }]
                 }
             };
             vegaEmbed('#AlleleFreq', distSpec);
         }
 
-        function calcBinomDist(alleleFreq, coverage) {
+        function calcBinomDist(alleleFreq, coverage, sample_name) {
             var binomValues = [];
             var frequency = 0;
             var k = Math.round(alleleFreq * coverage);
@@ -352,6 +400,7 @@ $(document).ready(function () {
                 binomValues.push({
                     "frequency": frequency,
                     "binomProb": value,
+                    "sample": sample_name
                 });
                 frequency += 0.01;
             }
