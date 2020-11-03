@@ -94,17 +94,25 @@ $(document).ready(function () {
             }
             $('#ann-sidebar').append('</tr>');
         });
+
+
         $('#ann-sidebar').append('<tr>');
         $('#ann-sidebar').append('<th class="thead-dark" style="position: sticky; left:-1px; z-index: 1; background: white">Linkouts</th>');
         var sift_scores = []
         var polyphen_scores = []
         for (let j = 1; j <= ann_length; j++) {
             var transcript = $(that).data('ann[' + j + '][7]')
-            sift_score = $(that).data('ann[' + j + '][34]')
-            sift_scores = parse_score(sift_scores, sift_score, "SIFT", transcript)
+            sift_score = $(that).data('ann[' + j + '][35]')
+            if (sift_score != "") {
+                sift_score = sift_score.split("(")[1].slice(0, -1)
+                sift_scores = parse_score(sift_scores, sift_score, "SIFT", transcript)
+            }
 
-            polyphen_score = $(that).data('ann[' + j + '][35]')
-            polyphen_scores = parse_score(polyphen_scores, polyphen_score, "PolyPhen", transcript)
+            polyphen_score = $(that).data('ann[' + j + '][36]')
+            if (polyphen_score != "") {
+                polyphen_score = polyphen_score.split("(")[1].slice(0, -1)
+                polyphen_scores = parse_score(polyphen_scores, polyphen_score, "PolyPhen", transcript)
+            }
 
             gene_field = 'ann[' + j + '][4]'
             ensembl_field = 'ann[' + j + '][5]'
@@ -417,6 +425,12 @@ $(document).ready(function () {
             plotScores("SIFT", sift_scores, "SiftScores")
         }
 
+        if (polyphen_scores.length > 0) {
+            $('#custom-sidebar').append('<div id="PolyPhenScores">');
+            $('#custom-sidebar').append('</div>');
+            plotScores("PolyPhen", polyphen_scores, "PolyPhenScores")
+        }
+
         function calcBinomDist(alleleFreq, coverage, sample_name) {
             var binomValues = [];
             var frequency = 0;
@@ -447,23 +461,21 @@ $(document).ready(function () {
 
 
         function parse_score(scores, variant_value, score_type, transcript) {
-            if (!(variant_value == "")) {
-                if (score_type == "SIFT") {
-                    score = 1 - parseFloat(variant_value)
-                } else {
-                    score = parseFloat(variant_value)
-                }
-                var effect_bins = build_effect_bins(score_type, score)
-                for (bin of effect_bins) {
-                    var effect_idx = score_scales[score_type]["entries"].indexOf(bin.effect)
-                    scores.push({
-                        "name": score_type,
-                        "transcript": transcript,
-                        "size": bin.size,
-                        "effect": bin.effect,
-                        "effect_idx": effect_idx
-                    })
-                }
+            if (score_type == "SIFT") {
+                score = 1 - parseFloat(variant_value)
+            } else {
+                score = parseFloat(variant_value)
+            }
+            var effect_bins = build_effect_bins(score_type, score)
+            for (bin of effect_bins) {
+                var effect_idx = score_scales[score_type]["entries"].indexOf(bin.effect)
+                scores.push({
+                    "name": score_type,
+                    "transcript": transcript,
+                    "size": bin.size,
+                    "effect": bin.effect,
+                    "effect_idx": effect_idx
+                })
             }
             return scores
         }
