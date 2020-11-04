@@ -119,10 +119,13 @@ $(document).ready(function () {
             gene = $(that).data(gene_field)
             ensembl_id = $(that).data(ensembl_field)
             $('#ann-sidebar').append('<td id="Linkout' + j +'">')
-            $('#Linkout'+ j).append('<a href="https://clinicaltrials.gov/ct2/results?cond=&term=' + gene + '&cntry=&state=&city=&dist=" target="_blank">ClinicalTrials</a><br>');
-            $('#Linkout'+ j).append('<a href="https://www.cbioportal.org/ln?q=' + gene +'" target="_blank">cBioPortal</a><br>');
-            $('#Linkout'+ j).append('<a href="https://oncokb.org/gene/' + gene + '" target="_blank">OncoKB</a><br>');
-            $('#Linkout'+ j).append('<a href="https://www.ensembl.org/homo_sapiens/Gene/Summary?db=core;g='+ ensembl_id +'" target="_blank">Ensembl</a>');
+            $('#Linkout'+ j).append('<div id="Div' + j +'" class="dropdown show">')
+            $('#Div'+ j).append('<a class="btn btn-secondary dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Select source</a>')
+            $('#Div'+ j).append('<div id="Button' + j + '" div class="dropdown-menu" aria-labelledby="dropdownMenuLink">')
+            $('#Button'+ j).append('<a class="dropdown-item" href="https://clinicaltrials.gov/ct2/results?cond=&term=' + gene + '&cntry=&state=&city=&dist=" target="_blank">ClinicalTrials</a><br>');
+            $('#Button'+ j).append('<a class="dropdown-item" href="https://www.cbioportal.org/ln?q=' + gene + '" target="_blank">cBioPortal</a><br>');
+            $('#Button'+ j).append('<a class="dropdown-item" href="https://oncokb.org/gene/' + gene + '" target="_blank">OncoKB</a><br>');
+            $('#Button'+ j).append('<a class="dropdown-item" href="https://www.ensembl.org/homo_sapiens/Gene/Summary?db=core;g='+ ensembl_id +'" target="_blank">Ensembl</a>');
         }
         $('#ann-sidebar').append('</tr>');
 
