@@ -123,3 +123,11 @@ params:
 benchmarking:
   # this disables odds filtering and annotation
   activate: true
+
+
+report:
+  activate: false
+  max_read_depth: 250
+  stratify:
+    activate: false
+    by-column: condition
