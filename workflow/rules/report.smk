@@ -9,7 +9,7 @@ rule vcf_report:
         bcfs=lambda w: expand("{group}=results/merged-calls/{group}.{event}.fdr-controlled.bcf", group=get_report_batch(w), event=w.event),
         bams=lambda w: get_batch_bams(w, True),
         format_field = "DP AF OBS",
-        info_field = "PROB_FFPE_ARTIFACT PROB_PRESENT PROB_ARTIFACT PROB_ABSENT",
+        info_field = lambda wc: "PROB_FFPE_ARTIFACT {} PROB_ARTIFACT PROB_ABSENT".format(' '.join(expand("PROB_{events}", events=config["calling"]["fdr-control"]["events"][wc.event]["varlociraptor"]))),
         template = Path(Path(workflow.snakefile).parent, "resources/custom-table-report.js"),
         max_read_depth = config["report"]["max_read_depth"]
     log:
