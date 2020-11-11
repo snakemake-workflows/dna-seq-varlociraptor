@@ -6,6 +6,8 @@ rule gather_benchmark_calls:
         idx=gather.calling("results/calls/{{group}}.{scatteritem}.bcf.csi"),
     output:
         "results/calls/{group}.bcf"
+    log:
+        "logs/gather-benchmark-calls/{group}.log"
     params:
         "-a -Ob"
     wrapper:

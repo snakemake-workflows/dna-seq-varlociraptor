@@ -40,6 +40,8 @@ rule scatter_candidates:
         "results/candidate-calls/{group}.{caller}.bcf"
     output:
         scatter.calling("results/candidate-calls/{{group}}.{{caller}}.{scatteritem}.bcf")
+    log:
+        "logs/scatter-candidates/{group}.{caller}.log"
     conda:
         "../envs/rbt.yaml"
     shell:

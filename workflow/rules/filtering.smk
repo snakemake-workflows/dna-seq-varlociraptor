@@ -49,6 +49,8 @@ rule gather_calls:
         idx=gather.calling("results/calls/{{group}}.{{event}}.{{filter}}.{scatteritem}.filtered_odds.bcf.csi"),
     output:
         "results/calls/{group}.{event}.{filter}.filtered_odds.bcf"
+    log:
+        "logs/gather-calls/{group}.{event}.{filter}.log"
     params:
         "-a -Ob"
     wrapper:
