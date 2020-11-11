@@ -9,7 +9,7 @@ rule vcf_report:
         bcfs=lambda w: expand("{group}=results/merged-calls/{group}.{event}.fdr-controlled.bcf", group=get_report_batch(w), event=w.event),
         bams=lambda w: get_batch_bams(w, True),
         format_field = "DP AF OBS",
-        template = Path(Path(workflow.snakefile).parent / "resources/custom-table-report.js"),
+        template = Path(workflow.snakefile).parent / "resources/custom-table-report.js",
         max_read_depth = config["report"]["max_read_depth"],
         js_files = Path(workflow.snakefile).parent / "resources/math.min.js"
     log:
@@ -17,4 +17,5 @@ rule vcf_report:
     conda:
         "../envs/rbt.yaml"
     shell:
-        "rbt vcf-report {input.ref} --bams {params.bams} --vcfs {params.bcfs} --format {params.format_field} --info PROB_* --js {params.template} -d {params.max_read_depth} --js-file {params.js_files} -- {output}"
+        "rbt vcf-report {input.ref} --bams {params.bams} --vcfs {params.bcfs} --format {params.format_field} "
+        "--info PROB_* --js {params.template} -d {params.max_read_depth} --js-file {params.js_files} -- {output}"
