@@ -35,7 +35,9 @@ validate(units, schema="../schemas/units.schema.yaml")
 
 def get_recalibrate_quality_input(wildcards, bai=False):
     ext = "bai" if bai else "bam"
-    if is_activated("remove_duplicates"):
+    if is_activated("calc_consensus_reads"):
+        return "results/consensus/{}.sorted.{}".format(wildcards.sample, ext)
+    elif is_activated("remove_duplicates"):
         return "results/dedup/{}.sorted.{}".format(wildcards.sample, ext)
     else:
         return "results/mapped/{}.sorted.{}".format(wildcards.sample, ext)

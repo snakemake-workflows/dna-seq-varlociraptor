@@ -85,7 +85,11 @@ calling:
           - "SOMATIC_TUMOR_MEDIUM"
         filter: filtername
 
+# Will be ignored if calc_consensus_reads is activated
 remove_duplicates:
+  activate: true
+
+calc_consensus_reads:
   activate: true
 
 annotations:

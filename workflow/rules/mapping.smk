@@ -30,6 +30,19 @@ rule mark_duplicates:
         "0.59.2/bio/picard/markduplicates"
 
 
+rule calc_consensus_reads:
+    input:
+        "results/mapped/{sample}.sorted.bam"
+    output:
+        "results/consensus/{sample}.sorted.bam"
+    log:
+        "logs/consensus/{sample}.log"
+    conda:
+        "../envs/rbt.yaml"
+    shell:
+        "rbt collapse-reads-to-fragments bam {input} {output} &> {log}"
+
+
 rule recalibrate_base_qualities:
     input:
         bam=get_recalibrate_quality_input,

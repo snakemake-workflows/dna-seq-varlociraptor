@@ -147,6 +147,12 @@ properties:
       activate:
         type: boolean
 
+  calc_consensus_reads:
+    type: object
+    properties:
+      activate:
+        type: boolean
+
   annotations:
     type: object
     properties:
