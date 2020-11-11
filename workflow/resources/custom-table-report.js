@@ -380,7 +380,7 @@ $(document).ready(function () {
         var binom_dist = []
         af = $(this).data("format")["DP"]
         $.each($(this).data("format")["AF"], function(sample_name, allele_frequency) {
-            binom_dist = binom_dist.concat(calcBinomDist(parseFloat(allele_frequency), af[sample_name], sample_name));
+            binom_dist = binom_dist.concat(calcBinomDist(parseFloat(allele_frequency), af[sample_name][0], sample_name));
         })
         if (binom_dist.length > 0) {
             $('#custom-sidebar').append('<div id="AlleleFreq">');
@@ -441,7 +441,7 @@ $(document).ready(function () {
             var frequency = 0;
             var k = Math.round(alleleFreq * coverage);
             while (frequency <= 1) {
-                var value = BinomialCoefficient(coverage, k) * Math.pow(frequency, k) * Math.pow((1 - frequency), (coverage - k))
+                var value = math.combinations(coverage, k) * Math.pow(frequency, k) * Math.pow((1 - frequency), (coverage - k))
                 binomValues.push({
                     "frequency": frequency,
                     "binomProb": value,
@@ -451,18 +451,6 @@ $(document).ready(function () {
             }
             return binomValues;
         }
-
-        function BinomialCoefficient(n, k) {
-            if (k + k > n) { k = n - k }
-            if (k < 0) { return 0 }
-            else {
-              var result = 1
-              for (i=0;i<k;) {
-                result = (result * (n-i)) / ++i
-              }
-              return result
-            }
-          }
 
 
         function parse_score(scores, variant_value, score_type, transcript) {
