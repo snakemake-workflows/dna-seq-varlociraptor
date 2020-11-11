@@ -11,6 +11,8 @@ rule annotate_candidate_variants:
         plugins=[]
     log:
         "logs/vep/{group}.{caller}.annotate_candidates.log"
+    benchmark:
+        "benchmarks/vep/{group}.{caller}.annotate_candidates.tsv"
     threads: get_vep_threads()
     wrapper:
         "0.65.0/bio/vep/annotate"
