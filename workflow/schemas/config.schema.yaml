@@ -60,8 +60,10 @@ properties:
             type: integer
 
 
-  oncoprint:
+  report:
     type: object
+    activate:
+      type: boolean
     properties:
       stratify:
         type: object
@@ -73,6 +75,12 @@ properties:
         required:
           - activate
           - by-column
+      max_read_depth:
+        type: integer
+    required:
+      - activate
+      - max_read_depth
+
 
   tmb:
     type: object

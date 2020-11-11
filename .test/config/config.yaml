@@ -2,9 +2,6 @@ samples: config/samples.tsv
 
 units: config/units.tsv
 
-igv_report:
-  activate: true
-
 ref:
   # Number of chromosomes to consider for calling.
   # The first n entries of the FASTA will be considered.
@@ -81,3 +78,10 @@ params:
   gatk:
     BaseRecalibrator: ""
     applyBQSR: ""
+
+report:
+  activate: true
+  max_read_depth: 250
+  stratify:
+    activate: false
+    by-column: condition
