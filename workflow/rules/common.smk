@@ -11,9 +11,8 @@ validate(config, schema="../schemas/config.schema.yaml")
 samples = pd.read_csv(config["samples"], sep="\t", dtype={"sample_name": str, "group": str}).set_index("sample_name", drop=False).sort_index()
 
 def get_final_output():
-    if config["igv_report"]["activate"]:
-        final_output = expand("results/igv-report/{group}.{event}.html",
-                        group=groups,
+    if config["report"]["activate"]:
+        final_output = expand("results/vcf-report/all.{event}/",
                         event=config["calling"]["fdr-control"]["events"]),
     else:
         final_output = expand("results/merged-calls/{group}.{event}.fdr-controlled.bcf",
@@ -94,9 +93,10 @@ def is_paired_end(sample):
     assert all_single or all_paired, "invalid units for sample {}, must be all paired end or all single end".format(sample)
     return all_paired
 
-def group_is_paired_end(wildcards):
-    samples = get_group_samples(wildcards)
+def group_is_paired_end(group):
+    samples = get_group_samples(group)
     return all([is_paired_end(sample) for sample in samples])
+
 
 def get_map_reads_input(wildcards):
     if is_paired_end(wildcards.sample):
@@ -109,15 +109,32 @@ def get_group_aliases(wildcards):
     return samples.loc[samples["group"] == wildcards.group]["alias"]
 
 
-def get_group_samples(wildcards):
-    return samples.loc[samples["group"] == wildcards.group]["sample_name"]
+def get_group_samples(group):
+    return samples.loc[samples["group"] == group]["sample_name"]
 
 
 def get_group_bams(wildcards, bai=False):
     ext = "bai" if bai else "bam"
-    if group_is_paired_end(wildcards) and is_activated("primers/trimming"):
-        return expand("results/trimmed/{sample}.trimmed.{ext}", sample=get_group_samples(wildcards), ext=ext)
-    return expand("results/recal/{sample}.sorted.{ext}", sample=get_group_samples(wildcards), ext=ext)
+    if group_is_paired_end(wildcards.group) and is_activated("primers/trimming"):
+        return expand("results/trimmed/{sample}.trimmed.{ext}", sample=get_group_samples(wildcards.group), ext=ext)
+    return expand("results/recal/{sample}.sorted.{ext}", sample=get_group_samples(wildcards.group), ext=ext)
+
+
+def get_group_bams_report(group):
+    if group_is_paired_end(group) and is_activated("primers/trimming"):
+        return [(sample, "results/trimmed/{}.trimmed.bam".format(sample)) for sample in get_group_samples(group)]
+    return [(sample, "results/recal/{}.sorted.bam".format(sample)) for sample in get_group_samples(group)]
+
+
+def get_batch_bams(wildcards, event=False):
+    bams = []
+    for group in get_report_batch(wildcards):
+        for (sample, bam) in get_group_bams_report(group):
+            if event:
+                bams.append("{group}:{sample}={bam}".format(group=group, sample=sample, bam=bam))
+            else:
+                bams.append(bam)
+    return bams
 
 
 def get_regions():
@@ -137,7 +154,7 @@ def get_group_observations(wildcards):
     return expand("results/observations/{group}/{sample}.{caller}.sorted.bcf", 
                   caller=wildcards.caller, 
                   group=wildcards.group,
-                  sample=get_group_samples(wildcards))
+                  sample=get_group_samples(wildcards.group))
 
 def is_activated(xpath):
     c = config
@@ -180,11 +197,11 @@ def get_candidate_calls(wildcards):
         return "results/candidate-calls/{group}.{caller}.bcf"
 
 
-def get_oncoprint_batch(wildcards):
+def get_report_batch(wildcards):
     if wildcards.batch == "all":
         groups = samples["group"].unique()
     else:
-        groups = samples.loc[samples[config["oncoprint"]["stratify"]["by-column"]] == wildcards.batch, "group"].unique()
+        groups = samples.loc[samples[config["report"]["stratify"]["by-column"]] == wildcards.batch, "group"].unique()
     if not any(groups):
         raise ValueError("No samples found. Is your sample sheet empty?")
     return groups
@@ -198,6 +215,11 @@ def get_merge_calls_input(ext=".bcf"):
                       filter=config["calling"]["fdr-control"]["events"][wildcards.event]["filter"])
     return inner
 
+def get_merge_calls_input_report(wildcards, ext=".bcf"):
+    return expand("{{group}}.{vartype}.{{event}}.{filter}=results/calls/{{group}}.{vartype}.{{event}}.{filter}.fdr-controlled{ext}",
+                    ext=ext,
+                    vartype=["SNV", "INS", "DEL", "MNV", "BND", "INV", "DUP", "REP"],
+                    filter=config["calling"]["fdr-control"]["events"][wildcards.event]["filter"])
 
 def get_vep_threads():
     n = len(samples)
