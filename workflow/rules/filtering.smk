@@ -1,10 +1,10 @@
 rule filter_candidates_by_annotation:
     input:
-        "results/candidate-calls/{group}.{caller}.annotated.bcf"
+        "results/candidate-calls/{group}.{scatteritem}.annotated.bcf"
     output:
-        "results/candidate-calls/{group}.{caller}.filtered.bcf"
+        "results/candidate-calls/{group}.{scatteritem}.filtered.bcf"
     log:
-        "logs/filter-calls/annotation/{group}.{caller}.log"
+        "logs/filter-calls/annotation/{group}.{scatteritem}.log"
     params:
         filter=lambda w: config["calling"]["filter"]["candidates"]
     conda:
@@ -17,9 +17,9 @@ rule filter_by_annotation:
     input:
         get_annotated_bcf
     output:
-        "results/calls/{group}.{filter}.filtered_ann.bcf"
+        "results/calls/{group}.{filter}.{scatteritem}.filtered_ann.bcf"
     log:
-        "logs/filter-calls/annotation/{group}.{filter}.log"
+        "logs/filter-calls/annotation/{group}.{filter}.{scatteritem}.log"
     params:
         filter=lambda w: config["calling"]["filter"][w.filter]
     conda:
@@ -30,23 +30,35 @@ rule filter_by_annotation:
 
 rule filter_odds:
     input:
-        "results/calls/{group}.{filter}.filtered_ann.bcf"
+        "results/calls/{group}.{filter}.{scatteritem}.filtered_ann.bcf"
     output:
-        "results/calls/{group}.{event}.{filter}.filtered_odds.bcf"
+        "results/calls/{group}.{event}.{filter}.{scatteritem}.filtered_odds.bcf"
     params:
         events=lambda wc: config["calling"]["fdr-control"]["events"][wc.event]["varlociraptor"]
     log:
-        "logs/filter-calls/posterior_odds/{group}.{event}.{filter}.log"
+        "logs/filter-calls/posterior_odds/{group}.{event}.{filter}.{scatteritem}.log"
     conda:
         "../envs/varlociraptor.yaml"
     shell:
         "varlociraptor filter-calls posterior-odds --events {params.events} --odds barely < {input} > {output} 2> {log}"
 
 
+rule gather_calls:
+    input:
+        calls=gather.calling("results/calls/{{group}}.{{event}}.{{filter}}.{scatteritem}.filtered_odds.bcf"),
+        idx=gather.calling("results/calls/{{group}}.{{event}}.{{filter}}.{scatteritem}.filtered_odds.bcf.csi"),
+    output:
+        "results/calls/{group}.{event}.{filter}.filtered_odds.bcf"
+    params:
+        "-a -Ob"
+    wrapper:
+        "0.67.0/bio/bcftools/concat"
+
+
 rule control_fdr:
     input:
         ("results/calls/{group}.{event}.{filter}.filtered_odds.bcf"
-         if not is_activated("benchmarking") else "results/calls/{group}.bcf") 
+         if not is_activated("benchmarking") else "results/calls/{group}.bcf")
     output:
         "results/calls/{group}.{vartype}.{event}.{filter}.fdr-controlled.bcf"
     log:

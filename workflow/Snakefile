@@ -5,6 +5,9 @@ configfile: "config/config.yaml"
 
 report: "report/workflow.rst"
 
+scattergather:
+    calling=16
+
 # Allow users to fix the underlying OS via singularity.
 container: "docker://continuumio/miniconda3"
 

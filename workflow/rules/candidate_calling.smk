@@ -33,3 +33,14 @@ rule delly:
     threads: lambda _, input: len(input.samples) # delly parallelizes over the number of samples
     wrapper:
         "0.60.0/bio/delly"
+
+
+rule scatter_candidates:
+    input:
+        "results/candidate-calls/{group}.{caller}.bcf"
+    output:
+        scatter.calling("results/candidate-calls/{{group}}.{{caller}}.{scatteritem}.bcf")
+    conda:
+        "../envs/rbt.yaml"
+    shell:
+        "rbt vcf-split {input} {output}"

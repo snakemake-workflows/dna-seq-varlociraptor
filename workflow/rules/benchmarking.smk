@@ -1,5 +1,16 @@
 ruleorder: chm_eval_sample > map_reads
 
+rule gather_benchmark_calls:
+    input:
+        calls=gather.calling("results/calls/{{group}}.{scatteritem}.bcf"),
+        idx=gather.calling("results/calls/{{group}}.{scatteritem}.bcf.csi"),
+    output:
+        "results/calls/{group}.bcf"
+    params:
+        "-a -Ob"
+    wrapper:
+        "0.67.0/bio/bcftools/concat"
+
 rule chm_eval_sample:
     output:
         bam="resources/chm.bam"
