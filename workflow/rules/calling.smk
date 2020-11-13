@@ -65,6 +65,8 @@ rule varlociraptor_call:
     threads: workflow.cores
     conda:
         "../envs/varlociraptor.yaml"
+    benchmark:
+         "benchmarks/varlociraptor/call/{group}.{caller}.tsv"
     shell:
         "varlociraptor "
         "call variants --threads {threads} generic --obs {params.obs} "

@@ -21,24 +21,19 @@ include: "rules/report.smk"
 include: "rules/tmb.smk"
 include: "rules/vega.smk"
 include: "rules/utils.smk"
-include: "rules/oncoprint.smk"
 include: "rules/primers.smk"
 
 groups = samples["group"].unique()
 
 batches = "all"
-if is_activated("oncoprint/stratify"):
-    batches = samples[config["oncoprint"]["stratify"]["by-column"]].unique()
+if is_activated("report/stratify"):
+    batches = samples[config["report"]["stratify"]["by-column"]].unique()
 
-
+#expand("results/tables/{group}.{event}.fdr-controlled.xlsx", group=groups, event=config["calling"]["fdr-control"]["events"])
 rule all:
     input:
-        expand("results/tables/{group}.{event}.fdr-controlled.xlsx", group=groups, event=config["calling"]["fdr-control"]["events"])
-        # get_final_output(),
-        # get_tmb_targets(),
-        # expand("results/plots/oncoprint/{batch}.{event}.html",
-        #        event=config["calling"]["fdr-control"]["events"],
-            #    batch=batches)
+        get_final_output(),
+        get_tmb_targets(),
 
 
 rule benchmark:
