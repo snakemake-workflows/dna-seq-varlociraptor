@@ -207,9 +207,9 @@ def get_annotated_bcf(wildcards, group=None):
 def get_candidate_calls(wildcards):
     filter = config["calling"]["filter"].get("candidates")
     if filter:
-        return "results/candidate-calls/{group}.{caller}.filtered.normalized.bcf"
+        return "results/candidate-calls/{group}.{caller}.filtered.bcf"
     else:
-        return "results/candidate-calls-normalized/{group}.{caller}.normalized.bcf"
+        return "results/candidate-calls/{group}.{caller}.bcf"
 
 
 def get_report_batch(wildcards):
