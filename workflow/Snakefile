@@ -22,6 +22,7 @@ include: "rules/tmb.smk"
 include: "rules/vega.smk"
 include: "rules/utils.smk"
 include: "rules/primers.smk"
+include: "rules/table.smk"
 
 groups = samples["group"].unique()
 
@@ -29,7 +30,7 @@ batches = "all"
 if is_activated("report/stratify"):
     batches = samples[config["report"]["stratify"]["by-column"]].unique()
 
-#expand("results/tables/{group}.{event}.fdr-controlled.xlsx", group=groups, event=config["calling"]["fdr-control"]["events"])
+
 rule all:
     input:
         get_final_output(),
