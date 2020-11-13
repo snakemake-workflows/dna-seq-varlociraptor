@@ -1,10 +1,10 @@
 rule vg2svg:
     input:
-        "{prefix}.vl.json"
+        "{prefix}.vl.json",
     output:
-        "{prefix}.svg"
+        "{prefix}.svg",
     log:
-        "logs/vg2svg/{prefix}.log"
+        "logs/vg2svg/{prefix}.log",
     conda:
         "../envs/vega.yaml"
     shell:

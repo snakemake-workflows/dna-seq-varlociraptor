@@ -1,15 +1,21 @@
 from snakemake.utils import min_version
+
 min_version("5.12.0")
+
 
 configfile: "config/config.yaml"
 
+
 report: "report/workflow.rst"
 
+
 scattergather:
-    calling=16
+    calling=16,
+
 
 # Allow users to fix the underlying OS via singularity.
 container: "docker://continuumio/miniconda3"
+
 
 include: "rules/common.smk"
 include: "rules/benchmarking.smk"
@@ -26,6 +32,7 @@ include: "rules/vega.smk"
 include: "rules/utils.smk"
 include: "rules/primers.smk"
 
+
 groups = samples["group"].unique()
 
 batches = "all"
@@ -41,4 +48,7 @@ rule all:
 
 rule benchmark:
     input:
-        expand("benchmarking/{query}.summary", query=config["calling"]["fdr-control"]["events"])
+        expand(
+            "benchmarking/{query}.summary",
+            query=config["calling"]["fdr-control"]["events"],
+        ),

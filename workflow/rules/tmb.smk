@@ -1,13 +1,14 @@
 if config["tmb"]["activate"]:
+
     rule estimate_tmb:
         input:
-            "results/calls/{group}.annotated.bcf"
+            "results/calls/{group}.annotated.bcf",
         output:
-            "results/plots/tmb/{group}.{mode}.tmb.vl.json"
+            "results/plots/tmb/{group}.{mode}.tmb.vl.json",
         log:
-            "logs/estimate-tmb/{group}.{mode}.log"
+            "logs/estimate-tmb/{group}.{mode}.log",
         params:
-            **config["tmb"]
+            **config["tmb"],
         conda:
             "../envs/varlociraptor.yaml"
         shell:

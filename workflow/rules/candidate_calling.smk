@@ -2,14 +2,13 @@ rule freebayes:
     input:
         ref="resources/genome.fasta",
         ref_idx="resources/genome.fasta.fai",
-        regions=get_regions(),
-        # you can have a list of samples here
+        regions=get_regions(), # you can have a list of samples here
         samples=lambda w: get_group_bams(w),
         index=lambda w: get_group_bams(w, bai=True),
     output:
-        "results/candidate-calls/{group}.freebayes.bcf"
+        "results/candidate-calls/{group}.freebayes.bcf",
     log:
-        "logs/freebayes/{group}.log"
+        "logs/freebayes/{group}.log",
     params:
         extra=config["params"].get("freebayes", ""),
     threads: 100 # use all available cores for calling
@@ -23,13 +22,13 @@ rule delly:
         ref_idx="resources/genome.fasta.fai",
         samples=lambda w: get_group_bams(w),
         index=lambda w: get_group_bams(w, bai=True),
-        exclude=get_excluded_regions()
+        exclude=get_excluded_regions(),
     output:
-        "results/candidate-calls/{group}.delly.bcf"
+        "results/candidate-calls/{group}.delly.bcf",
     log:
-        "logs/delly/{group}.log"
+        "logs/delly/{group}.log",
     params:
-        extra=config["params"].get("delly", "")
+        extra=config["params"].get("delly", ""),
     threads: lambda _, input: len(input.samples) # delly parallelizes over the number of samples
     wrapper:
         "0.60.0/bio/delly"
@@ -37,11 +36,13 @@ rule delly:
 
 rule scatter_candidates:
     input:
-        "results/candidate-calls/{group}.{caller}.bcf"
+        "results/candidate-calls/{group}.{caller}.bcf",
     output:
-        scatter.calling("results/candidate-calls/{{group}}.{{caller}}.{scatteritem}.bcf")
+        scatter.calling(
+            "results/candidate-calls/{{group}}.{{caller}}.{scatteritem}.bcf"
+        ),
     log:
-        "logs/scatter-candidates/{group}.{caller}.log"
+        "logs/scatter-candidates/{group}.{caller}.log",
     conda:
         "../envs/rbt.yaml"
     shell:
