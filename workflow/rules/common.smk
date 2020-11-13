@@ -112,6 +112,10 @@ def get_group_aliases(wildcards):
 def get_group_samples(wildcards):
     return samples.loc[samples["group"] == wildcards.group]["sample_name"]
 
+def get_group_sample_aliases(wildcards, controls=True):
+    if controls:
+        return samples.loc[samples["group"] == wildcards.group]["alias"]
+    return samples.loc[(samples["group"] == wildcards.group) & (samples["control"] == "no")]["alias"]
 
 def get_group_bams(wildcards, bai=False):
     ext = "bai" if bai else "bam"
@@ -175,9 +179,9 @@ def get_annotated_bcf(wildcards, group=None):
 def get_candidate_calls(wildcards):
     filter = config["calling"]["filter"].get("candidates")
     if filter:
-        return "results/candidate-calls/{group}.{caller}.filtered.bcf"
+        return "results/candidate-calls/{group}.{caller}.filtered.normalized.bcf"
     else:
-        return "results/candidate-calls/{group}.{caller}.bcf"
+        return "results/candidate-calls-normalized/{group}.{caller}.normalized.bcf"
 
 
 def get_oncoprint_batch(wildcards):

@@ -12,6 +12,7 @@ rule render_scenario:
     script:
         "../scripts/render-scenario.py"
 
+
 rule varlociraptor_preprocess:
     input:
         ref="resources/genome.fasta",

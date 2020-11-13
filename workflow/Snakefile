@@ -33,11 +33,12 @@ if is_activated("oncoprint/stratify"):
 
 rule all:
     input:
-        get_final_output(),
-        get_tmb_targets(),
-        expand("results/plots/oncoprint/{batch}.{event}.html",
-               event=config["calling"]["fdr-control"]["events"],
-               batch=batches)
+        expand("results/tables/{group}.{event}.fdr-controlled.xlsx", group=groups, event=config["calling"]["fdr-control"]["events"])
+        # get_final_output(),
+        # get_tmb_targets(),
+        # expand("results/plots/oncoprint/{batch}.{event}.html",
+        #        event=config["calling"]["fdr-control"]["events"],
+            #    batch=batches)
 
 
 rule benchmark:

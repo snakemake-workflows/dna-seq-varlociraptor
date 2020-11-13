@@ -33,3 +33,17 @@ rule delly:
     threads: lambda _, input: len(input.samples) # delly parallelizes over the number of samples
     wrapper:
         "0.60.0/bio/delly"
+
+
+rule normalize:
+    input:
+        bcf="results/candidate-calls/{x}.bcf",
+        ref="resources/genome.fasta"
+    output:
+        "results/candidate-calls/{x}.normalized.bcf"
+    log:
+        "logs/normalize/{x}.log"
+    conda:
+        "../envs/bcftools.yaml"
+    shell:
+        "bcftools norm -Ob -f {input.ref} {input.bcf} > {output} 2> {log}"
