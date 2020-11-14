@@ -82,11 +82,9 @@ properties:
       - max_read_depth
 
 
-  report:
+  table:
     type: object
     activate:
-      type: boolean
-    generate_excel:
       type: boolean
     properties:
       output:
@@ -96,13 +94,14 @@ properties:
             type: string
           genotype:
             type: boolean
-          coverage:
+          genotype:
             type: boolean
           event_prob:
             type: boolean
+    generate_excel:
+      type: boolean
     required:
       - activate
-
 
   tmb:
     type: object
