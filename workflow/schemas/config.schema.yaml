@@ -82,7 +82,7 @@ properties:
       - max_read_depth
 
 
-  table:
+  tables:
     type: object
     activate:
       type: boolean
