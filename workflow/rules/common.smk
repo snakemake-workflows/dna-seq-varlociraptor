@@ -43,7 +43,6 @@ validate(samples, schema="../schemas/samples.schema.yaml")
 units = pd.read_csv(config["units"], sep="\t", dtype={"sample_name": str, "unit_name": str}).set_index(["sample_name", "unit_name"], drop=False).sort_index()
 validate(units, schema="../schemas/units.schema.yaml")
 
-
 def get_recalibrate_quality_input(wildcards, bai=False):
     ext = "bai" if bai else "bam"
     if is_activated("remove_duplicates"):
@@ -166,9 +165,10 @@ def get_excluded_regions():
 
 def get_group_observations(wildcards):
     # TODO if group contains only a single sample, do not require sorting.
-    return expand("results/observations/{group}/{sample}.{caller}.sorted.bcf", 
+    return expand("results/observations/{group}/{sample}.{caller}.{scatteritem}.bcf", 
                   caller=wildcards.caller, 
                   group=wildcards.group,
+                  scatteritem=wildcards.scatteritem,
                   sample=get_group_samples(wildcards.group))
 
 def is_activated(xpath):
@@ -193,23 +193,32 @@ def get_tmb_targets():
         return []
 
 
-def get_annotated_bcf(wildcards, group=None):
-    if group is None:
-        group = wildcards.group
+def get_scattered_calls(ext=".bcf"):
+    Item = namedtuple("Item", ["caller", "sorted"])
+    def inner(wildcards):
+        return expand(
+            "results/calls/{{group}}.{item.caller}.{{scatteritem}}{item.sorted}{ext}",
+            item=[Item(c, "" if c == "freebayes" else ".sorted") for c in caller],
+            ext=ext,
+        )
+    return inner
+
+
+def get_annotated_bcf(wildcards):
     selection = ".annotated"
     if is_activated("annotations/vcfs"):
         selection += ".db-annotated"
     if is_activated("annotations/dgidb"):
         selection += ".dgidb"
-    return "results/calls/{group}{selection}.bcf".format(group=group, selection=selection)
+    return "results/calls/{group}.{scatteritem}{selection}.bcf".format(group=wildcards.group, selection=selection, scatteritem=wildcards.scatteritem)
 
 
-def get_candidate_calls(wildcards):
+def get_candidate_calls():
     filter = config["calling"]["filter"].get("candidates")
     if filter:
-        return "results/candidate-calls/{group}.{caller}.filtered.bcf"
+        return "results/candidate-calls/{group}.{caller}.{scatteritem}.filtered.bcf"
     else:
-        return "results/candidate-calls/{group}.{caller}.bcf"
+        return "results/candidate-calls/{group}.{caller}.{scatteritem}.bcf"
 
 
 def get_report_batch(wildcards):
@@ -254,7 +263,9 @@ def get_fdr_control_params(wildcards):
 wildcard_constraints:
     group="|".join(samples["group"].unique()),
     sample="|".join(samples["sample_name"]),
-    caller="|".join(["freebayes", "delly"])
+    caller="|".join(["freebayes", "delly"]),
+    scatteritem="[0-9]+",
+    filter="|".join(config["calling"]["filter"])
 
 caller=list(filter(None, ["freebayes" if is_activated("calling/freebayes") else None, "delly" if is_activated("calling/delly") else None]))
 

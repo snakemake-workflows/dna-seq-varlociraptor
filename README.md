@@ -47,31 +47,33 @@ Test your configuration by performing a dry-run via
 
 Execute the workflow locally via
 
-    snakemake --use-conda --cores $N
+    snakemake --use-conda --cores $N --set-scatter calls=$M
 
-using `$N` cores or run it in a cluster environment via
+using `$N` cores and `$M` separate calling and annotation jobs per sample.
+Alternatively, the workflow can be e.g. executed in a cluster environment via
 
-    snakemake --use-conda --cluster qsub --jobs 100
+    snakemake --use-conda --cluster qsub --jobs 100 --set-scatter calls=$M
 
 or
 
-    snakemake --use-conda --drmaa --jobs 100
+    snakemake --use-conda --drmaa --jobs 100 --set-scatter calls=$M
 
 If you not only want to fix the software stack but also the underlying OS, use
 
     snakemake --use-conda --use-singularity
 
 in combination with any of the modes above.
+
+Naturally, Snakemake workflow can also be executed **in the cloud**, and there are **specialized profiles available for all major cluster engines**.
 See the [Snakemake documentation](https://snakemake.readthedocs.io/en/stable/executable.html) for further details.
 
 #### Step 4: Investigate results
 
 After successful execution, you can create a self-contained interactive HTML report with all results via:
 
-    snakemake --report report.html
+    snakemake --report report.zip
 
 This report can, e.g., be forwarded to your collaborators.
-An example (using some trivial test data) can be seen [here](https://cdn.rawgit.com/snakemake-workflows/dna-seq-gatk-variant-calling/master/.test/report.html).
 
 #### Step 5: Commit changes
 
