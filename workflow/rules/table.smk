@@ -15,10 +15,12 @@ rule vembrane_table:
 
 rule tsv_to_excel:
     input:
-        tsv="{x}.tsv"
+        tsv="results/{x}.tsv"
     output:
-        xlsx="{x}.xlsx"
+        xlsx="results/{x}.xlsx"
     conda:
         "../envs/pandas.yaml"
+    log:
+        "logs/tsv_to_xlsx/{x}.log"
     script:
         "../scripts/tsv_to_xlsx.py"
