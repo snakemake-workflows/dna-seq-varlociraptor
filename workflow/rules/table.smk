@@ -19,7 +19,7 @@ rule tsv_to_excel:
     output:
         xlsx="results/{x}.xlsx"
     conda:
-        "../envs/pandas.yaml"
+        "../envs/excel.yaml"
     log:
         "logs/tsv_to_xlsx/{x}.log"
     script:
