@@ -1,3 +1,5 @@
+workdir: '.'
+
 samples: config/samples.tsv
 
 units: config/units.tsv

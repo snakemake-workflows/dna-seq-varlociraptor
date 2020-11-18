@@ -1,3 +1,5 @@
+workdir: '.'
+
 samples: config-chm-eval/samples.tsv
 
 units: config-chm-eval/units.tsv

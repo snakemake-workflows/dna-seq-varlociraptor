@@ -1,3 +1,5 @@
+workdir: '.'
+
 samples: config-sra/samples.tsv
 
 units: config-sra/units.tsv
