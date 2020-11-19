@@ -34,7 +34,10 @@ rule calc_consensus_reads:
     input:
         "results/mapped/{sample}.sorted.bam"
     output:
-        "results/consensus/{sample}.sorted.bam"
+        consensus_r1 = "results/consensus/fastq/{sample}.1.fq",
+        consensus_r2 = "results/consensus/fastq/{sample}.2.fq",
+        consensus_se = "results/consensus/fastq/{sample}.se.fq",
+        skipped="results/consensus/{sample}.skipped.bam"
     log:
         "logs/consensus/{sample}.log"
     conda:
@@ -42,6 +45,66 @@ rule calc_consensus_reads:
     shell:
         "rbt collapse-reads-to-fragments bam {input} {output} &> {log}"
 
+
+#Todo If working just integrate into rule
+rule map_consensus_se:
+    input:
+        reads="results/consensus/fastq/{sample}.se.fq",
+        idx=rules.bwa_index.output
+    output:
+        "results/consensus/{sample}.consensus.se.mapped.bam"
+    params:
+        index=lambda w, input: os.path.splitext(input.idx[0])[0],
+        extra=get_read_group,
+        sort="samtools",
+        sort_order="coordinate"
+    log:
+        "logs/bwa_mem/{sample}.se.consensus.log"
+    threads: 8
+    wrapper:
+        "0.67.0/bio/bwa/mem"
+
+rule map_consensus_pe:
+    input:
+        reads=["results/consensus/fastq/{sample}.1.fq", "results/consensus/fastq/{sample}.2.fq"],
+        idx=rules.bwa_index.output
+    output:
+        "results/consensus/{sample}.consensus.pe.mapped.bam"
+    params:
+        index=lambda w, input: os.path.splitext(input.idx[0])[0],
+        extra=get_read_group,
+        sort="samtools",
+        sort_order="coordinate"
+    log:
+        "logs/bwa_mem/{sample}.pe.consensus.log"
+    threads: 8
+    wrapper:
+        "0.67.0/bio/bwa/mem"
+
+
+rule merge_consensus_reads:
+    input:
+        "results/consensus/{sample}.skipped.bam",
+        "results/consensus/{sample}.consensus.se.mapped.bam",
+        "results/consensus/{sample}.consensus.pe.mapped.bam",
+    output:
+        "results/consensus/{sample}.merged.bam"
+    log:
+        "logs/samtools_merge/{sample}.log"
+    threads: 8
+    wrapper:
+        "0.67.0/bio/samtools/merge"
+
+rule sort_consensus_reads:
+    input:
+        "results/consensus/{sample}.merged.bam"
+    output:
+        "results/consensus/{sample}.sorted.bam"
+    log:
+        "logs/samtools_sort/{sample}.log"
+    threads: 8
+    wrapper:
+        "0.67.0/bio/samtools/sort"
 
 rule recalibrate_base_qualities:
     input:
