@@ -25,7 +25,7 @@ def get_final_output():
         final_output.extend(expand("results/tables/{group}.{event}.fdr-controlled.tsv",
                             group=groups,
                             event=config["calling"]["fdr-control"]["events"]))
-        if config["tables"].get("generate_excel", false):
+        if config["tables"].get("generate_excel", False):
             final_output.extend(expand("results/tables/{group}.{event}.fdr-controlled.xlsx",
                             group=groups,
                             event=config["calling"]["fdr-control"]["events"]))
