@@ -22,8 +22,6 @@ rule varlociraptor_preprocess:
         bai="results/recal/{sample}.sorted.bai"
     output:
         temp("results/observations/{group}/{sample}.{caller}.{scatteritem}.bcf")
-    params:
-        omit_isize = "--omit-insert-size" if is_activated("primers/trimming") else ""
     log:
         "logs/varlociraptor/preprocess/{group}/{sample}.{caller}.{scatteritem}.log"
     benchmark:
@@ -31,7 +29,7 @@ rule varlociraptor_preprocess:
     conda:
         "../envs/varlociraptor.yaml"
     shell:
-        "varlociraptor preprocess variants {params.omit_isize} --candidates {input.candidates} "
+        "varlociraptor preprocess variants --candidates {input.candidates} "
         "{input.ref} --bam {input.bam} --output {output} 2> {log}"
 
 

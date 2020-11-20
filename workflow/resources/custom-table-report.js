@@ -121,9 +121,9 @@ $(document).ready(function () {
             $('#Linkout'+ j).append('<div id="Div' + j +'" class="dropdown show">')
             $('#Div'+ j).append('<a class="btn btn-secondary dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Select source</a>')
             $('#Div'+ j).append('<div id="Button' + j + '" div class="dropdown-menu" aria-labelledby="dropdownMenuLink">')
-            $('#Button'+ j).append('<a class="dropdown-item" href="https://clinicaltrials.gov/ct2/results?cond=&term=' + gene + '&cntry=&state=&city=&dist=" target="_blank">ClinicalTrials</a><br>');
-            $('#Button'+ j).append('<a class="dropdown-item" href="https://www.cbioportal.org/ln?q=' + gene + '" target="_blank">cBioPortal</a><br>');
-            $('#Button'+ j).append('<a class="dropdown-item" href="https://oncokb.org/gene/' + gene + '" target="_blank">OncoKB</a><br>');
+            $('#Button'+ j).append('<a class="dropdown-item" href="https://clinicaltrials.gov/ct2/results?cond=&term=' + gene + '&cntry=&state=&city=&dist=" target="_blank">ClinicalTrials</a>');
+            $('#Button'+ j).append('<a class="dropdown-item" href="https://www.cbioportal.org/ln?q=' + gene + '" target="_blank">cBioPortal</a>');
+            $('#Button'+ j).append('<a class="dropdown-item" href="https://oncokb.org/gene/' + gene + '" target="_blank">OncoKB</a>');
             $('#Button'+ j).append('<a class="dropdown-item" href="https://www.ensembl.org/homo_sapiens/Gene/Summary?db=core;g='+ ensembl_id +'" target="_blank">Ensembl</a>');
             $('#Button'+ j).append('<a class="dropdown-item" href="https://whi.color.com/gene/'+ ensembl_id +'" target="_blank">FLOSSIES</a>');
             $('#Button'+ j).append('<a class="dropdown-item" href="https://varsome.com/gene/'+ gene +'" target="_blank">VarSome</a>');
@@ -531,6 +531,7 @@ $(document).ready(function () {
         function plotScores(score_type, scores, cell_id) {
             var x_title = {"SIFT": "1-score", "PolyPhen": "Score"}
             var ScoreSpec = {
+                "title": score_type,
                 "$schema": "https://vega.github.io/schema/vega-lite/v3.json",
                 "data": {
                     values: scores
