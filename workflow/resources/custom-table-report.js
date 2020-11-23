@@ -11,6 +11,11 @@ let score_scales = {}
 score_scales["SIFT"] = { "colors": ["#2ba6cb", "#ff5555"], "entries": ["Benign", "Damaging"] }
 score_scales["PolyPhen"] = { "colors": ["#2ba6cb", "#ffa3a3", "#ff5555"], "entries": ["Benign", "Possibly Damaging", "Probably Damaging"] }
 
+let amino_acid_coding = {"Ala": "A", "Arg": "R", "Asn": "N", "Asp": "D",
+"Cys": "C", "Glu": "E", "Gln": "Q", "Gly": "G", "His": "H", "Ile": "I", 
+"Leu": "L", "Lys": "K", "Met": "M", "Phe": "F", "Pro": "P", "Ser": "S",
+"Thr": "T", "Trp": "W", "Tyr": "Y", "Val": "V"}
+
 $(document).ready(function () {
 
 
@@ -34,6 +39,7 @@ $(document).ready(function () {
 
         for (let t = 1; t <= vis_len; t++) {
             let specs = $(this).data('vis' + t.toString());
+            console.log(specs);
             specs.data[1].values.forEach(function(a) {
                 if (a.row > 0 && Array.isArray(a.flags)) {
                     let flags = {};
@@ -113,17 +119,26 @@ $(document).ready(function () {
                 polyphen_scores = parse_score(polyphen_scores, polyphen_score, "PolyPhen", transcript)
             }
 
-            gene_field = 'ann[' + j + '][4]'
-            ensembl_field = 'ann[' + j + '][5]'
-            gene = $(that).data(gene_field)
-            ensembl_id = $(that).data(ensembl_field)
+            var gene_field = 'ann[' + j + '][4]'
+            var ensembl_field = 'ann[' + j + '][5]'
+            var gene = $(that).data(gene_field)
+            var ensembl_id = $(that).data(ensembl_field)
+            var var_aa_pos = $(that).data('ann[' + j + '][12]').split("p.")[1]
+            if (typeof(var_aa_pos) != "undefined") {
+                var aa_start = var_aa_pos.slice(0,3)
+                var aa_end = var_aa_pos.slice(-3)
+                var var_aa_pos = var_aa_pos.replace(aa_start, amino_acid_coding[aa_start]).replace(aa_end, amino_acid_coding[aa_end])
+            } else {
+                var var_aa_pos = ""
+            }
+
             $('#ann-sidebar').append('<td id="Linkout' + j +'">')
             $('#Linkout'+ j).append('<div id="Div' + j +'" class="dropdown show">')
             $('#Div'+ j).append('<a class="btn btn-secondary dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Select source</a>')
             $('#Div'+ j).append('<div id="Button' + j + '" div class="dropdown-menu" aria-labelledby="dropdownMenuLink">')
             $('#Button'+ j).append('<a class="dropdown-item" href="https://clinicaltrials.gov/ct2/results?cond=&term=' + gene + '&cntry=&state=&city=&dist=" target="_blank">ClinicalTrials</a>');
             $('#Button'+ j).append('<a class="dropdown-item" href="https://www.cbioportal.org/ln?q=' + gene + '" target="_blank">cBioPortal</a>');
-            $('#Button'+ j).append('<a class="dropdown-item" href="https://oncokb.org/gene/' + gene + '" target="_blank">OncoKB</a>');
+            $('#Button'+ j).append('<a class="dropdown-item" href="https://oncokb.org/gene/' + gene + '/' + var_aa_pos + '" target="_blank">OncoKB</a>');
             $('#Button'+ j).append('<a class="dropdown-item" href="https://www.ensembl.org/homo_sapiens/Gene/Summary?db=core;g='+ ensembl_id +'" target="_blank">Ensembl</a>');
             $('#Button'+ j).append('<a class="dropdown-item" href="https://whi.color.com/gene/'+ ensembl_id +'" target="_blank">FLOSSIES</a>');
             $('#Button'+ j).append('<a class="dropdown-item" href="https://varsome.com/gene/'+ gene +'" target="_blank">VarSome</a>');
