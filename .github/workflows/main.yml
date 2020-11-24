@@ -34,6 +34,13 @@ jobs:
         snakefile: workflow/Snakefile
         args: "--use-conda --show-failed-logs -j 10 --conda-cleanup-pkgs cache --conda-frontend mamba"
 
+    - name: Test workflow (local FASTQs, no candidate filtering)
+      uses: snakemake/snakemake-github-action@v1.12.0
+      with:
+        directory: .test
+        snakefile: workflow/Snakefile
+        args: "--configfile .test/config-no-candidate-filtering --dryrun --use-conda --show-failed-logs -j 10 --conda-cleanup-pkgs cache --conda-frontend mamba"
+
     - name: Test workflow (local FASTQs primer)
       uses: snakemake/snakemake-github-action@v1.12.0
       with:
