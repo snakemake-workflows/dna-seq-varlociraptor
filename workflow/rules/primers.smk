@@ -3,7 +3,7 @@ rule trim_primers:
         bams="results/recal/{sample}.filtered.bam",
         primers="results/primers/primer_regions.tsv",
     output:
-        "results/trimmed/{sample}.trimmed.bam"
+        bam = "results/trimmed/{sample}.trimmed.bam"
     params:
         sort_order="Coordinate"
     conda:
@@ -158,7 +158,7 @@ rule build_excluded_regions:
 # filter reads that map outside of the expected primer intervals
 rule filter_primerless_reads:
     input:
-        bam="results/recal/{sample}.sorted.bam",
+        unpack(lambda wildcards: get_bqsr_input(wildcards, "primers_trim")),
         regions="results/primers/primers.bed"
     output:
         "results/recal/{sample}.filtered.bam"

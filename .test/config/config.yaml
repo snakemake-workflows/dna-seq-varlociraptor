@@ -23,6 +23,21 @@ primers:
     library_error: 0
     library_length: 0
 
+mark_duplicates:
+  activate: true
+
+indel_realignment:
+  activate: false
+
+bqsr:
+  calmd:
+    activate: false
+
+  gatk_bqsr:
+    activate: true
+
+  mapdamage2:
+    activate: false
 
 # Estimation of tumor mutational burden.
 tmb:
@@ -75,11 +90,6 @@ annotations:
 
 params:
   cutadapt: ""
-  picard:
-    MarkDuplicates: ""
-  gatk:
-    BaseRecalibrator: ""
-    applyBQSR: ""
 
 report:
   activate: true

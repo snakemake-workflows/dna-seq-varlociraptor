@@ -43,12 +43,11 @@ validate(samples, schema="../schemas/samples.schema.yaml")
 units = pd.read_csv(config["units"], sep="\t", dtype={"sample_name": str, "unit_name": str}).set_index(["sample_name", "unit_name"], drop=False).sort_index()
 validate(units, schema="../schemas/units.schema.yaml")
 
-def get_recalibrate_quality_input(wildcards, bai=False):
-    ext = "bai" if bai else "bam"
+def get_recalibrate_quality_input(ext=["bam","bai"]):
     if is_activated("remove_duplicates"):
-        return "results/dedup/{}.sorted.{}".format(wildcards.sample, ext)
+        return ext_dict(expand_ext(rules.mark_duplicates.output.bam, ext))
     else:
-        return "results/mapped/{}.sorted.{}".format(wildcards.sample, ext)
+        return ext_dict(expand_ext(rules.map_reads.output, ext))
 
 
 def get_cutadapt_input(wildcards):
@@ -127,17 +126,15 @@ def get_group_sample_aliases(wildcards, controls=True):
         return samples.loc[samples["group"] == wildcards.group]["alias"]
     return samples.loc[(samples["group"] == wildcards.group) & (samples["control"] == "no")]["alias"]
 
-def get_group_bams(wildcards, bai=False):
-    ext = "bai" if bai else "bam"
-    if group_is_paired_end(wildcards.group) and is_activated("primers/trimming"):
-        return expand("results/trimmed/{sample}.trimmed.{ext}", sample=get_group_samples(wildcards.group), ext=ext)
-    return expand("results/recal/{sample}.sorted.{ext}", sample=get_group_samples(wildcards.group), ext=ext)
+def get_group_bams(wildcards, crai=False):
+    ext = "crai" if crai else "cram"
+    return expand_ext(partial_expand(rules.cram.output.cram, sample=get_group_samples(wildcards.group)), ext=ext)
 
 
 def get_group_bams_report(group):
     if group_is_paired_end(group) and is_activated("primers/trimming"):
-        return [(sample, "results/trimmed/{}.trimmed.bam".format(sample)) for sample in get_group_samples(group)]
-    return [(sample, "results/recal/{}.sorted.bam".format(sample)) for sample in get_group_samples(group)]
+        return [(sample, rules.trim_primers.output.bam.format(sample=sample)) for sample in get_group_samples(group)]
+    return [(sample, rules.cram.output.cram.format(sample=sample)) for sample in get_group_samples(group)]
 
 
 def get_batch_bams(wildcards, event=False):
@@ -194,11 +191,10 @@ def get_tmb_targets():
 
 
 def get_scattered_calls(ext=".bcf"):
-    Item = namedtuple("Item", ["caller", "sorted"])
     def inner(wildcards):
         return expand(
-            "results/calls/{{group}}.{item.caller}.{{scatteritem}}{item.sorted}{ext}",
-            item=[Item(c, "" if c == "freebayes" else ".sorted") for c in caller],
+            "results/calls/{{group}}.{caller}.{{scatteritem}}.sorted{ext}",
+            caller=caller,
             ext=ext,
         )
     return inner

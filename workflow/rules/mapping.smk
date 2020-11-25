@@ -25,50 +25,146 @@ rule mark_duplicates:
     log:
         "logs/picard/dedup/{sample}.log"
     params:
-        config["params"]["picard"]["MarkDuplicates"]
+        extra = config["mark_duplicates"].get("params", ""),
     wrapper:
-        "0.59.2/bio/picard/markduplicates"
+        "master/bio/picard/markduplicateswithmatecigar"
 
 
-rule recalibrate_base_qualities:
+############
+### BQSR ###
+############
+
+def get_bqsr_input(wildcards, rule, ext=["bam","bai"]):
+    for case in switch(rule):
+        if case('cram'):
+            if is_activated("bqsr/mapdamage2"):
+                return ext_dict(expand_ext(rules.mapdamage2.output.rescaled_bam, ext))
+        if case('mapdamage2'):
+            if is_activated("bqsr/gatk_bqsr"):
+                return ext_dict(expand_ext(rules.apply_gatk_bqsr.output.bam, ext))
+        if case('gatk_bqsr'):
+            if is_activated("bqsr/calmd"):
+                return ext_dict(expand_ext(rules.calmd.output.bam, ext))
+        if case('calmd'):
+            if is_activated("primers/trimming"):
+                return ext_dict(expand_ext(rules.trim_primers.output.bam, ext))
+        if case('primers_trim'):
+            if is_activated("indel_realignment"):
+                return ext_dict(expand_ext(rules.indel_realign.output.bam, ext))
+        if case('indel_realign'):
+            return get_recalibrate_quality_input(ext)
+
+
+rule indel_realign_create:
     input:
-        bam=get_recalibrate_quality_input,
-        bai=lambda w: get_recalibrate_quality_input(w, bai=True),
-        ref="resources/genome.fasta",
-        ref_dict="resources/genome.dict",
-        ref_fai="resources/genome.fasta.fai",
-        known="resources/variation.noiupac.vcf.gz",
-        tbi="resources/variation.noiupac.vcf.gz.tbi",
+        unpack(lambda wildcards: get_bqsr_input(wildcards, "indel_realign")),
+        ref = expand(rules.get_genome.output, **config['ref']),
+        known = expand(rules.remove_iupac_codes.output, **config['ref']),
+        tbi = expand(str(rules.remove_iupac_codes.output) + ".tbi", **config['ref']),
     output:
-        recal_table=temp("results/recal/{sample}.grp")
-    params:
-        extra=config["params"]["gatk"]["BaseRecalibrator"],
-        java_opts=""
+        intervals = temp("temp/indel_realign/create/{sample}.intervals")
     log:
-        "logs/gatk/baserecalibrator/{sample}.log"
+        "logs/indel_realign/create/{sample}.log"
+    params:
+        extra = config["indel_realignment"].get("params", {}).get("target_creator",""),
+    threads: 16
+    resources:
+        mem_mb = 10 * 1024,
+        time_min = 10 * 60,
+    wrapper:
+        "master/bio/gatk3/realignertargetcreator"
+
+ruleorder: indel_realign > bam_index
+rule indel_realign:
+    input:
+        unpack(lambda wildcards: get_bqsr_input(wildcards, "indel_realign")),
+        ref = expand(rules.get_genome.output, **config['ref']),
+        known = expand(rules.remove_iupac_codes.output, **config['ref']),
+        tbi = expand(str(rules.remove_iupac_codes.output) + ".tbi", **config['ref']),
+        target_intervals = rules.indel_realign_create.output,
+    output:
+        bam = temp("temp/indel_realign/{sample}.bam"),
+        bai = temp("temp/indel_realign/{sample}.bai"),
+    log:
+        "logs/indel_realign/{sample}.log"
+    params:
+        extra = config["indel_realignment"].get("params", {}).get("indel_realigner",""),
+    threads: 16
+    resources:
+        mem_mb = 10 * 1024,
+        time_min = 10 * 60,
+    wrapper:
+        "master/bio/gatk3/indelrealigner"
+
+
+rule calmd:
+    input:
+        aln = lambda wildcards: get_bqsr_input(wildcards, "calmd")["bam"],
+        ref = expand(rules.get_genome.output, **config['ref']),
+    output:
+        bam = temp("temp/bqsr/calmd/{sample}.bam"),
+    log:
+        "logs/bqsr/calmd/{sample}.log"
+    params:
+        extra = "",
+    wrapper:
+        "master/bio/samtools/calmd"
+
+
+rule create_gatk_bqsr:
+    input:
+        unpack(lambda wildcards: get_bqsr_input(wildcards, "gatk_bqsr")),
+        ref=expand(rules.get_genome.output, **config['ref']),
+        ref_dict=expand(rules.genome_dict.output, **config['ref']),
+        ref_fai=expand(rules.genome_faidx.output, **config['ref']),
+        known=expand(rules.remove_iupac_codes.output, **config['ref']),
+        tbi=expand(str(rules.remove_iupac_codes.output) + ".tbi", **config['ref']),
+    output:
+        recal_table=temp("temp/bqsr/gatk_bqsr/{sample}.grp"),
+    params:
+        extra=config["bqsr"]["gatk_bqsr"].get("params", {}).get("create_bqsr", ""),
+    log:
+        "logs/bqsr/gatk_bqsr/create/{sample}.log"
     threads: 8
+    resources:
+        mem_mb = 10 * 1024,
+        time_min = 10 * 60,
     wrapper:
-        "0.62.0/bio/gatk/baserecalibratorspark"
+        "0.67.0/bio/gatk/baserecalibratorspark"
 
 
-ruleorder: apply_bqsr > bam_index
-
-
-rule apply_bqsr:
+ruleorder: apply_gatk_bqsr > bam_index
+rule apply_gatk_bqsr:
     input:
-        bam=get_recalibrate_quality_input,
-        bai=lambda w: get_recalibrate_quality_input(w, bai=True),
-        ref="resources/genome.fasta",
-        ref_dict="resources/genome.dict",
-        ref_fai="resources/genome.fasta.fai",
-        recal_table="results/recal/{sample}.grp"
+        unpack(lambda wildcards: get_bqsr_input(wildcards, "gatk_bqsr")),
+        ref=expand(rules.get_genome.output, **config['ref']),
+        ref_dict=expand(rules.genome_dict.output, **config['ref']),
+        ref_fai=expand(rules.genome_faidx.output, **config['ref']),
+        recal_table=rules.create_gatk_bqsr.output.recal_table,
     output:
-        bam=protected("results/recal/{sample}.sorted.bam"),
-        bai="results/recal/{sample}.sorted.bai"
+        bam = temp("temp/bqsr/gatk_bqsr/{sample}.bam"),
+        bai = temp("temp/bqsr/gatk_bqsr/{sample}.bai"),
     log:
-        "logs/gatk/gatk_applybqsr/{sample}.log"
+        "logs/bqsr/gatk/gatk_bqsr/apply/{sample}.log"
     params:
-        extra=config["params"]["gatk"]["applyBQSR"],  # optional
-        java_opts="", # optional
+        extra = config["bqsr"]["gatk_bqsr"].get("params", {}).get("apply_bqsr", ""),
+    threads: 1
+    resources:
+        mem_mb = 10 * 1024,
+        time_min = 12 * 60,
     wrapper:
-        "0.62.0/bio/gatk/applybqsr"
+        "0.67.0/bio/gatk/applybqsr"
+
+
+rule cram:
+    input:
+        unpack(lambda wildcards: get_bqsr_input(wildcards, "cram")),
+        ref = expand(rules.get_genome.output, **config['ref']),
+    output:
+        cram = protected("results/cram/{sample}.cram"),
+    log:
+        "logs/cram/{sample}.log"
+    params:
+        lambda wildcards, input: f"--reference {input.ref} --output-fmt CRAM"
+    wrapper:
+        "0.67.0/bio/samtools/view"

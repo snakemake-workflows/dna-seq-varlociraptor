@@ -24,6 +24,21 @@ primers:
     library_error: 174
     library_length: 104
 
+mark_duplicates:
+  activate: true
+
+indel_realignment:
+  activate: false
+
+bqsr:
+  calmd:
+    activate: false
+
+  gatk_bqsr:
+    activate: true
+
+  mapdamage2:
+    activate: false
 
 # Estimation of tumor mutational burden.
 tmb:
@@ -58,8 +73,6 @@ calling:
         filter: moderate
 
 annotations:
-  dbnsfp:
-    activate: false
   vcfs:
     activate: true
     known: resources/variation.vcf.gz
@@ -67,15 +80,15 @@ annotations:
     activate: true
     datasources:
       - DrugBank
-
+  vep:
+    params: --everything
+    plugins:
+      # Add any plugin from https://www.ensembl.org/info/docs/tools/vep/script/vep_plugins.html
+      # Plugin args can be passed as well, e.g. "LoFtool,path/to/custom/scores.txt".
+      - LoFtool
 
 params:
   cutadapt: ""
-  picard:
-    MarkDuplicates: ""
-  gatk:
-    BaseRecalibrator: ""
-    applyBQSR: ""
 
 report:
   activate: true
