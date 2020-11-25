@@ -17,7 +17,7 @@ rule varlociraptor_preprocess:
     input:
         ref="resources/genome.fasta",
         ref_idx="resources/genome.fasta.fai",
-        candidates=get_candidate_calls,
+        candidates=get_candidate_calls(),
         bam="results/recal/{sample}.sorted.bam",
         bai="results/recal/{sample}.sorted.bai"
     output:
