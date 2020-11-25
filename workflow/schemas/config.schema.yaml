@@ -82,6 +82,27 @@ properties:
       - max_read_depth
 
 
+  tables:
+    type: object
+    activate:
+      type: boolean
+    properties:
+      output:
+        type: object
+        properties:
+          expression:
+            type: string
+          genotype:
+            type: boolean
+          genotype:
+            type: boolean
+          event_prob:
+            type: boolean
+    generate_excel:
+      type: boolean
+    required:
+      - activate
+
   tmb:
     type: object
     properties:
