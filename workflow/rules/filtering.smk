@@ -1,10 +1,10 @@
 rule filter_candidates_by_annotation:
     input:
-        "results/candidate-calls/{group}.{scatteritem}.annotated.bcf"
+        "results/candidate-calls/{group}.{caller}.{scatteritem}.annotated.bcf"
     output:
-        "results/candidate-calls/{group}.{scatteritem}.filtered.bcf"
+        "results/candidate-calls/{group}.{caller}.{scatteritem}.filtered.bcf"
     log:
-        "logs/filter-calls/annotation/{group}.{scatteritem}.log"
+        "logs/filter-calls/annotation/{group}.{caller}.{scatteritem}.log"
     params:
         filter=lambda w: config["calling"]["filter"]["candidates"]
     conda:
