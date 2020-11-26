@@ -34,27 +34,6 @@ rule mark_duplicates:
 ### BQSR ###
 ############
 
-def get_bqsr_input(wildcards, rule, ext=["bam","bai"]):
-    for case in switch(rule):
-        if case('cram'):
-            if is_activated("bqsr/mapdamage2"):
-                return ext_dict(expand_ext(rules.mapdamage2.output.rescaled_bam, ext))
-        if case('mapdamage2'):
-            if is_activated("bqsr/gatk_bqsr"):
-                return ext_dict(expand_ext(rules.apply_gatk_bqsr.output.bam, ext))
-        if case('gatk_bqsr'):
-            if is_activated("bqsr/calmd"):
-                return ext_dict(expand_ext(rules.calmd.output.bam, ext))
-        if case('calmd'):
-            if is_activated("primers/trimming"):
-                return ext_dict(expand_ext(rules.trim_primers.output.bam, ext))
-        if case('primers_trim'):
-            if is_activated("indel_realignment"):
-                return ext_dict(expand_ext(rules.indel_realign.output.bam, ext))
-        if case('indel_realign'):
-            return get_recalibrate_quality_input(ext)
-
-
 rule indel_realign_create:
     input:
         unpack(lambda wildcards: get_bqsr_input(wildcards, "indel_realign")),
