@@ -6,11 +6,10 @@ rule filter_candidates_by_annotation:
     log:
         "logs/filter-calls/annotation/{group}.{scatteritem}.log"
     params:
-        filter=lambda w: config["calling"]["filter"]["candidates"]
-    conda:
-        "../envs/vembrane.yaml"
-    shell:
-        "vembrane filter {params.filter:q} {input} --output-fmt bcf --output {output} &> {log}"
+        expression = lambda w: config["calling"]["filter"]["candidates"],
+        extra = "--output-fmt bcf",
+    wrapper:
+        "master/bio/vembrane/filter"
 
 
 rule filter_by_annotation:
@@ -21,11 +20,10 @@ rule filter_by_annotation:
     log:
         "logs/filter-calls/annotation/{group}.{filter}.{scatteritem}.log"
     params:
-        filter=lambda w: config["calling"]["filter"][w.filter]
-    conda:
-        "../envs/vembrane.yaml"
-    shell:
-        "vembrane filter {params.filter:q} {input} --output-fmt bcf --output {output} &> {log}"
+        expression = lambda w: config["calling"]["filter"][w.filter],
+        extra = "--output-fmt bcf",
+    wrapper:
+        "master/bio/vembrane/filter"
 
 
 rule filter_odds:
