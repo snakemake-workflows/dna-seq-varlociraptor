@@ -26,18 +26,25 @@ include: "rules/vega.smk"
 include: "rules/utils.smk"
 include: "rules/primers.smk"
 include: "rules/table.smk"
+include: "rules/pool.smk"
 
 groups = samples["group"].unique()
 
-batches = "all"
-if is_activated("report/stratify"):
-    batches = samples[config["report"]["stratify"]["by-column"]].unique()
+#batches = "all"
+#if is_activated("report/stratify"):
+#    batches = samples[config["report"]["stratify"]["by-column"]].unique()
+
+
+#rule all:
+#    input:
+        #get_final_output(),
+        #get_tmb_targets(),
 
 
 rule all:
     input:
-        get_final_output(),
-        get_tmb_targets(),
+        expand("results/recal/{sample}.sorted.bam", sample=samples.sample_name),
+        expand("results/candidates/hg19/{person_id}.hg19_candidates.vcf", person_id=person_id)
 
 
 rule benchmark:
