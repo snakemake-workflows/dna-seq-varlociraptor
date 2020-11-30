@@ -79,7 +79,27 @@ rule prepocess_father_pool:
         " {input.fasta} "
         "--bam {input.pool_bam} "
         "--candidates {input.candidates_vcf} "
-        "> {output} "
+        ">{output} "
+        "2>{log} "
+
+
+rule prepocess_mother_pool:
+    input:
+        candidates_vcf = "results/candidates/hg38/{person_id}.hg38_candidates.vcf",
+        pool_bam = "results/recal/{mother_pool_id}.sorted.bam",
+        fasta = "resources/genome.fasta"
+    output:
+        "results/observations/{person_id}.{mother_pool_id}.mother_pool_observations.bcf"
+    log:
+        "results/log/{person_id}.{mother_pool_id}.prepocess_mother_pool.log"
+    conda:
+        "../envs/varlociraptor.yaml"
+    shell:
+        "varlociraptor preprocess variants "
+        " {input.fasta} "
+        "--bam {input.pool_bam} "
+        "--candidates {input.candidates_vcf} "
+        ">{output} "
         "2>{log} "
 
 
