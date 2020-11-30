@@ -103,11 +103,34 @@ rule prepocess_mother_pool:
         "2>{log} "
 
 
+rule calls:
+    input:
+        scenario = "config/parent_pools.scenario.yaml",
+        father_pool = "results/observations/{person_id}.{father_pool_id}.father_pool_observations.bcf",
+        mother_pool = "results/observations/{person_id}.{mother_pool_id}.mother_pool_observations.bcf"
+    output:
+        "results/calls/{person_id}.{father_pool_id}.{mother_pool_id}.calls.bcf"
+    log:
+        "results/log/{person_id}.{father_pool_id}.{mother_pool_id}.calls.log"
+    conda:
+        "../envs/varlociraptor.yaml"
+    shell:
+        "varlociraptor call variants "
+        "generic "
+        "--scenario {input.scenario} "
+        "--obs "
+        "father_pool={input.father_pool} "
+        "mother_pool={input.mother_pool} "
+        ">{output} "
+        "2>{log} "
+
+
 # rule annotate_varvis:
-    # input:
-        # "varvis.tsv"
-        #   "varlociraptor.vcf"
-    # output:
-        # "results/parent_annotated/{candidates}.{poolfather}.{poolmothers}.csv"
-    # shell:
-        # ""
+#     input:
+#         "varvis.tsv"
+#           "varlociraptor.vcf"
+#     output:
+#         "results/parent_annotated/{candidates}.{father_pool_id}.{mother_pool_id}.csv"
+#     shell:
+#         ""
+
