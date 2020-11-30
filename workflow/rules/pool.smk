@@ -16,7 +16,7 @@ rule varvis_hg19_csv_to_candidates_vcf:
         "> {log} "
 
 
-## rule hg19_vcf_to_bed:
+## rule hg19_candidates_vcf_to_bed:
 ##     input:
 ##         "results/candidates/hg19/{person_id}.hg19_candidates.vcf"
 ##     output:
@@ -63,7 +63,27 @@ rule picard_liftovervcf:
         ">{log} 2>&1 "
 
 
-# rule annotatevarvis:
+rule prepocess_father_pool:
+    input:
+        candidates_vcf = "results/candidates/hg38/{person_id}.hg38_candidates.vcf",
+        pool_bam = "results/recal/{father_pool_id}.sorted.bam",
+        fasta = "resources/genome.fasta"
+    output:
+        "results/observations/{person_id}.{father_pool_id}.father_pool_observations.bcf"
+    log:
+        "results/log/{person_id}.{father_pool_id}.prepocess_father_pool.log"
+    conda:
+        "../envs/varlociraptor.yaml"
+    shell:
+        "varlociraptor preprocess variants "
+        " {input.fasta} "
+        "--bam {input.pool_bam} "
+        "--candidates {input.candidates_vcf} "
+        "> {output} "
+        "2>{log} "
+
+
+# rule annotate_varvis:
     # input:
         # "varvis.tsv"
         #   "varlociraptor.vcf"
