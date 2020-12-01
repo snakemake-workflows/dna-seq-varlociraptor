@@ -7,7 +7,7 @@ samples:
     universe: "[0.0,1.0]"
 
 events:
-  father_rare:            "father_pool:]0.0,1.0] & mother_pool:0.0"
-  mother_rare:            "mother_pool:]0.0,1.0] & father_pool:0.0"
-  father_and_mother_rare: "father_pool:]0.0,1.0] & mother_pool:]0.0,1.0]"
+  father_only:            "father_pool:]0.0,1.0] & mother_pool:0.0"
+  mother_only:            "mother_pool:]0.0,1.0] & father_pool:0.0"
+  father_and_mother: "father_pool:]0.0,1.0] & mother_pool:]0.0,1.0]"
   
