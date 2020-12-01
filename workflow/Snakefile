@@ -54,7 +54,10 @@ rule all:
         ## preprocess
         expand("results/observations/{person_id}.{father_pool_id}.father_pool_observations.bcf", person_id=person_id, father_pool_id=config["father_pool_id"]),
         expand("results/observations/{person_id}.{mother_pool_id}.mother_pool_observations.bcf", person_id=person_id, mother_pool_id=config["mother_pool_id"]),
-        expand("results/calls/{person_id}.{father_pool_id}.{mother_pool_id}.calls.bcf", person_id=person_id, father_pool_id=config["father_pool_id"], mother_pool_id=config["mother_pool_id"]),
+        expand("results/calls/hg38/{person_id}.{father_pool_id}.{mother_pool_id}.calls.vcf", person_id=person_id, father_pool_id=config["father_pool_id"], mother_pool_id=config["mother_pool_id"]),
+        "resources/hg38ToHg19.over.chain.gz",
+        expand("resources/genome_hg19.{ext}", ext=["fasta", "fasta.dict"]),
+        expand("results/calls/hg19/{person_id}.{father_pool_id}.{mother_pool_id}.calls.vcf", person_id=person_id, father_pool_id=config["father_pool_id"], mother_pool_id=config["mother_pool_id"], ext=["vcf", "rejected.vcf"]),
 
 
 rule benchmark:

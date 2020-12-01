@@ -38,10 +38,10 @@ rule download_hg19ToHg38_over_chain:
         "| pigz -dc "
         "| sed 's/chr//g' " # convert chromosome names to Ensembl style
         "| pigz -9 "
-        "> {output}"
+        "> {output} "
 
 
-rule picard_liftovervcf:
+rule picard_liftovervcf_hg19ToHg38:
     input:
         vcf = "results/candidates/hg19/{person_id}.hg19_candidates.vcf",
         chain = "resources/hg19ToHg38.over.chain.gz",
@@ -109,9 +109,9 @@ rule calls:
         father_pool = "results/observations/{person_id}.{father_pool_id}.father_pool_observations.bcf",
         mother_pool = "results/observations/{person_id}.{mother_pool_id}.mother_pool_observations.bcf"
     output:
-        "results/calls/{person_id}.{father_pool_id}.{mother_pool_id}.calls.bcf"
+        "results/calls/hg38/{person_id}.{father_pool_id}.{mother_pool_id}.calls.bcf"
     log:
-        "results/log/{person_id}.{father_pool_id}.{mother_pool_id}.calls.log"
+        "results/log/{person_id}.{father_pool_id}.{mother_pool_id}.hg38.calls.log"
     conda:
         "../envs/varlociraptor.yaml"
     shell:
@@ -123,6 +123,71 @@ rule calls:
         "mother_pool={input.mother_pool} "
         ">{output} "
         "2>{log} "
+
+
+rule calls_bcf_to_vcf:
+    input:
+        "results/calls/hg38/{person_id}.{father_pool_id}.{mother_pool_id}.calls.bcf"
+    output:
+        "results/calls/hg38/{person_id}.{father_pool_id}.{mother_pool_id}.calls.vcf"
+    conda:
+        "../envs/bcftools.yaml"
+    shell:
+        "bcftools view {input} "
+        ">{output} "
+
+
+rule download_hg38ToHg19_over_chain:
+    output:
+        "resources/hg38ToHg19.over.chain.gz" # UCSC style chromosome names
+    cache:
+        True
+    shell:
+        "curl -L http://hgdownload.soe.ucsc.edu/goldenPath/hg38/liftOver/hg38ToHg19.over.chain.gz "
+        "| pigz -dc "
+        "| sed 's/chr//g' " # convert chromosome names to Ensembl style
+        "| pigz -9 "
+        "> {output} "
+
+
+rule download_hg19_fasta:
+    output:
+        fasta = "resources/genome_hg19.fasta", # UCSC style chromosome names
+        dict = "resources/genome_hg19.fasta.dict"
+    cache:
+        True
+    conda:
+        "../envs/picard.yaml"
+    shell:
+        "curl -L ftp://ftp.ensembl.org/pub/grch37/release-100/fasta/homo_sapiens/dna/Homo_sapiens.GRCh37.dna.primary_assembly.fa.gz "
+        "| pigz -dc "
+        "> {output.fasta} "
+        "&& picard CreateSequenceDictionary "
+        "REFERENCE={output.fasta} "
+        "OUTPUT={output.dict} "
+
+
+rule picard_liftovervcf_hg38ToHg19:
+    input:
+        vcf = "results/calls/hg38/{person_id}.{father_pool_id}.{mother_pool_id}.calls.vcf",
+        chain = "resources/hg38ToHg19.over.chain.gz",
+        fasta = "resources/genome_hg19.fasta"
+    output:
+        vcf="results/calls/hg19/{person_id}.{father_pool_id}.{mother_pool_id}.calls.vcf",
+        reject="results/calls/hg19/{person_id}.{father_pool_id}.{mother_pool_id}.calls.rejected.vcf"
+    log:
+        "results/log/{person_id}.{father_pool_id}.{mother_pool_id}.picard_liftovervcf_hg38ToHg19.log"
+    conda:
+        "../envs/picard.yaml"
+    shell:
+        "picard -Xmx6g LiftoverVcf "
+        "I={input.vcf} "
+        "CHAIN={input.chain} "
+        "R={input.fasta} "
+        "O={output.vcf} "
+        "REJECT={output.reject} "
+        ">{log} 2>&1 "
+
 
 
 # rule annotate_varvis:
