@@ -2,4 +2,5 @@ channels:
   - conda-forge
   - bioconda
 dependencies:
+  - python =3.8
   - vembrane =0.5.2
