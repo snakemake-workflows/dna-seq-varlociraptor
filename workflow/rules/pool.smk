@@ -189,6 +189,58 @@ rule picard_liftovervcf_hg38ToHg19:
         ">{log} 2>&1 "
 
 
+## ##FORMAT=<ID=OBS,Number=A,Type=String,Description="Summary of observations. Each entry is encoded as CBTSO,
+## with C being a count,
+## B being the posterior odds for the alt allele (see below),
+## T being the type of alignment, encoded as s=single end and p=paired end,
+## S being the strand that supports the observation (+, -, or * for both), and
+## O being the read orientation (> = F1R2, < = F2R1, * = unknown, ! = non standard, e.g. R1F2).
+## Posterior odds (B) for alt allele of each fragment are given as extended Kass Raftery scores:
+##      N=none, E=equal, B=barely, P=positive, S=strong, V=very strong (lower case if probability for correct mapping
+##      of fragment is <95%). Thereby we extend Kass Raftery scores
+##      with a term for equality between the evidence of the two alleles (E=equal).">
+##
+## example:
+## 1Np+<28Np-<22Np+>15Np->4Ns+*4Ns-*
+## 1Np+< 28Np-< 22Np+> 15Np-> 4Ns+* 4Ns-*
+##
+## 1 mal Referenzbase mit forward readpair
+## 28 mal Referenzbase mit reverse readpair
+## 22 mal Referenzbase mit forward readpair
+## 15 mal Referenzbase mit reverse readpair
+## 4 forward Reads haben hier einen split
+## 4 reverse Reads haben hier einen split
+
+
+rule vembrane:
+    input:
+        "results/calls/hg38/{person_id}.{father_pool_id}.{mother_pool_id}.calls.vcf"
+    output:
+        "results/calls/hg38/AF/{person_id}.{father_pool_id}.{mother_pool_id}.AF.tsv"
+    conda:
+        "../envs/vembrane.yaml"
+    shell:
+        "vembrane table "
+        "--header 'ID, FATHER_N_REF, FATHER_N_ALT, FATHER_PROB, MOTHER_N_REF, MOTHER_N_ALT, MOTHER_PROB' "
+        """"ID, """
+        """sum(map(int, re.findall('(\d+)[N]', FORMAT['OBS']['father_pool']))), """ 
+        """sum(map(int, re.findall('(\d+)[VS]', FORMAT['OBS']['father_pool']))), """
+        ## """1.0 * sum(map(int, re.findall('(\d+)[VS]', FORMAT['OBS']['father_pool']))) / sum(map(int, re.findall('(\d+)[NVS]', FORMAT['OBS']['father_pool']))), """
+        """10 ** (-INFO['PROB_FATHER_ONLY']/10), """
+        """sum(map(int, re.findall('(\d+)[N]', FORMAT['OBS']['mother_pool']))), """
+        """sum(map(int, re.findall('(\d+)[VS]', FORMAT['OBS']['mother_pool']))), """
+        ## """1.0 * sum(map(int, re.findall('(\d+)[VS]', FORMAT['OBS']['mother_pool']))) / sum(map(int, re.findall('(\d+)[NVS]', FORMAT['OBS']['mother_pool']))), """
+        """10 ** (-INFO['PROB_MOTHER_ONLY']/10)" """
+        "{input} "
+        "| dos2unix "
+        ">{output}.temp "
+        "&& ("
+        """echo -e "$(head -1 {output}.temp)\tFATHER_AF\tMOTHER_AF" """
+        "&& tail -n+2 {output}.temp "
+        """| awk 'BEGIN{{OFS="\t"}}{{if ($2==0) {{FATHER_AF="NA"}} else {{FATHER_AF=$3/($2+$3)}}; if ($5==0) {{MOTHER_AF="NA"}} else {{MOTHER_AF=$6/($5+$6)}}; print $0, FATHER_AF, MOTHER_AF}}'"""
+        ") >{output} "
+        "&& rm {output}.temp "
+
 
 # rule annotate_varvis:
 #     input:

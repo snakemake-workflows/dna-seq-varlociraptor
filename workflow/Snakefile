@@ -58,7 +58,7 @@ rule all:
         "resources/hg38ToHg19.over.chain.gz",
         expand("resources/genome_hg19.{ext}", ext=["fasta", "fasta.dict"]),
         expand("results/calls/hg19/{person_id}.{father_pool_id}.{mother_pool_id}.calls.vcf", person_id=person_id, father_pool_id=config["father_pool_id"], mother_pool_id=config["mother_pool_id"], ext=["vcf", "rejected.vcf"]),
-
+        expand("results/calls/hg38/AF/{person_id}.{father_pool_id}.{mother_pool_id}.AF.tsv", person_id=person_id, father_pool_id=config["father_pool_id"], mother_pool_id=config["mother_pool_id"]),
 
 rule benchmark:
     input:
