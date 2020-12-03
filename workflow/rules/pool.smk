@@ -216,33 +216,23 @@ rule vembrane:
     input:
         "results/calls/hg38/{upload_id}.{father_pool_id}.{mother_pool_id}.calls.vcf"
     output:
-        "results/calls/hg38/AF/{upload_id}.{father_pool_id}.{mother_pool_id}.tsv"
+        "results/calls/hg38/tsv/{upload_id}.{father_pool_id}.{mother_pool_id}.tsv"
     conda:
         "../envs/vembrane.yaml"
     shell:
         "vembrane table "
         "--header 'ID, FATHER_N_REF, FATHER_N_ALT, MOTHER_N_REF, MOTHER_N_ALT, PROB_FATHER_ONLY, PROB_MOTHER_ONLY, PROB_FATHER_AND_MOTHER' "
         """"ID, """
-        """sum(map(int, re.findall('(\d+)[N]', FORMAT['OBS']['father_pool']))), """ 
-        """sum(map(int, re.findall('(\d+)[VS]', FORMAT['OBS']['father_pool']))), """
-        ## """sum(map(int, re.findall('(\d+)[NVS]', FORMAT['OBS']['father_pool']))), """
-        ##"""sum(map(int, re.findall('(\d+)[VS]', FORMAT['OBS']['father_pool']))) / sum(map(int, re.findall('(\d+)[NVS]', FORMAT['OBS']['father_pool']))), """
-        """sum(map(int, re.findall('(\d+)[N]', FORMAT['OBS']['mother_pool']))), """
-        """sum(map(int, re.findall('(\d+)[VS]', FORMAT['OBS']['mother_pool']))), """
-        ## """sum(map(int, re.findall('(\d+)[NVS]', FORMAT['OBS']['mother_pool']))), """
-        ## """sum(map(int, re.findall('(\d+)[VS]', FORMAT['OBS']['mother_pool']))) / sum(map(int, re.findall('(\d+)[NVS]', FORMAT['OBS']['mother_pool']))), """
+        """sum(map(int, re.findall('(\d+)[N]', FORMAT['OBS']['father_pool']))), """ # REF
+        """sum(map(int, re.findall('(\d+)[VS]', FORMAT['OBS']['father_pool']))), """ # Alt
+        """sum(map(int, re.findall('(\d+)[N]', FORMAT['OBS']['mother_pool']))), """ # REF
+        """sum(map(int, re.findall('(\d+)[VS]', FORMAT['OBS']['mother_pool']))), """ # ALT
         """10 ** (-INFO['PROB_FATHER_ONLY'] / 10), """
         """10 ** (-INFO['PROB_MOTHER_ONLY'] / 10), """
         """10 ** (-INFO['PROB_FATHER_AND_MOTHER'] / 10)" """
         "{input} "
         "| dos2unix "
         ">{output} "
-        # "&& ("
-        # """echo -e "$(head -1 {output}.temp)\tFATHER_AF\tMOTHER_AF" """
-        # "&& tail -n+2 {output}.temp "
-        # """| awk 'BEGIN{{OFS="\t"}}{{if ($2==0) {{FATHER_AF="NA"}} else {{FATHER_AF=$3/($2+$3)}}; if ($5==0) {{MOTHER_AF="NA"}} else {{MOTHER_AF=$6/($5+$6)}}; print $0, FATHER_AF, MOTHER_AF}}'"""
-        # ") >{output} "
-        # "&& rm {output}.temp "
 
 
 # rule annotate_varvis:
