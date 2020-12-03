@@ -62,15 +62,15 @@ rule picard_liftovervcf_hg19ToHg38:
         ">{log} 2>&1 "
 
 
-rule prepocess_father_pool:
+rule prepocess_fathers_pool:
     input:
         candidates_vcf = "results/candidates/hg38/{upload_id}.hg38_candidates.vcf",
-        pool_bam = "results/recal/{father_pool_id}.sorted.bam",
+        pool_bam = "results/recal/{fathers_pool_id}.sorted.bam",
         fasta = "resources/genome.fasta"
     output:
-        "results/observations/{upload_id}.{father_pool_id}.father_pool_observations.bcf"
+        "results/observations/{upload_id}.{fathers_pool_id}.fathers_pool_observations.bcf"
     log:
-        "results/log/{upload_id}.{father_pool_id}.prepocess_father_pool.log"
+        "results/log/{upload_id}.{fathers_pool_id}.preprocess_fathers_pool.log"
     conda:
         "../envs/varlociraptor.yaml"
     shell:
@@ -82,15 +82,15 @@ rule prepocess_father_pool:
         "2>{log} "
 
 
-rule prepocess_mother_pool:
+rule prepocess_mothers_pool:
     input:
         candidates_vcf = "results/candidates/hg38/{upload_id}.hg38_candidates.vcf",
-        pool_bam = "results/recal/{mother_pool_id}.sorted.bam",
+        pool_bam = "results/recal/{mothers_pool_id}.sorted.bam",
         fasta = "resources/genome.fasta"
     output:
-        "results/observations/{upload_id}.{mother_pool_id}.mother_pool_observations.bcf"
+        "results/observations/{upload_id}.{mothers_pool_id}.mothers_pool_observations.bcf"
     log:
-        "results/log/{upload_id}.{mother_pool_id}.prepocess_mother_pool.log"
+        "results/log/{upload_id}.{mothers_pool_id}.preprocess_mothers_pool.log"
     conda:
         "../envs/varlociraptor.yaml"
     shell:
@@ -105,12 +105,12 @@ rule prepocess_mother_pool:
 rule calls:
     input:
         scenario = "config/parent_pools.scenario.yaml",
-        father_pool = "results/observations/{upload_id}.{father_pool_id}.father_pool_observations.bcf",
-        mother_pool = "results/observations/{upload_id}.{mother_pool_id}.mother_pool_observations.bcf"
+        fathers_pool = "results/observations/{upload_id}.{fathers_pool_id}.fathers_pool_observations.bcf",
+        mothers_pool = "results/observations/{upload_id}.{mothers_pool_id}.mothers_pool_observations.bcf"
     output:
-        "results/calls/hg38/{upload_id}.{father_pool_id}.{mother_pool_id}.calls.bcf"
+        "results/calls/hg38/{upload_id}.{fathers_pool_id}.{mothers_pool_id}.calls.bcf"
     log:
-        "results/log/{upload_id}.{father_pool_id}.{mother_pool_id}.hg38.calls.log"
+        "results/log/{upload_id}.{fathers_pool_id}.{mothers_pool_id}.hg38.calls.log"
     conda:
         "../envs/varlociraptor.yaml"
     shell:
@@ -118,17 +118,17 @@ rule calls:
         "generic "
         "--scenario {input.scenario} "
         "--obs "
-        "father_pool={input.father_pool} "
-        "mother_pool={input.mother_pool} "
+        "fathers_pool={input.fathers_pool} "
+        "mothers_pool={input.mothers_pool} "
         ">{output} "
         "2>{log} "
 
 
 rule calls_bcf_to_vcf:
     input:
-        "results/calls/hg38/{upload_id}.{father_pool_id}.{mother_pool_id}.calls.bcf"
+        "results/calls/hg38/{upload_id}.{fathers_pool_id}.{mothers_pool_id}.calls.bcf"
     output:
-        "results/calls/hg38/{upload_id}.{father_pool_id}.{mother_pool_id}.calls.vcf"
+        "results/calls/hg38/{upload_id}.{fathers_pool_id}.{mothers_pool_id}.calls.vcf"
     conda:
         "../envs/bcftools.yaml"
     shell:
@@ -168,14 +168,14 @@ rule calls_bcf_to_vcf:
 ##
 ## rule picard_liftovervcf_hg38ToHg19:
 ##     input:
-##         vcf = "results/calls/hg38/{upload_id}.{father_pool_id}.{mother_pool_id}.calls.vcf",
+##         vcf = "results/calls/hg38/{upload_id}.{fathers_pool_id}.{mothers_pool_id}.calls.vcf",
 ##         chain = "resources/hg38ToHg19.over.chain.gz",
 ##         fasta = "resources/genome_hg19.fasta"
 ##     output:
-##         vcf="results/calls/hg19/{upload_id}.{father_pool_id}.{mother_pool_id}.calls.vcf",
-##         reject="results/calls/hg19/{upload_id}.{father_pool_id}.{mother_pool_id}.calls.rejected.vcf"
+##         vcf="results/calls/hg19/{upload_id}.{fathers_pool_id}.{mothers_pool_id}.calls.vcf",
+##         reject="results/calls/hg19/{upload_id}.{fathers_pool_id}.{mothers_pool_id}.calls.rejected.vcf"
 ##     log:
-##         "results/log/{upload_id}.{father_pool_id}.{mother_pool_id}.picard_liftovervcf_hg38ToHg19.log"
+##         "results/log/{upload_id}.{fathers_pool_id}.{mothers_pool_id}.picard_liftovervcf_hg38ToHg19.log"
 ##     conda:
 ##         "../envs/picard.yaml"
 ##     shell:
@@ -213,22 +213,25 @@ rule calls_bcf_to_vcf:
 
 rule vembrane:
     input:
-        "results/calls/hg38/{upload_id}.{father_pool_id}.{mother_pool_id}.calls.vcf"
+        "results/calls/hg38/{upload_id}.{fathers_pool_id}.{mothers_pool_id}.calls.vcf"
     output:
-        "results/calls/hg38/vembrane/{upload_id}.{father_pool_id}.{mother_pool_id}.tsv"
+        "results/calls/hg38/vembrane/{upload_id}.{fathers_pool_id}.{mothers_pool_id}.tsv"
     conda:
         "../envs/vembrane.yaml"
     shell:
         "vembrane table "
-        "--header 'ID, FATHER_N_COV, FATHER_N_VAR, MOTHER_N_COV, MOTHER_N_VAR, PROB_FATHER_ONLY, PROB_MOTHER_ONLY, PROB_FATHER_AND_MOTHER' "
+        ##"--header 'ID, FATHER_N_COV, FATHER_N_VAR, MOTHER_N_COV, MOTHER_N_VAR, PROB_FATHERS_ONLY, PROB_MOTHERS_ONLY, PROB_FATHERS_AND_MOTHERS, PROB_ABSENT, PROB_ARTIFACT' "
+        "--header 'ID, FATHERS_N_COV, FATHERS_N_VAR, MOTHERS_N_COV, MOTHERS_N_VAR, PROB_FATHERS_ONLY, PROB_MOTHERS_ONLY, PROB_FATHERS_AND_MOTHERS' "
         """"ID, """
-        """sum(map(int, re.findall('(\d+)[NVS]', FORMAT['OBS']['father_pool']))), """ # COV
-        """sum(map(int, re.findall('(\d+)[VS]', FORMAT['OBS']['father_pool']))), """ # VAR
-        """sum(map(int, re.findall('(\d+)[NVS]', FORMAT['OBS']['mother_pool']))), """ # COV
-        """sum(map(int, re.findall('(\d+)[VS]', FORMAT['OBS']['mother_pool']))), """ # VAR
-        """10 ** (-INFO['PROB_FATHER_ONLY'] / 10), """
-        """10 ** (-INFO['PROB_MOTHER_ONLY'] / 10), """
-        """10 ** (-INFO['PROB_FATHER_AND_MOTHER'] / 10)" """
+        """sum(map(int, re.findall('(\d+)[NVS]', FORMAT['OBS']['fathers_pool']))), """ # COV
+        """sum(map(int, re.findall('(\d+)[VS]', FORMAT['OBS']['fathers_pool']))), """ # VAR
+        """sum(map(int, re.findall('(\d+)[NVS]', FORMAT['OBS']['mothers_pool']))), """ # COV
+        """sum(map(int, re.findall('(\d+)[VS]', FORMAT['OBS']['mothers_pool']))), """ # VAR
+        """10 ** (-INFO['PROB_FATHERS_ONLY'] / 10), """
+        """10 ** (-INFO['PROB_MOTHERS_ONLY'] / 10), """
+        """10 ** (-INFO['PROB_FATHERS_AND_MOTHERS'] / 10)" """
+        ## """10 ** (-INFO['PROB_ABSENT'] / 10), """
+        ## """10 ** (-INFO['PROB_ARTIFACT'] / 10)" """
         "{input} "
         "| dos2unix "
         ">{output} "
@@ -236,12 +239,24 @@ rule vembrane:
 
 rule vaf:
     input:
-        "results/calls/hg38/vembrane/{upload_id}.{father_pool_id}.{mother_pool_id}.tsv"
+        "results/calls/hg38/vembrane/{upload_id}.{fathers_pool_id}.{mothers_pool_id}.tsv"
     output:
-        "results/calls/hg38/vembrane/{upload_id}.{father_pool_id}.{mother_pool_id}.VAF.tsv"
+        "results/calls/hg38/vembrane/{upload_id}.{fathers_pool_id}.{mothers_pool_id}.VAF.tsv"
     shell:
         "python workflow/scripts/calculate_VAF.py {input} {output} "
 
+
+rule merge_upload_tsv_and_calls_vaf:
+    input:
+        upload_tsv = "../upload/hg19/{upload_id}.tsv",
+        vaf_tsv = "results/calls/hg38/vembrane/{upload_id}.{fathers_pool_id}.{mothers_pool_id}.VAF.tsv"
+    output:
+        "results{upload_id}.{upload_id}.{fathers_pool_id}.{mothers_pool_id}.VAF.tsv"
+    shell:
+        "python workflow/scripts/merge_upload_tsv_and_calls_vaf.py "
+        "{input.upload_tsv} "
+        "{input.vaf_tsv} "
+        "{output} "
 
 
 # rule annotate_varvis:
@@ -249,7 +264,7 @@ rule vaf:
 #         "varvis.tsv"
 #           "varlociraptor.vcf"
 #     output:
-#         "results/parent_annotated/{candidates}.{father_pool_id}.{mother_pool_id}.csv"
+#         "results/parent_annotated/{candidates}.{fathers_pool_id}.{mothers_pool_id}.csv"
 #     shell:
 #         ""
 

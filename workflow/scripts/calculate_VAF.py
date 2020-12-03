@@ -11,20 +11,20 @@ d = pd.read_csv(infile, sep="\t")
 ## print(d)
 
 ## coverage
-## d["FATHER_N_COV"] = d["FATHER_N_REF"] + d["FATHER_N_ALT"]
-## d["MOTHER_N_COV"] = d["MOTHER_N_REF"] + d["MOTHER_N_ALT"]
+## d["FATHERS_N_COV"] = d["FATHERS_N_REF"] + d["FATHERS_N_ALT"]
+## d["MOTHERS_N_COV"] = d["MOTHERS_N_REF"] + d["MOTHERS_N_ALT"]
 
 ## variant allele frequency (VAF)
-d["FATHER_VAF"] = d["FATHER_N_VAR"] / d["FATHER_N_COV"]
-d["MOTHER_VAF"] = d["MOTHER_N_VAR"] / d["MOTHER_N_COV"]
+d["FATHERS_VAF"] = d["FATHERS_N_VAR"] / d["FATHERS_N_COV"]
+d["MOTHERS_VAF"] = d["MOTHERS_N_VAR"] / d["MOTHERS_N_COV"]
 
 d = d.fillna("NaN")
 
 ## reorder columns
 new_column_order = ["ID",
-    "FATHER_N_COV", "FATHER_N_VAR", "FATHER_VAF", 
-    "MOTHER_N_COV",  "MOTHER_N_VAR", "MOTHER_VAF", 
-    "PROB_FATHER_ONLY", "PROB_MOTHER_ONLY", "PROB_FATHER_AND_MOTHER"]
+    "FATHERS_N_COV", "FATHERS_N_VAR", "FATHERS_VAF", 
+    "MOTHERS_N_COV",  "MOTHERS_N_VAR", "MOTHERS_VAF", 
+    "PROB_FATHERS_ONLY", "PROB_MOTHERS_ONLY", "PROB_FATHERS_AND_MOTHERS"]
 d = d.reindex(new_column_order, axis=1)
 
 d.to_csv(outfile, sep="\t", index=False)
