@@ -1,13 +1,13 @@
 samples:
-  father_pool:
+  fathers_pool:
     resolution: 10
     universe: "[0.0,1.0]"
-  mother_pool:
+  mothers_pool:
     resolution: 10
     universe: "[0.0,1.0]"
 
 events:
-  fathers_only:        "father_pool:]0.0,1.0] & mother_pool:0.0"
-  mothers_only:        "mother_pool:]0.0,1.0] & father_pool:0.0"
-  fathers_and_mothers: "father_pool:]0.0,1.0] & mother_pool:]0.0,1.0]"
+  fathers_only:        "fathers_pool:]0.0,1.0] & mothers_pool:0.0"
+  mothers_only:        "mothers_pool:]0.0,1.0] & fathers_pool:0.0"
+  fathers_and_mothers: "fathers_pool:]0.0,1.0] & mothers_pool:]0.0,1.0]"
   
