@@ -1,7 +1,6 @@
 ## person id of the uploaded hg19 candidates
 ## upload_id = os.path.basename(config["varvis_hg19_csv"]).split("_")[0]
 
-
 rule varvis_hg19_csv_to_candidates_vcf:
     input:
         config["varvis_hg19_csv"]
@@ -137,56 +136,56 @@ rule calls_bcf_to_vcf:
         ">{output} "
 
 
-rule download_hg38ToHg19_over_chain:
-    output:
-        "resources/hg38ToHg19.over.chain.gz" # UCSC style chromosome names
-    cache:
-        True
-    shell:
-        "curl -L http://hgdownload.soe.ucsc.edu/goldenPath/hg38/liftOver/hg38ToHg19.over.chain.gz "
-        "| pigz -dc "
-        "| sed 's/chr//g' " # convert chromosome names to Ensembl style
-        "| pigz -9 "
-        "> {output} "
-
-
-rule download_hg19_fasta:
-    output:
-        fasta = "resources/genome_hg19.fasta", # UCSC style chromosome names
-        dict = "resources/genome_hg19.fasta.dict"
-    cache:
-        True
-    conda:
-        "../envs/picard.yaml"
-    shell:
-        "curl -L ftp://ftp.ensembl.org/pub/grch37/release-100/fasta/homo_sapiens/dna/Homo_sapiens.GRCh37.dna.primary_assembly.fa.gz "
-        "| pigz -dc "
-        "> {output.fasta} "
-        "&& picard CreateSequenceDictionary "
-        "REFERENCE={output.fasta} "
-        "OUTPUT={output.dict} "
-
-
-rule picard_liftovervcf_hg38ToHg19:
-    input:
-        vcf = "results/calls/hg38/{upload_id}.{father_pool_id}.{mother_pool_id}.calls.vcf",
-        chain = "resources/hg38ToHg19.over.chain.gz",
-        fasta = "resources/genome_hg19.fasta"
-    output:
-        vcf="results/calls/hg19/{upload_id}.{father_pool_id}.{mother_pool_id}.calls.vcf",
-        reject="results/calls/hg19/{upload_id}.{father_pool_id}.{mother_pool_id}.calls.rejected.vcf"
-    log:
-        "results/log/{upload_id}.{father_pool_id}.{mother_pool_id}.picard_liftovervcf_hg38ToHg19.log"
-    conda:
-        "../envs/picard.yaml"
-    shell:
-        "picard -Xmx6g LiftoverVcf "
-        "I={input.vcf} "
-        "CHAIN={input.chain} "
-        "R={input.fasta} "
-        "O={output.vcf} "
-        "REJECT={output.reject} "
-        ">{log} 2>&1 "
+## rule download_hg38ToHg19_over_chain:
+##     output:
+##         "resources/hg38ToHg19.over.chain.gz" # UCSC style chromosome names
+##     cache:
+##         True
+##     shell:
+##         "curl -L http://hgdownload.soe.ucsc.edu/goldenPath/hg38/liftOver/hg38ToHg19.over.chain.gz "
+##         "| pigz -dc "
+##         "| sed 's/chr//g' " # convert chromosome names to Ensembl style
+##         "| pigz -9 "
+##         "> {output} "
+##
+##
+## rule download_hg19_fasta:
+##     output:
+##         fasta = "resources/genome_hg19.fasta", # UCSC style chromosome names
+##         dict = "resources/genome_hg19.fasta.dict"
+##     cache:
+##         True
+##     conda:
+##         "../envs/picard.yaml"
+##     shell:
+##         "curl -L ftp://ftp.ensembl.org/pub/grch37/release-100/fasta/homo_sapiens/dna/Homo_sapiens.GRCh37.dna.primary_assembly.fa.gz "
+##         "| pigz -dc "
+##         "> {output.fasta} "
+##         "&& picard CreateSequenceDictionary "
+##         "REFERENCE={output.fasta} "
+##         "OUTPUT={output.dict} "
+##
+##
+## rule picard_liftovervcf_hg38ToHg19:
+##     input:
+##         vcf = "results/calls/hg38/{upload_id}.{father_pool_id}.{mother_pool_id}.calls.vcf",
+##         chain = "resources/hg38ToHg19.over.chain.gz",
+##         fasta = "resources/genome_hg19.fasta"
+##     output:
+##         vcf="results/calls/hg19/{upload_id}.{father_pool_id}.{mother_pool_id}.calls.vcf",
+##         reject="results/calls/hg19/{upload_id}.{father_pool_id}.{mother_pool_id}.calls.rejected.vcf"
+##     log:
+##         "results/log/{upload_id}.{father_pool_id}.{mother_pool_id}.picard_liftovervcf_hg38ToHg19.log"
+##     conda:
+##         "../envs/picard.yaml"
+##     shell:
+##         "picard -Xmx6g LiftoverVcf "
+##         "I={input.vcf} "
+##         "CHAIN={input.chain} "
+##         "R={input.fasta} "
+##         "O={output.vcf} "
+##         "REJECT={output.reject} "
+##         ">{log} 2>&1 "
 
 
 ## ##FORMAT=<ID=OBS,Number=A,Type=String,Description="Summary of observations. Each entry is encoded as CBTSO,
@@ -216,7 +215,7 @@ rule vembrane:
     input:
         "results/calls/hg38/{upload_id}.{father_pool_id}.{mother_pool_id}.calls.vcf"
     output:
-        "results/calls/hg38/tsv/{upload_id}.{father_pool_id}.{mother_pool_id}.tsv"
+        "results/calls/hg38/vembrane/{upload_id}.{father_pool_id}.{mother_pool_id}.tsv"
     conda:
         "../envs/vembrane.yaml"
     shell:
