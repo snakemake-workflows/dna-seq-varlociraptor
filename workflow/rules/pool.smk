@@ -251,7 +251,7 @@ rule merge_upload_tsv_and_calls_vaf:
         upload_tsv = "../upload/hg19/{upload_id}.tsv",
         vaf_tsv = "results/calls/hg38/vembrane/{upload_id}.{fathers_pool_id}.{mothers_pool_id}.VAF.tsv"
     output:
-        "results{upload_id}.{upload_id}.{fathers_pool_id}.{mothers_pool_id}.VAF.tsv"
+        "../download/{upload_id}.{fathers_pool_id}.{mothers_pool_id}.parents_pools.tsv"
     shell:
         "python workflow/scripts/merge_upload_tsv_and_calls_vaf.py "
         "{input.upload_tsv} "
