@@ -18,7 +18,7 @@ d = pd.read_csv(infile, sep="\t")
 d["FATHER_VAF"] = d["FATHER_N_VAR"] / d["FATHER_N_COV"]
 d["MOTHER_VAF"] = d["MOTHER_N_VAR"] / d["MOTHER_N_COV"]
 
-d = d.fillna("NA")
+d = d.fillna("NaN")
 
 ## reorder columns
 new_column_order = ["ID",
