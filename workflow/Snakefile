@@ -44,21 +44,21 @@ groups = samples["group"].unique()
 # rule all:
 #     input:
 #         expand("results/recal/{sample}.sorted.bam", sample=samples.sample_name),
-
-        # expand("results/candidates/hg19/{person_id}.hg19_candidates.vcf", person_id=person_id),
-        # ##expand("results/candidates/hg19/{person_id}.hg19_candidates.bed", person_id=person_id),
-        # expand("results/candidates/hg38/{person_id}.hg38_candidates.vcf", person_id=person_id),
-        # "resources/hg19ToHg38.over.chain.gz",
-        # expand("results/candidates/hg38/{person_id}.hg38_candidates.{ext}", person_id=person_id, ext=["vcf", "rejected.vcf"]),
-        #
-        # ## preprocess
-        # expand("results/observations/{person_id}.{father_pool_id}.father_pool_observations.bcf", person_id=person_id, father_pool_id=config["father_pool_id"]),
-        # expand("results/observations/{person_id}.{mother_pool_id}.mother_pool_observations.bcf", person_id=person_id, mother_pool_id=config["mother_pool_id"]),
-        # expand("results/calls/hg38/{person_id}.{father_pool_id}.{mother_pool_id}.calls.vcf", person_id=person_id, father_pool_id=config["father_pool_id"], mother_pool_id=config["mother_pool_id"]),
-        # "resources/hg38ToHg19.over.chain.gz",
-        # expand("resources/genome_hg19.{ext}", ext=["fasta", "fasta.dict"]),
-        # expand("results/calls/hg19/{person_id}.{father_pool_id}.{mother_pool_id}.calls.vcf", person_id=person_id, father_pool_id=config["father_pool_id"], mother_pool_id=config["mother_pool_id"], ext=["vcf", "rejected.vcf"]),
-        #expand("results/calls/hg38/AF/{person_id}.{father_pool_id}.{mother_pool_id}.tsv", person_id=person_id, father_pool_id=config["father_pool_id"], mother_pool_id=config["mother_pool_id"]),
+#
+#         expand("results/candidates/hg19/{person_id}.hg19_candidates.vcf", person_id=person_id),
+#         ##expand("results/candidates/hg19/{person_id}.hg19_candidates.bed", person_id=person_id),
+#         expand("results/candidates/hg38/{person_id}.hg38_candidates.vcf", person_id=person_id),
+#         "resources/hg19ToHg38.over.chain.gz",
+#         expand("results/candidates/hg38/{person_id}.hg38_candidates.{ext}", person_id=person_id, ext=["vcf", "rejected.vcf"]),
+#
+#         ## preprocess
+#         expand("results/observations/{person_id}.{father_pool_id}.father_pool_observations.bcf", person_id=person_id, father_pool_id=config["father_pool_id"]),
+#         expand("results/observations/{person_id}.{mother_pool_id}.mother_pool_observations.bcf", person_id=person_id, mother_pool_id=config["mother_pool_id"]),
+#         expand("results/calls/hg38/{person_id}.{father_pool_id}.{mother_pool_id}.calls.vcf", person_id=person_id, father_pool_id=config["father_pool_id"], mother_pool_id=config["mother_pool_id"]),
+#         "resources/hg38ToHg19.over.chain.gz",
+#         expand("resources/genome_hg19.{ext}", ext=["fasta", "fasta.dict"]),
+#         expand("results/calls/hg19/{person_id}.{father_pool_id}.{mother_pool_id}.calls.vcf", person_id=person_id, father_pool_id=config["father_pool_id"], mother_pool_id=config["mother_pool_id"], ext=["vcf", "rejected.vcf"]),
+#         expand("results/calls/hg38/AF/{person_id}.{father_pool_id}.{mother_pool_id}.tsv", person_id=person_id, father_pool_id=config["father_pool_id"], mother_pool_id=config["mother_pool_id"]),
 
 rule benchmark:
     input:
