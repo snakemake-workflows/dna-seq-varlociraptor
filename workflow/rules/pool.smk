@@ -1,9 +1,19 @@
-## person id of the uploaded hg19 candidates
-## upload_id = os.path.basename(config["varvis_hg19_csv"]).split("_")[0]
+rule varvis_hg19_candidates_csv_to_tsv:
+    input:
+        "../upload/hg19/{upload_id}.csv"
+    output:
+        "results/candidates/hg19/{upload_id}.hg19_candidates.tsv"
+    shell:
+        "cat {input} "
+        "| dos2unix "
+        "| sed 's/,/\t/g' "
+        "| sed 's/^\t/NA\t/; :a;s/\t\(\t\|$\)/\tNA\\1/;ta' "
+        ">{output} "
+
 
 rule varvis_hg19_csv_to_candidates_vcf:
     input:
-        config["varvis_hg19_csv"]
+        "results/candidates/hg19/{upload_id}.hg19_candidates.tsv"
     output:
         "results/candidates/hg19/{upload_id}.hg19_candidates.vcf"
     conda:
@@ -11,7 +21,7 @@ rule varvis_hg19_csv_to_candidates_vcf:
     log:
         "results/log/{upload_id}.hg19_candidates.vcf.log"
     shell:
-        "bash workflow/scripts/csv2vcf.sh {input} {output} "
+        "bash workflow/scripts/tsv2vcf.sh {input} {output} "
         "> {log} "
 
 
