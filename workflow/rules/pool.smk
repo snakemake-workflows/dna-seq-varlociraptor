@@ -258,7 +258,7 @@ rule vaf:
 
 rule merge_upload_tsv_and_calls_vaf:
     input:
-        upload_tsv = "../upload/hg19/{upload_id}.tsv",
+        upload_tsv = "results/candidates/hg19/{upload_id}.hg19_candidates.tsv",
         vaf_tsv = "results/calls/hg38/vembrane/{upload_id}.{fathers_pool_id}.{mothers_pool_id}.VAF.tsv"
     output:
         "../download/{upload_id}.{fathers_pool_id}.{mothers_pool_id}.parents_pools.tsv"
