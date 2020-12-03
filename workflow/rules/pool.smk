@@ -258,13 +258,3 @@ rule merge_upload_tsv_and_calls_vaf:
         "{input.vaf_tsv} "
         "{output} "
 
-
-# rule annotate_varvis:
-#     input:
-#         "varvis.tsv"
-#           "varlociraptor.vcf"
-#     output:
-#         "results/parent_annotated/{candidates}.{fathers_pool_id}.{mothers_pool_id}.csv"
-#     shell:
-#         ""
-
