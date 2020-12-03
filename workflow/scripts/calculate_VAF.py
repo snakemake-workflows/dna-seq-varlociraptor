@@ -8,11 +8,11 @@ outfile = sys.argv[2]
 
 d = pd.read_csv(infile, sep="\t")
 
-print(d)
+## print(d)
 
 ## coverage
-# d["FATHER_N_COV"] = d["FATHER_N_REF"] + d["FATHER_N_ALT"]
-# d["MOTHER_N_COV"] = d["MOTHER_N_REF"] + d["MOTHER_N_ALT"]
+## d["FATHER_N_COV"] = d["FATHER_N_REF"] + d["FATHER_N_ALT"]
+## d["MOTHER_N_COV"] = d["MOTHER_N_REF"] + d["MOTHER_N_ALT"]
 
 ## variant allele frequency (VAF)
 d["FATHER_VAF"] = d["FATHER_N_VAR"] / d["FATHER_N_COV"]
