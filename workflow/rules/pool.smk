@@ -252,6 +252,8 @@ rule vaf:
         "results/calls/hg38/vembrane/{upload_id}.{fathers_pool_id}.{mothers_pool_id}.tsv"
     output:
         "results/calls/hg38/vembrane/{upload_id}.{fathers_pool_id}.{mothers_pool_id}.VAF.tsv"
+    conda:
+        "../envs/pandas.yaml"
     shell:
         "python workflow/scripts/calculate_VAF.py {input} {output} "
 
@@ -262,6 +264,8 @@ rule merge_upload_tsv_and_calls_vaf:
         vaf_tsv = "results/calls/hg38/vembrane/{upload_id}.{fathers_pool_id}.{mothers_pool_id}.VAF.tsv"
     output:
         "../download/{upload_id}.{fathers_pool_id}.{mothers_pool_id}.parents_pools.tsv"
+    conda:
+        "../envs/pandas.yaml"
     shell:
         "python workflow/scripts/merge_upload_tsv_and_calls_vaf.py "
         "{input.upload_tsv} "
