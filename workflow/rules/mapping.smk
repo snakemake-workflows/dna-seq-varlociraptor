@@ -46,37 +46,21 @@ rule calc_consensus_reads:
         "rbt collapse-reads-to-fragments bam {input} {output} &> {log}"
 
 
-#Todo If working just integrate into rule
-rule map_consensus_se:
+rule map_consensus_reads:
     input:
-        reads="results/consensus/fastq/{sample}.se.fq",
+        reads=get_consensus_input,
         idx=rules.bwa_index.output
     output:
-        "results/consensus/{sample}.consensus.se.mapped.bam"
+        "results/consensus/{sample}.consensus.{read_type}.mapped.bam"
     params:
         index=lambda w, input: os.path.splitext(input.idx[0])[0],
-        extra=get_read_group,
+        extra=lambda w: "-C {}".format(get_read_group(w)),
         sort="samtools",
         sort_order="coordinate"
+    wildcard_constraints:
+        read_type="pe|se"
     log:
-        "logs/bwa_mem/{sample}.se.consensus.log"
-    threads: 8
-    wrapper:
-        "0.67.0/bio/bwa/mem"
-
-rule map_consensus_pe:
-    input:
-        reads=["results/consensus/fastq/{sample}.1.fq", "results/consensus/fastq/{sample}.2.fq"],
-        idx=rules.bwa_index.output
-    output:
-        "results/consensus/{sample}.consensus.pe.mapped.bam"
-    params:
-        index=lambda w, input: os.path.splitext(input.idx[0])[0],
-        extra=get_read_group,
-        sort="samtools",
-        sort_order="coordinate"
-    log:
-        "logs/bwa_mem/{sample}.pe.consensus.log"
+        "logs/bwa_mem/{sample}.{read_type}.consensus.log"
     threads: 8
     wrapper:
         "0.67.0/bio/bwa/mem"

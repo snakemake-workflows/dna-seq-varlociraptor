@@ -137,6 +137,10 @@ def get_batch_bams(wildcards, event=False):
                 bams.append(bam)
     return bams
 
+def get_consensus_input(wildcards):
+    if wildcards.read_type == "se":
+        return "results/consensus/fastq/{}.se.fq".format(wildcards.sample)
+    return ["results/consensus/fastq/{}.1.fq".format(wildcards.sample), "results/consensus/fastq/{}.2.fq".format(wildcards.sample)]
 
 def get_regions():
     if is_activated("primers/trimming"):
