@@ -263,7 +263,7 @@ rule merge_upload_tsv_and_calls_vaf:
         upload_tsv = "results/candidates/hg19/{upload_id}.hg19_candidates.tsv",
         vaf_tsv = "results/calls/hg38/vembrane/{upload_id}.{fathers_pool_id}.{mothers_pool_id}.VAF.tsv"
     output:
-        "../download/{upload_id}.{fathers_pool_id}.{mothers_pool_id}.parents_pools.tsv"
+        "../download/{upload_id}.{fathers_pool_id}.{mothers_pool_id}.exome_pools.tsv"
     conda:
         "../envs/pandas.yaml"
     shell:
