@@ -81,6 +81,8 @@ rule prepocess_fathers_pool:
         "results/observations/{upload_id}.{fathers_pool_id}.fathers_pool_observations.bcf"
     log:
         "results/log/{upload_id}.{fathers_pool_id}.preprocess_fathers_pool.log"
+    conda:
+        "../envs/varlociraptor.yaml"
     shell:
         "varlociraptor preprocess variants "
         " {input.fasta} "
@@ -99,6 +101,8 @@ rule prepocess_mothers_pool:
         "results/observations/{upload_id}.{mothers_pool_id}.mothers_pool_observations.bcf"
     log:
         "results/log/{upload_id}.{mothers_pool_id}.preprocess_mothers_pool.log"
+    conda:
+        "../envs/varlociraptor.yaml"
     shell:
         "varlociraptor preprocess variants "
         " {input.fasta} "
