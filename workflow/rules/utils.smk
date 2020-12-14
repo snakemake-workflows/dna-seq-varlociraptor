@@ -1,3 +1,4 @@
+
 rule bcf_index:
     input:
         "{prefix}.bcf",
@@ -5,10 +6,8 @@ rule bcf_index:
         "{prefix}.bcf.csi"
     log:
         "logs/bcf-index/{prefix}.log"
-    conda:
-        "../envs/bcftools.yaml"
-    shell:
-        "bcftools index {input} 2> {log}"
+    wrapper:
+        "0.67.0/bio/bcftools/index"
 
 
 rule bam_index:
@@ -19,7 +18,18 @@ rule bam_index:
     log:
         "logs/bam-index/{prefix}.log"
     wrapper:
-        "0.59.2/bio/samtools/index"
+        "0.67.0/bio/samtools/index"
+
+
+rule cram_index:
+    input:
+        "{prefix}.cram"
+    output:
+        "{prefix}.crai"
+    log:
+        "logs/cram-index/{prefix}.log"
+    wrapper:
+        "0.67.0/bio/samtools/index"
 
 
 rule tabix_known_variants:

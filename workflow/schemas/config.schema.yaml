@@ -59,6 +59,72 @@ properties:
           library_length:
             type: integer
 
+  mark_duplicates:
+    type: object
+    properties:
+      activate:
+        type: boolean
+      params:
+        type: string
+    required:
+      - activate
+
+  indel_realignment:
+    type: object
+    properties:
+      activate:
+        type: boolean
+      params:
+        type: object
+        properties:
+          target_creator:
+            type: string
+          indel_realigner:
+            type: string
+    required:
+      - activate
+
+  bqsr:
+    type: object
+    activate:
+      type: boolean
+    properties:
+      calmd:
+        type: object
+        properties:
+          activate:
+            type: boolean
+          params:
+            type: string
+        required:
+          - activate
+      gatk_bqsr:
+        type: object
+        properties:
+          activate:
+            type: boolean
+          params:
+            type: object
+            properties:
+              create_bqsr:
+                type: string
+              apply_bqsr:
+                type: string
+        required:
+          - activate
+      mapdamage2:
+        type: object
+        properties:
+          activate:
+            type: boolean
+          params:
+            type: string
+        required:
+          - activate
+    required:
+      - calmd
+      - gatk_bqsr
+      - mapdamage2
 
   report:
     type: object
@@ -207,26 +273,7 @@ properties:
     properties:
       cutadapt:
         type: string
-      gatk:
-        type: object
-        properties:
-          BaseRecalibrator:
-            type: string
-          applyBQSR:
-            type: string
-        required:
-          - BaseRecalibrator
-          - applyBQSR
-      picard:
-        type: object
-        properties:
-          MarkDuplicates:
-            type: string
-        required:
-          - MarkDuplicates
     required:
-      - gatk
-      - picard
       - cutadapt
 
 required:

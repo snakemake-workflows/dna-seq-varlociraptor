@@ -8,10 +8,20 @@ report: "report/workflow.rst"
 scattergather:
     calling=16
 
+workdir: config['workdir']
+
+## Define default workflow target
+workflow.first_rule = "all"
+
 # Allow users to fix the underlying OS via singularity.
 container: "docker://continuumio/miniconda3"
 
+# Remove R local libraries to avoid conflicts with conda environments
+if "R_LIBS" in os.environ:
+    del os.environ["R_LIBS"]
+
 include: "rules/common.smk"
+include: "rules/utils.smk"
 include: "rules/benchmarking.smk"
 include: "rules/ref.smk"
 include: "rules/trimming.smk"
@@ -23,7 +33,6 @@ include: "rules/filtering.smk"
 include: "rules/report.smk"
 include: "rules/tmb.smk"
 include: "rules/vega.smk"
-include: "rules/utils.smk"
 include: "rules/primers.smk"
 include: "rules/table.smk"
 

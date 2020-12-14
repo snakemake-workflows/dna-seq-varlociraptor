@@ -1,3 +1,5 @@
+workdir: '.'
+
 samples: config/samples.tsv
 
 units: config/units.tsv
@@ -26,6 +28,31 @@ primers:
     library_error: 0
     # Mean insert size between the outer primer ends.
     library_length: 0
+
+mark_duplicates:
+  activate: true
+  params: "VALIDATION_STRINGENCY=LENIENT" # REMOVE_DUPLICATES=TRUE"
+
+indel_realignment:
+  activate: false
+  params:
+    target_creator: ""
+    indel_realigner: ""
+
+bqsr:
+  calmd:
+    activate: false
+    params: "-E"
+
+  gatk_bqsr:
+    activate: true
+    params:
+      create_bqsr: ""
+      apply_bqsr: ""
+
+  mapdamage2:
+    activate: false
+    params: "--no-stats"
 
 # Estimation of tumor mutational burden.
 tmb:
@@ -123,8 +150,3 @@ annotations:
 
 params:
   cutadapt: ""
-  picard:
-    MarkDuplicates: "VALIDATION_STRINGENCY=LENIENT"
-  gatk:
-    BaseRecalibrator: ""
-    applyBQSR: ""

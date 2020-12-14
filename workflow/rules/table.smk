@@ -3,14 +3,12 @@ rule vembrane_table:
         bcf="results/merged-calls/{group}.{event}.fdr-controlled.bcf",
     output:
         bcf="results/tables/{group}.{event}.fdr-controlled.tsv"
-    conda:
-        "../envs/vembrane.yaml"
     params:
         expression=get_vembrane_expression
     log:
         "logs/vembrane-table/{group}.{event}.log"
-    shell:
-        "vembrane table \"{params.expression}\" {input.bcf} > {output.bcf} 2> {log}" #"1-10**(-INFO['PROB_DENOVO']/10)"
+    wrapper:
+        "master/bio/vembrane/table"
 
 
 rule tsv_to_excel:
