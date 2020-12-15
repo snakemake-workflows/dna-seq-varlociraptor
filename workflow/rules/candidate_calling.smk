@@ -7,14 +7,29 @@ rule freebayes:
         samples=lambda w: get_group_bams(w),
         index=lambda w: get_group_bams(w, bai=True),
     output:
-        "results/candidate-calls/{group}.freebayes.bcf"
+        pipe("results/candidate-calls/{group}.freebayes.unnormalized.bcf")
     log:
         "logs/freebayes/{group}.log"
     params:
         extra=config["params"].get("freebayes", ""),
-    threads: 100 # use all available cores for calling
+    threads: workflow.cores - 1 # use all available cores -1 (because of the pipe) for calling
     wrapper:
-        "0.60.0/bio/freebayes"
+        "0.68.0/bio/freebayes"
+
+
+rule norm_freebayes_calls:
+    input:
+        "results/candidate-calls/{group}.freebayes.unnormalized.bcf",
+        "resources/genome.fasta",
+        "resources/genome.fasta.fai"
+    output:
+        "results/candidate-calls/{group}.freebayes.bcf"
+    params:
+        lambda w, input: "-Ob -f {}".format(input[1])
+    log:
+        "logs/norm_freebayes/{group}.log"
+    wrapper:
+        "0.68.0/bio/bcftools/norm"
 
 
 rule delly:
