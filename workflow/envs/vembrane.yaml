@@ -2,4 +2,4 @@ channels:
   - conda-forge
   - bioconda
 dependencies:
-  - vembrane =0.4
+  - vembrane =0.5.2

@@ -11,13 +11,24 @@ validate(config, schema="../schemas/config.schema.yaml")
 samples = pd.read_csv(config["samples"], sep="\t", dtype={"sample_name": str, "group": str}).set_index("sample_name", drop=False).sort_index()
 
 def get_final_output():
+    final_output = []
+
     if config["report"]["activate"]:
-        final_output = expand("results/vcf-report/all.{event}/",
-                        event=config["calling"]["fdr-control"]["events"]),
+        final_output.extend(expand("results/vcf-report/all.{event}/",
+                            event=config["calling"]["fdr-control"]["events"]))
     else:
-        final_output = expand("results/merged-calls/{group}.{event}.fdr-controlled.bcf",
-                        group=groups,
-                        event=config["calling"]["fdr-control"]["events"]),
+        final_output.extend(expand("results/merged-calls/{group}.{event}.fdr-controlled.bcf",
+                            group=groups,
+                            event=config["calling"]["fdr-control"]["events"]))
+    
+    if config["tables"]["activate"]:
+        final_output.extend(expand("results/tables/{group}.{event}.fdr-controlled.tsv",
+                            group=groups,
+                            event=config["calling"]["fdr-control"]["events"]))
+        if config["tables"].get("generate_excel", False):
+            final_output.extend(expand("results/tables/{group}.{event}.fdr-controlled.xlsx",
+                            group=groups,
+                            event=config["calling"]["fdr-control"]["events"]))
     return final_output
 
 def _group_or_sample(row):
@@ -113,6 +124,10 @@ def get_group_aliases(wildcards):
 def get_group_samples(group):
     return samples.loc[samples["group"] == group]["sample_name"]
 
+def get_group_sample_aliases(wildcards, controls=True):
+    if controls:
+        return samples.loc[samples["group"] == wildcards.group]["alias"]
+    return samples.loc[(samples["group"] == wildcards.group) & (samples["control"] == "no")]["alias"]
 
 def get_group_bams(wildcards, bai=False):
     ext = "bai" if bai else "bam"
@@ -292,4 +307,12 @@ def get_fastqs(wc):
     return expand("results/trimmed/{sample}/{unit}_{read}.fastq.gz", unit=units.loc[wc.sample, "unit_name"], sample=wc.sample, read=wc.read)
 
 
-
+def get_vembrane_expression(wc):
+    expression=["INDEX, CHROM, POS, REF, ALT[0], ANN['Consequence'], ANN['IMPACT'], ANN['SYMBOL'], ANN['Feature'], INFO['gnomad_AF']"]
+    if config["tables"].get("output", {}).get("event_prob", False):
+        expression.append(", ".join(f"1-10**(-INFO['PROB_{x.upper()}']/10)" for x in config["calling"]["fdr-control"]["events"][wc.event]["varlociraptor"]))
+    if config["tables"].get("output", {}).get("genotype", False):
+        expression.append(", ".join(f"FORMAT['AF']['{sample}']" for sample in get_group_sample_aliases(wc)))
+    if config["tables"].get("output", {}).get("depth", False):
+        expression.append(", ".join(f"FORMAT['DP']['{sample}']" for sample in get_group_sample_aliases(wc)))
+    return ", ".join(expression)

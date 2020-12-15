@@ -25,6 +25,7 @@ include: "rules/tmb.smk"
 include: "rules/vega.smk"
 include: "rules/utils.smk"
 include: "rules/primers.smk"
+include: "rules/table.smk"
 
 groups = samples["group"].unique()
 
