@@ -26,6 +26,8 @@ rule norm_freebayes_calls:
         "results/candidate-calls/{group}.freebayes.bcf"
     params:
         lambda w, input: "-Ob -f {}".format(input[1])
+    log:
+        "logs/norm_freebayes/{group}.log"
     wrapper:
         "0.68.0/bio/bcftools/norm"
 
