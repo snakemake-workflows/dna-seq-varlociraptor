@@ -12,7 +12,7 @@ rule freebayes:
         "logs/freebayes/{group}.log"
     params:
         extra=config["params"].get("freebayes", ""),
-    threads: 100 # use all available cores for calling
+    threads: workflow.cores - 1 # use all available cores -1 (because of the pipe) for calling
     wrapper:
         "0.68.0/bio/freebayes"
 
