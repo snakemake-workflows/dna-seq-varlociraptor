@@ -19,7 +19,7 @@ rule freebayes:
 
 rule norm_freebayes_calls:
     input:
-        "results/candidate-calls/{group}.freebayes.bcf",
+        "results/candidate-calls/{group}.freebayes.unnormalized.bcf",
         "resources/genome.fasta",
         "resources/genome.fasta.fai"
     output:
