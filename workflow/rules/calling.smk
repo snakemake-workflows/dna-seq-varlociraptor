@@ -76,7 +76,7 @@ rule bcftools_concat:
     output:
         "results/calls/{group}.{scatteritem}.bcf"
     log:
-        "logs/condat-calls/{group}.{scatteritem}.log"
+        "logs/concat-calls/{group}.{scatteritem}.log"
     params:
         "-a -Ob" # TODO Check this
     wrapper:
