@@ -302,7 +302,7 @@ def get_fastqs(wc):
 
 
 def get_vembrane_expression(wc):
-    expression=["INDEX, CHROM, POS, REF, ALT[0], ANN['Consequence'], ANN['IMPACT'], ANN['SYMBOL'], ANN['Feature'], INFO['gnomad_AF']"]
+    expression=["INDEX, CHROM, POS, REF, ALT[0], ANN['Consequence'], ANN['IMPACT'], ANN['SYMBOL'], ANN['Feature']"]
     if config["tables"].get("output", {}).get("event_prob", False):
         expression.append(", ".join(f"1-10**(-INFO['PROB_{x.upper()}']/10)" for x in config["calling"]["fdr-control"]["events"][wc.event]["varlociraptor"]))
     if config["tables"].get("output", {}).get("genotype", False):
