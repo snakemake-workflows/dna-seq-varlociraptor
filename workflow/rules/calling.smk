@@ -21,7 +21,7 @@ rule varlociraptor_preprocess:
         bam="results/recal/{sample}.sorted.bam",
         bai="results/recal/{sample}.sorted.bai"
     output:
-        temp("results/observations/{group}/{sample}.{caller}.{scatteritem}.bcf")
+        "results/observations/{group}/{sample}.{caller}.{scatteritem}.bcf"
     params:
         omit_isize = "--omit-insert-size" if is_activated("primers/trimming") else ""
     log:
