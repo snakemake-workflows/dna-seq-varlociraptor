@@ -20,7 +20,7 @@ def get_final_output():
         final_output.extend(expand("results/merged-calls/{group}.{event}.fdr-controlled.bcf",
                             group=groups,
                             event=config["calling"]["fdr-control"]["events"]))
-    
+
     if config["tables"]["activate"]:
         final_output.extend(expand("results/tables/{group}.{event}.fdr-controlled.tsv",
                             group=groups,
@@ -198,13 +198,11 @@ def get_tmb_targets():
     else:
         return []
 
-
 def get_scattered_calls(ext=".bcf"):
-    Item = namedtuple("Item", ["caller", "sorted"])
     def inner(wildcards):
         return expand(
-            "results/calls/{{group}}.{item.caller}.{{scatteritem}}{item.sorted}{ext}",
-            item=[Item(c, "" if c == "freebayes" else ".sorted") for c in caller],
+            "results/calls/{{group}}.{caller}.{{scatteritem}}.sorted{ext}",
+            caller=caller,
             ext=ext,
         )
     return inner

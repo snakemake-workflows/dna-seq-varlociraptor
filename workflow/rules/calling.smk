@@ -22,6 +22,8 @@ rule varlociraptor_preprocess:
         bai="results/recal/{sample}.sorted.bai"
     output:
         temp("results/observations/{group}/{sample}.{caller}.{scatteritem}.bcf")
+    params:
+        max_depth="--max-depth {}".format(config["params"]["varlociraptor_preprocess"]["max_depth"]) if config["params"]["varlociraptor_preprocess"].get("max_depth", "")else ""
     log:
         "logs/varlociraptor/preprocess/{group}/{sample}.{caller}.{scatteritem}.log"
     benchmark:
@@ -29,7 +31,7 @@ rule varlociraptor_preprocess:
     conda:
         "../envs/varlociraptor.yaml"
     shell:
-        "varlociraptor preprocess variants --candidates {input.candidates} "
+        "varlociraptor preprocess variants --candidates {input.candidates} {params.max_depth} "
         "{input.ref} --bam {input.bam} --output {output} 2> {log}"
 
 
@@ -42,14 +44,15 @@ rule varlociraptor_call:
     log:
         "logs/varlociraptor/call/{group}.{caller}.{scatteritem}.log"
     params:
-        obs=lambda w, input: ["{}={}".format(s, f) for s, f in zip(get_group_aliases(w), input.obs)]
+        obs=lambda w, input: ["{}={}".format(s, f) for s, f in zip(get_group_aliases(w), input.obs)],
+        omit_position_bias= "--omit-read-position-bias" if config["params"]["varlociraptor_call"].get("omit_position_bias", "") else ""
     conda:
         "../envs/varlociraptor.yaml"
     benchmark:
          "benchmarks/varlociraptor/call/{group}.{caller}.{scatteritem}.tsv"
     shell:
         "varlociraptor "
-        "call variants generic --obs {params.obs} "
+        "call variants {params.omit_position_bias} generic --obs {params.obs} "
         "--scenario {input.scenario} > {output} 2> {log}"
 
 

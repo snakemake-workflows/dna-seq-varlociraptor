@@ -132,3 +132,7 @@ params:
   gatk:
     BaseRecalibrator: ""
     applyBQSR: ""
+  varlociraptor_preprocess:
+    max_depth: "" # Set when processing panel data with high coverage
+  varlociraptor_call:
+    omit_read_bias: false # Set true when processing panel data
