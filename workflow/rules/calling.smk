@@ -23,7 +23,7 @@ rule varlociraptor_preprocess:
     output:
         temp("results/observations/{group}/{sample}.{caller}.{scatteritem}.bcf")
     params:
-        max_depth="--max-depth {}".format(config["params"]["varlociraptor_preprocess"]["max_depth"]) if config["params"]["varlociraptor_preprocess"].get("max_depth", "")else ""
+        max_depth="--max-depth {}".format(config["params"]["varlociraptor_preprocess"].get("max_depth", "200"))
     log:
         "logs/varlociraptor/preprocess/{group}/{sample}.{caller}.{scatteritem}.log"
     benchmark:
