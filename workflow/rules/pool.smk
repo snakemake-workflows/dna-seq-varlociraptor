@@ -36,45 +36,46 @@ rule varvis_hg19_csv_to_candidates_vcf:
 ##         """| awk 'BEGIN{{OFS="\t"}}{{l=length($5);print $1, $2-1, $2+l-1, $3}}' """
 ##         "> {output} "
 
+## liftover
 
-rule download_hg19ToHg38_over_chain:
-    output:
-        "resources/hg19ToHg38.over.chain.gz" # UCSC style chromosome names
-    cache:
-        True
-    shell:
-        "curl -L http://hgdownload.soe.ucsc.edu/goldenPath/hg19/liftOver/hg19ToHg38.over.chain.gz "
-        "| pigz -dc "
-        "| sed 's/chr//g' " # convert chromosome names to Ensembl style
-        "| pigz -9 "
-        "> {output} "
+## rule download_hg19ToHg38_over_chain:
+##     output:
+##         "resources/hg19ToHg38.over.chain.gz" # UCSC style chromosome names
+##     cache:
+##         True
+##     shell:
+##         "curl -L http://hgdownload.soe.ucsc.edu/goldenPath/hg19/liftOver/hg19ToHg38.over.chain.gz "
+##         "| pigz -dc "
+##         "| sed 's/chr//g' " # convert chromosome names to Ensembl style
+##         "| pigz -9 "
+##         "> {output} "
 
 
-rule picard_liftovervcf_hg19ToHg38:
-    input:
-        vcf = "results/candidates/hg19/{upload_id}.hg19_candidates.vcf",
-        chain = "resources/hg19ToHg38.over.chain.gz",
-        fasta = "resources/genome.fasta"
-    output:
-        vcf="results/candidates/hg38/{upload_id}.hg38_candidates.vcf",
-        reject="results/candidates/hg38/{upload_id}.hg38_candidates.rejected.vcf"
-    log:
-        "results/log/{upload_id}.picard_liftovervcf.log"
-    conda:
-        "../envs/picard.yaml"
-    shell:
-        "picard -Xmx6g LiftoverVcf "
-        "I={input.vcf} "
-        "CHAIN={input.chain} "
-        "R={input.fasta} "
-        "O={output.vcf} "
-        "REJECT={output.reject} "
-        ">{log} 2>&1 "
+## rule picard_liftovervcf_hg19ToHg38:
+##     input:
+##         vcf = "results/candidates/hg19/{upload_id}.hg19_candidates.vcf",
+##         chain = "resources/hg19ToHg38.over.chain.gz",
+##         fasta = "resources/genome.fasta"
+##     output:
+##         vcf="results/candidates/hg38/{upload_id}.hg38_candidates.vcf",
+##         reject="results/candidates/hg38/{upload_id}.hg38_candidates.rejected.vcf"
+##     log:
+##         "results/log/{upload_id}.picard_liftovervcf.log"
+##     conda:
+##         "../envs/picard.yaml"
+##     shell:
+##         "picard -Xmx6g LiftoverVcf "
+##         "I={input.vcf} "
+##         "CHAIN={input.chain} "
+##         "R={input.fasta} "
+##         "O={output.vcf} "
+##         "REJECT={output.reject} "
+##         ">{log} 2>&1 "
 
 
 rule prepocess_fathers_pool:
     input:
-        candidates_vcf = "results/candidates/hg38/{upload_id}.hg38_candidates.vcf",
+        candidates_vcf = "results/candidates/hg19/{upload_id}.hg19_candidates.vcf",
         pool_bam = "results/recal/{fathers_pool_id}.sorted.bam",
         fasta = "resources/genome.fasta"
     output:
@@ -94,7 +95,7 @@ rule prepocess_fathers_pool:
 
 rule prepocess_mothers_pool:
     input:
-        candidates_vcf = "results/candidates/hg38/{upload_id}.hg38_candidates.vcf",
+        candidates_vcf = "results/candidates/hg19/{upload_id}.hg19_candidates.vcf",
         pool_bam = "results/recal/{mothers_pool_id}.sorted.bam",
         fasta = "resources/genome.fasta"
     output:
@@ -118,9 +119,9 @@ rule calls:
         fathers_pool = "results/observations/{upload_id}.{fathers_pool_id}.fathers_pool_observations.bcf",
         mothers_pool = "results/observations/{upload_id}.{mothers_pool_id}.mothers_pool_observations.bcf"
     output:
-        "results/calls/hg38/{upload_id}.{fathers_pool_id}.{mothers_pool_id}.calls.bcf"
+        "results/calls/hg19/{upload_id}.{fathers_pool_id}.{mothers_pool_id}.calls.bcf"
     log:
-        "results/log/{upload_id}.{fathers_pool_id}.{mothers_pool_id}.hg38.calls.log"
+        "results/log/{upload_id}.{fathers_pool_id}.{mothers_pool_id}.hg19.calls.log"
     conda:
         "../envs/varlociraptor.yaml"
     shell:
@@ -136,9 +137,9 @@ rule calls:
 
 rule calls_bcf_to_vcf:
     input:
-        "results/calls/hg38/{upload_id}.{fathers_pool_id}.{mothers_pool_id}.calls.bcf"
+        "results/calls/hg19/{upload_id}.{fathers_pool_id}.{mothers_pool_id}.calls.bcf"
     output:
-        "results/calls/hg38/{upload_id}.{fathers_pool_id}.{mothers_pool_id}.calls.vcf"
+        "results/calls/hg19/{upload_id}.{fathers_pool_id}.{mothers_pool_id}.calls.vcf"
     conda:
         "../envs/bcftools.yaml"
     shell:
@@ -223,9 +224,9 @@ rule calls_bcf_to_vcf:
 
 rule vembrane:
     input:
-        "results/calls/hg38/{upload_id}.{fathers_pool_id}.{mothers_pool_id}.calls.vcf"
+        "results/calls/hg19/{upload_id}.{fathers_pool_id}.{mothers_pool_id}.calls.vcf"
     output:
-        "results/calls/hg38/vembrane/{upload_id}.{fathers_pool_id}.{mothers_pool_id}.tsv"
+        "results/calls/hg19/vembrane/{upload_id}.{fathers_pool_id}.{mothers_pool_id}.tsv"
     conda:
         "../envs/vembrane.yaml"
     shell:
@@ -249,9 +250,9 @@ rule vembrane:
 
 rule vaf:
     input:
-        "results/calls/hg38/vembrane/{upload_id}.{fathers_pool_id}.{mothers_pool_id}.tsv"
+        "results/calls/hg19/vembrane/{upload_id}.{fathers_pool_id}.{mothers_pool_id}.tsv"
     output:
-        "results/calls/hg38/vembrane/{upload_id}.{fathers_pool_id}.{mothers_pool_id}.VAF.tsv"
+        "results/calls/hg19/vembrane/{upload_id}.{fathers_pool_id}.{mothers_pool_id}.VAF.tsv"
     conda:
         "../envs/pandas.yaml"
     shell:
@@ -261,7 +262,7 @@ rule vaf:
 rule merge_upload_tsv_and_calls_vaf:
     input:
         upload_tsv = "results/candidates/hg19/{upload_id}.hg19_candidates.tsv",
-        vaf_tsv = "results/calls/hg38/vembrane/{upload_id}.{fathers_pool_id}.{mothers_pool_id}.VAF.tsv"
+        vaf_tsv = "results/calls/hg19/vembrane/{upload_id}.{fathers_pool_id}.{mothers_pool_id}.VAF.tsv"
     output:
         "../download/{upload_id}.{fathers_pool_id}.{mothers_pool_id}.exome_pools.tsv"
     conda:
