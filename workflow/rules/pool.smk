@@ -1,14 +1,32 @@
+# rule varvis_hg19_candidates_csv_to_tsv:
+#     input:
+#         "../upload/hg19/{upload_id}.csv"
+#     output:
+#         "results/candidates/hg19/{upload_id}.hg19_candidates.tsv"
+#     shell:
+#         "cat {input} "
+#         "| dos2unix "
+#         "| sed 's/,/\t/g' "
+#         """| sed 's/"//g' """
+#         """| sed 's/"//g' """
+#         "| sed 's/^\t/NA\t/; :a;s/\t\(\t\|$\)/\tNA\\1/;ta' "
+#         ">{output} "
+
+
 rule varvis_hg19_candidates_csv_to_tsv:
     input:
         "../upload/hg19/{upload_id}.csv"
     output:
         "results/candidates/hg19/{upload_id}.hg19_candidates.tsv"
+    log:
+        "results/log/{upload_id}.varvis_hg19_candidates_csv_to_tsv.log"
+    conda:
+        "../envs/R.yaml"
     shell:
-        "cat {input} "
-        "| dos2unix "
-        "| sed 's/,/\t/g' "
-        "| sed 's/^\t/NA\t/; :a;s/\t\(\t\|$\)/\tNA\\1/;ta' "
-        ">{output} "
+        "Rscript workflow/scripts/csv2tsv.R "
+        "{input} "
+        "{output} "
+        "> {log} 2>&1 "
 
 
 rule varvis_hg19_csv_to_candidates_vcf:
