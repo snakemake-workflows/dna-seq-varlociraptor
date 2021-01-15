@@ -3,8 +3,9 @@ samples: config/samples_pools.tsv
 units: config/units_pools.tsv
 #varvis_hg19_csv: ../upload/hg19/M83235_All_genes_21-10-2020_09-09_CaseVariants.csv
 #person_id: M83235_All_genes_21-10-2020_09-09_CaseVariants
-#fathers_pool_id: CSDN52
-#mothers_pool_id: CSDN47
+#person_id: M76301_All_genes_15-01-2021_14-36_CaseVariants
+#fathers_pool_id: CSDN53
+#mothers_pool_id: CSDN48
 
 
 igv_report:
