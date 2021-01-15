@@ -45,6 +45,7 @@ rule all:
     input:
         expand("results/recal/{sample}.sorted.bam", sample=samples.sample_name),
 #
+#         expand("results/candidates/hg19/{person_id}.hg19_candidates.tsv", person_id=config["person_id"]),
 #         expand("results/candidates/hg19/{person_id}.hg19_candidates.vcf", person_id=config["person_id"]),
 #         ##expand("results/candidates/hg19/{person_id}.hg19_candidates.bed", person_id=person_id),
 #         expand("results/candidates/hg38/{person_id}.hg38_candidates.vcf", person_id=person_id),
