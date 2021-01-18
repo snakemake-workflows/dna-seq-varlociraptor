@@ -11,7 +11,9 @@ rule freebayes:
     log:
         "logs/freebayes/{group}.log"
     params:
-        extra=config["params"].get("freebayes", ""),
+        # genotyping is performed by varlociraptor, hence we deactivate it in freebayes by 
+        # always setting --pooled-continuous
+        extra=config["params"].get("freebayes", "") + " --pooled-continuous",
     threads: workflow.cores - 1 # use all available cores -1 (because of the pipe) for calling
     wrapper:
         "0.68.0/bio/freebayes"
