@@ -230,10 +230,16 @@ properties:
             type: string
         required:
           - MarkDuplicates
+      freebayes:
+        type: object
+        properties:
+          min_allele_frequency:
+            type: number
     required:
       - gatk
       - picard
       - cutadapt
+      - freebayes
 
 required:
   - samples
