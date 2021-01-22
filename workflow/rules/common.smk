@@ -306,11 +306,34 @@ def get_fastqs(wc):
 
 
 def get_vembrane_expression(wc):
-    expression=["INDEX, CHROM, POS, REF, ALT[0], ANN['Consequence'], ANN['IMPACT'], ANN['SYMBOL'], ANN['Feature'], INFO['gnomad_AF']"]
+    expression = (
+        config["tables"]
+        .get("output", {})
+        .get(
+            "expression",
+            "INDEX, CHROM, POS, REF, ALT[0], ANN['Consequence'], ANN['IMPACT'], ANN['SYMBOL'], ANN['Feature']",
+        )
+    )
+    parts = [expression]
     if config["tables"].get("output", {}).get("event_prob", False):
-        expression.append(", ".join(f"1-10**(-INFO['PROB_{x.upper()}']/10)" for x in config["calling"]["fdr-control"]["events"][wc.event]["varlociraptor"]))
+        parts.append(
+            ", ".join(
+                f"1-10**(-INFO['PROB_{x.upper()}']/10)"
+                for x in config["calling"]["fdr-control"]["events"][wc.event][
+                    "varlociraptor"
+                ]
+            )
+        )
     if config["tables"].get("output", {}).get("genotype", False):
-        expression.append(", ".join(f"FORMAT['AF']['{sample}']" for sample in get_group_sample_aliases(wc)))
+        parts.append(
+            ", ".join(
+                f"FORMAT['AF']['{sample}']" for sample in get_group_sample_aliases(wc)
+            )
+        )
     if config["tables"].get("output", {}).get("depth", False):
-        expression.append(", ".join(f"FORMAT['DP']['{sample}']" for sample in get_group_sample_aliases(wc)))
-    return ", ".join(expression)
+        parts.append(
+            ", ".join(
+                f"FORMAT['DP']['{sample}']" for sample in get_group_sample_aliases(wc)
+            )
+        )
+    return ", ".join(parts)

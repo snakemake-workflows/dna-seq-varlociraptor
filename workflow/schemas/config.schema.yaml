@@ -94,7 +94,7 @@ properties:
             type: string
           genotype:
             type: boolean
-          genotype:
+          coverage:
             type: boolean
           event_prob:
             type: boolean
