@@ -21,7 +21,7 @@ rule varlociraptor_preprocess:
         bam=lambda w: get_group_bams(w),
         bai=lambda w: get_group_bams(w, bai=True),
     output:
-        temp("results/observations/{group}/{sample}.{caller}.{scatteritem}.bcf")
+        "results/observations/{group}/{sample}.{caller}.{scatteritem}.bcf"
     params:
         max_depth="--max-depth {}".format(config["params"]["varlociraptor_preprocess"].get("max_depth", "200"))
     log:
