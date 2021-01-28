@@ -17,5 +17,5 @@ rule vcf_report:
     conda:
         "../envs/rbt.yaml"
     shell:
-        "rbt vcf-report {input.ref} --bams {params.bams} --vcfs {params.bcfs} --format {params.format_field} "
+        "rbt vcf-report {input.ref} --bams {params.bams} --vcfs {params.bcfs} --formats {params.format_field} "
         "--info PROB_* --js {params.template} -d {params.max_read_depth} --js-file {params.js_files} -- {output}"
