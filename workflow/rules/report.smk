@@ -1,4 +1,5 @@
 rule vcf_report:
+    threads: 8
     input:
         ref="resources/genome.fasta",
         bams=get_batch_bams,
@@ -18,4 +19,5 @@ rule vcf_report:
         "../envs/rbt.yaml"
     shell:
         "rbt vcf-report {input.ref} --bams {params.bams} --vcfs {params.bcfs} --formats {params.format_field} "
-        "--infos PROB_* --js {params.template} -d {params.max_read_depth} --js-file {params.js_files} -- {output}"
+        "--threads {threads} --infos PROB_* --custom-js-template {params.template} -d {params.max_read_depth} "
+        "--custom-js-files {params.js_files} -- {output}"
