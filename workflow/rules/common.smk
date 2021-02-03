@@ -157,6 +157,9 @@ def get_consensus_input(wildcards):
         return "results/consensus/fastq/{}.se.fq".format(wildcards.sample)
     return ["results/consensus/fastq/{}.1.fq".format(wildcards.sample), "results/consensus/fastq/{}.2.fq".format(wildcards.sample)]
 
+def get_resource(name):
+    return str((Path(workflow.snakefile).parent / "resources") / name)
+
 def get_regions():
     if is_activated("primers/trimming"):
         return "results/primers/target_regions.merged.bed"
