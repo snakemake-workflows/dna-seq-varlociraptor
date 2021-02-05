@@ -271,8 +271,8 @@ wildcard_constraints:
     group="|".join(samples["group"].unique()),
     sample="|".join(samples["sample_name"]),
     caller="|".join(["freebayes", "delly"]),
-    scatteritem="[0-9]+",
-    filter="|".join(config["calling"]["filter"])
+    filter="|".join(config["calling"]["filter"]),
+    scatteritem="\d+-of-\d+"
 
 caller=list(filter(None, ["freebayes" if is_activated("calling/freebayes") else None, "delly" if is_activated("calling/delly") else None]))
 
