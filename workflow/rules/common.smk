@@ -272,7 +272,8 @@ wildcard_constraints:
     sample="|".join(samples["sample_name"]),
     caller="|".join(["freebayes", "delly"]),
     filter="|".join(config["calling"]["filter"]),
-    scatteritem="\d+-of-\d+"
+    #Todo replace regex by "\d+-of-\d`plus`" when linter allows it
+    scatteritem="\d+-of-\d\d*"
 
 caller=list(filter(None, ["freebayes" if is_activated("calling/freebayes") else None, "delly" if is_activated("calling/delly") else None]))
 
