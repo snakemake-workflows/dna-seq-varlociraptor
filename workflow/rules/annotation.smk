@@ -48,7 +48,6 @@ rule annotate_vcfs:
     log:
         "logs/annotate-vcfs/{prefix}.log"
     params:
-        extra="-Xmx4g", #Never used
         pipes=get_annotation_pipes
     conda:
         "../envs/snpsift.yaml"

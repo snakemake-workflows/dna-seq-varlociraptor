@@ -223,6 +223,11 @@ properties:
         required:
           - BaseRecalibrator
           - applyBQSR
+      varlociraptor_preprocess:
+        type: object
+        properties:
+          max_depth:
+            type: number
       picard:
         type: object
         properties:

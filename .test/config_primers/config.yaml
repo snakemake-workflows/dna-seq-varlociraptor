@@ -75,7 +75,7 @@ params:
     BaseRecalibrator: ""
     applyBQSR: ""
   varlociraptor_preprocess:
-    max_depth: "200"
+    max_depth: 200
   varlociraptor_call:
     omit_read_bias: false # Set true when processing panel data
   freebayes:
