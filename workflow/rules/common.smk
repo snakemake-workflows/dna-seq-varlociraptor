@@ -20,7 +20,7 @@ def get_final_output():
         final_output.extend(expand("results/merged-calls/{group}.{event}.fdr-controlled.bcf",
                             group=groups,
                             event=config["calling"]["fdr-control"]["events"]))
-    
+
     if config["tables"]["activate"]:
         final_output.extend(expand("results/tables/{group}.{event}.fdr-controlled.tsv",
                             group=groups,
@@ -45,7 +45,9 @@ validate(units, schema="../schemas/units.schema.yaml")
 
 def get_recalibrate_quality_input(wildcards, bai=False):
     ext = "bai" if bai else "bam"
-    if is_activated("remove_duplicates"):
+    if is_activated("calc_consensus_reads"):
+        return "results/consensus/{}.sorted.{}".format(wildcards.sample, ext)
+    elif is_activated("remove_duplicates"):
         return "results/dedup/{}.sorted.{}".format(wildcards.sample, ext)
     else:
         return "results/mapped/{}.sorted.{}".format(wildcards.sample, ext)
@@ -150,6 +152,13 @@ def get_batch_bams(wildcards, event=False):
                 bams.append(bam)
     return bams
 
+def get_consensus_input(wildcards):
+    if wildcards.read_type == "se":
+        return "results/consensus/fastq/{}.se.fq".format(wildcards.sample)
+    return ["results/consensus/fastq/{}.1.fq".format(wildcards.sample), "results/consensus/fastq/{}.2.fq".format(wildcards.sample)]
+
+def get_resource(name):
+    return str((Path(workflow.snakefile).parent / "resources") / name)
 
 def get_regions():
     if is_activated("primers/trimming"):
@@ -192,13 +201,11 @@ def get_tmb_targets():
     else:
         return []
 
-
 def get_scattered_calls(ext=".bcf"):
-    Item = namedtuple("Item", ["caller", "sorted"])
     def inner(wildcards):
         return expand(
-            "results/calls/{{group}}.{item.caller}.{{scatteritem}}{item.sorted}{ext}",
-            item=[Item(c, "" if c == "freebayes" else ".sorted") for c in caller],
+            "results/calls/{{group}}.{caller}.{{scatteritem}}.sorted{ext}",
+            caller=caller,
             ext=ext,
         )
     return inner
@@ -264,8 +271,9 @@ wildcard_constraints:
     group="|".join(samples["group"].unique()),
     sample="|".join(samples["sample_name"]),
     caller="|".join(["freebayes", "delly"]),
-    scatteritem="[0-9]+",
-    filter="|".join(config["calling"]["filter"])
+    filter="|".join(config["calling"]["filter"]),
+    #Todo replace regex by "\d+-of-\d`plus`" when linter allows it
+    scatteritem="\d+-of-\d\d*"
 
 caller=list(filter(None, ["freebayes" if is_activated("calling/freebayes") else None, "delly" if is_activated("calling/delly") else None]))
 

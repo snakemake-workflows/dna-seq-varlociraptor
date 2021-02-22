@@ -1,8 +1,3 @@
-// customize column_values to display the attributes of your choice to the sidebar
-let column_values = ['id', 'position', 'reference', 'alternatives', 'type'];
-// customize which parts of the annotation field to display at the sidebar
-let ann_values = [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15]
-
 let score_thresholds = {}
 score_thresholds["PolyPhen"] = { "Benign": [0, 0.149], "Possibly Damaging": [0.15, 0.849], "Probably Damaging": [0.85, 1] }
 score_thresholds["SIFT"] = {"Benign": [0, 0.05], "Damaging": [0.051, 1] }
@@ -12,89 +7,9 @@ score_scales["SIFT"] = { "colors": ["#2ba6cb", "#ff5555"], "entries": ["Benign",
 score_scales["PolyPhen"] = { "colors": ["#2ba6cb", "#ffa3a3", "#ff5555"], "entries": ["Benign", "Possibly Damaging", "Probably Damaging"] }
 
 $(document).ready(function () {
-
-
-
     $("html").on('click', '.variant-row', function () {
-        let vis_len = $(this).data('vislen');
-        if ($(this).data('packed')) {
-            for (let t = 1; t <= vis_len; t++) {
-                let compressed_specs = $(this).data('vis' + t.toString());
-                let unpacker = new jsonm.Unpacker();
-                unpacker.setMaxDictSize(100000);
-                $(this).data('vis' + t.toString(), unpacker.unpack(compressed_specs));
-            }
-            $(this).data('packed', false);
-        }
-        let d = $(this).data('description')
-        d = d.replace(/, /g,"\",\"");
-        d = d.replace("[","[\"");
-        d = d.replace("]","\"]")
-        let description = JSON.parse(d);
-
-        for (let t = 1; t <= vis_len; t++) {
-            let specs = $(this).data('vis' + t.toString());
-            specs.data[1].values.forEach(function(a) {
-                if (a.row > 0 && Array.isArray(a.flags)) {
-                    let flags = {};
-                    a.flags.forEach(function(b) {
-                        if (b === 1) {
-                            flags[b] = "template having multiple segments in sequencing";
-                        } else if (b === 2) {
-                            flags[b] = "each segment properly aligned according to the aligner";
-                        } else if (b === 4) {
-                            flags[b] = "segment unmapped";
-                        } else if (b === 8) {
-                            flags[b] = "next segment in the template unmapped";
-                        } else if (b === 16) {
-                            flags[b] = "SEQ being reverse complemented";
-                        } else if (b === 32) {
-                            flags[b] = "SEQ of the next segment in the template being reverse complemented";
-                        } else if (b === 64) {
-                            flags[b] = "the first segment in the template";
-                        } else if (b === 128) {
-                            flags[b] = "the last segment in the template";
-                        } else if (b === 256) {
-                            flags[b] = "secondary alignment";
-                        } else if (b === 512) {
-                            flags[b] = "not passing filters, such as platform/vendor quality controls";
-                        } else if (b === 1024) {
-                            flags[b] = "PCR or optical duplicate";
-                        } else if (b === 2048) {
-                            flags[b] = "vega lite lines";
-                        }
-                    });
-                    a.flags = flags;
-                }
-            });
-            specs.title = 'Sample: ' + $(this).data('vis-sample' + t.toString());
-            specs.width = $('#vis' + t.toString()).width() - 40;
-            let v = vegaEmbed('#vis' + t.toString(), specs);
-        }
-
-        $("#sidebar").empty();
-        $.each($(this).data(), function(i, v) {
-            if (i !== 'index' && !i.includes("ann") && column_values.includes(i)) {
-                $('#sidebar').append('<tr><th class="thead-dark">' + i + '</th><td>' + v + '</td></tr>');
-            }
-        });
-        $("#ann-sidebar").empty();
         let ann_length = $(this).data('annlen');
         let that = this;
-        ann_values.forEach(function (x) {
-            let name = description[x];
-            $('#ann-sidebar').append('<tr>');
-            $('#ann-sidebar').append('<th class="thead-dark" style="position: sticky; left:-1px; z-index: 1; background: white">' + name + '</th>');
-            for (let j = 1; j <= ann_length; j++) {
-                let ix = x + 1;
-                let field = 'ann[' + j + '][' + ix + ']';
-                let val = $(that).data(field);
-                $('#ann-sidebar').append('<td>' + val + '</td>');
-            }
-            $('#ann-sidebar').append('</tr>');
-        });
-
-
         $('#ann-sidebar').append('<tr>');
         $('#ann-sidebar').append('<th class="thead-dark" style="position: sticky; left:-1px; z-index: 1; background: white">Linkouts</th>');
         var sift_scores = []
@@ -102,13 +17,13 @@ $(document).ready(function () {
         for (let j = 1; j <= ann_length; j++) {
             var transcript = $(that).data('ann[' + j + '][7]')
             sift_score = $(that).data('ann[' + j + '][35]')
-            if (sift_score != "") {
+            if (sift_score != "" && sift_score !== undefined) {
                 sift_score = sift_score.split("(")[1].slice(0, -1)
                 sift_scores = parse_score(sift_scores, sift_score, "SIFT", transcript)
             }
 
             polyphen_score = $(that).data('ann[' + j + '][36]')
-            if (polyphen_score != "") {
+            if (polyphen_score != "" && polyphen_score !== undefined) {
                 polyphen_score = polyphen_score.split("(")[1].slice(0, -1)
                 polyphen_scores = parse_score(polyphen_scores, polyphen_score, "PolyPhen", transcript)
             }
@@ -121,9 +36,9 @@ $(document).ready(function () {
             $('#Linkout'+ j).append('<div id="Div' + j +'" class="dropdown show">')
             $('#Div'+ j).append('<a class="btn btn-secondary dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Select source</a>')
             $('#Div'+ j).append('<div id="Button' + j + '" div class="dropdown-menu" aria-labelledby="dropdownMenuLink">')
-            $('#Button'+ j).append('<a class="dropdown-item" href="https://clinicaltrials.gov/ct2/results?cond=&term=' + gene + '&cntry=&state=&city=&dist=" target="_blank">ClinicalTrials</a><br>');
-            $('#Button'+ j).append('<a class="dropdown-item" href="https://www.cbioportal.org/ln?q=' + gene + '" target="_blank">cBioPortal</a><br>');
-            $('#Button'+ j).append('<a class="dropdown-item" href="https://oncokb.org/gene/' + gene + '" target="_blank">OncoKB</a><br>');
+            $('#Button'+ j).append('<a class="dropdown-item" href="https://clinicaltrials.gov/ct2/results?cond=&term=' + gene + '&cntry=&state=&city=&dist=" target="_blank">ClinicalTrials</a>');
+            $('#Button'+ j).append('<a class="dropdown-item" href="https://www.cbioportal.org/ln?q=' + gene + '" target="_blank">cBioPortal</a>');
+            $('#Button'+ j).append('<a class="dropdown-item" href="https://oncokb.org/gene/' + gene + '" target="_blank">OncoKB</a>');
             $('#Button'+ j).append('<a class="dropdown-item" href="https://www.ensembl.org/homo_sapiens/Gene/Summary?db=core;g='+ ensembl_id +'" target="_blank">Ensembl</a>');
             $('#Button'+ j).append('<a class="dropdown-item" href="https://whi.color.com/gene/'+ ensembl_id +'" target="_blank">FLOSSIES</a>');
             $('#Button'+ j).append('<a class="dropdown-item" href="https://varsome.com/gene/'+ gene +'" target="_blank">VarSome</a>');
@@ -158,10 +73,10 @@ $(document).ready(function () {
                         "calculate": "datum.prob < 0.01 ? 1 : 0",
                         "as": "alpha"
                     },
-                    {
-                        "calculate": "datum.prob < 0.01 ? datum.prob : 0.01",
-                        "as": "prob"
-                    }
+                        {
+                            "calculate": "datum.prob < 0.01 ? datum.prob : 0.01",
+                            "as": "prob"
+                        }
                     ],
                     "mark": {
                         "type": "circle",
@@ -206,52 +121,52 @@ $(document).ready(function () {
                         }]
                     }
                 },
-                {
-                    "transform": [{
-                        "calculate": "datum.prob >= 0.01 ? 1 : 0",
-                        "as": "alpha"
-                    },
                     {
-                        "calculate": "datum.prob >= 0.01 ? datum.prob : 0.01",
-                        "as": "prob"
-                    }
-                    ],
-                    "mark": "circle",
-                    "encoding": {
-                        "y": {
-                            "field": "prob_type",
-                            "type": "nominal",
-                            "axis": null,
-                            "sort": "ascending"
+                        "transform": [{
+                            "calculate": "datum.prob >= 0.01 ? 1 : 0",
+                            "as": "alpha"
                         },
-                        "x": {
-                            "field": "prob",
-                            "type": "quantitative",
-                            "title": "Probability",
-                            "scale": {
-                                "type": "log"
+                            {
+                                "calculate": "datum.prob >= 0.01 ? datum.prob : 0.01",
+                                "as": "prob"
                             }
-                        },
-                        "color": {
-                            "type": "nominal",
-                            "field": "alpha",
-                            "scale": {
-                                "domain": [0, 1],
-                                "range": ["#00000000", "#32a852"]
+                        ],
+                        "mark": "circle",
+                        "encoding": {
+                            "y": {
+                                "field": "prob_type",
+                                "type": "nominal",
+                                "axis": null,
+                                "sort": "ascending"
                             },
-                            "legend": null
-                        },
-                        "tooltip": [{
-                            "field": "prob_type",
-                            "type": "nominal",
-                            "title": "Type"
-                        }, {
-                            "field": "prob",
-                            "type": "quantitative",
-                            "title": "Probability"
-                        }]
+                            "x": {
+                                "field": "prob",
+                                "type": "quantitative",
+                                "title": "Probability",
+                                "scale": {
+                                    "type": "log"
+                                }
+                            },
+                            "color": {
+                                "type": "nominal",
+                                "field": "alpha",
+                                "scale": {
+                                    "domain": [0, 1],
+                                    "range": ["#00000000", "#32a852"]
+                                },
+                                "legend": null
+                            },
+                            "tooltip": [{
+                                "field": "prob_type",
+                                "type": "nominal",
+                                "title": "Type"
+                            }, {
+                                "field": "prob",
+                                "type": "quantitative",
+                                "title": "Probability"
+                            }]
+                        }
                     }
-                }
                 ],
                 "config": {
                     "view": {
@@ -305,11 +220,11 @@ $(document).ready(function () {
                 observations.push({
                     "sample": sample_name,
                     "strand": strand,
-                    "strand_orientation": strand + ' ' + orientation[result[5]], 
+                    "strand_orientation": strand + ' ' + orientation[result[5]],
                     "effect": effect,
                     "times": parseFloat(result[1]),
                     "quality": quality,
-                    "orientation": orientation[result[5]] 
+                    "orientation": orientation[result[5]]
                 })
             }
         })

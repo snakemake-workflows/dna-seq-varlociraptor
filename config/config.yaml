@@ -96,7 +96,11 @@ calling:
           - "SOMATIC_TUMOR_MEDIUM"
         filter: filtername
 
+# Will be ignored if calc_consensus_reads is activated
 remove_duplicates:
+  activate: true
+
+calc_consensus_reads:
   activate: true
 
 annotations:
@@ -128,3 +132,9 @@ params:
   gatk:
     BaseRecalibrator: ""
     applyBQSR: ""
+  varlociraptor_preprocess:
+    max_depth: 200 # Set when processing panel data with high coverage
+  varlociraptor_call:
+    omit_read_bias: false # Set true when processing panel data
+  freebayes:
+    min_alternate_fraction: 0.05 # Reduce for calling variants with lower VAFs

@@ -168,6 +168,12 @@ properties:
       activate:
         type: boolean
 
+  calc_consensus_reads:
+    type: object
+    properties:
+      activate:
+        type: boolean
+
   annotations:
     type: object
     properties:
@@ -217,6 +223,11 @@ properties:
         required:
           - BaseRecalibrator
           - applyBQSR
+      varlociraptor_preprocess:
+        type: object
+        properties:
+          max_depth:
+            type: number
       picard:
         type: object
         properties:
@@ -224,10 +235,16 @@ properties:
             type: string
         required:
           - MarkDuplicates
+      freebayes:
+        type: object
+        properties:
+          min_allele_frequency:
+            type: number
     required:
       - gatk
       - picard
       - cutadapt
+      - freebayes
 
 required:
   - samples
