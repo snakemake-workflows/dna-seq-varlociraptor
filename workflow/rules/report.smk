@@ -1,4 +1,5 @@
 rule vcf_report:
+    threads: 8
     input:
         ref="resources/genome.fasta",
         bams=get_batch_bams,
