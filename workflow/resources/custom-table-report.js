@@ -45,6 +45,7 @@ $(document).ready(function () {
             $('#Button'+ j).append('<a class="dropdown-item" href="https://pandrugs.org/#!/query/?genes='+ gene +'" target="_blank">PanDrugs</a>');
             $('#Button'+ j).append('<a class="dropdown-item" href="https://www.mycancergenome.org/content/gene/'+ gene +'" target="_blank">My Cancer Genome</a>');
             $('#Button'+ j).append('<a class="dropdown-item" href="https://search.cancervariants.org/#'+ gene +'" target="_blank">MetaKB</a>');
+            $('#Button'+ j).append('<a class="dropdown-item" href="https://www.proteinatlas.org/search/'+ gene +'" target="_blank">The Human Protein Atlas</a>');
         }
         $('#ann-sidebar').append('</tr>');
 
