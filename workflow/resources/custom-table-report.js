@@ -42,6 +42,7 @@ $(document).ready(function () {
             $('#Button'+ j).append('<a class="dropdown-item" href="https://www.ensembl.org/homo_sapiens/Gene/Summary?db=core;g='+ ensembl_id +'" target="_blank">Ensembl</a>');
             $('#Button'+ j).append('<a class="dropdown-item" href="https://whi.color.com/gene/'+ ensembl_id +'" target="_blank">FLOSSIES</a>');
             $('#Button'+ j).append('<a class="dropdown-item" href="https://varsome.com/gene/'+ gene +'" target="_blank">VarSome</a>');
+            $('#Button'+ j).append('<a class="dropdown-item" href="https://pandrugs.org/#!/query/?genes='+ gene +'" target="_blank">PanDrugs</a>');
         }
         $('#ann-sidebar').append('</tr>');
 

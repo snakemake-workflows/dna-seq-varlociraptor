@@ -1,5 +1,4 @@
 rule vcf_report:
-    threads: 8
     input:
         ref="resources/genome.fasta",
         bams=get_batch_bams,
@@ -19,6 +18,7 @@ rule vcf_report:
         "logs/igv-report/{batch}.{event}.log"
     conda:
         "../envs/rbt.yaml"
+    threads: 8
     shell:
         "rbt vcf-report {input.ref} --bams {params.bams} --vcfs {params.bcfs} "
         "--formats {params.format_field} --threads {threads} --infos PROB_*  "
