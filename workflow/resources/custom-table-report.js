@@ -359,10 +359,10 @@ $(document).ready(function () {
             var frequency = 0;
             var k = Math.round(alleleFreq * coverage);
             while (frequency <= 1) {
-                var value = Math.exp((coverage+0.5)*Math.log(coverage)-(k+0.5)*Math.log(k)-(coverage-k+0.5)*Math.log(coverage-k)-0.5*Math.log(2*Math.PI) + (Math.log(frequency)*k) + (Math.log(1 - frequency)*(coverage - k)))
+                var prob_binom = Math.exp(((coverage+0.5)*Math.log(coverage)-(k+0.5)*Math.log(k)-(coverage-k+0.5)*Math.log(coverage-k)-0.5*Math.log(2*Math.PI)) + (Math.log(frequency)*k) + (Math.log(1 - frequency)*(coverage - k)))
                 binomValues.push({
                     "frequency": frequency,
-                    "binomProb": value,
+                    "binomProb": prob_binom,
                     "sample": sample_name
                 });
                 frequency += 0.01;
