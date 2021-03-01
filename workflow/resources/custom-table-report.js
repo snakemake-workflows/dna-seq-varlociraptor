@@ -359,7 +359,7 @@ $(document).ready(function () {
             var frequency = 0;
             var k = Math.round(alleleFreq * coverage);
             while (frequency <= 1) {
-                var value = math.combinations(coverage, k) * Math.pow(frequency, k) * Math.pow((1 - frequency), (coverage - k))
+                var value = Math.exp((coverage+0.5)*Math.log(coverage)-(k+0.5)*Math.log(k)-(coverage-k+0.5)*Math.log(coverage-k)-0.5*Math.log(2*Math.PI) + (Math.log(frequency)*k) + (Math.log(1 - frequency)*(coverage - k)))
                 binomValues.push({
                     "frequency": frequency,
                     "binomProb": value,
