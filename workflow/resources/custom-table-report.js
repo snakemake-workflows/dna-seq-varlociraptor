@@ -356,7 +356,7 @@ $(document).ready(function () {
 
         function calcBinomDist(alleleFreq, coverage, sample_name) {
             var binomValues = [];
-            var frequency = 0;
+            var frequency = 0.01;
             var k = Math.round(alleleFreq * coverage);
             while (frequency <= 1) {
                 var prob_binom = Math.exp(((coverage+0.5)*Math.log(coverage)-(k+0.5)*Math.log(k)-(coverage-k+0.5)*Math.log(coverage-k)-0.5*Math.log(2*Math.PI)) + (Math.log(frequency)*k) + (Math.log(1 - frequency)*(coverage - k)))
