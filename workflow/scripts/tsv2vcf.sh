@@ -15,22 +15,22 @@ upload_id_fix=$(echo $upload_id | tr "_" "-")
 tempdir=$(mktemp -d)
 echo "TEMPDIR: $tempdir"
 
-# csv to tsv
-#cat $1 | dos2unix | sed 's/,/\t/g' | sed 's/^\t/NA\t/; :a;s/\t\(\t\|$\)/\tNA\1/;ta' > $tempdir/${upload_id}.tsv 
+## csv to tsv
+## cat $1 | dos2unix | sed 's/,/\t/g' | sed 's/^\t/NA\t/; :a;s/\t\(\t\|$\)/\tNA\1/;ta' > $tempdir/${upload_id}.tsv
 
 ## map
 tail -n+2 "$1" \
-    | awk 'BEGIN{OFS="\t"}{id=sprintf("%s_%s_%s_%s_%s", $3, $4, $5, $6, $7); print $3, id, 0, $4}' \
+    | awk 'BEGIN{OFS="\t"}{id=sprintf("%s_%s_%s_%s_%s", $1, $2, $3, $4, $5); print $1, id, 0, $2}' \
     | sed 's/^XY/25/' \
     | sed 's/^MT/26/' \
     | sed 's/^X/23/' \
     | sed 's/Y/24/' \
     > $tempdir/${upload_id}.map
 
-## ped
-tail -n+2 "$1" | awk -v upload_id_fix=$upload_id_fix 'BEGIN{OFS=" "; aggr=""}{aggr=aggr " " $6 " " $7}END{print upload_id_fix, upload_id_fix, 0, 0, 0, -9 aggr}' > $tempdir/${upload_id}.ped
+### ped
+tail -n+2 "$1" | awk -v upload_id_fix=$upload_id_fix 'BEGIN{OFS=" "; aggr=""}{aggr=aggr " " $4 " " $5}END{print upload_id_fix, upload_id_fix, 0, 0, 0, -9 aggr}' > $tempdir/${upload_id}.ped
 
-## convert map + ped to vcf
+### convert map + ped to vcf
 plink --file $tempdir/$upload_id --recode vcf --out $tempdir/$upload_id
 
 cat $tempdir/${upload_id}.vcf \
