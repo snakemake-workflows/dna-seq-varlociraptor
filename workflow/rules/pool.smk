@@ -291,3 +291,18 @@ rule merge_upload_tsv_and_calls_vaf:
         "{input.vaf_tsv} "
         "{output} "
 
+
+rule tsv_to_bed:
+    input:
+        "../download/{upload_id}.{fathers_pool_id}.{mothers_pool_id}.exome_pools.tsv"
+    output:
+        "../download/{upload_id}.{fathers_pool_id}.{mothers_pool_id}.exome_pools.bed"
+    log:
+        "results/log/{upload_id}.{fathers_pool_id}.{mothers_pool_id}.hg19.tsv_to_bed.log"
+    conda:
+        "../envs/R.yaml"
+    shell:
+        "Rscript workflow/scripts/varlociraptor_tsv_to_bed.R "
+        "{input} "
+        "{output} "
+        "2>{log} "
