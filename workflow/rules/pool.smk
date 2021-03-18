@@ -29,9 +29,25 @@ rule varvis_hg19_candidates_csv_to_tsv:
         "> {log} 2>&1 "
 
 
-rule varvis_hg19_csv_to_candidates_vcf:
+rule varvis_hg19_candidates_tsv_to_core_tsv:
     input:
         "results/candidates/hg19/{upload_id}.hg19_candidates.tsv"
+    output:
+        "results/candidates/hg19/{upload_id}.hg19_candidates.core.tsv"
+    log:
+        "results/log/{upload_id}.varvis_hg19_candidates_tsv_to_core_tsv.log"
+    conda:
+        "../envs/R.yaml"
+    shell:
+        "Rscript workflow/scripts/tsv2core_tsv.R "
+        "{input} "
+        "{output} "
+        "> {log} 2>&1 "
+
+
+rule varvis_hg19_csv_to_candidates_vcf:
+    input:
+        "results/candidates/hg19/{upload_id}.hg19_candidates.core.tsv"
     output:
         "results/candidates/hg19/{upload_id}.hg19_candidates.vcf"
     conda:
