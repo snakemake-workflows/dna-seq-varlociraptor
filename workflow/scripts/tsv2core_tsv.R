@@ -17,5 +17,5 @@ dim(d)
 d2 = d %>%
   select(Chr, Start, End, Ref, Alt)
 
-write_tsv(d2, outfile, col_names=F)
+write_tsv(d2, outfile)
 
