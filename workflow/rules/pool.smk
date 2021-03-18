@@ -305,4 +305,4 @@ rule tsv_to_bed:
         "Rscript workflow/scripts/varlociraptor_tsv_to_bed.R "
         "{input} "
         "{output} "
-        "2>{log} "
+        "> {log} 2>&1 "
