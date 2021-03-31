@@ -17,19 +17,33 @@ rule freebayes:
         "0.68.0/bio/freebayes"
 
 
+
 rule norm_freebayes_calls:
     input:
-        "results/candidate-calls/{group}.freebayes.unnormalized.bcf",
-        "resources/genome.fasta",
-        "resources/genome.fasta.fai"
+        bcf="results/candidate-calls/{group}.freebayes.unnormalized.bcf",
+        ref="resources/genome.fasta",
+        fai="resources/genome.fasta.fai"
     output:
         "results/candidate-calls/{group}.freebayes.bcf"
-    params:
-        lambda w, input: "-Ob -f {}".format(input[1])
-    log:
-        "logs/norm_freebayes/{group}.log"
-    wrapper:
-        "0.68.0/bio/bcftools/norm"
+    conda:
+        "../envs/decompose.yaml"
+    shell:
+        "bcftools norm -f {input.ref} {input.bcf} | vt decompose_blocksub /dev/stdin | bcftools view -Ob > {output}"
+
+
+# rule norm_freebayes_calls:
+#     input:
+#         "results/candidate-calls/{group}.freebayes.unnormalized.bcf",
+#         "resources/genome.fasta",
+#         "resources/genome.fasta.fai"
+#     output:
+#         "results/candidate-calls/{group}.freebayes.bcf"
+#     params:
+#         lambda w, input: "-Ob -f {}".format(input[1])
+#     log:
+#         "logs/norm_freebayes/{group}.log"
+#     wrapper:
+#         "0.68.0/bio/bcftools/norm"
 
 
 rule delly:

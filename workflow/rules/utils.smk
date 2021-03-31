@@ -48,10 +48,10 @@ rule testcase:
         obs=lambda w, input: ["{}={}".format(s, f) for s, f in zip(get_group_aliases(w), input.obs)],
         parent=lambda w, output: os.path.dirname(output[0])
     threads: workflow.cores
-    conda:
-        "../envs/varlociraptor.yaml"
+    # conda:
+    #     "../envs/varlociraptor.yaml"
     shell:
-        "varlociraptor "
+        "/vol/nano/depienne/aicardi/dna-seq-varlociraptor4/varlociraptor/target/release/varlociraptor "
         "call variants --testcase-prefix {output} --testcase-locus {wildcards.locus} "
         "generic --obs {params.obs} "
         "--scenario {input.scenario} 2> {log}"

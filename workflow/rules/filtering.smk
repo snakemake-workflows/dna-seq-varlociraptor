@@ -37,10 +37,10 @@ rule filter_odds:
         events=lambda wc: config["calling"]["fdr-control"]["events"][wc.event]["varlociraptor"]
     log:
         "logs/filter-calls/posterior_odds/{group}.{event}.{filter}.{scatteritem}.log"
-    conda:
-        "../envs/varlociraptor.yaml"
+    # conda:
+    #     "../envs/varlociraptor.yaml"
     shell:
-        "varlociraptor filter-calls posterior-odds --events {params.events} --odds barely < {input} > {output} 2> {log}"
+        "/vol/nano/depienne/aicardi/dna-seq-varlociraptor4/varlociraptor/target/release/varlociraptor filter-calls posterior-odds --events {params.events} --odds barely < {input} > {output} 2> {log}"
 
 
 rule gather_calls:
@@ -67,10 +67,10 @@ rule control_fdr:
         "logs/control-fdr/{group}.{vartype}.{event}.{filter}.log"
     params:
         query=get_fdr_control_params
-    conda:
-        "../envs/varlociraptor.yaml"
+    # conda:
+    #     "../envs/varlociraptor.yaml"
     shell:
-        "varlociraptor filter-calls control-fdr {input} --var {wildcards.vartype} "
+        "/vol/nano/depienne/aicardi/dna-seq-varlociraptor4/varlociraptor/target/release/varlociraptor filter-calls control-fdr {input} --var {wildcards.vartype} "
         "--events {params.query[events]} --fdr {params.query[threshold]} > {output} 2> {log}"
 
 
