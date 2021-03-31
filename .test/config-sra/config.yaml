@@ -60,7 +60,7 @@ annotations:
     activate: true
     known: resources/variation.vcf.gz
   dgidb:
-    activate: true
+    activate: false
 
 
 params:
@@ -70,6 +70,12 @@ params:
   gatk:
     BaseRecalibrator: ""
     applyBQSR: ""
+  varlociraptor_preprocess:
+    max_depth: 200
+  varlociraptor_call:
+    omit_read_bias: false # Set true when processing panel data
+  freebayes:
+    min_alternate_fraction: 0.05 # Reduce for calling variants with lower VAFs
 
 report:
   activate: false

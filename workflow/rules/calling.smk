@@ -18,12 +18,12 @@ rule varlociraptor_preprocess:
         ref="resources/genome.fasta",
         ref_idx="resources/genome.fasta.fai",
         candidates=get_candidate_calls(),
-        bam="results/recal/{sample}.sorted.bam",
-        bai="results/recal/{sample}.sorted.bai"
+        bam=lambda w: get_group_bams(w),
+        bai=lambda w: get_group_bams(w, bai=True),
     output:
         "results/observations/{group}/{sample}.{caller}.{scatteritem}.bcf"
     params:
-        omit_isize = "--omit-insert-size" if is_activated("primers/trimming") else ""
+        max_depth="--max-depth {}".format(config["params"]["varlociraptor_preprocess"].get("max_depth", 200))
     log:
         "logs/varlociraptor/preprocess/{group}/{sample}.{caller}.{scatteritem}.log"
     benchmark:
@@ -78,7 +78,7 @@ rule bcftools_concat:
     output:
         "results/calls/{group}.{scatteritem}.bcf"
     log:
-        "logs/condat-calls/{group}.{scatteritem}.log"
+        "logs/concat-calls/{group}.{scatteritem}.log"
     params:
         "-a -Ob" # TODO Check this
     wrapper:
