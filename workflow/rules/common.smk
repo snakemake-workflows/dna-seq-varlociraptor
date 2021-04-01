@@ -201,10 +201,10 @@ def get_tmb_targets():
     else:
         return []
 
-def get_scattered_calls(ext=".bcf"):
+def get_scattered_calls(ext="bcf"):
     def inner(wildcards):
         return expand(
-            "results/calls/{{group}}.{caller}.{{scatteritem}}.sorted{ext}",
+            "results/calls/{{group}}.{caller}.{{scatteritem}}.sorted.{ext}",
             caller=caller,
             ext=ext,
         )
@@ -238,16 +238,16 @@ def get_report_batch(wildcards):
     return groups
 
 
-def get_merge_calls_input(ext=".bcf"):
+def get_merge_calls_input(ext="bcf"):
     def inner(wildcards):
-        return expand("results/calls/{{group}}.{vartype}.{{event}}.{filter}.fdr-controlled{ext}",
+        return expand("results/calls/{{group}}.{vartype}.{{event}}.{filter}.fdr-controlled.{ext}",
                       ext=ext,
                       vartype=["SNV", "INS", "DEL", "MNV", "BND", "INV", "DUP", "REP"],
                       filter=config["calling"]["fdr-control"]["events"][wildcards.event]["filter"])
     return inner
 
-def get_merge_calls_input_report(wildcards, ext=".bcf"):
-    return expand("{{group}}.{vartype}.{{event}}.{filter}=results/calls/{{group}}.{vartype}.{{event}}.{filter}.fdr-controlled{ext}",
+def get_merge_calls_input_report(wildcards, ext="bcf"):
+    return expand("{{group}}.{vartype}.{{event}}.{filter}=results/calls/{{group}}.{vartype}.{{event}}.{filter}.fdr-controlled.{ext}",
                     ext=ext,
                     vartype=["SNV", "INS", "DEL", "MNV", "BND", "INV", "DUP", "REP"],
                     filter=config["calling"]["fdr-control"]["events"][wildcards.event]["filter"])

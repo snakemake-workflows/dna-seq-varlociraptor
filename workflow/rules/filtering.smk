@@ -76,8 +76,8 @@ rule control_fdr:
 
 rule merge_calls:
     input:
-        calls=get_merge_calls_input(".bcf"),
-        idx=get_merge_calls_input(".bcf.csi")
+        calls=get_merge_calls_input("bcf"),
+        idx=get_merge_calls_input("bcf.csi")
     output:
         "results/merged-calls/{group}.{event}.fdr-controlled.bcf"
     log:
