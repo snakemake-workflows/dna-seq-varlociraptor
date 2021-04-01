@@ -129,16 +129,33 @@ def get_group_sample_aliases(wildcards, controls=True):
         return samples.loc[samples["group"] == wildcards.group]["alias"]
     return samples.loc[(samples["group"] == wildcards.group) & (samples["control"] == "no")]["alias"]
 
+
+def get_varlociraptor_preprocessing_input(wildcards, bai=False):
+    ext = "bai" if bai else "bam"
+    if is_activated("primers/trimming"):
+        if group_is_paired_end(wildcards.group):
+            return "results/trimmed/{sample}.trimmed.{ext}".format(sample=wildcards.sample, ext=ext)
+        else:
+            WorkflowError("Primer trimming is only available for paired end data.")
+    return "results/recal/{sample}.sorted.{ext}".format(sample=wildcards.sample, ext=ext)
+
+
 def get_group_bams(wildcards, bai=False):
     ext = "bai" if bai else "bam"
-    if group_is_paired_end(wildcards.group) and is_activated("primers/trimming"):
-        return expand("results/trimmed/{sample}.trimmed.{ext}", sample=get_group_samples(wildcards.group), ext=ext)
+    if is_activated("primers/trimming"):
+        if group_is_paired_end(wildcards.group):
+            return expand("results/trimmed/{sample}.trimmed.{ext}", sample=get_group_samples(wildcards.group), ext=ext)
+        else:
+            WorkflowError("Primer trimming is only available for paired end data.")
     return expand("results/recal/{sample}.sorted.{ext}", sample=get_group_samples(wildcards.group), ext=ext)
 
 
 def get_group_bams_report(group):
-    if group_is_paired_end(group) and is_activated("primers/trimming"):
-        return [(sample, "results/trimmed/{}.trimmed.bam".format(sample)) for sample in get_group_samples(group)]
+    if is_activated("primers/trimming"):
+        if group_is_paired_end(group):
+            return [(sample, "results/trimmed/{}.trimmed.bam".format(sample)) for sample in get_group_samples(group)]
+        else:
+            WorkflowError("Primer trimming is only available for paired end data.")
     return [(sample, "results/recal/{}.sorted.bam".format(sample)) for sample in get_group_samples(group)]
 
 
