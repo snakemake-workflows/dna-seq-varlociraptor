@@ -158,7 +158,6 @@ def get_group_bams_report(group):
             WorkflowError("Primer trimming is only available for paired end data.")
     return [(sample, "results/recal/{}.sorted.bam".format(sample)) for sample in get_group_samples(group)]
 
-
 def get_batch_bams(wildcards, event=False):
     bams = []
     for group in get_report_batch(wildcards):
@@ -168,6 +167,14 @@ def get_batch_bams(wildcards, event=False):
             else:
                 bams.append(bam)
     return bams
+
+def get_batch_bcfs(wildcards, input):
+    bcfs = [] 
+    for group in get_report_batch(wildcards):
+        for file in input.bcfs:
+            if group in file:
+                bcfs.append("{group}={file}".format(group=group, file=file))
+    return bcfs
 
 def get_consensus_input(wildcards):
     if wildcards.read_type == "se":
