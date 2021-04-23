@@ -1,21 +1,27 @@
-# This scenario is templated with Jinja2 and rendered for each group (see sample sheet).
-# A variable `samples` is available, holding the dataframe of
-# the sample sheet, filtered to those samples contained in the group to be rendered.
-# For example, this can be used to pass arbitrary column values (like the purity below),
-# to the sample definitions.
-# Note that sample names here must correspond to the alias column in the sample sheet.
+species:
+  heterozygosity: 0.001
+  ploidy: 2
+  genome-size: 3.5e9
+  germline-mutation-rate: 1.2e-8
 
 samples:
-  index:
-    resolution: 3
-    universe: "0.0 | 0.5 | 1.0"
-  father:
-    resolution: 5
-    universe: "[0.0,0.15] | 0.5 | 1.0"
+  brain:
+    inheritance:
+      mendelian:
+        from:
+          - mother
+          - father
+  blood:
+    inheritance:
+      mendelian:
+        from:
+          - mother
+          - father
   mother:
-    resolution: 5
-    universe: "[0.0,0.15] | 0.5 | 1.0"
+    sex: female
+  father:
+    sex: male
 
 events:
-  simple: "index:[0.5,1.0]"
-  not_interesting: "index:0.0"
+  denovo: "(brain:0.5 | brain:1.0 | blood:0.5 | brain:1.0) & father:0.0 & mother:0.0"
+  not interesting: "!father:0.0 | !mother:0.0 | (brain: 0.0 & blood:0.0)"

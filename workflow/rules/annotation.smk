@@ -1,50 +1,50 @@
-rule annotate_candidate_variants:
-    input:
-        calls="results/candidate-calls/{group}.{caller}.{scatteritem}.bcf",
-        cache="resources/vep/cache",
-        plugins="resources/vep/plugins"
-    output:
-        calls="results/candidate-calls/{group}.{caller}.{scatteritem}.annotated.bcf",
-        stats="results/candidate-calls/{group}.{caller}.{scatteritem}.stats.html"
-    params:
-        extra="--vcf_info_field ANN",
-        plugins=[]
-    log:
-        "logs/vep/{group}.{caller}.{scatteritem}.annotate_candidates.log"
-    benchmark:
-        "benchmarks/vep/{group}.{caller}.{scatteritem}.annotate_candidates.tsv"
-    wrapper:
-        "0.65.0/bio/vep/annotate"
+# rule annotate_candidate_variants:
+#     input:
+#         calls="results/candidate-calls/{group}.{caller}.{scatteritem}.bcf",
+#         cache="resources/vep/cache",
+#         plugins="resources/vep/plugins"
+#     output:
+#         calls="results/candidate-calls/{group}.{caller}.{scatteritem}.annotated.bcf",
+#         stats="results/candidate-calls/{group}.{caller}.{scatteritem}.stats.html"
+#     params:
+#         extra="--vcf_info_field ANN",
+#         plugins=[]
+#     log:
+#         "logs/vep/{group}.{caller}.{scatteritem}.annotate_candidates.log"
+#     benchmark:
+#         "benchmarks/vep/{group}.{caller}.{scatteritem}.annotate_candidates.tsv"
+#     wrapper:
+#         "0.65.0/bio/vep/annotate"
 
 
 rule annotate_variants:
     input:
-        calls="results/calls/{group}.{scatteritem}.bcf",
+        calls="results/{prefix}.{scatteritem}.bcf",
         cache="resources/vep/cache",
         plugins="resources/vep/plugins"
     output:
-        calls="results/calls/{group}.{scatteritem}.annotated.bcf",
-        stats="results/calls/{group}.{scatteritem}.stats.html",
+        calls="results/{prefix}.{scatteritem}.annotated.bcf",
+        stats="results/{prefix}.{scatteritem}.stats.html",
     params:
         # Pass a list of plugins to use, see https://www.ensembl.org/info/docs/tools/vep/script/vep_plugins.html
         # Plugin args can be added as well, e.g. via an entry "MyPlugin,1,FOO", see docs.
         plugins=config["annotations"]["vep"]["plugins"],
         extra="{} --vcf_info_field ANN --hgvsg".format(config["annotations"]["vep"]["params"])
     log:
-        "logs/vep/{group}.{scatteritem}.annotate.log"
+        "logs/vep/{prefix}.{scatteritem}.annotate.log"
     threads: get_vep_threads()
     wrapper:
-        "0.59.2/bio/vep/annotate"
+        "0.65.0/bio/vep/annotate"
 
 
 # TODO What about multiple ID Fields?
 rule annotate_vcfs:
     input:
-        bcf="results/calls/{prefix}.bcf",
+        bcf="results/{prefix}.bcf",
         annotations=get_annotation_vcfs(),
         idx=get_annotation_vcfs(idx=True)
     output:
-        "results/calls/{prefix}.db-annotated.bcf"
+        "results/{prefix}.db-annotated.bcf"
     log:
         "logs/annotate-vcfs/{prefix}.log"
     params:

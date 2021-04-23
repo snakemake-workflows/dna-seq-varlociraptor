@@ -80,18 +80,23 @@ calling:
     # It should ideally generate a superset of all other filters defined below.
     # Annotation of candidate variants tries to be as fast as possible, only using VEP
     # default parameters.
-    #candidates: "'gnomad_AF' not in INFO or INFO['gnomad_AF'] < 0.001"
+    candidates: "QUAL > 1 and ('gnomad_AF' not in INFO or INFO['gnomad_AF'] < 0.001)"
     # Add any number of named filters here. They will be applied independenty,
     # and can be referred in FDR control below to generate calls for different events.
     # In particular, you can also filter by ID or dbsnp annotations here.
     # See http://snpeff.sourceforge.net/SnpSift.html#filter
-    lowgnomad: "'gnomad_AF' not in INFO or INFO['gnomad_AF'] < 1" #"ANN['IMPACT'] == 'HIGH'", 0.001
+    lowgnomad: "'gnomad_AF' not in INFO or INFO['gnomad_AF'] < 0.001" #"ANN['IMPACT'] == 'HIGH'", 0.001
   fdr-control:
     threshold: 1.0
     events: 
       # Add any number of events here to filter for.
       denovo:
         varlociraptor:
+          - "denovo"
+        filter: lowgnomad
+      exist_brain:
+        varlociraptor:
+          - "mosaik_brain"
           - "denovo"
         filter: lowgnomad
       # denovo:

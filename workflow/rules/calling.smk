@@ -18,8 +18,8 @@ rule varlociraptor_preprocess:
         ref="resources/genome.fasta",
         ref_idx="resources/genome.fasta.fai",
         candidates=get_candidate_calls(),
-        bam=lambda w: get_group_bams(w),
-        bai=lambda w: get_group_bams(w, bai=True),
+        bam=lambda w: get_varlociraptor_preprocessing_input(w),
+        bai=lambda w: get_varlociraptor_preprocessing_input(w, bai=True)
     output:
         "results/observations/{group}/{sample}.{caller}.{scatteritem}.bcf"
     params:
@@ -28,10 +28,10 @@ rule varlociraptor_preprocess:
         "logs/varlociraptor/preprocess/{group}/{sample}.{caller}.{scatteritem}.log"
     benchmark:
         "benchmarks/varlociraptor/preprocess/{group}/{sample}.{caller}.{scatteritem}.tsv"
-    # conda:
-    #     "../envs/varlociraptor.yaml"
+    conda:
+        "../envs/varlociraptor.yaml"
     shell:
-        "/vol/nano/depienne/aicardi/dna-seq-varlociraptor4/varlociraptor/target/release/varlociraptor preprocess variants {params.omit_isize} --candidates {input.candidates} "
+        "varlociraptor preprocess variants --candidates {input.candidates} {params.max_depth} "
         "{input.ref} --bam {input.bam} --output {output} 2> {log}"
 
 
@@ -45,12 +45,12 @@ rule varlociraptor_call:
         "logs/varlociraptor/call/{group}.{caller}.{scatteritem}.log"
     params:
         obs=lambda w, input: ["{}={}".format(s, f) for s, f in zip(get_group_aliases(w), input.obs)]
-    # conda:
-    #     "../envs/varlociraptor.yaml"
+    conda:
+        "../envs/varlociraptor.yaml"
     benchmark:
          "benchmarks/varlociraptor/call/{group}.{caller}.{scatteritem}.tsv"
     shell:
-        "/vol/nano/depienne/aicardi/dna-seq-varlociraptor4/varlociraptor/target/release/varlociraptor "
+        "varlociraptor "
         "call variants generic --obs {params.obs} "
         "--scenario {input.scenario} > {output} 2> {log}"
 
