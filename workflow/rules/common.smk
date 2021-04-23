@@ -1,4 +1,5 @@
 import glob
+import path from os
 
 import pandas as pd
 from snakemake.remote import FTP
@@ -172,7 +173,7 @@ def get_batch_bcfs(wildcards, input):
     bcfs = [] 
     for group in get_report_batch(wildcards):
         for file in input.bcfs:
-            if group in file:
+            if path.basename(file).startswith(group):
                 bcfs.append("{group}={file}".format(group=group, file=file))
     return bcfs
 
