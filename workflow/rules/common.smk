@@ -1,5 +1,5 @@
 import glob
-import path from os
+from os import path
 
 import pandas as pd
 from snakemake.remote import FTP
