@@ -74,7 +74,7 @@ rule sort_calls:
 rule bcftools_concat:
     input:
         calls = get_scattered_calls(),
-        indexes = get_scattered_calls(ext=".bcf.csi"),
+        indexes = get_scattered_calls(ext="bcf.csi"),
     output:
         "results/calls/{group}.{scatteritem}.bcf"
     log:
