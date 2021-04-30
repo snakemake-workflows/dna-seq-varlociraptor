@@ -37,10 +37,10 @@ rule filter_odds:
         events=lambda wc: config["calling"]["fdr-control"]["events"][wc.event]["varlociraptor"]
     log:
         "logs/filter-calls/posterior_odds/{group}.{event}.{filter}.{scatteritem}.log"
-    # conda:
-    #     "../envs/varlociraptor.yaml"
+    conda:
+        "../envs/varlociraptor.yaml"
     shell:
-        "/vol/nano/depienne/aicardi/dna-seq-varlociraptor4/varlociraptor/target/release/varlociraptor filter-calls posterior-odds --events {params.events} --odds barely < {input} > {output} 2> {log}"
+        "varlociraptor filter-calls posterior-odds --events {params.events} --odds barely < {input} > {output} 2> {log}"
 
 
 rule gather_calls:

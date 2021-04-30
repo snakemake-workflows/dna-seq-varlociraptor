@@ -230,8 +230,8 @@ def get_scattered_calls(ext="bcf"):
 
 def get_annotated_bcf(wildcards):
     selection = ".annotated"
-    if is_activated("annotations/vcfs"):
-        selection += ".db-annotated"
+    # if is_activated("annotations/vcfs"):
+    #     selection += ".db-annotated"
     if is_activated("annotations/dgidb"):
         selection += ".dgidb"
     return "results/calls/{group}.{scatteritem}{selection}.bcf".format(group=wildcards.group, selection=selection, scatteritem=wildcards.scatteritem)
@@ -298,19 +298,29 @@ caller=list(filter(None, ["freebayes" if is_activated("calling/freebayes") else 
 annotations = [(e, f) for e, f in config["annotations"]["vcfs"].items() if e != "activate"]
 
 def get_annotation_pipes(wildcards, input):
-     if annotations:
-         return "| {}".format(" | ".join(
-             ["SnpSift annotate -name {prefix}_ {path} /dev/stdin".format(prefix=prefix, path=path)
-              for (prefix, _), path in zip(annotations, input.annotations)]
-              )
-         )
-     else:
-         return ""
+    if annotations:
+        return "| {}".format(" | ".join(
+            ["SnpSift annotate -name {prefix}_ {path} /dev/stdin".format(prefix=prefix, path=path)
+            for (prefix, _), path in zip(annotations, input.annotations)]
+            )
+        )
+    else:
+        return ""
+
+
+def get_annotations_extra(wildcards, input):
+    if annotations:
+        custom_str = " ".join(f"--custom {path},{prefix},vcf,exact,,{','.join(ann['fields'])}" for (prefix, ann), path in zip(annotations, input.annotations))
+        config_str = config["annotations"]["vep"]["params"]
+        additional_str = "--vcf_info_field ANN --hgvsg"
+        return f"{custom_str} {config_str} {additional_str}"
+    else:
+        return ""
 
 
 def get_annotation_vcfs(idx=False):
     fmt = lambda f: f if not idx else "{}.tbi".format(f)
-    return [fmt(f) for _, f in annotations]
+    return [fmt(f["filename"]) for _, f in annotations]
 
 
 def get_tabix_params(wildcards):

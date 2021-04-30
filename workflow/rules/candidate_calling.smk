@@ -7,7 +7,7 @@ rule freebayes:
         samples=lambda w: get_group_bams(w),
         index=lambda w: get_group_bams(w, bai=True),
     output:
-        "results/candidate-calls/{group}.freebayes.unnormalized.bcf"
+        "results/candidate_calls_unnormalized/{group}.freebayes.bcf"
     log:
         "logs/freebayes/{group}.log"
     params:
@@ -22,7 +22,7 @@ rule freebayes:
 
 rule norm_freebayes_calls:
     input:
-        bcf="results/candidate-calls/{group}.freebayes.unnormalized.bcf",
+        bcf="results/candidate_calls_unnormalized/{group}.freebayes.bcf",
         ref="resources/genome.fasta",
         fai="resources/genome.fasta.fai"
     output:
@@ -30,7 +30,7 @@ rule norm_freebayes_calls:
     conda:
         "../envs/decompose.yaml"
     shell:
-        "bcftools norm -f {input.ref} {input.bcf} | vt decompose_blocksub /dev/stdin | bcftools view -Ob > {output}"
+        "vt decompose {input.bcf} | bcftools norm -f {input.ref} - | vt decompose_blocksub /dev/stdin | vembrane filter 'QUAL > 1' | bcftools view -Ob > {output}"
 
 
 # rule norm_freebayes_calls:

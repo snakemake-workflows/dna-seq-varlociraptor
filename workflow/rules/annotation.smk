@@ -21,7 +21,9 @@ rule annotate_variants:
     input:
         calls="results/{prefix}.{scatteritem}.bcf",
         cache="resources/vep/cache",
-        plugins="resources/vep/plugins"
+        plugins="resources/vep/plugins",
+        annotations=get_annotation_vcfs(),
+        idx=get_annotation_vcfs(idx=True),
     output:
         calls="results/{prefix}.{scatteritem}.annotated.bcf",
         stats="results/{prefix}.{scatteritem}.stats.html",
@@ -29,7 +31,7 @@ rule annotate_variants:
         # Pass a list of plugins to use, see https://www.ensembl.org/info/docs/tools/vep/script/vep_plugins.html
         # Plugin args can be added as well, e.g. via an entry "MyPlugin,1,FOO", see docs.
         plugins=config["annotations"]["vep"]["plugins"],
-        extra="{} --vcf_info_field ANN --hgvsg".format(config["annotations"]["vep"]["params"])
+        extra=get_annotations_extra
     log:
         "logs/vep/{prefix}.{scatteritem}.annotate.log"
     threads: get_vep_threads()
@@ -38,22 +40,22 @@ rule annotate_variants:
 
 
 # TODO What about multiple ID Fields?
-rule annotate_vcfs:
-    input:
-        bcf="results/{prefix}.bcf",
-        annotations=get_annotation_vcfs(),
-        idx=get_annotation_vcfs(idx=True)
-    output:
-        "results/{prefix}.db-annotated.bcf"
-    log:
-        "logs/annotate-vcfs/{prefix}.log"
-    params:
-        pipes=get_annotation_pipes
-    conda:
-        "../envs/snpsift.yaml"
-    threads: 4
-    shell:
-        "(bcftools view --threads {threads} {input.bcf} {params.pipes} | bcftools view --threads {threads} -Ob > {output}) 2> {log}"
+# rule annotate_vcfs:
+#     input:
+#         bcf="results/{prefix}.bcf",
+#         annotations=get_annotation_vcfs(),
+#         idx=get_annotation_vcfs(idx=True)
+#     output:
+#         "results/{prefix}.db-annotated.bcf"
+#     log:
+#         "logs/annotate-vcfs/{prefix}.log"
+#     params:
+#         pipes=get_annotation_pipes
+#     conda:
+#         "../envs/snpsift.yaml"
+#     threads: 4
+#     shell:
+#         "(bcftools view --threads {threads} {input.bcf} {params.pipes} | bcftools view --threads {threads} -Ob > {output}) 2> {log}"
 
 
 rule annotate_dgidb:
