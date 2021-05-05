@@ -1,0 +1,7 @@
+channels:
+  - conda-forge
+  - bioconda
+dependencies:
+  - bcftools =1.10
+  - vt =2015.11.10
+  - vembrane =0.6

@@ -80,12 +80,12 @@ calling:
     # It should ideally generate a superset of all other filters defined below.
     # Annotation of candidate variants tries to be as fast as possible, only using VEP
     # default parameters.
-    candidates: "QUAL > 1 and ('gnomad_AF' not in INFO or INFO['gnomad_AF'] < 0.001)"
+    candidates: "(QUAL > 1) and (not ANN['gnomad_AF'] or float(ANN['gnomad_AF']) < 0.001)"
     # Add any number of named filters here. They will be applied independenty,
     # and can be referred in FDR control below to generate calls for different events.
     # In particular, you can also filter by ID or dbsnp annotations here.
     # See http://snpeff.sourceforge.net/SnpSift.html#filter
-    lowgnomad: "'gnomad_AF' not in INFO or INFO['gnomad_AF'] < 0.001" #"ANN['IMPACT'] == 'HIGH'", 0.001
+    lowgnomad: "not ANN['gnomad_AF'] or float(ANN['gnomad_AF']) < 0.001"
   fdr-control:
     threshold: 1.0
     events: 
@@ -130,9 +130,14 @@ annotations:
   vcfs:
     activate: true
     # annotate with known variants from ensembl
-    known: resources/variation.vcf.gz
-    gnomad: resources/gnomad.genomes.r3.0.sites.allpop.vcf.gz
-    intsplice: resources/intsplice_hg38.vcf.gz
+    # known: resources/variation.vcf.gz
+    gnomad:
+      filename: resources/gnomad.genomes.r3.0.sites.allpop.nochr.vcf.gz
+      fields:
+        - AC
+        - AN
+        - AF
+    # intsplice: resources/intsplice_hg38.vcf.gz
     # add more external VCFs as needed
     # cosmic: path/to/cosmic.vcf.gz
   dgidb:

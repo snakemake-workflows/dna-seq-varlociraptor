@@ -2,4 +2,5 @@ channels:
   - conda-forge
   - bioconda
 dependencies:
-  - varlociraptor=3.1.0
+  - snpeff =4.3.1t
+  - bcftools =1.10
