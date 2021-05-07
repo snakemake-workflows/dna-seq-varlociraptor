@@ -1,6 +1,6 @@
 # Snakemake workflow: dna-seq-varlociraptor
 
-[![Snakemake](https://img.shields.io/badge/snakemake-≥6.1.0-brightgreen.svg)](https://snakemake.github.io)
+[![Snakemake](https://img.shields.io/badge/snakemake-≥6.3.0-brightgreen.svg)](https://snakemake.github.io)
 [![GitHub actions status](https://github.com/snakemake-workflows/dna-seq-varlociraptor/workflows/Tests/badge.svg?branch=main)](https://github.com/snakemake-workflows/dna-seq-varlociraptor/actions?query=branch%3Amain+workflow%3ATests)
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.4675661.svg)](https://doi.org/10.5281/zenodo.4675661)
 
