@@ -3,4 +3,4 @@ channels:
   - bioconda
 dependencies:
   - snpsift =4.3.1
-  - bcftools =1.10
+  - bcftools =1.12
