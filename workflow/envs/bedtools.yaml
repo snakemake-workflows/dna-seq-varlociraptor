@@ -3,4 +3,4 @@ channels:
   - bioconda
 dependencies:
   - bedtools =2.29
-  - samtools =1.10
+  - samtools =1.12
