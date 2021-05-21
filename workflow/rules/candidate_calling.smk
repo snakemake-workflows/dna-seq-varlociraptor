@@ -30,7 +30,7 @@ rule norm_freebayes_calls:
     conda:
         "../envs/decompose.yaml"
     shell:
-        "vt decompose {input.bcf} | bcftools norm -f {input.ref} - | vt decompose_blocksub /dev/stdin | vembrane filter 'QUAL > 1' | bcftools view -Ob > {output}"
+        """vt decompose -s {input.bcf} | bcftools norm -f {input.ref} - | vt decompose_blocksub /dev/stdin | vembrane filter "FORMAT['AO'][SAMPLES[3]]>1 and QUAL>5" | bcftools view -Ob > {output}"""
 
 
 # rule norm_freebayes_calls:
