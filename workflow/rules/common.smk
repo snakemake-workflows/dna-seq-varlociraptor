@@ -10,7 +10,12 @@ ftp = FTP.RemoteProvider()
 validate(config, schema="../schemas/config.schema.yaml")
 
 samples = (
-    pd.read_csv(config["samples"], sep="\t", dtype={"sample_name": str, "group": str}, comment="#")
+    pd.read_csv(
+        config["samples"],
+        sep="\t",
+        dtype={"sample_name": str, "group": str},
+        comment="#",
+    )
     .set_index("sample_name", drop=False)
     .sort_index()
 )
@@ -65,7 +70,12 @@ samples["group"] = [_group_or_sample(row) for _, row in samples.iterrows()]
 validate(samples, schema="../schemas/samples.schema.yaml")
 
 units = (
-    pd.read_csv(config["units"], sep="\t", dtype={"sample_name": str, "unit_name": str}, comment="#")
+    pd.read_csv(
+        config["units"],
+        sep="\t",
+        dtype={"sample_name": str, "unit_name": str},
+        comment="#",
+    )
     .set_index(["sample_name", "unit_name"], drop=False)
     .sort_index()
 )
