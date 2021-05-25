@@ -82,7 +82,7 @@ rule chromosome_map:
 
 rule rename_chromosomes:
     input:
-        bcf="results/merged-calls/chm.{query}.fdr-controlled.bcf",
+        bcf="results/final-calls/chm.{query}.fdr-controlled.bcf",
         map="resources/genome.chrmap.txt",
     output:
         "benchmarking/{query}.chr-mapped.vcf",

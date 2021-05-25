@@ -88,6 +88,8 @@ calling:
     filtername: "ANN['IMPACT'] == 'HIGH'"
   fdr-control:
     threshold: 0.05
+    # denote whether local or global FDR shall be controlled
+    local: true
     events: 
       # Add any number of events here to filter for.
       somatic:

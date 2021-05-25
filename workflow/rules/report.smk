@@ -4,7 +4,7 @@ rule vcf_report:
         ref="resources/genome.fasta",
         bams=get_batch_bams,
         bcfs=lambda w: expand(
-            "results/merged-calls/{group}.{{event}}.fdr-controlled.bcf",
+            "results/final-calls/{group}.{{event}}.fdr-controlled.bcf",
             group=get_report_batch(w),
         ),
     output:

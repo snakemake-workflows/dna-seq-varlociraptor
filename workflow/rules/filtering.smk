@@ -48,16 +48,12 @@ rule filter_odds:
 
 rule gather_calls:
     input:
-        calls=gather.calling(
-            "results/calls/{{group}}.{{event}}.{{filter}}.{scatteritem}.filtered_odds.bcf"
-        ),
-        idx=gather.calling(
-            "results/calls/{{group}}.{{event}}.{{filter}}.{scatteritem}.filtered_odds.bcf.csi"
-        ),
+        calls=get_gather_calls_input(),
+        idx=get_gather_calls_input(ext="bcf.csi"),
     output:
-        "results/calls/{group}.{event}.{filter}.filtered_odds.bcf",
+        "results/calls/{group}.{event}.{filter}.filtered_{by}.bcf",
     log:
-        "logs/gather-calls/{group}.{event}.{filter}.log",
+        "logs/gather-calls/{group}.{event}.{filter}.filtered_{by}.log",
     params:
         "-a -Ob",
     wrapper:
@@ -66,11 +62,7 @@ rule gather_calls:
 
 rule control_fdr:
     input:
-        (
-            "results/calls/{group}.{event}.{filter}.filtered_odds.bcf"
-            if not is_activated("benchmarking")
-            else "results/calls/{group}.bcf"
-        ),
+        get_control_fdr_input,
     output:
         "results/calls/{group}.{vartype}.{event}.{filter}.fdr-controlled.bcf",
     log:
@@ -80,7 +72,7 @@ rule control_fdr:
     conda:
         "../envs/varlociraptor.yaml"
     shell:
-        "varlociraptor filter-calls control-fdr {input} --var {wildcards.vartype} "
+        "varlociraptor filter-calls control-fdr {input} {params.query[local]} --var {wildcards.vartype} "
         "--events {params.query[events]} --fdr {params.query[threshold]} > {output} 2> {log}"
 
 
@@ -89,7 +81,7 @@ rule merge_calls:
         calls=get_merge_calls_input("bcf"),
         idx=get_merge_calls_input("bcf.csi"),
     output:
-        "results/merged-calls/{group}.{event}.fdr-controlled.bcf",
+        "results/final-calls/{group}.{event}.fdr-controlled.bcf",
     log:
         "logs/merge-calls/{group}.{event}.log",
     params:

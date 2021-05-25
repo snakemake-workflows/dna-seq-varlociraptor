@@ -1,6 +1,6 @@
 rule vembrane_table:
     input:
-        bcf="results/merged-calls/{group}.{event}.fdr-controlled.bcf",
+        bcf="results/final-calls/{group}.{event}.fdr-controlled.bcf",
     output:
         bcf="results/tables/{group}.{event}.fdr-controlled.tsv",
     conda:

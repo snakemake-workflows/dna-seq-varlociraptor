@@ -18,6 +18,10 @@ definitions:
           type: string
       filter:
         type: string
+      local:
+        type: boolean
+      threshold:
+        type: boolean
 
 properties:
   samples:
@@ -149,6 +153,8 @@ properties:
             type: number
             minimum: 0.0
             maximum: 1.0
+          local:
+            type: boolean
           events:
             $ref: "#/definitions/evententry"
             description: "a map of <eventname: event> pairs"
