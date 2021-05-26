@@ -2,9 +2,6 @@ samples: config/samples.tsv
 
 units: config/units.tsv
 
-igv_report:
-  activate: true
-
 ref:
   # Number of chromosomes to consider for calling.
   # The first n entries of the FASTA will be considered.
@@ -79,7 +76,7 @@ calling:
     # Filter candidate variants (this filter helps to keep the number of evaluated candidates small).
     # It should ideally generate a superset of all other filters defined below.
     # Annotation of candidate variants tries to be as fast as possible, only using VEP
-    # default parameters.
+    # default parameters. Comment out or remove if not needed or intended.
     candidates: "ANN['IMPACT'] != 'LOW'"
     # Add any number of named filters here. They will be applied independenty,
     # and can be referred in FDR control below to generate calls for different events.
@@ -102,8 +99,9 @@ calling:
 remove_duplicates:
   activate: true
 
+# Experimental: calculate consensus reads from PCR duplicates
 calc_consensus_reads:
-  activate: true
+  activate: false
 
 annotations:
   vcfs:
@@ -113,7 +111,8 @@ annotations:
     # add more external VCFs as needed
     # cosmic: path/to/cosmic.vcf.gz
   dgidb:
-    activate: true
+    # annotate variants with drug interactions of affected genes
+    activate: false
     # List of datasources for filtering dgidb entries
     # Available sources can be found on http://dgidb.org/api/v2/interaction_sources.json
     datasources:
@@ -136,7 +135,15 @@ params:
     applyBQSR: ""
   varlociraptor_preprocess:
     max_depth: 200 # Set when processing panel data with high coverage
-  varlociraptor_call:
-    omit_read_bias: false # Set true when processing panel data
+  varlociraptor:
+    # add extra arguments for varlociraptor call
+    # For example, in case of panel data consider to omit certain bias estimations
+    # which might be misleading because all reads of an amplicon have the sample start
+    # position, strand etc. (--omit-strand-bias, --omit-read-position-bias, 
+    # --omit-softclip-bias, --omit-read-orientation-bias).
+    call: ""
+    # Add extra arguments for varlociraptor preprocess. By default, we limit the depth to 200.
+    # Increase this value for panel sequencing!
+    preprocess: "--max-depth 200"
   freebayes:
     min_alternate_fraction: 0.05 # Reduce for calling variants with lower VAFs

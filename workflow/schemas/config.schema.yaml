@@ -229,11 +229,16 @@ properties:
         required:
           - BaseRecalibrator
           - applyBQSR
-      varlociraptor_preprocess:
+      varlociraptor:
         type: object
         properties:
-          max_depth:
-            type: number
+          preprocess:
+            type: string
+          call:
+            type: string
+        required:
+          - preprocess
+          - call
       picard:
         type: object
         properties:
@@ -251,6 +256,7 @@ properties:
       - picard
       - cutadapt
       - freebayes
+      - varlociraptor
 
 required:
   - samples
