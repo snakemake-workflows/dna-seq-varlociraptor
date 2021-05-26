@@ -9,6 +9,8 @@ library(grDevices)
 args = commandArgs(trailingOnly=TRUE)
 ##args = c("~/vol/huge/exome_pools/download/M84902.pF3.pM3.exome_pools.tsv",
 ##         "~/vol/huge/exome_pools/download/M84902.pF3.pM3.exome_pools.bed")
+##args = c("~/vol/pico/exome_pools_testing/download/M55774.pF2.pM2.exome_pools.tsv",
+##         "~/vol/pico/exome_pools_testing/download/M55774.pF2.pM2.exome_pools.bed")
 infile = args[[1]]
 outfile = args[[2]]
 
@@ -17,10 +19,11 @@ head(d)
 dim(d)
 
 
-prob2rgb <- function(hue, probability_list) {
+prob2rgb <- function(probability_list, hue=150, boost=1.5) {
+  probability_list = sapply(probability_list, function(x) min(x * boost, 1))
   sapply(probability_list, function(x) gsub(" ", "", toString(col2rgb(hsv2rgb(hue,x,x))) )  )
 }
-##prob2rgb(150, 0.6)
+
 
 df = d %>%
   mutate(Start = Start -1) %>%
@@ -31,7 +34,7 @@ df = d %>%
   mutate(Strand = ".") %>%
   mutate(ThickStart = Start) %>%
   mutate(ThickEnd = End) %>%
-  mutate(ItemRgb = prob2rgb(200, PROB_FATHERS_ONLY)) %>%
+  mutate(ItemRgb = prob2rgb(PROB_FATHERS_ONLY, hue=200)) %>%
   select(Chr, Start, End, Name, Score, Score, Strand, ThickStart, ThickEnd, ItemRgb)
 df
 
@@ -44,7 +47,7 @@ dm = d %>%
   mutate(Strand = ".") %>%
   mutate(ThickStart = Start) %>%
   mutate(ThickEnd = End) %>%
-  mutate(ItemRgb = prob2rgb(300, PROB_MOTHERS_ONLY)) %>%
+  mutate(ItemRgb = prob2rgb(PROB_MOTHERS_ONLY, hue=300)) %>%
   select(Chr, Start, End, Name, Score, Score, Strand, ThickStart, ThickEnd, ItemRgb)
 dm
 
@@ -56,7 +59,7 @@ dfm = d %>%
   mutate(Strand = ".") %>%
   mutate(ThickStart = Start) %>%
   mutate(ThickEnd = End) %>%
-  mutate(ItemRgb = prob2rgb(80, PROB_FATHERS_AND_MOTHERS)) %>%
+  mutate(ItemRgb = prob2rgb(PROB_FATHERS_AND_MOTHERS, hue=80)) %>%
   select(Chr, Start, End, Name, Score, Score, Strand, ThickStart, ThickEnd, ItemRgb)
 dfm
 
