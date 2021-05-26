@@ -68,7 +68,7 @@ rule remove_iupac_codes:
         "../envs/rbt.yaml"
     cache: True
     shell:
-        "rbt vcf-fix-iupac-alleles < {input} > {output} 2> {log}"
+        "(rbt vcf-fix-iupac-alleles < {input} | bcftools view -Oz > {output}) 2> {log}"
 
 
 rule bwa_index:
