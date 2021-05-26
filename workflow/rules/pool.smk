@@ -1,8 +1,8 @@
 # rule varvis_hg19_candidates_csv_to_tsv:
 #     input:
-#         "../upload/hg19/{upload_id}.csv"
+#         "../upload/hg19/{patient_id}.csv"
 #     output:
-#         "results/candidates/hg19/{upload_id}.hg19_candidates.tsv"
+#         "results/candidates/hg19/{patient_id}.hg19_candidates.tsv"
 #     shell:
 #         "cat {input} "
 #         "| dos2unix "
@@ -15,11 +15,11 @@
 
 rule varvis_hg19_candidates_csv_to_tsv:
     input:
-        "../upload/hg19/{upload_id}.csv"
+        "../upload/hg19/{patient_id}.csv"
     output:
-        "results/candidates/hg19/{upload_id}.hg19_candidates.tsv"
+        "results/candidates/hg19/{patient_id}.hg19_candidates.tsv"
     log:
-        "results/log/{upload_id}.varvis_hg19_candidates_csv_to_tsv.log"
+        "results/log/{patient_id}.varvis_hg19_candidates_csv_to_tsv.log"
     conda:
         "../envs/R.yaml"
     shell:
@@ -31,11 +31,11 @@ rule varvis_hg19_candidates_csv_to_tsv:
 
 rule varvis_hg19_candidates_tsv_to_core_tsv:
     input:
-        "results/candidates/hg19/{upload_id}.hg19_candidates.tsv"
+        "results/candidates/hg19/{patient_id}.hg19_candidates.tsv"
     output:
-        "results/candidates/hg19/{upload_id}.hg19_candidates.core.tsv"
+        "results/candidates/hg19/{patient_id}.hg19_candidates.core.tsv"
     log:
-        "results/log/{upload_id}.varvis_hg19_candidates_tsv_to_core_tsv.log"
+        "results/log/{patient_id}.varvis_hg19_candidates_tsv_to_core_tsv.log"
     conda:
         "../envs/R.yaml"
     shell:
@@ -47,13 +47,13 @@ rule varvis_hg19_candidates_tsv_to_core_tsv:
 
 rule varvis_hg19_csv_to_candidates_vcf:
     input:
-        "results/candidates/hg19/{upload_id}.hg19_candidates.core.tsv"
+        "results/candidates/hg19/{patient_id}.hg19_candidates.core.tsv"
     output:
-        "results/candidates/hg19/{upload_id}.hg19_candidates.vcf"
+        "results/candidates/hg19/{patient_id}.hg19_candidates.vcf"
     conda:
         "../envs/plink.yaml"
     log:
-        "results/log/{upload_id}.hg19_candidates.vcf.log"
+        "results/log/{patient_id}.hg19_candidates.vcf.log"
     shell:
         "bash workflow/scripts/tsv2vcf.sh {input} {output} "
         "> {log} "
@@ -61,9 +61,9 @@ rule varvis_hg19_csv_to_candidates_vcf:
 
 ## rule hg19_candidates_vcf_to_bed:
 ##     input:
-##         "results/candidates/hg19/{upload_id}.hg19_candidates.vcf"
+##         "results/candidates/hg19/{patient_id}.hg19_candidates.vcf"
 ##     output:
-##         "results/candidates/hg19/{upload_id}.hg19_candidates.bed"
+##         "results/candidates/hg19/{patient_id}.hg19_candidates.bed"
 ##     shell:
 ##         "cat {input} "
 ##         "| grep -v '^#' "
@@ -87,14 +87,14 @@ rule varvis_hg19_csv_to_candidates_vcf:
 
 ## rule picard_liftovervcf_hg19ToHg38:
 ##     input:
-##         vcf = "results/candidates/hg19/{upload_id}.hg19_candidates.vcf",
+##         vcf = "results/candidates/hg19/{patient_id}.hg19_candidates.vcf",
 ##         chain = "resources/hg19ToHg38.over.chain.gz",
 ##         fasta = "resources/genome.fasta"
 ##     output:
-##         vcf="results/candidates/hg38/{upload_id}.hg38_candidates.vcf",
-##         reject="results/candidates/hg38/{upload_id}.hg38_candidates.rejected.vcf"
+##         vcf="results/candidates/hg38/{patient_id}.hg38_candidates.vcf",
+##         reject="results/candidates/hg38/{patient_id}.hg38_candidates.rejected.vcf"
 ##     log:
-##         "results/log/{upload_id}.picard_liftovervcf.log"
+##         "results/log/{patient_id}.picard_liftovervcf.log"
 ##     conda:
 ##         "../envs/picard.yaml"
 ##     shell:
@@ -109,13 +109,13 @@ rule varvis_hg19_csv_to_candidates_vcf:
 
 rule prepocess_fathers_pool:
     input:
-        candidates_vcf = "results/candidates/hg19/{upload_id}.hg19_candidates.vcf",
+        candidates_vcf = "results/candidates/hg19/{patient_id}.hg19_candidates.vcf",
         pool_bam = "results/recal/{fathers_pool_id}.sorted.bam",
         fasta = "resources/genome.fasta"
     output:
-        "results/observations/{upload_id}.{fathers_pool_id}.fathers_pool_observations.bcf"
+        "results/observations/{patient_id}.{fathers_pool_id}.fathers_pool_observations.bcf"
     log:
-        "results/log/{upload_id}.{fathers_pool_id}.preprocess_fathers_pool.log"
+        "results/log/{patient_id}.{fathers_pool_id}.preprocess_fathers_pool.log"
     conda:
         "../envs/varlociraptor.yaml"
     shell:
@@ -129,13 +129,13 @@ rule prepocess_fathers_pool:
 
 rule prepocess_mothers_pool:
     input:
-        candidates_vcf = "results/candidates/hg19/{upload_id}.hg19_candidates.vcf",
+        candidates_vcf = "results/candidates/hg19/{patient_id}.hg19_candidates.vcf",
         pool_bam = "results/recal/{mothers_pool_id}.sorted.bam",
         fasta = "resources/genome.fasta"
     output:
-        "results/observations/{upload_id}.{mothers_pool_id}.mothers_pool_observations.bcf"
+        "results/observations/{patient_id}.{mothers_pool_id}.mothers_pool_observations.bcf"
     log:
-        "results/log/{upload_id}.{mothers_pool_id}.preprocess_mothers_pool.log"
+        "results/log/{patient_id}.{mothers_pool_id}.preprocess_mothers_pool.log"
     conda:
         "../envs/varlociraptor.yaml"
     shell:
@@ -150,12 +150,12 @@ rule prepocess_mothers_pool:
 rule calls:
     input:
         scenario = "config/parent_pools.scenario.yaml",
-        fathers_pool = "results/observations/{upload_id}.{fathers_pool_id}.fathers_pool_observations.bcf",
-        mothers_pool = "results/observations/{upload_id}.{mothers_pool_id}.mothers_pool_observations.bcf"
+        fathers_pool = "results/observations/{patient_id}.{fathers_pool_id}.fathers_pool_observations.bcf",
+        mothers_pool = "results/observations/{patient_id}.{mothers_pool_id}.mothers_pool_observations.bcf"
     output:
-        "results/calls/hg19/{upload_id}.{fathers_pool_id}.{mothers_pool_id}.calls.bcf"
+        "results/calls/hg19/{patient_id}.{fathers_pool_id}.{mothers_pool_id}.calls.bcf"
     log:
-        "results/log/{upload_id}.{fathers_pool_id}.{mothers_pool_id}.hg19.calls.log"
+        "results/log/{patient_id}.{fathers_pool_id}.{mothers_pool_id}.hg19.calls.log"
     conda:
         "../envs/varlociraptor.yaml"
     shell:
@@ -171,9 +171,9 @@ rule calls:
 
 rule calls_bcf_to_vcf:
     input:
-        "results/calls/hg19/{upload_id}.{fathers_pool_id}.{mothers_pool_id}.calls.bcf"
+        "results/calls/hg19/{patient_id}.{fathers_pool_id}.{mothers_pool_id}.calls.bcf"
     output:
-        "results/calls/hg19/{upload_id}.{fathers_pool_id}.{mothers_pool_id}.calls.vcf"
+        "results/calls/hg19/{patient_id}.{fathers_pool_id}.{mothers_pool_id}.calls.vcf"
     conda:
         "../envs/bcftools.yaml"
     shell:
@@ -213,14 +213,14 @@ rule calls_bcf_to_vcf:
 ##
 ## rule picard_liftovervcf_hg38ToHg19:
 ##     input:
-##         vcf = "results/calls/hg38/{upload_id}.{fathers_pool_id}.{mothers_pool_id}.calls.vcf",
+##         vcf = "results/calls/hg38/{patient_id}.{fathers_pool_id}.{mothers_pool_id}.calls.vcf",
 ##         chain = "resources/hg38ToHg19.over.chain.gz",
 ##         fasta = "resources/genome_hg19.fasta"
 ##     output:
-##         vcf="results/calls/hg19/{upload_id}.{fathers_pool_id}.{mothers_pool_id}.calls.vcf",
-##         reject="results/calls/hg19/{upload_id}.{fathers_pool_id}.{mothers_pool_id}.calls.rejected.vcf"
+##         vcf="results/calls/hg19/{patient_id}.{fathers_pool_id}.{mothers_pool_id}.calls.vcf",
+##         reject="results/calls/hg19/{patient_id}.{fathers_pool_id}.{mothers_pool_id}.calls.rejected.vcf"
 ##     log:
-##         "results/log/{upload_id}.{fathers_pool_id}.{mothers_pool_id}.picard_liftovervcf_hg38ToHg19.log"
+##         "results/log/{patient_id}.{fathers_pool_id}.{mothers_pool_id}.picard_liftovervcf_hg38ToHg19.log"
 ##     conda:
 ##         "../envs/picard.yaml"
 ##     shell:
@@ -258,9 +258,9 @@ rule calls_bcf_to_vcf:
 
 rule vembrane:
     input:
-        "results/calls/hg19/{upload_id}.{fathers_pool_id}.{mothers_pool_id}.calls.vcf"
+        "results/calls/hg19/{patient_id}.{fathers_pool_id}.{mothers_pool_id}.calls.vcf"
     output:
-        "results/calls/hg19/vembrane/{upload_id}.{fathers_pool_id}.{mothers_pool_id}.tsv"
+        "results/calls/hg19/vembrane/{patient_id}.{fathers_pool_id}.{mothers_pool_id}.tsv"
     conda:
         "../envs/vembrane.yaml"
     shell:
@@ -284,9 +284,9 @@ rule vembrane:
 
 rule vaf:
     input:
-        "results/calls/hg19/vembrane/{upload_id}.{fathers_pool_id}.{mothers_pool_id}.tsv"
+        "results/calls/hg19/vembrane/{patient_id}.{fathers_pool_id}.{mothers_pool_id}.tsv"
     output:
-        "results/calls/hg19/vembrane/{upload_id}.{fathers_pool_id}.{mothers_pool_id}.VAF.tsv"
+        "results/calls/hg19/vembrane/{patient_id}.{fathers_pool_id}.{mothers_pool_id}.VAF.tsv"
     conda:
         "../envs/pandas.yaml"
     shell:
@@ -295,10 +295,10 @@ rule vaf:
 
 rule merge_upload_tsv_and_calls_vaf:
     input:
-        upload_tsv = "results/candidates/hg19/{upload_id}.hg19_candidates.tsv",
-        vaf_tsv = "results/calls/hg19/vembrane/{upload_id}.{fathers_pool_id}.{mothers_pool_id}.VAF.tsv"
+        upload_tsv = "results/candidates/hg19/{patient_id}.hg19_candidates.tsv",
+        vaf_tsv = "results/calls/hg19/vembrane/{patient_id}.{fathers_pool_id}.{mothers_pool_id}.VAF.tsv"
     output:
-        "../download/{upload_id}.{fathers_pool_id}.{mothers_pool_id}.exome_pools.tsv"
+        "../download/{patient_id}.{fathers_pool_id}.{mothers_pool_id}.exome_pools.tsv"
     conda:
         "../envs/pandas.yaml"
     shell:
@@ -310,11 +310,11 @@ rule merge_upload_tsv_and_calls_vaf:
 
 rule tsv_to_bed:
     input:
-        "../download/{upload_id}.{fathers_pool_id}.{mothers_pool_id}.exome_pools.tsv"
+        "../download/{patient_id}.{fathers_pool_id}.{mothers_pool_id}.exome_pools.tsv"
     output:
-        "../download/{upload_id}.{fathers_pool_id}.{mothers_pool_id}.exome_pools.bed"
+        "../download/{patient_id}.{fathers_pool_id}.{mothers_pool_id}.exome_pools.bed"
     log:
-        "results/log/{upload_id}.{fathers_pool_id}.{mothers_pool_id}.hg19.tsv_to_bed.log"
+        "results/log/{patient_id}.{fathers_pool_id}.{mothers_pool_id}.hg19.tsv_to_bed.log"
     conda:
         "../envs/R.yaml"
     shell:
