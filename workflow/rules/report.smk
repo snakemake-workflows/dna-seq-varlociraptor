@@ -31,4 +31,4 @@ rule vcf_report:
     shell:
         "rbt vcf-report {input.ref} --bams {params.bams} --vcfs {params.bcfs} "
         "--formats {params.format_field} --threads {threads} --infos PROB_*  "
-        "-d {params.max_read_depth} --custom-js-files {params.js_files} -- {output}"
+        "-d {params.max_read_depth} --custom-js-files {params.js_files} -- {output} 2> {log}"
