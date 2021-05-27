@@ -27,9 +27,7 @@ rule varlociraptor_preprocess:
     output:
         "results/observations/{group}/{sample}.{caller}.{scatteritem}.bcf",
     params:
-        max_depth="--max-depth {}".format(
-            config["params"]["varlociraptor_preprocess"].get("max_depth", 200)
-        ),
+        extra=config["params"]["varlociraptor"]["preprocess"],
     log:
         "logs/varlociraptor/preprocess/{group}/{sample}.{caller}.{scatteritem}.log",
     benchmark:
@@ -37,7 +35,7 @@ rule varlociraptor_preprocess:
     conda:
         "../envs/varlociraptor.yaml"
     shell:
-        "varlociraptor preprocess variants --candidates {input.candidates} {params.max_depth} "
+        "varlociraptor preprocess variants --candidates {input.candidates} {params.extra} "
         "{input.ref} --bam {input.bam} --output {output} 2> {log}"
 
 
@@ -53,18 +51,14 @@ rule varlociraptor_call:
         obs=lambda w, input: [
             "{}={}".format(s, f) for s, f in zip(get_group_aliases(w), input.obs)
         ],
-        omit_position_bias=(
-            "--omit-read-position-bias"
-            if config["params"]["varlociraptor_call"].get("omit_position_bias", "")
-            else ""
-        ),
+        extra=config["params"]["varlociraptor"]["call"],
     conda:
         "../envs/varlociraptor.yaml"
     benchmark:
         "benchmarks/varlociraptor/call/{group}.{caller}.{scatteritem}.tsv"
     shell:
         "varlociraptor "
-        "call variants {params.omit_position_bias} generic --obs {params.obs} "
+        "call variants {params.extra} generic --obs {params.obs} "
         "--scenario {input.scenario} > {output} 2> {log}"
 
 

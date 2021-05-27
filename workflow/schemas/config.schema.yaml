@@ -18,6 +18,10 @@ definitions:
           type: string
       filter:
         type: string
+      local:
+        type: boolean
+      threshold:
+        type: boolean
 
 properties:
   samples:
@@ -149,6 +153,8 @@ properties:
             type: number
             minimum: 0.0
             maximum: 1.0
+          local:
+            type: boolean
           events:
             $ref: "#/definitions/evententry"
             description: "a map of <eventname: event> pairs"
@@ -223,11 +229,16 @@ properties:
         required:
           - BaseRecalibrator
           - applyBQSR
-      varlociraptor_preprocess:
+      varlociraptor:
         type: object
         properties:
-          max_depth:
-            type: number
+          preprocess:
+            type: string
+          call:
+            type: string
+        required:
+          - preprocess
+          - call
       picard:
         type: object
         properties:
@@ -245,6 +256,7 @@ properties:
       - picard
       - cutadapt
       - freebayes
+      - varlociraptor
 
 required:
   - samples

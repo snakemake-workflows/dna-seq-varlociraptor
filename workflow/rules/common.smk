@@ -34,7 +34,7 @@ def get_final_output():
     else:
         final_output.extend(
             expand(
-                "results/merged-calls/{group}.{event}.fdr-controlled.bcf",
+                "results/final-calls/{group}.{event}.fdr-controlled.bcf",
                 group=groups,
                 event=config["calling"]["fdr-control"]["events"],
             )
@@ -80,6 +80,32 @@ units = (
     .sort_index()
 )
 validate(units, schema="../schemas/units.schema.yaml")
+
+
+def get_gather_calls_input(ext="bcf"):
+    def inner(wildcards):
+        if wildcards.by == "odds":
+            pattern = "results/calls/{{{{group}}}}.{{{{event}}}}.{{{{filter}}}}.{{scatteritem}}.filtered_odds.{ext}"
+        elif wildcards.by == "ann":
+            pattern = "results/calls/{{{{group}}}}.{{{{filter}}}}.{{scatteritem}}.filtered_ann.{ext}"
+        else:
+            raise ValueError(
+                "Unexpected wildcard value for 'by': {}".format(wildcards.by)
+            )
+        return gather.calling(pattern.format(ext=ext))
+
+    return inner
+
+
+def get_control_fdr_input(wildcards):
+    query = get_fdr_control_params(wildcards)
+    if not is_activated("benchmarking"):
+        by = "ann" if query["local"] else "odds"
+        return "results/calls/{{group}}.{{event}}.{{filter}}.filtered_{by}.bcf".format(
+            by=by
+        )
+    else:
+        return "results/calls/{group}.bcf"
 
 
 def get_recalibrate_quality_input(wildcards, bai=False):
@@ -270,7 +296,7 @@ def get_consensus_input(wildcards):
 
 
 def get_resource(name):
-    return str((Path(workflow.snakefile).parent.parent / "resources") / name)
+    return workflow.source_path("../resources/{}".format(name))
 
 
 def get_regions():
@@ -403,7 +429,12 @@ def get_fdr_control_params(wildcards):
         "threshold", config["calling"]["fdr-control"].get("threshold", 0.05)
     )
     events = query["varlociraptor"]
-    return {"threshold": threshold, "events": events}
+    local = (
+        "--local"
+        if query.get("local", config["calling"]["fdr-control"].get("local", False))
+        else ""
+    )
+    return {"threshold": threshold, "events": events, "local": local}
 
 
 wildcard_constraints:

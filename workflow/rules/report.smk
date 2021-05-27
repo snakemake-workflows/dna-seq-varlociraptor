@@ -4,7 +4,7 @@ rule vcf_report:
         ref="resources/genome.fasta",
         bams=get_batch_bams,
         bcfs=lambda w: expand(
-            "results/merged-calls/{group}.{{event}}.fdr-controlled.bcf",
+            "results/final-calls/{group}.{{event}}.fdr-controlled.bcf",
             group=get_report_batch(w),
         ),
     output:
@@ -31,4 +31,4 @@ rule vcf_report:
     shell:
         "rbt vcf-report {input.ref} --bams {params.bams} --vcfs {params.bcfs} "
         "--formats {params.format_field} --threads {threads} --infos PROB_*  "
-        "-d {params.max_read_depth} --custom-js-files {params.js_files} -- {output}"
+        "-d {params.max_read_depth} --custom-js-files {params.js_files} -- {output} 2> {log}"
