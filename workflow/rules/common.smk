@@ -296,7 +296,7 @@ def get_consensus_input(wildcards):
 
 
 def get_resource(name):
-    return str((Path(workflow.snakefile).parent.parent / "resources") / name)
+    return workflow.source_path("../resources/{}".format(name))
 
 
 def get_regions():
