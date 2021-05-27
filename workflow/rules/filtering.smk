@@ -10,7 +10,7 @@ rule filter_candidates_by_annotation:
     conda:
         "../envs/vembrane.yaml"
     shell:
-        "(bcftools norm -Ou --do-not-normalize --multiallelics any {input} | "
+        "(bcftools norm -Ou --do-not-normalize --multiallelics -any {input} | "
         "vembrane filter {params.filter:q} --output-fmt bcf --output {output}) &> {log}"
 
 
