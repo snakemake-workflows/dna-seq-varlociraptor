@@ -296,7 +296,7 @@ def get_consensus_input(wildcards):
 
 
 def get_resource(name):
-    return os.path.normalize(workflow.source_path("../resources/{}".format(name)))
+    return workflow.source_path("../resources/{}".format(name))
 
 
 def get_regions():
