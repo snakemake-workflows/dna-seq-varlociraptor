@@ -133,8 +133,6 @@ params:
   gatk:
     BaseRecalibrator: ""
     applyBQSR: ""
-  varlociraptor_preprocess:
-    max_depth: 200 # Set when processing panel data with high coverage
   varlociraptor:
     # add extra arguments for varlociraptor call
     # For example, in case of panel data consider to omit certain bias estimations
