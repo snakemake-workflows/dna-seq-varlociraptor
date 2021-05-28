@@ -437,6 +437,13 @@ def get_fdr_control_params(wildcards):
     return {"threshold": threshold, "events": events, "local": local}
 
 
+def get_fixed_candidate_calls(wildcards):
+    if wildcards.caller == "delly":
+        return "results/candidate-calls/{group}.delly.no_bnds.bcf"
+    else:
+        return "results/candidate-calls/{group}.{caller}.bcf"
+
+
 wildcard_constraints:
     group="|".join(samples["group"].unique()),
     sample="|".join(samples["sample_name"]),
