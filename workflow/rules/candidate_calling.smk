@@ -39,9 +39,23 @@ rule delly:
         "0.68.0/bio/delly"
 
 
+# Delly breakends lead to invalid BCFs after VEP annotation (invalid RLEN). Therefore we exclude them for now.
+rule fix_delly_calls:
+    input:
+        "results/candidate-calls/{group}.delly.bcf",
+    output:
+        "results/candidate-calls/{group}.delly.no_bnds.bcf",
+    log:
+        "logs/fix_delly_calls/{group}.log",
+    conda:
+        "../envs/bcftools.yaml"
+    shell:
+        """bcftools view -e 'INFO/SVTYPE="BND"' {input} -Ob > {output} 2> {log}"""
+
+
 rule scatter_candidates:
     input:
-        "results/candidate-calls/{group}.{caller}.bcf",
+        get_fixed_candidate_calls,
     output:
         scatter.calling(
             "results/candidate-calls/{{group}}.{{caller}}.{scatteritem}.bcf"
