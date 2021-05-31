@@ -4,13 +4,16 @@ type: object
 properties:
   sample_name:
     type: string
-    description: sample name/id the unit has been sequenced from
+    pattern: "^[a-zA-Z_-0-9]+$"
+    description: sample name/id the unit has been sequenced from (alphanumeric string, that may additionally contain '_' and '-')
   unit_name:
     type: string
-    description: unit id
+    pattern: "^[a-zA-Z_-0-9]+$"
+    description: unit id (alphanumeric string, that may additionally contain '_' and '-')
   fq1:
     type: string
-    description: path to FASTQ file
+    pattern: "^[^ \t]+$"
+    description: path to FASTQ file (may not contain whitespace)
   fq2:
     type: string
     description: path to second FASTQ file (leave empty in case of single-end)
