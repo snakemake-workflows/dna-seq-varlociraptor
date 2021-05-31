@@ -22,8 +22,9 @@ properties:
     description: SRA id for automatic download of unit
   adapters:
     type: string
-    description: adapter trimming settings to use (for cutadapt)
+    description: cutadapt adapter trimming settings to use (see https://cutadapt.readthedocs.io)
 
 required:
   - sample_name
   - unit_name
+  - adapters
