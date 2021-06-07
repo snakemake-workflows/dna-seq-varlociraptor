@@ -51,15 +51,23 @@ rule map_primers:
     output:
         "results/primers/primers.bam",
     params:
-        library_error=config["primers"]["trimming"]["library_error"],
-        library_len=config["primers"]["trimming"]["library_length"],
+        library_len=(
+            "-ll {}".format(config["primers"]["trimming"]["library_length"])
+            if config["primers"]["trimming"]["library_length"] > 0
+            else ""
+        ),
+        library_error=(
+            "-ld {}".format(config["primers"]["trimming"]["library_error"])
+            if config["primers"]["trimming"]["library_error"] > 0
+            else ""
+        ),
         ref_prefix=lambda w, input: os.path.splitext(input.ref)[0],
     log:
         "logs/yara/map_primers.log",
     conda:
         "../envs/yara.yaml"
     shell:
-        "yara_mapper -t {threads} -ll {params.library_len} -ld {params.library_error} -o {output} {params.ref_prefix} {input.reads} > {log}"
+        "yara_mapper -t {threads} {params.library_len} {params.library_error} -o {output} {params.ref_prefix} {input.reads} > {log}"
 
 
 rule filter_unmapped_primers:
