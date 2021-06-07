@@ -4,19 +4,27 @@ description: an entry in the sample sheet
 properties:
   sample_name:
     type: string
-    pattern: "^[a-zA-Z_\-0-9]+$"
     description: sample name/identifier (alphanumeric string, that may additionally contain '_' and '-')
+    pattern: "^[a-zA-Z_0-9-]+$"
   alias:
     type: string
-    pattern: "^[a-zA-Z_\-0-9]+$"
     description: sample name within the VCF/BCF files generated for a group (e.g. tumor, normal, etc.) (alphanumeric string, that may additionally contain '_' and '-')
+    pattern: "^[a-zA-Z_0-9-]+$"
   group:
     type: string
-    pattern: "^[a-zA-Z_\-0-9]+$"
     description: group of samples called jointly (alphanumeric string, that may additionally contain '_' and '-')
+    pattern: "^[a-zA-Z_0-9-]+$"
   platform:
     type: string
-    enum: ["CAPILLARY", "LS454", "ILLUMINA", "SOLID", "HELICOS", "IONTORRENT", "ONT", "PACBIO"]
+    enum:
+      - "CAPILLARY"
+      - "LS454"
+      - "ILLUMINA"
+      - "SOLID"
+      - "HELICOS"
+      - "IONTORRENT"
+      - "ONT"
+      - "PACBIO"
     description: used sequencing platform
   purity:
     type: number
@@ -24,7 +32,6 @@ properties:
     maximum: 1.0
     description: Purity to use for tumor/normal groups.
 
-  
 
 required:
   - sample_name
