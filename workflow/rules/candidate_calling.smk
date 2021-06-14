@@ -13,7 +13,7 @@ rule freebayes:
     params:
         # genotyping is performed by varlociraptor, hence we deactivate it in freebayes by 
         # always setting --pooled-continuous
-        extra="--pooled-continuous --min-alternate-count 1 --min-alternate-fraction {}".format(config["params"]["freebayes"].get("min_alternate_fraction", "0.05")),
+        extra="--pooled-continuous --min-alternate-count 1 --min-alternate-fraction {} --max-complex-gap 0 --haplotype-length -1".format(config["params"]["freebayes"].get("min_alternate_fraction", "0.05")),
     threads: workflow.cores - 1 # use all available cores -1 (because of the pipe) for calling
     wrapper:
         "0.68.0/bio/freebayes"
@@ -30,7 +30,8 @@ rule norm_freebayes_calls:
     conda:
         "../envs/decompose.yaml"
     shell:
-        """vt decompose -s {input.bcf} | bcftools norm -f {input.ref} - | vt decompose_blocksub /dev/stdin | vembrane filter "FORMAT['AO'][SAMPLES[3]]>1 and QUAL>5" | bcftools view -Ob > {output}"""
+        """bcftools norm -m - -f {input.ref} {input.bcf} | vembrane filter "all(FORMAT['AO'][s]>0 for s in SAMPLES) and QUAL>5" | bcftools view -Ob > {output}"""
+        # """bcftools norm --atom-overlaps . -m - -a -f {input.ref} {input.bcf} -Ob | vembrane filter "all(FORMAT['AO'][s]>0 for s in SAMPLES) and QUAL>5" | bcftools view -Ob > {output}"""
 
 
 # rule norm_freebayes_calls:
