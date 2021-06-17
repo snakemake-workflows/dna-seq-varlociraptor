@@ -62,6 +62,14 @@ properties:
             type: integer
           library_length:
             type: integer
+  
+  target_regions:
+    type: object
+    properties:
+      bed:
+        type: string
+      liftover_chain:
+        type: string
 
 
   report:

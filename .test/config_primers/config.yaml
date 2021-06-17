@@ -22,6 +22,9 @@ primers:
     library_error: 174
     library_length: 104
 
+target_regions:
+  file: ""
+  liftover_chain: ""
 
 # Estimation of tumor mutational burden.
 tmb:
