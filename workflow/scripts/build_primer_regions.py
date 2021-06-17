@@ -2,7 +2,7 @@ import pandas as pd
 
 
 def parse_bed(log_file, out):
-    print("chrom\tleft_start\tleft_end\tright_start\tright_end")
+    print("chrom\tleft_start\tleft_end\tright_start\tright_end", file=out)
     for data_primers in pd.read_csv(
         snakemake.input[0],
         sep="\t",
