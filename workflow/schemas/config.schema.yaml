@@ -70,12 +70,13 @@ properties:
         type: string
       liftover:
         type: object
-        activate: 
-          type: boolean
-        origin:
-          type: string
-        target:
-          type: string
+        properties:
+          activate: 
+            type: boolean
+          origin:
+            type: string
+          target:
+            type: string
 
 
   report:
