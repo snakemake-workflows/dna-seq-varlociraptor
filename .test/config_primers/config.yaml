@@ -23,7 +23,7 @@ primers:
     library_length: 104
 
 target_regions:
-  file: ""
+  bed: ""
   liftover_chain: ""
 
 # Estimation of tumor mutational burden.

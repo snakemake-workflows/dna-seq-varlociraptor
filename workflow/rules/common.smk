@@ -237,12 +237,12 @@ def get_primer_bed():
         return "results/primers/primers.bed"
 
 def get_target_regions():
-    if config["target_regions"].get["bed", ""]:
-        if ["target_regions"].get["liftover_chain", ""]:
+    if config["target_regions"].get("bed", ""):
+        if ["target_regions"].get("liftover_chain", ""):
             return "results/primers/target_regions.liftover.bed"
         else:
             return config["target_regions"]["bed"]
-    return "results/primers/target_regions.merged.bed",
+    return "results/primers/target_regions.merged.bed"
 
 def get_group_bams(wildcards, bai=False):
     ext = "bai" if bai else "bam"
