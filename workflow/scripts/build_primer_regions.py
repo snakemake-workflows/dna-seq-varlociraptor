@@ -60,6 +60,6 @@ chunksize = 10 ** 6
 with open(snakemake.output[0], "w") as out:
     with open(snakemake.log[0], "w") as log_file:
         if snakemake.input[0].endswith("bedpe"):
-            parse_bedpe(log_file)
+            parse_bedpe(log_file, out)
         else:
-            parse_bed(log_file)
+            parse_bed(log_file, out)
