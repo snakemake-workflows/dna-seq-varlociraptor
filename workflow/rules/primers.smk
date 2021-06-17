@@ -85,13 +85,13 @@ rule filter_unmapped_primers:
 
 rule primer_to_bed:
     input:
-        "results/primers/primers.filtered.bam"
+        "results/primers/primers.filtered.bam",
     output:
         "results/primers/primers.{ext}",
     wildcard_constraints:
-        ext = ["bedpe", "bed"]
+        ext=["bedpe", "bed"],
     params:
-        format = lambda wc: "-bedpe" if wc.ext == "bedpe" else ""
+        format=lambda wc: "-bedpe" if wc.ext == "bedpe" else "",
     log:
         "logs/primers/primers_{ext}.log",
     conda:
@@ -99,9 +99,10 @@ rule primer_to_bed:
     shell:
         "samtools sort -n {input} | bamToBed -i - {params.format} > {output} 2> {log}"
 
+
 rule build_primer_regions:
     input:
-        get_primer_bed()
+        get_primer_bed(),
     output:
         "results/primers/primer_regions.tsv",
     log:
@@ -114,26 +115,27 @@ rule build_primer_regions:
 
 rule download_liftover_chain:
     output:
-        "resources/liftover.chain.gz"
+        "resources/liftover.chain.gz",
     params:
-        config["target_regions"]["liftover_chain"]
+        config["target_regions"]["liftover_chain"],
     log:
-        "logs/liftover/download_chain.log"
+        "logs/liftover/download_chain.log",
     shell:
         "wget {params} -O {output}"
 
+
 rule liftover_target_regions:
     input:
-        roi = config["target_regions"]["bed"],
-        chain = "resources/liftover.chain.gz"
+        roi=config["target_regions"]["bed"],
+        chain="resources/liftover.chain.gz",
     output:
-        "results/primers/target_regions.liftover.bed"
+        "results/primers/target_regions.liftover.bed",
     log:
-        "logs/liftover/liftover.log"
+        "logs/liftover/liftover.log",
     conda:
         "../envs/liftover.yaml"
     shell:
-        "liftOver {input.roi} {input.chain} {output} {log} 2> {log}" 
+        "liftOver {input.roi} {input.chain} {output} {log} 2> {log}"
 
 
 rule build_target_regions:

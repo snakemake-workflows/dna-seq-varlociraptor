@@ -230,11 +230,13 @@ def get_varlociraptor_preprocessing_input(wildcards, bai=False):
         sample=wildcards.sample, ext=ext
     )
 
+
 def get_primer_bed():
     if config["primers"]["trimming"].get("primers_fa2", ""):
         return "results/primers/primers.bedpe"
     else:
         return "results/primers/primers.bed"
+
 
 def get_target_regions():
     if config["target_regions"].get("bed", ""):
@@ -243,6 +245,7 @@ def get_target_regions():
         else:
             return config["target_regions"]["bed"]
     return "results/primers/target_regions.merged.bed"
+
 
 def get_group_bams(wildcards, bai=False):
     ext = "bai" if bai else "bam"
