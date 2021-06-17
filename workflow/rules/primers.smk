@@ -85,7 +85,7 @@ rule filter_unmapped_primers:
 
 rule primer_to_bed:
     input:
-        "results/primers/primers.filtered.bam",
+        "results/primers/primers.filtered.bam"
     output:
         "results/primers/primers.{ext}",
     wildcard_constraints:
@@ -99,10 +99,10 @@ rule primer_to_bed:
     shell:
         "samtools sort -n {input} | bamToBed -i - {params.format} > {output} 2> {log}"
 
-
+#TODO await bed instead of bedpe file in case only one primer is set
 rule build_primer_regions:
     input:
-        "results/primers/primers.bedpe",
+        get_primer_bed()
     output:
         "results/primers/primer_regions.tsv",
     log:
@@ -112,7 +112,7 @@ rule build_primer_regions:
     script:
         "../scripts/build_primer_regions.py"
 
-#TODO How to get these in case of single primers?!
+#TODO Required region of interest file for single primers -> liftover rule
 rule build_target_regions:
     input:
         "results/primers/primers.bedpe",
