@@ -89,7 +89,7 @@ rule primer_to_bed:
     output:
         "results/primers/primers.{ext}",
     wildcard_constraints:
-        ext=["bedpe", "bed"],
+        ext="bedpe|bed",
     params:
         format=lambda wc: "-bedpe" if wc.ext == "bedpe" else "",
     log:
