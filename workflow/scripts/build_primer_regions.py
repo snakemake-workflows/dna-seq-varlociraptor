@@ -1,13 +1,5 @@
 import pandas as pd
 
-chunksize = 10 ** 6
-with open(snakemake.output[0], "w") as out:
-    with open(snakemake.log[0], "w") as log_file:
-        if snakemake.input[0].endswith("bedpe"):
-            parse_bedpe(log_file)
-        else:
-            parse_bed(log_file)
-
 
 def parse_bed(log_file, out):
     print("chrom\tleft_start\tleft_end\tright_start\tright_end")
@@ -62,3 +54,12 @@ def parse_bedpe(log_file, out):
             data_primers[~valid_primers].to_csv(sep="\t", index=False, header=False),
             file=log_file,
         )
+
+
+chunksize = 10 ** 6
+with open(snakemake.output[0], "w") as out:
+    with open(snakemake.log[0], "w") as log_file:
+        if snakemake.input[0].endswith("bedpe"):
+            parse_bedpe(log_file)
+        else:
+            parse_bed(log_file)
