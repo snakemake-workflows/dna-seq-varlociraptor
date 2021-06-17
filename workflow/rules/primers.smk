@@ -83,30 +83,21 @@ rule filter_unmapped_primers:
         "0.61.0/bio/samtools/view"
 
 
-rule primer_to_bedpe:
-    input:
-        "results/primers/primers.filtered.bam",
-    output:
-        "results/primers/primers.bedpe",
-    log:
-        "logs/primers/primers_bedpe.log",
-    conda:
-        "../envs/bedtools.yaml"
-    shell:
-        "samtools sort -n {input} | bamToBed -i - -bedpe > {output} 2> {log}"
-
-
 rule primer_to_bed:
     input:
         "results/primers/primers.filtered.bam",
     output:
-        "results/primers/primers.bed",
+        "results/primers/primers.{ext}",
+    wildcard_constraints:
+        ext = ["bedpe", "bed"]
+    params:
+        format = lambda wc: "-bedpe" if wc.ext == "bedpe" else ""
     log:
-        "logs/primers/primers_bed.log",
+        "logs/primers/primers_{ext}.log",
     conda:
         "../envs/bedtools.yaml"
     shell:
-        "samtools sort -n {input} | bamToBed -i - > {output} 2> {log}"
+        "samtools sort -n {input} | bamToBed -i - {params.format} > {output} 2> {log}"
 
 
 rule build_primer_regions:
@@ -121,7 +112,7 @@ rule build_primer_regions:
     script:
         "../scripts/build_primer_regions.py"
 
-
+#TODO How to get these in case of single primers?!
 rule build_target_regions:
     input:
         "results/primers/primers.bedpe",
