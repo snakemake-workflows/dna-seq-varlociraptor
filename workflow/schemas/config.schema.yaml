@@ -68,8 +68,14 @@ properties:
     properties:
       bed:
         type: string
-      liftover_chain:
-        type: string
+      liftover:
+        type: object
+        activate: 
+          type: boolean
+        origin:
+          type: string
+        target:
+          type: string
 
 
   report:

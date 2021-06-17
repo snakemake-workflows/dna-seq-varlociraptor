@@ -240,7 +240,7 @@ def get_primer_bed():
 
 def get_target_regions():
     if config["target_regions"].get("bed", ""):
-        if ["target_regions"].get("liftover_chain", ""):
+        if is_activated("target_regions/liftover"):
             return "results/primers/target_regions.liftover.bed"
         else:
             return config["target_regions"]["bed"]

@@ -29,7 +29,10 @@ primers:
 #Chains can be found here: https://hgdownload.soe.ucsc.edu/goldenPath/hg19/liftOver/
 target_regions:
   bed: ""
-  liftover_chain: ""
+  liftover:
+    activate: false
+    origin: ""
+    target: ""
 
 # Estimation of tumor mutational burden.
 tmb:

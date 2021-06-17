@@ -24,7 +24,10 @@ primers:
 
 target_regions:
   bed: ""
-  liftover_chain: ""
+  liftover:
+    activate: false
+    origin: ""
+    target: ""
 
 # Estimation of tumor mutational burden.
 tmb:

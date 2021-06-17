@@ -115,11 +115,13 @@ rule build_primer_regions:
 
 rule download_liftover_chain:
     output:
-        "resources/liftover.chain.gz",
+        "resources/{origin}To{target}.chain.gz",
     params:
-        config["target_regions"]["liftover_chain"],
+        lambda wc: "https://hgdownload.soe.ucsc.edu/goldenPath/{o}/liftOver/{o}To{t}.over.chain.gz".format(
+            o=origin, t=target
+        ),
     log:
-        "logs/liftover/download_chain.log",
+        "logs/liftover/download_{origin}To{target}.log",
     shell:
         "wget {params} -O {output}"
 
@@ -127,7 +129,10 @@ rule download_liftover_chain:
 rule liftover_target_regions:
     input:
         roi=config["target_regions"]["bed"],
-        chain="resources/liftover.chain.gz",
+        chain="results/primers/{o}To{t}.liftover.bed".format(
+            o=config["target_regions"]["liftover"]["origin"],
+            t=config["target_regions"]["liftover"]["target"],
+        ),
     output:
         "results/primers/target_regions.liftover.bed",
     log:
