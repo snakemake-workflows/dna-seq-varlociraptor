@@ -18,18 +18,20 @@ rule yara_index:
     input:
         "resources/genome.fasta",
     output:
-        "resources/genome.txt.size",
-        "resources/genome.txt.limits",
-        "resources/genome.txt.concat",
-        "resources/genome.rid.concat",
-        "resources/genome.rid.limits",
-        "resources/genome.sa.len",
-        "resources/genome.sa.val",
-        "resources/genome.sa.ind",
-        "resources/genome.lf.drp",
-        "resources/genome.lf.drs",
-        "resources/genome.lf.drv",
-        "resources/genome.lf.pst",
+        multiext(
+            "resources/genome.fasta",
+            ".txt.size",
+            ".txt.limits",
+            ".txt.concat",
+            ".rid.limits",
+            ".sa.len",
+            ".sa.val",
+            ".sa.ind",
+            ".lf.drp",
+            ".lf.drs",
+            ".lf.drv",
+            ".lf.pst",
+        ),
     log:
         "logs/yara/index.log",
     conda:

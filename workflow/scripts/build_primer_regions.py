@@ -13,14 +13,14 @@ def parse_bed(log_file, out):
         for row in data_primers.iterrows():
             row_id = row[0]
             row = row[1]
-            if row[3] == "+":
+            if row[5] == "+":
                 print(
                     "{chrom}\t{start}\t{end}\t\t".format(
                         chrom=row[0], start=row[1], end=row[2]
                     ),
                     file=out,
                 )
-            elif row[3] == "-":
+            elif row[5] == "-":
                 print(
                     "{chrom}\t\t\t{start}\t{end}".format(
                         chrom=row[0], start=row[1], end=row[2]
