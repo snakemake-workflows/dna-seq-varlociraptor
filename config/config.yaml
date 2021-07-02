@@ -38,12 +38,12 @@ tmb:
   mode:
     - hist
     - curve
-  # Name of the tumor sample in the scenario.yaml.
-  tumor_sample: tumor
-  somatic_events:
-    - SOMATIC_TUMOR_LOW
-    - SOMATIC_TUMOR_MEDIUM
-    - SOMATIC_TUMOR_HIGH
+  samples:
+    - tumor_sample: tumor # Name of the tumor sample in the scenario.yaml.
+      somatic_events:
+        - SOMATIC_TUMOR_LOW
+        - SOMATIC_TUMOR_MEDIUM
+        - SOMATIC_TUMOR_HIGH
 
 # printing of variants in a matrix, sorted by recurrence
 report:

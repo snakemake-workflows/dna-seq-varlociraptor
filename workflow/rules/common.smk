@@ -341,12 +341,17 @@ def get_read_group(wildcards):
 def get_tmb_targets():
     if is_activated("tmb"):
         return expand(
-            "results/plots/tmb/{group}.{mode}.tmb.svg",
+            "results/plots/tmb/{group}.{sample}.{mode}.tmb.svg",
             group=groups,
             mode=config["tmb"].get("mode", "curve"),
+            sample=
         )
     else:
         return []
+
+
+def get_tmp_params(wildcards):
+    return config["tmb"]["samples"][wildcards.sample]
 
 
 def get_scattered_calls(ext="bcf"):
@@ -360,15 +365,28 @@ def get_scattered_calls(ext="bcf"):
     return inner
 
 
-def get_annotated_bcf(wildcards):
+def get_selected_annotations():
     selection = ".annotated"
     if is_activated("annotations/vcfs"):
         selection += ".db-annotated"
     if is_activated("annotations/dgidb"):
         selection += ".dgidb"
+    return selection
+
+
+def get_annotated_bcf(wildcards):
+    selection = get_selected_annotations()
     return "results/calls/{group}.{scatteritem}{selection}.bcf".format(
         group=wildcards.group, selection=selection, scatteritem=wildcards.scatteritem
     )
+
+
+def get_gather_annotated_calls_input(ext):
+    def inner(wildcards):
+        selection = get_selected_annotations()
+        return gather.calling("results/calls/{{{{group}}}}.{{scatteritem}}{selection}.{ext}".format(ext=ext, selection=selection))
+
+    return inner
 
 
 def get_candidate_calls():
