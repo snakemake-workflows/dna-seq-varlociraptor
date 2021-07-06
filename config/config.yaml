@@ -26,7 +26,6 @@ primers:
     # Specify 0 to have yara autodetect the primer library insert size.
     library_length: 0
 
-
 # Estimation of tumor mutational burden.
 tmb:
   activate: false
