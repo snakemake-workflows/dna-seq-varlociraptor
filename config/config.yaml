@@ -26,13 +26,6 @@ primers:
     # Specify 0 to have yara autodetect the primer library insert size.
     library_length: 0
 
-#Chains can be found here: https://hgdownload.soe.ucsc.edu/goldenPath/hg19/liftOver/
-target_regions:
-  bed: ""
-  liftover:
-    activate: false
-    origin: ""
-    target: ""
 
 # Estimation of tumor mutational burden.
 tmb:

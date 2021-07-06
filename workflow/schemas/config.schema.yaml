@@ -62,22 +62,6 @@ properties:
             type: integer
           library_length:
             type: integer
-  
-  target_regions:
-    type: object
-    properties:
-      bed:
-        type: string
-      liftover:
-        type: object
-        properties:
-          activate: 
-            type: boolean
-          origin:
-            type: string
-          target:
-            type: string
-
 
   report:
     type: object

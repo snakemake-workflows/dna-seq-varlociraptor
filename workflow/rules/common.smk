@@ -238,13 +238,19 @@ def get_primer_bed():
         return "results/primers/primers.bed"
 
 
-def get_target_regions():
-    if config["target_regions"].get("bed", ""):
-        if is_activated("target_regions/liftover"):
-            return "results/primers/target_regions.liftover.bed"
-        else:
-            return config["target_regions"]["bed"]
-    return "results/primers/target_regions.merged.bed"
+def get_group_regions(wildcards):
+    if is_activated("primers/trimming"):
+        return "results/regions/groups/{}.target_regions.bed".format(wildcards.group)
+    return []
+
+
+def get_primer_fastqs():
+    if config["primers"]["trimming"].get("primers_fa2", ""):
+        return [
+            config["primers"]["trimming"]["primers_fa1"],
+            config["primers"]["trimming"]["primers_fa2"],
+        ]
+    return config["primers"]["trimming"]["primers_fa1"]
 
 
 def get_group_bams(wildcards, bai=False):
@@ -315,16 +321,9 @@ def get_resource(name):
     return workflow.source_path("../resources/{}".format(name))
 
 
-def get_regions():
+def get_excluded_regions(wildcards):
     if is_activated("primers/trimming"):
-        return "results/primers/target_regions.merged.bed"
-    else:
-        return []
-
-
-def get_excluded_regions():
-    if is_activated("primers/trimming"):
-        return "results/primers/excluded_regions.bed"
+        return "results/regions/groups/{}.excluded_regions.bed".format(wildcards.group)
     else:
         return []
 

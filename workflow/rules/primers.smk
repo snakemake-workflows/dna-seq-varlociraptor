@@ -1,17 +1,24 @@
+# TODO Wait for merge/Add own jar file
 rule trim_primers:
     input:
-        bams="results/recal/{sample}.filtered.bam",
+        bams="results/recal/{sample}.sorted.bam",
         primers="results/primers/primer_regions.tsv",
     output:
-        "results/trimmed/{sample}.trimmed.bam",
+        trimmed="results/trimmed/{sample}.trimmed.bam",
+        primerless="results/trimmed/{sample}.primerless.bam",
     params:
         sort_order="Coordinate",
+        single_primer=(
+            "--first-of-pair"
+            if not config["primers"]["trimming"].get("primers_fa2", "")
+            else ""
+        ),
     conda:
         "../envs/fgbio.yaml"
     log:
         "logs/trimming/{sample}.log",
     shell:
-        "fgbio TrimPrimers -H -i {input.bams} -p {input.primers} -s {params.sort_order} -o {output} &> {log}"
+        "fgbio TrimPrimers -H -i {input.bams} -p {input.primers} -s {params.sort_order} -o {output.trimmed} -u {output.primerless} &> {log}"
 
 
 rule yara_index:
@@ -44,10 +51,7 @@ rule yara_index:
 rule map_primers:
     threads: 12
     input:
-        reads=[
-            config["primers"]["trimming"]["primers_fa1"],
-            config["primers"]["trimming"]["primers_fa2"],
-        ],
+        reads=get_primer_fastqs(),
         ref="resources/genome.fasta",
         idx=rules.yara_index.output,
     output:
@@ -115,90 +119,48 @@ rule build_primer_regions:
         "../scripts/build_primer_regions.py"
 
 
-rule download_liftover_chain:
-    output:
-        "resources/{origin}To{target}.chain.gz",
-    params:
-        lambda wc: "https://hgdownload.soe.ucsc.edu/goldenPath/{o}/liftOver/{o}To{t}.over.chain.gz".format(
-            o=origin, t=target
-        ),
-    log:
-        "logs/liftover/download_{origin}To{target}.log",
-    shell:
-        "wget {params} -O {output}"
-
-
-rule liftover_target_regions:
+rule build_sample_regions:
     input:
-        roi=config["target_regions"]["bed"],
-        chain="results/primers/{o}To{t}.liftover.bed".format(
-            o=config["target_regions"]["liftover"]["origin"],
-            t=config["target_regions"]["liftover"]["target"],
-        ),
+        "results/trimmed/{sample}.trimmed.bam",
     output:
-        "results/primers/target_regions.liftover.bed",
+        temp("results/regions/samples/{sample}.target_regions.bed"),
     log:
-        "logs/liftover/liftover.log",
-    conda:
-        "../envs/liftover.yaml"
-    shell:
-        "liftOver {input.roi} {input.chain} {output} {log} 2> {log}"
-
-
-rule build_target_regions:
-    input:
-        "results/primers/primers.bedpe",
-    output:
-        "results/primers/target_regions.bed",
-    log:
-        "logs/primers/build_target_regions.log",
-    conda:
-        "../envs/pandas.yaml"
-    script:
-        "../scripts/build_target_regions.py"
-
-
-rule merge_target_regions:
-    input:
-        "results/primers/target_regions.bed",
-    output:
-        "results/primers/target_regions.merged.bed",
-    log:
-        "logs/primers/merge_target_regions.log",
+        "logs/regions/samples/{sample}_target_regions.log",
     conda:
         "../envs/bedtools.yaml"
     shell:
-        "sort -k1,1 -k2,2n {input} | mergeBed -i - > {output} 2> {log}"
+        "bamToBed -i {input} | mergeBed -i - > {output} 2> {log}"
+
+
+rule merge_group_regions:
+    input:
+        lambda wc: expand(
+            "results/regions/samples/{sample}.target_regions.bed",
+            sample=get_group_samples(wc.group),
+        ),
+    output:
+        "results/regions/groups/{group}.target_regions.bed",
+    log:
+        "logs/regions/groups/{group}_target_regions.log",
+    conda:
+        "../envs/bedtools.yaml"
+    shell:
+        "cat {input} | sort -k1,1 -k2,2n - | mergeBed -i - > {output} 2> {log}"
 
 
 rule build_excluded_regions:
     input:
-        target_regions=get_target_regions(),
+        target_regions="results/regions/groups/{group}.target_regions.bed",
         genome_index="resources/genome.fasta.fai",
     output:
-        "results/primers/excluded_regions.bed",
+        "results/regions/groups/{group}.excluded_regions.bed",
     params:
         chroms=config["ref"]["n_chromosomes"],
     log:
-        "logs/regions/excluded_regions.log",
+        "logs/regions/{group}_excluded_regions.log",
     conda:
         "../envs/bedtools.yaml"
     shell:
         "(complementBed -i {input.target_regions} -g <(head "
         "-n {params.chroms} {input.genome_index} | cut "
         "-f 1,2 | sort -k1,1 -k 2,2n) > {output}) 2> {log}"
-
-
-# filter reads that map outside of the expected primer intervals
-rule filter_primerless_reads:
-    input:
-        bam="results/recal/{sample}.sorted.bam",
-        regions="results/primers/primers.bed",
-    output:
-        "results/recal/{sample}.filtered.bam",
-    log:
-        "logs/primers/{sample}_filter_reads.log",
-    conda:
-        "../envs/samtools.yaml"
-    shell:
-        "samtools view -h -b -L {input.regions} {input.bam} > {output} 2> {log}"
