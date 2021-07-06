@@ -26,7 +26,7 @@ rule yara_index:
         "resources/genome.fasta",
     output:
         multiext(
-            "resources/genome.fasta",
+            "resources/genome",
             ".txt.size",
             ".txt.limits",
             ".txt.concat",
