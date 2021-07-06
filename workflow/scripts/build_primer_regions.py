@@ -42,13 +42,13 @@ def parse_bedpe(log_file, out):
         valid_primers = data_primers[0] == data_primers[3]
         valid_data = data_primers[valid_primers].copy()
         valid_data.iloc[:, [1, 4]] += 1
-        print(
-            valid_data.drop(columns=[3]).to_csv(
-                sep="\t",
-                index=False,
-                header=["chrom", "left_start", "left_end", "right_start", "right_end"],
-            ),
-            file=out,
+        valid_data.drop(columns=[3], inplace=True)
+        valid_data.dropna(how="all", inplace=True)
+        valid_data.to_csv(
+            out,
+            sep="\t",
+            index=False,
+            header=["chrom", "left_start", "left_end", "right_start", "right_end"],
         )
         print(
             data_primers[~valid_primers].to_csv(sep="\t", index=False, header=False),
