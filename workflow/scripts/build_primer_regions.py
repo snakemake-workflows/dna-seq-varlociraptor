@@ -15,15 +15,15 @@ def parse_bed(log_file, out):
             row = row[1]
             if row[5] == "+":
                 print(
-                    "{chrom}\t{start}\t{end}\t\t".format(
-                        chrom=row[0], start=row[1], end=row[2]
+                    "{chrom}\t{start}\t{end}\t-1\t-1".format(
+                        chrom=row[0], start=row[1]+1, end=row[2]
                     ),
                     file=out,
                 )
             elif row[5] == "-":
                 print(
-                    "{chrom}\t\t\t{start}\t{end}".format(
-                        chrom=row[0], start=row[1], end=row[2]
+                    "{chrom}\t-1\t-1\t{start}\t{end}".format(
+                        chrom=row[0], start=row[1]+1, end=row[2]
                     ),
                     file=out,
                 )

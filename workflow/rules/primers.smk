@@ -55,12 +55,12 @@ rule map_primers:
     params:
         library_len=(
             "-ll {}".format(config["primers"]["trimming"]["library_length"])
-            if config["primers"]["trimming"]["library_length"] > 0
+            if config["primers"]["trimming"].get("library_length", 0) > 0
             else ""
         ),
         library_error=(
             "-ld {}".format(config["primers"]["trimming"]["library_error"])
-            if config["primers"]["trimming"]["library_error"] > 0
+            if config["primers"]["trimming"].get("library_error", 0) > 0
             else ""
         ),
         ref_prefix=lambda w, input: os.path.splitext(input.ref)[0],
