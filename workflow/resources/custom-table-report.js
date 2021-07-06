@@ -30,6 +30,9 @@ $(document).ready(function () {
 
             gene_field = 'ann[' + j + '][4]'
             ensembl_field = 'ann[' + j + '][5]'
+            transcript_hgsv_field = 'ann[' + j + '][11]'
+            transcript = $(that).data(transcript_hgsv_field).split(":")[0]
+            hgsv = $(that).data(transcript_hgsv_field).split(":")[1]
             gene = $(that).data(gene_field)
             ensembl_id = $(that).data(ensembl_field)
             $('#ann-sidebar').append('<td id="Linkout' + j +'">')
@@ -46,6 +49,8 @@ $(document).ready(function () {
             $('#Button'+ j).append('<a class="dropdown-item" href="https://www.mycancergenome.org/content/gene/'+ gene +'" target="_blank">My Cancer Genome</a>');
             $('#Button'+ j).append('<a class="dropdown-item" href="https://search.cancervariants.org/#'+ gene +'" target="_blank">MetaKB</a>');
             $('#Button'+ j).append('<a class="dropdown-item" href="https://www.proteinatlas.org/search/'+ gene +'" target="_blank">The Human Protein Atlas</a>');
+            $('#Button'+ j).append('<a class="dropdown-item" href="https://varseak.bio/search.php?gene='+ gene +'" target="_blank">varSEAK Variant Table</a>');
+            $('#Button'+ j).append('<a class="dropdown-item" href="https://varseak.bio/ssp.php?gene=' + gene + '&transcript='+ transcript +'&variant=&hgvs='+ hgsv +'" target="_blank">varSEAK Splice Site Prediction</a>');
         }
         $('#ann-sidebar').append('</tr>');
 
