@@ -9,7 +9,7 @@ if config["mutational_burden"]["activate"]:
                 caption="../report/mutational-burden.rst",
                 category="Mutational Burden",
                 subcategory="{group}",
-            )
+            ),
         log:
             "logs/estimate-mutational-burden/{group}.{sample}.{mode}.log",
         params:

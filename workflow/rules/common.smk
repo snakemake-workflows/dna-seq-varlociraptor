@@ -56,7 +56,7 @@ def get_final_output():
                     event=config["calling"]["fdr-control"]["events"],
                 )
             )
-    
+
     final_output.extend(get_mutational_burden_targets())
 
     return final_output
@@ -394,7 +394,11 @@ def get_annotated_bcf(wildcards):
 def get_gather_annotated_calls_input(ext="bcf"):
     def inner(wildcards):
         selection = get_selected_annotations()
-        return gather.calling("results/calls/{{{{group}}}}.{{scatteritem}}{selection}.{ext}".format(ext=ext, selection=selection))
+        return gather.calling(
+            "results/calls/{{{{group}}}}.{{scatteritem}}{selection}.{ext}".format(
+                ext=ext, selection=selection
+            )
+        )
 
     return inner
 
