@@ -5,7 +5,7 @@ if config["mutational_burden"]["activate"]:
             "results/final-calls/{group}.annotated.bcf",
         output:
             report(
-                "results/plots/mutational-burden/{group}.{sample}.{mode}.mutational-burden.vl.json",
+                "results/plots/mutational-burden/{group}.{sample}.{mode}.mutational-burden.svg",
                 caption="../report/mutational-burden.rst",
                 category="Mutational Burden",
                 subcategory="{group}",
@@ -23,4 +23,4 @@ if config["mutational_burden"]["activate"]:
             "--coding-genome-size {params.coding_genome_size} "
             "--events {params.events} "
             "--sample {wildcards.sample} "
-            "< {input} > {output} 2> {log}"
+            "< {input} | vl2svg > {output} 2> {log}"
