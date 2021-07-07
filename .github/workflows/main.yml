@@ -47,6 +47,13 @@ jobs:
         directory: .test
         snakefile: workflow/Snakefile
         args: "--use-conda --show-failed-logs -j 10 --conda-cleanup-pkgs cache --conda-frontend mamba"
+    
+    - name: Test report
+      uses: snakemake/snakemake-github-action@v1.20.0
+      with:
+        directory: .test
+        snakefile: workflow/Snakefile
+        args: "--report report.zip"
 
     - name: Test workflow (local FASTQs, no candidate filtering)
       uses: snakemake/snakemake-github-action@v1.20.0
@@ -63,13 +70,6 @@ jobs:
         args: "--configfile .test/config_primers/config.yaml --use-conda --show-failed-logs -j 10 --conda-cleanup-pkgs cache --conda-frontend mamba"
         stagein: |
           rm -rf .test/resources .test/results
-
-    - name: Test report
-      uses: snakemake/snakemake-github-action@v1.20.0
-      with:
-        directory: .test
-        snakefile: workflow/Snakefile
-        args: "--report report.zip"
 
     - name: Test workflow (SRA FASTQs)
       uses: snakemake/snakemake-github-action@v1.20.0
