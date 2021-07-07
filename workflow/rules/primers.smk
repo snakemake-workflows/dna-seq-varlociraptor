@@ -14,7 +14,8 @@ rule trim_primers:
             else ""
         ),
     conda:
-        "../envs/fgbio.yaml"
+        #"../envs/fgbio.yaml"
+        "../envs/fgbio_tmp.yaml"
     log:
         "logs/trimming/{sample}.log",
     shell:
