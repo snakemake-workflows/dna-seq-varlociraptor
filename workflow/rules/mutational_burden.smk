@@ -6,7 +6,7 @@ if config["mutational_burden"]["activate"]:
         output:
             report(
                 "results/plots/mutational-burden/{group}.{sample}.{mode}.mutational-burden.svg",
-                caption="../report/mutational-burden.rst",
+                caption="../report/mutational_burden.rst",
                 category="Mutational Burden",
                 subcategory="{group}",
             ),
