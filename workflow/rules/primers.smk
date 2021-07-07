@@ -19,7 +19,7 @@ rule trim_primers:
     log:
         "logs/trimming/{sample}.log",
     shell:
-        "fgbio TrimPrimers -H -i {input.bams} -p {input.primers} -s {params.sort_order} -o {output.trimmed} -u {output.primerless} &> {log}"
+        "java -jar workflow/scripts/fgbio.jar TrimPrimers -H -i {input.bams} -p {input.primers} -s {params.sort_order} -o {output.trimmed} -u {output.primerless} &> {log}"
 
 
 rule yara_index:
