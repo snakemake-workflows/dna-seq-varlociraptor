@@ -110,7 +110,7 @@ rule recalibrate_base_qualities:
         "logs/gatk/baserecalibrator/{sample}.log",
     threads: 8
     wrapper:
-        "0.62.0/bio/gatk/baserecalibratorspark"
+        "0.77.0/bio/gatk/baserecalibratorspark"
 
 
 ruleorder: apply_bqsr > bam_index
@@ -133,4 +133,4 @@ rule apply_bqsr:
         extra=config["params"]["gatk"]["applyBQSR"],  # optional
         java_opts="",  # optional
     wrapper:
-        "0.62.0/bio/gatk/applybqsr"
+        "0.77.0/bio/gatk/applybqsr"
