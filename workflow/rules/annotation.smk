@@ -77,3 +77,17 @@ rule annotate_dgidb:
         dgidb_requests=1,
     shell:
         "rbt vcf-annotate-dgidb {input} {params.datasources} > {output} 2> {log}"
+
+
+rule gather_annotated_calls:
+    input:
+        calls=get_gather_annotated_calls_input(),
+        idx=get_gather_annotated_calls_input(ext="bcf.csi"),
+    output:
+        "results/final-calls/{group}.annotated.bcf",
+    log:
+        "logs/gather-annotated-calls/{group}.annotated.log",
+    params:
+        "-a -Ob",
+    wrapper:
+        "0.67.0/bio/bcftools/concat"

@@ -56,6 +56,9 @@ def get_final_output():
                     event=config["calling"]["fdr-control"]["events"],
                 )
             )
+
+    final_output.extend(get_mutational_burden_targets())
+
     return final_output
 
 
@@ -338,15 +341,27 @@ def get_read_group(wildcards):
     )
 
 
-def get_tmb_targets():
-    if is_activated("tmb"):
+def get_mutational_burden_targets():
+    if is_activated("mutational_burden"):
         return expand(
-            "results/plots/tmb/{group}.{mode}.tmb.svg",
-            group=groups,
-            mode=config["tmb"].get("mode", "curve"),
+            "results/plots/mutational-burden/{sample.group}.{sample.sample_name}.{mode}.mutational-burden.svg",
+            mode=config["mutational_burden"].get("mode", "curve"),
+            sample=samples.itertuples(),
         )
     else:
         return []
+
+
+def get_mutational_burden_events(wildcards):
+    try:
+        events = samples.loc[wildcards.sample, "mutational_burden_events"]
+    except KeyError:
+        events = None
+    if pd.isna(events):
+        events = config["mutational_burden"]["events"]
+    else:
+        events = map(str.strip, events.split(","))
+    return " ".join(events)
 
 
 def get_scattered_calls(ext="bcf"):
@@ -360,15 +375,32 @@ def get_scattered_calls(ext="bcf"):
     return inner
 
 
-def get_annotated_bcf(wildcards):
+def get_selected_annotations():
     selection = ".annotated"
     if is_activated("annotations/vcfs"):
         selection += ".db-annotated"
     if is_activated("annotations/dgidb"):
         selection += ".dgidb"
+    return selection
+
+
+def get_annotated_bcf(wildcards):
+    selection = get_selected_annotations()
     return "results/calls/{group}.{scatteritem}{selection}.bcf".format(
         group=wildcards.group, selection=selection, scatteritem=wildcards.scatteritem
     )
+
+
+def get_gather_annotated_calls_input(ext="bcf"):
+    def inner(wildcards):
+        selection = get_selected_annotations()
+        return gather.calling(
+            "results/calls/{{{{group}}}}.{{scatteritem}}{selection}.{ext}".format(
+                ext=ext, selection=selection
+            )
+        )
+
+    return inner
 
 
 def get_candidate_calls():
