@@ -17,7 +17,7 @@ rule trim_primers:
     log:
         "logs/trimming/{sample}.log",
     shell:
-        "java -jar workflow/scripts/fgbio.jar TrimPrimers -H -i {input.bams} -p {input.primers} -s {params.sort_order} {params.single_primer} -o {output.trimmed} -u {output.primerless} &> {log}"
+        "java -jar ../workflow/scripts/fgbio.jar TrimPrimers -H -i {input.bams} -p {input.primers} -s {params.sort_order} {params.single_primer} -o {output.trimmed} -u {output.primerless} &> {log}"
 
 
 rule bowtie_build:
@@ -173,11 +173,11 @@ rule build_sample_regions:
     input:
         get_varlociraptor_preprocessing_input,
     output:
-        temp("results/regions/samples/{sample}.target_regions.bed"),
+        temp("results/regions/{group}/{sample}.target_regions.bed"),
     params:
         chroms=config["ref"]["n_chromosomes"],
     log:
-        "logs/regions/samples/{sample}_target_regions.log",
+        "logs/regions/samples/{group}/{sample}_target_regions.log",
     conda:
         "../envs/bedtools.yaml"
     shell:
@@ -187,13 +187,13 @@ rule build_sample_regions:
 rule merge_group_regions:
     input:
         lambda wc: expand(
-            "results/regions/samples/{sample}.target_regions.bed",
+            "results/regions/{{group}}/{sample}.target_regions.bed",
             sample=get_group_samples(wc.group),
         ),
     output:
-        "results/regions/groups/{group}.target_regions.bed",
+        "results/regions/{group}.target_regions.bed",
     log:
-        "logs/regions/groups/{group}_target_regions.log",
+        "logs/regions/{group}_target_regions.log",
     conda:
         "../envs/bedtools.yaml"
     shell:
@@ -202,10 +202,10 @@ rule merge_group_regions:
 
 rule build_excluded_regions:
     input:
-        target_regions="results/regions/groups/{group}.target_regions.bed",
+        target_regions="results/regions/{group}.target_regions.bed",
         genome_index="resources/genome.fasta.fai",
     output:
-        "results/regions/groups/{group}.excluded_regions.bed",
+        "results/regions/{group}.excluded_regions.bed",
     params:
         chroms=config["ref"]["n_chromosomes"],
     log:
