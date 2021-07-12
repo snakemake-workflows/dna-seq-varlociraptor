@@ -3,7 +3,7 @@ rule freebayes:
     input:
         ref="resources/genome.fasta",
         ref_idx="resources/genome.fasta.fai",
-        regions=lambda w: get_group_regions(w),
+        regions="results/regions/groups/{group}.target_regions.bed",
         # you can have a list of samples here
         samples=lambda w: get_group_bams(w),
         index=lambda w: get_group_bams(w, bai=True),
@@ -29,7 +29,7 @@ rule delly:
         ref_idx="resources/genome.fasta.fai",
         samples=lambda w: get_group_bams(w),
         index=lambda w: get_group_bams(w, bai=True),
-        exclude=lambda w: get_excluded_regions(w),
+        exclude="results/regions/groups/{group}.excluded_regions.bed",
     output:
         "results/candidate-calls/{group}.delly.bcf",
     log:

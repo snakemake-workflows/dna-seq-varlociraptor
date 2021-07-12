@@ -9,7 +9,7 @@ rule trim_primers:
     params:
         sort_order="Coordinate",
         single_primer=(
-            "--first-of-pair" if not isinstance(get_primer_fastqs, list) else ""
+            "--first-of-pair" if not isinstance(get_primer_fastqs(), list) else ""
         ),
     conda:
         #"../envs/fgbio.yaml"
@@ -51,12 +51,17 @@ rule bowtie_map:
             else "-f {}".format(input.reads)
         ),
         prefix="resources/bowtie_build/genome.fasta",
+        insertsize=(
+            "-X {}".format(config["primers"]["trimming"].get("library_length"))
+            if config["primers"]["trimming"].get("library_length", 0) != 0
+            else ""
+        ),
     log:
         "logs/bowtie/map.log",
     conda:
         "../envs/bowtie.yaml"
     shell:
-        "bowtie {params.reads} -x {params.prefix} -S | samtools view -b - > {output} 2> {log}"
+        "bowtie {params.reads} -x {params.prefix} {params.insertsize} -S | samtools view -b - > {output} 2> {log}"
 
 
 """
@@ -125,7 +130,7 @@ rule filter_unmapped_primers:
     params:
         extra=(
             lambda wc, input: "-b -f 2"
-            if isinstance(get_primer_fastqs, list)
+            if isinstance(get_primer_fastqs(), list)
             else "-b -F 4"
         ),
     log:
@@ -166,7 +171,7 @@ rule build_primer_regions:
 
 rule build_sample_regions:
     input:
-        "results/trimmed/{sample}.trimmed.bam",
+        get_varlociraptor_preprocessing_input,
     output:
         temp("results/regions/samples/{sample}.target_regions.bed"),
     params:
