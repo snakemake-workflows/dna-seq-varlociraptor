@@ -27,9 +27,9 @@ primers:
     library_length: 0
 
 # Estimation of tumor mutational burden.
-tmb:
+mutational_burden:
   activate: false
-  # Size of the sequenced coding genome for TMB estimation
+  # Size of the sequenced coding genome for mutational burden estimation
   # Attention: when doing panel sequencing, set this to the
   # CAPTURED coding genome, not the entire one!
   coding_genome_size: 3e7
@@ -38,12 +38,15 @@ tmb:
   mode:
     - hist
     - curve
-  # Name of the tumor sample in the scenario.yaml.
-  tumor_sample: tumor
-  somatic_events:
-    - SOMATIC_TUMOR_LOW
-    - SOMATIC_TUMOR_MEDIUM
-    - SOMATIC_TUMOR_HIGH
+  # Events to use for mutational burden plotting.
+  # In case you have certain samples where this differs, 
+  # you can add an additional column mutational_burden_events
+  # to the sample table (samples.tsv).
+  # There events can be specified comma separated.
+  events:
+    - somatic_tumor_high
+    - somatic_tumor_medium
+    - somatic_tumor_low
 
 # printing of variants in a matrix, sorted by recurrence
 report:
@@ -79,23 +82,33 @@ calling:
     # It should ideally generate a superset of all other filters defined below.
     # Annotation of candidate variants tries to be as fast as possible, only using VEP
     # default parameters. Comment out or remove if not needed or intended.
+    # See https://github.com/vembrane/vembrane
     candidates: "ANN['IMPACT'] != 'LOW'"
-    # Add any number of named filters here. They will be applied independenty,
+    # Add any number of named filters here (replace myfilter with a reasonable name, 
+    # and add more below). Filtering happens with the vembrane filter language
+    # (see https://github.com/vembrane/vembrane), and you can refer to any fields that
+    # have been added by VEP during annotation (in the INFO/ANN field, see section 
+    # annotations/vep below).
+    # Filters will be applied independenty,
     # and can be referred in FDR control below to generate calls for different events.
-    # In particular, you can also filter by ID or dbsnp annotations here.
-    # See http://snpeff.sourceforge.net/SnpSift.html#filter
-    filtername: "ANN['IMPACT'] == 'HIGH'"
+    # You can also e.g. filter by ID or dbsnp annotations here.
+    myfilter: "ANN['IMPACT'] == 'HIGH'"
   fdr-control:
     threshold: 0.05
     # denote whether local or global FDR shall be controlled
     local: true
     events: 
       # Add any number of events here to filter for.
+      # The name of each event can be chosen freely 
+      # ("somatic" below is just an example and can be modified as needed).
       somatic:
         varlociraptor: 
-          - "SOMATIC_TUMOR_HIGH"
-          - "SOMATIC_TUMOR_MEDIUM"
-        filter: filtername
+          # Add varlociraptor events to aggregated over.
+          # The probability for the union of these events is used for controlling
+          # the FDR.
+          - somatic_tumor_high
+          - somatic_tumor_medium
+        filter: myfilter
 
 # Will be ignored if calc_consensus_reads is activated
 remove_duplicates:

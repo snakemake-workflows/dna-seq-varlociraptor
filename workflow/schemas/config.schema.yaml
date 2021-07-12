@@ -106,7 +106,7 @@ properties:
     required:
       - activate
 
-  tmb:
+  mutational_burden:
     type: object
     properties:
       activate:
@@ -114,17 +114,14 @@ properties:
       coding_genome_size:
         # TODO allow integer here!
         type: string
-      tumor_sample:
-        type: string
-      somatic_events:
+      events:
         type: array
         items: 
           type: string
     required:
       - activate
       - coding_genome_size
-      - tumor_sample
-      - somatic_events
+      - events
 
 
   calling:
@@ -261,7 +258,7 @@ required:
   - samples
   - units
   - ref
-  - tmb
+  - mutational_burden
   - calling
   - params
   - annotations
