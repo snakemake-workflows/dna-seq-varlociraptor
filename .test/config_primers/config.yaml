@@ -17,8 +17,8 @@ ref:
 primers:
   trimming:
     activate: true
-    primers_fa1: "a.scerevisiae.1_primers.fa"
-    primers_fa2: "a.scerevisiae.2_primers.fa"
+    primers_fa1: "a.scerevisiae.1_primers.fq"
+    primers_fa2: "a.scerevisiae.2_primers.fq"
     library_error: 174
     library_length: 104
 

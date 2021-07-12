@@ -1,1 +1,2 @@
 sample_name	unit_name	fq1	fq2	sra	adapters
+E-2021-03190-1F	lane1	/media/ifp_sequenzer/MiSeq_Läufe/MiSeqAnalysis/2021/Qiagen_V3/210218_M03645_0664_000000000-JHP49/Data/Intensities/BaseCalls/E-2021-03190-1F-GIST1-0V3_S10_L001_R1_001.fastq.gz	/media/ifp_sequenzer/MiSeq_Läufe/MiSeqAnalysis/2021/Qiagen_V3/210218_M03645_0664_000000000-JHP49/Data/Intensities/BaseCalls/E-2021-03190-1F-GIST1-0V3_S10_L001_R2_001.fastq.gz		-a AGGACTCCAATNNNNNNNNNNNN -G NNNNNNNNNNNNATTGGAGTCCT -A CAAAACGCAATACTGTACATT -O 8 -n 2
