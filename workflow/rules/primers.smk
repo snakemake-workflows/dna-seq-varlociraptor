@@ -9,9 +9,7 @@ rule trim_primers:
     params:
         sort_order="Coordinate",
         single_primer=(
-            "--first-of-pair"
-            if not config["primers"]["trimming"].get("primers_fa2", "")
-            else ""
+            "--first-of-pair" if not isinstance(get_primer_fastqs, list) else ""
         ),
     conda:
         #"../envs/fgbio.yaml"
@@ -19,9 +17,49 @@ rule trim_primers:
     log:
         "logs/trimming/{sample}.log",
     shell:
-        "java -jar ../workflow/scripts/fgbio.jar TrimPrimers -H -i {input.bams} -p {input.primers} -s {params.sort_order} -o {output.trimmed} -u {output.primerless} &> {log}"
+        "java -jar workflow/scripts/fgbio.jar TrimPrimers -H -i {input.bams} -p {input.primers} -s {params.sort_order} {params.single_primer} -o {output.trimmed} -u {output.primerless} &> {log}"
 
 
+rule bowtie_build:
+    input:
+        "resources/genome.fasta",
+    output:
+        directory("resources/bowtie_build/"),
+    params:
+        prefix="resources/bowtie_build/genome.fasta",
+    log:
+        "logs/bowtie/build.log",
+    conda:
+        "../envs/bowtie.yaml"
+    shell:
+        "mkdir {output} & "
+        "bowtie-build {input} {params.prefix} &> {log}"
+
+
+rule bowtie_map:
+    input:
+        reads=get_primer_fastqs(),
+        idx="resources/bowtie_build",
+    output:
+        "results/primers/primers.bam",
+    params:
+        reads=(
+            lambda wc, input: "-1 {r1} -2 {r2}".format(
+                r1=input.reads[0], r2=input.reads[1]
+            )
+            if isinstance(input.reads, list)
+            else "-f {}".format(input.reads)
+        ),
+        prefix="resources/bowtie_build/genome.fasta",
+    log:
+        "logs/bowtie/map.log",
+    conda:
+        "../envs/bowtie.yaml"
+    shell:
+        "bowtie {params.reads} -x {params.prefix} -S | samtools view -b - > {output} 2> {log}"
+
+
+"""
 rule yara_index:
     input:
         "resources/genome.fasta",
@@ -32,6 +70,7 @@ rule yara_index:
             ".txt.limits",
             ".txt.concat",
             ".rid.limits",
+            ".rid.concat",
             ".sa.len",
             ".sa.val",
             ".sa.ind",
@@ -46,7 +85,6 @@ rule yara_index:
         "../envs/yara.yaml"
     shell:
         "yara_indexer {input} &> {log}"
-
 
 # ToDO Return all best matches. Requires replacing bamToBed-rules
 rule map_primers:
@@ -75,15 +113,21 @@ rule map_primers:
         "../envs/yara.yaml"
     shell:
         "yara_mapper -t {threads} {params.library_len} {params.library_error} -o {output} {params.ref_prefix} {input.reads} > {log}"
+"""
 
 
+# TODO This might be done by separating bowtie output
 rule filter_unmapped_primers:
     input:
         "results/primers/primers.bam",
     output:
         "results/primers/primers.filtered.bam",
     params:
-        "-b -f 2",
+        extra=(
+            lambda wc, input: "-b -f 2"
+            if isinstance(get_primer_fastqs, list)
+            else "-b -F 4"
+        ),
     log:
         "logs/primers/filtered.log",
     wrapper:
@@ -125,12 +169,14 @@ rule build_sample_regions:
         "results/trimmed/{sample}.trimmed.bam",
     output:
         temp("results/regions/samples/{sample}.target_regions.bed"),
+    params:
+        chroms=config["ref"]["n_chromosomes"],
     log:
         "logs/regions/samples/{sample}_target_regions.log",
     conda:
         "../envs/bedtools.yaml"
     shell:
-        "bamToBed -i {input} | mergeBed -i - > {output} 2> {log}"
+        'bamToBed -i {input} | mergeBed -i - | grep -f <(head -n {params.chroms} resources/genome.fasta.fai | awk \'{{print "^"$1"\\t"}}\') > {output} 2> {log}'
 
 
 rule merge_group_regions:
