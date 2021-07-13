@@ -1,6 +1,6 @@
 channels:
   - conda-forge
 dependencies:
-  - jinja2 =23
+  - jinja2 =3
   - pandas =1.3
   - numpy >=1.17.3
