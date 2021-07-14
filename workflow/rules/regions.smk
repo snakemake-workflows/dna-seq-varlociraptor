@@ -29,7 +29,7 @@ rule merge_group_regions:
         "cat {input} | sort -k1,1 -k2,2n - | mergeBed -i - > {output} 2> {log}"
 
 
-rule build_excluded_regions:
+rule build_excluded_group_regions:
     input:
         target_regions="results/regions/{group}.target_regions.bed",
         genome_index="resources/genome.fasta.fai",

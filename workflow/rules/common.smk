@@ -302,18 +302,18 @@ def get_resource(name):
     return workflow.source_path("../resources/{}".format(name))
 
 
-def get_regions():
+# TODO Can be reduced to "results/regions/{group}.target_regions.bed" when single primer trimming gets implemented
+def get_regions(wildcards):
     if is_activated("primers/trimming"):
         return "results/primers/target_regions.merged.bed"
-    else:
-        return []
+    return "results/regions/{group}.target_regions.bed".format(group=wildcards.group)
 
 
-def get_excluded_regions():
+# TODO Can be reduced to "results/regions/{group}.excluded_regions.bed" when single primer trimming gets implemented
+def get_excluded_regions(wildcards):
     if is_activated("primers/trimming"):
         return "results/primers/excluded_regions.bed"
-    else:
-        return []
+    return "results/regions/{group}.excluded_regions.bed".format(group=wildcards.group)
 
 
 def get_group_observations(wildcards):
