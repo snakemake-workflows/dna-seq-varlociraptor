@@ -2,7 +2,7 @@ rule freebayes:
     input:
         ref="resources/genome.fasta",
         ref_idx="resources/genome.fasta.fai",
-        region=get_regions,
+        regions=get_regions,
         # you can have a list of samples here
         samples=lambda w: get_group_bams(w),
         index=lambda w: get_group_bams(w, bai=True),
