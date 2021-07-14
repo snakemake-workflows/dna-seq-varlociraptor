@@ -138,6 +138,11 @@ properties:
         properties:
           activate:
             type: boolean
+      regions:
+        type: object
+        properties:
+          activate:
+            type: boolean
       scenario:
         type: string
       filter:
