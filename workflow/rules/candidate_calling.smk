@@ -13,7 +13,7 @@ rule freebayes:
     params:
         # genotyping is performed by varlociraptor, hence we deactivate it in freebayes by 
         # always setting --pooled-continuous
-        extra="--pooled-continuous --min-alternate-count 1 --min-alternate-fraction {}".format(
+        extra="--pooled-continuous --min-alternate-count 2 --min-alternate-fraction {}".format(
             config["params"]["freebayes"].get("min_alternate_fraction", "0.05")
         ),
     threads: workflow.cores - 1  # use all available cores -1 (because of the pipe) for calling
