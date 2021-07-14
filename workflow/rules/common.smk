@@ -220,7 +220,7 @@ def get_group_sample_aliases(wildcards, controls=True):
     ]["alias"]
 
 
-def get_varlociraptor_preprocessing_input(wildcards, bai=False):
+def get_sample_bam(wildcards, bai=False):
     ext = "bai" if bai else "bam"
     if is_activated("primers/trimming"):
         if group_is_paired_end(wildcards.group):

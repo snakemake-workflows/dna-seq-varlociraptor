@@ -1,6 +1,6 @@
 rule build_sample_regions:
     input:
-        get_varlociraptor_preprocessing_input,
+        get_sample_bam,
     output:
         temp("results/regions/{group}/{sample}.target_regions.bed"),
     params:
