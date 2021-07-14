@@ -306,7 +306,9 @@ def get_resource(name):
 def get_regions(wildcards):
     if is_activated("primers/trimming"):
         return "results/primers/target_regions.merged.bed"
-    return "results/regions/{group}.target_regions.bed".format(group=wildcards.group)
+    return "results/regions/{group}.target_regions.filtered.bed".format(
+        group=wildcards.group
+    )
 
 
 # TODO Can be reduced to "results/regions/{group}.excluded_regions.bed" when single primer trimming gets implemented
