@@ -9,7 +9,7 @@ rule build_sample_regions:
         "logs/mosdepth/regions/{group}_{sample}.log",
     params:
         extra="--no-per-base",
-        quantize="--quantize 1:",
+        quantize="1:",
     # additional decompression threads through `--threads`
     threads: 4  # This value - 1 will be sent to `--threads`
     wrapper:
