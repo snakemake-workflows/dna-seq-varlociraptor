@@ -169,10 +169,14 @@ def get_cutadapt_pipe_input(wildcards):
 
 
 def get_cutadapt_adapters(wildcards):
-    adapters = units.loc[wildcards.sample].loc[wildcards.unit, "adapters"]
-    if isinstance(adapters, str):
-        return adapters
-    return ""
+    unit = units.loc[wildcards.sample].loc[wildcards.unit]
+    try:
+        adapters = unit["adapters"]
+        if isinstance(adapters, str):
+            return adapters
+        return ""
+    except KeyError:
+        return ""
 
 
 def is_paired_end(sample):
