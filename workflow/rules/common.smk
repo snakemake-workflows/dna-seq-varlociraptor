@@ -280,7 +280,8 @@ def _get_batch_info(wildcards, yield_sample=False, yield_bam=False):
                 yield sample
             elif yield_bam:
                 yield bam
-            raise ValueError("Either set yield_sample or yield_bam.")
+            else:
+                raise ValueError("Either set yield_sample or yield_bam.")
 
 
 def get_batch_bams(wildcards):
