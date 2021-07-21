@@ -284,7 +284,7 @@ def get_batch_bams(wildcards):
 def get_report_bam_params(wildcards, input):
     return [
         "{group}:{sample}={bam}".format(group=group, sample=sample, bam=bam)
-        for sample, bam, group in zip(_get_batch_info(wildcards), input.bams)
+        for (sample, _, group), bam in zip(_get_batch_info(wildcards), input.bams)
     ]
 
 
