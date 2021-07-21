@@ -271,29 +271,20 @@ def get_group_bams_report(group):
     ]
 
 
-def _get_batch_info(wildcards, yield_sample=False, yield_bam=False):
+def _get_batch_info(wildcards):
     for group in get_report_batch(wildcards):
         for sample, bam in get_group_bams_report(group):
-            if yield_sample and yield_bam:
-                yield sample, bam
-            elif yield_sample:
-                yield sample
-            elif yield_bam:
-                yield bam
-            else:
-                raise ValueError("Either set yield_sample or yield_bam.")
+            yield sample, bam, group
 
 
 def get_batch_bams(wildcards):
-    yield from _get_batch_info(wildcards, yield_bam=True)
+    return (bam for _, bam, _ in _get_batch_info(wildcards))
 
 
 def get_report_bam_params(wildcards, input):
     return [
-        "{group}:{sample}={bam}".format(group=wildcards.group, sample=sample, bam=bam)
-        for sample, bam in zip(
-            _get_batch_info(wildcards, yield_sample=True), input.bams
-        )
+        "{group}:{sample}={bam}".format(group=group, sample=sample, bam=bam)
+        for sample, bam, group in zip(_get_batch_info(wildcards), input.bams)
     ]
 
 
