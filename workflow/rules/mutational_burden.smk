@@ -19,9 +19,9 @@ if config["mutational_burden"]["activate"]:
         conda:
             "../envs/varlociraptor.yaml"
         shell:
-            "varlociraptor estimate mutational-burden "
+            "(varlociraptor estimate mutational-burden "
             "--plot-mode {wildcards.mode} "
             "--coding-genome-size {params.coding_genome_size} "
             "--events {params.events} "
             "--sample {params.sample} "
-            "< {input} | vl2svg > {output} 2> {log}"
+            "< {input} | vl2svg > {output}) 2> {log}"
