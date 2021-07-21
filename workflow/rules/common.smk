@@ -585,3 +585,7 @@ def get_vembrane_expression(wc):
             )
         )
     return ", ".join(parts)
+
+
+def get_sample_alias(wildcards):
+    return samples.loc[wildcards.sample, "alias"]

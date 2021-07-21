@@ -15,6 +15,7 @@ if config["mutational_burden"]["activate"]:
         params:
             coding_genome_size=config["mutational_burden"]["coding_genome_size"],
             events=get_mutational_burden_events,
+            sample=get_sample_alias,
         conda:
             "../envs/varlociraptor.yaml"
         shell:
@@ -22,5 +23,5 @@ if config["mutational_burden"]["activate"]:
             "--plot-mode {wildcards.mode} "
             "--coding-genome-size {params.coding_genome_size} "
             "--events {params.events} "
-            "--sample {wildcards.sample} "
+            "--sample {params.sample} "
             "< {input} | vl2svg > {output} 2> {log}"
