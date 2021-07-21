@@ -271,26 +271,43 @@ def get_group_bams_report(group):
     ]
 
 
-def get_batch_bams(wildcards, event=False):
-    bams = []
+def _get_batch_info(wildcards, yield_sample=False, yield_bam=False):
     for group in get_report_batch(wildcards):
-        for (sample, bam) in get_group_bams_report(group):
-            if event:
-                bams.append(
-                    "{group}:{sample}={bam}".format(group=group, sample=sample, bam=bam)
-                )
-            else:
-                bams.append(bam)
-    return bams
+        for sample, bam in get_group_bams_report(group):
+            if yield_sample and yield_bam:
+                yield sample, bam
+            elif yield_sample:
+                yield sample
+            elif yield_bam:
+                yield bam
+            raise ValueError("Either set yield_sample or yield_bam.")
 
 
-def get_batch_bcfs(wildcards, input):
-    bcfs = []
+def get_batch_bams(wildcards):
+    yield from _get_batch_info(wildcards, yield_bam=True)
+
+
+def get_report_bam_params(wildcards, input):
+    return [
+        "{group}:{sample}={bam}".format(group=wildcards.group, sample=sample, bam=bam)
+        for sample, bam in zip(
+            _get_batch_info(wildcards, yield_sample=True), input.bams
+        )
+    ]
+
+
+def get_batch_bcfs(wildcards):
     for group in get_report_batch(wildcards):
-        for file in input.bcfs:
-            if path.basename(file).startswith(group):
-                bcfs.append("{group}={file}".format(group=group, file=file))
-    return bcfs
+        yield "results/final-calls/{group}.{event}.fdr-controlled.bcf".format(
+            group=group, event=wildcards.event
+        )
+
+
+def get_report_bcf_params(wildcards, input):
+    return [
+        "{group}={bcf}".format(group=group, bcf=bcf)
+        for group, bcf in zip(get_report_batch(wildcards), input.bcfs)
+    ]
 
 
 def get_consensus_input(wildcards):
