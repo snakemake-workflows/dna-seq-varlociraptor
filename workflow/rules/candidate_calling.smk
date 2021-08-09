@@ -1,4 +1,3 @@
-# TODO Add regions for all reads
 rule freebayes:
     input:
         ref="resources/genome.fasta",
@@ -22,7 +21,6 @@ rule freebayes:
         "0.68.0/bio/freebayes"
 
 
-# TODO Apply excluded regions for all reads
 rule delly:
     input:
         ref="resources/genome.fasta",
