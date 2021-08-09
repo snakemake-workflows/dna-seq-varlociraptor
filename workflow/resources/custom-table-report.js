@@ -33,7 +33,7 @@ $(document).ready(function () {
             $('#Linkout'+ j).append('<div id="Div' + j +'" class="dropdown show">')
             gene_field = 'ann[' + j + '][4]'
             gene = $(that).data(gene_field)
-            if (gene != undefined) {
+            if (gene !== undefined) {
                 linkout_button = create_linkout_button(linkout_button, j);
                 $('#Button'+ j).append('<a class="dropdown-item" href="https://clinicaltrials.gov/ct2/results?cond=&term=' + gene + '&cntry=&state=&city=&dist=" target="_blank">ClinicalTrials</a>');
                 $('#Button'+ j).append('<a class="dropdown-item" href="https://www.cbioportal.org/ln?q=' + gene + '" target="_blank">cBioPortal</a>');
@@ -46,7 +46,7 @@ $(document).ready(function () {
                 $('#Button'+ j).append('<a class="dropdown-item" href="https://varseak.bio/search.php?gene='+ gene +'" target="_blank">varSEAK Variant Table</a>');
                 transcript_hgsv_field = 'ann[' + j + '][11]'
                 transcript_hgsv = $(that).data(transcript_hgsv_field)
-                if (transcript_hgsv != undefined) {
+                if (transcript_hgsv !== undefined) {
                     transcript = transcript_hgsv.split(":")[0]
                     hgsv = transcript_hgsv.split(":")[1]
                     $('#Button'+ j).append('<a class="dropdown-item" href="https://varseak.bio/ssp.php?gene=' + gene + '&transcript='+ transcript +'&variant=&hgvs='+ hgsv +'" target="_blank">varSEAK Splice Site Prediction</a>');
@@ -54,7 +54,7 @@ $(document).ready(function () {
             }
             ensembl_field = 'ann[' + j + '][5]'
             ensembl_id = $(that).data(ensembl_field)
-            if (ensembl_id != undefined) {
+            if (ensembl_id !== undefined) {
                 create_linkout_button(linkout_button, j)
             }
         }
