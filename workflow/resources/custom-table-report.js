@@ -55,7 +55,6 @@ $(document).ready(function () {
             ensembl_field = 'ann[' + j + '][5]'
             ensembl_id = $(that).data(ensembl_field)
             if (ensembl_id != undefined) {
-                alert(linkout_button)
                 create_linkout_button(linkout_button, j)
             }
         }
