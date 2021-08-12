@@ -1,6 +1,7 @@
 rule build_sample_regions:
     input:
         bam=get_sample_bam,
+        bai=lambda w: get_sample_bam(w, bai=True)
     output:
         "results/regions/{group}/{sample}.mosdepth.global.dist.txt",
         "results/regions/{group}/{sample}.quantized.bed.gz",
