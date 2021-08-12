@@ -45,6 +45,7 @@ if is_activated("report/stratify"):
 rule all:
     input:
         get_final_output(),
+        expand("results/final-calls/{group}.annotated.bcf", group=groups),
 
 
 rule benchmark:
