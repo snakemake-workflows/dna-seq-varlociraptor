@@ -169,10 +169,14 @@ def get_cutadapt_pipe_input(wildcards):
 
 
 def get_cutadapt_adapters(wildcards):
-    adapters = units.loc[wildcards.sample].loc[wildcards.unit, "adapters"]
-    if isinstance(adapters, str):
-        return adapters
-    return ""
+    unit = units.loc[wildcards.sample].loc[wildcards.unit]
+    try:
+        adapters = unit["adapters"]
+        if isinstance(adapters, str):
+            return adapters
+        return ""
+    except KeyError:
+        return ""
 
 
 def is_paired_end(sample):
@@ -283,26 +287,35 @@ def get_group_bams_report(group):
     ]
 
 
-def get_batch_bams(wildcards, event=False):
-    bams = []
+def _get_batch_info(wildcards):
     for group in get_report_batch(wildcards):
-        for (sample, bam) in get_group_bams_report(group):
-            if event:
-                bams.append(
-                    "{group}:{sample}={bam}".format(group=group, sample=sample, bam=bam)
-                )
-            else:
-                bams.append(bam)
-    return bams
+        for sample, bam in get_group_bams_report(group):
+            yield sample, bam, group
 
 
-def get_batch_bcfs(wildcards, input):
-    bcfs = []
+def get_batch_bams(wildcards):
+    return (bam for _, bam, _ in _get_batch_info(wildcards))
+
+
+def get_report_bam_params(wildcards, input):
+    return [
+        "{group}:{sample}={bam}".format(group=group, sample=sample, bam=bam)
+        for (sample, _, group), bam in zip(_get_batch_info(wildcards), input.bams)
+    ]
+
+
+def get_batch_bcfs(wildcards):
     for group in get_report_batch(wildcards):
-        for file in input.bcfs:
-            if path.basename(file).startswith(group):
-                bcfs.append("{group}={file}".format(group=group, file=file))
-    return bcfs
+        yield "results/final-calls/{group}.{event}.fdr-controlled.bcf".format(
+            group=group, event=wildcards.event
+        )
+
+
+def get_report_bcf_params(wildcards, input):
+    return [
+        "{group}={bcf}".format(group=group, bcf=bcf)
+        for group, bcf in zip(get_report_batch(wildcards), input.bcfs)
+    ]
 
 
 def get_consensus_input(wildcards):
@@ -572,3 +585,7 @@ def get_vembrane_expression(wc):
             )
         )
     return ", ".join(parts)
+
+
+def get_sample_alias(wildcards):
+    return samples.loc[wildcards.sample, "alias"]

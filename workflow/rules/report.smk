@@ -3,10 +3,7 @@ rule vcf_report:
     input:
         ref="resources/genome.fasta",
         bams=get_batch_bams,
-        bcfs=lambda w: expand(
-            "results/final-calls/{group}.{{event}}.fdr-controlled.bcf",
-            group=get_report_batch(w),
-        ),
+        bcfs=get_batch_bcfs,
     output:
         report(
             directory("results/vcf-report/{batch}.{event}/"),
@@ -15,8 +12,8 @@ rule vcf_report:
             category="Variant calls",
         ),
     params:
-        bcfs=lambda w, input: get_batch_bcfs(w, input),
-        bams=lambda w: get_batch_bams(w, True),
+        bcfs=get_report_bcf_params,
+        bams=get_report_bam_params,
         format_field="DP AF OBS",
         max_read_depth=config["report"]["max_read_depth"],
         js_files="{math} {template}".format(

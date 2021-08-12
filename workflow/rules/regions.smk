@@ -10,8 +10,6 @@ rule build_sample_regions:
     params:
         extra="--no-per-base",
         quantize="1:",
-    # additional decompression threads through `--threads`
-    threads: 4  # This value - 1 will be sent to `--threads`
     wrapper:
         "0.77.0/bio/mosdepth"
 

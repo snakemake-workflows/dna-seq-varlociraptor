@@ -28,29 +28,35 @@ $(document).ready(function () {
                 polyphen_scores = parse_score(polyphen_scores, polyphen_score, "PolyPhen", transcript)
             }
 
-            gene_field = 'ann[' + j + '][4]'
-            ensembl_field = 'ann[' + j + '][5]'
-            transcript_hgsv_field = 'ann[' + j + '][11]'
-            transcript = $(that).data(transcript_hgsv_field).split(":")[0]
-            hgsv = $(that).data(transcript_hgsv_field).split(":")[1]
-            gene = $(that).data(gene_field)
-            ensembl_id = $(that).data(ensembl_field)
+            var linkout_button = true
             $('#ann-sidebar').append('<td id="Linkout' + j +'">')
             $('#Linkout'+ j).append('<div id="Div' + j +'" class="dropdown show">')
-            $('#Div'+ j).append('<a class="btn btn-secondary dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Select source</a>')
-            $('#Div'+ j).append('<div id="Button' + j + '" div class="dropdown-menu" aria-labelledby="dropdownMenuLink">')
-            $('#Button'+ j).append('<a class="dropdown-item" href="https://clinicaltrials.gov/ct2/results?cond=&term=' + gene + '&cntry=&state=&city=&dist=" target="_blank">ClinicalTrials</a>');
-            $('#Button'+ j).append('<a class="dropdown-item" href="https://www.cbioportal.org/ln?q=' + gene + '" target="_blank">cBioPortal</a>');
-            $('#Button'+ j).append('<a class="dropdown-item" href="https://oncokb.org/gene/' + gene + '" target="_blank">OncoKB</a>');
-            $('#Button'+ j).append('<a class="dropdown-item" href="https://www.ensembl.org/homo_sapiens/Gene/Summary?db=core;g='+ ensembl_id +'" target="_blank">Ensembl</a>');
-            $('#Button'+ j).append('<a class="dropdown-item" href="https://whi.color.com/gene/'+ ensembl_id +'" target="_blank">FLOSSIES</a>');
-            $('#Button'+ j).append('<a class="dropdown-item" href="https://varsome.com/gene/'+ gene +'" target="_blank">VarSome</a>');
-            $('#Button'+ j).append('<a class="dropdown-item" href="https://pandrugs.org/#!/query/?genes='+ gene +'" target="_blank">PanDrugs</a>');
-            $('#Button'+ j).append('<a class="dropdown-item" href="https://www.mycancergenome.org/content/gene/'+ gene +'" target="_blank">My Cancer Genome</a>');
-            $('#Button'+ j).append('<a class="dropdown-item" href="https://search.cancervariants.org/#'+ gene +'" target="_blank">MetaKB</a>');
-            $('#Button'+ j).append('<a class="dropdown-item" href="https://www.proteinatlas.org/search/'+ gene +'" target="_blank">The Human Protein Atlas</a>');
-            $('#Button'+ j).append('<a class="dropdown-item" href="https://varseak.bio/search.php?gene='+ gene +'" target="_blank">varSEAK Variant Table</a>');
-            $('#Button'+ j).append('<a class="dropdown-item" href="https://varseak.bio/ssp.php?gene=' + gene + '&transcript='+ transcript +'&variant=&hgvs='+ hgsv +'" target="_blank">varSEAK Splice Site Prediction</a>');
+            gene_field = 'ann[' + j + '][4]'
+            gene = $(that).data(gene_field)
+            if (gene !== undefined) {
+                linkout_button = create_linkout_button(linkout_button, j);
+                $('#Button'+ j).append('<a class="dropdown-item" href="https://clinicaltrials.gov/ct2/results?cond=&term=' + gene + '&cntry=&state=&city=&dist=" target="_blank">ClinicalTrials</a>');
+                $('#Button'+ j).append('<a class="dropdown-item" href="https://www.cbioportal.org/ln?q=' + gene + '" target="_blank">cBioPortal</a>');
+                $('#Button'+ j).append('<a class="dropdown-item" href="https://oncokb.org/gene/' + gene + '" target="_blank">OncoKB</a>');
+                $('#Button'+ j).append('<a class="dropdown-item" href="https://varsome.com/gene/'+ gene +'" target="_blank">VarSome</a>');
+                $('#Button'+ j).append('<a class="dropdown-item" href="https://pandrugs.org/#!/query/?genes='+ gene +'" target="_blank">PanDrugs</a>');
+                $('#Button'+ j).append('<a class="dropdown-item" href="https://www.mycancergenome.org/content/gene/'+ gene +'" target="_blank">My Cancer Genome</a>');
+                $('#Button'+ j).append('<a class="dropdown-item" href="https://search.cancervariants.org/#'+ gene +'" target="_blank">MetaKB</a>');
+                $('#Button'+ j).append('<a class="dropdown-item" href="https://www.proteinatlas.org/search/'+ gene +'" target="_blank">The Human Protein Atlas</a>');
+                $('#Button'+ j).append('<a class="dropdown-item" href="https://varseak.bio/search.php?gene='+ gene +'" target="_blank">varSEAK Variant Table</a>');
+                transcript_hgsv_field = 'ann[' + j + '][11]'
+                transcript_hgsv = $(that).data(transcript_hgsv_field)
+                if (transcript_hgsv !== undefined) {
+                    transcript = transcript_hgsv.split(":")[0]
+                    hgsv = transcript_hgsv.split(":")[1]
+                    $('#Button'+ j).append('<a class="dropdown-item" href="https://varseak.bio/ssp.php?gene=' + gene + '&transcript='+ transcript +'&variant=&hgvs='+ hgsv +'" target="_blank">varSEAK Splice Site Prediction</a>');
+                }
+            }
+            ensembl_field = 'ann[' + j + '][5]'
+            ensembl_id = $(that).data(ensembl_field)
+            if (ensembl_id !== undefined) {
+                create_linkout_button(linkout_button, j)
+            }
         }
         $('#ann-sidebar').append('</tr>');
 
@@ -492,6 +498,15 @@ $(document).ready(function () {
                 }
             };
             vegaEmbed(`#${cell_id}`, ScoreSpec)
+        }
+
+        function create_linkout_button(linkout_button, j) {
+            if (linkout_button == true) {
+                $('#Div'+ j).append('<a class="btn btn-secondary dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Select source</a>')
+                $('#Div'+ j).append('<div id="Button' + j + '" div class="dropdown-menu" aria-labelledby="dropdownMenuLink">')
+                return false;
+            }
+            return true;
         }
     })
 })
