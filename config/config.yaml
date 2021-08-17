@@ -19,6 +19,7 @@ primers:
     # path to fasta files containg primer sequences
     primers_fa1: "path/to/primer-fa1"
     primers_fa2: "path/to/primer-fa2"
+    tsv: ""
     # Library mean + error determines the maximum insert size between the outer primer ends.
     # Specify 0 to have yara autodetect the primer library insert size error.
     library_error: 0

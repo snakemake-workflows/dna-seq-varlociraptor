@@ -2,14 +2,16 @@
 rule trim_primers:
     input:
         bams="results/recal/{sample}.sorted.bam",
-        primers="results/primers/primer_regions.tsv",
+        primers=get_primer_regions,
     output:
         trimmed="results/trimmed/{sample}.trimmed.bam",
         primerless="results/trimmed/{sample}.primerless.bam",
     params:
         sort_order="Coordinate",
-        single_primer=(
-            "--first-of-pair" if not isinstance(get_primer_fastqs(), list) else ""
+        single_primer=lambda w: (
+            "--first-of-pair"
+            if not isinstance(get_sample_primer_fastas(w.sample), list)
+            else ""
         ),
     conda:
         #"../envs/fgbio.yaml"
@@ -38,10 +40,10 @@ rule bowtie_build:
 
 rule bowtie_map:
     input:
-        reads=get_primer_fastqs(),
+        reads=lambda w: get_panel_primer_fastas(w.panel),
         idx="resources/bowtie_build",
     output:
-        "results/primers/primers.bam",
+        "results/primers/{panel}_primers.bam",
     params:
         reads=(
             lambda wc, input: "-1 {r1} -2 {r2}".format(
@@ -57,7 +59,7 @@ rule bowtie_map:
             else ""
         ),
     log:
-        "logs/bowtie/map.log",
+        "logs/bowtie/{panel}_map.log",
     conda:
         "../envs/bowtie.yaml"
     shell:
@@ -124,32 +126,32 @@ rule map_primers:
 # TODO This might be done by separating bowtie output
 rule filter_unmapped_primers:
     input:
-        "results/primers/primers.bam",
+        "results/primers/{panel}_primers.bam",
     output:
-        "results/primers/primers.filtered.bam",
+        "results/primers/{panel}_primers.filtered.bam",
     params:
         extra=(
-            lambda wc, input: "-b -f 2"
-            if isinstance(get_primer_fastqs(), list)
+            lambda wc: "-b -f 2"
+            if isinstance(get_panel_primer_fastas(wc.panel), list)
             else "-b -F 4"
         ),
     log:
-        "logs/primers/filtered.log",
+        "logs/primers/{panel}_primers_filtered.log",
     wrapper:
         "0.61.0/bio/samtools/view"
 
 
 rule primer_to_bed:
     input:
-        "results/primers/primers.filtered.bam",
+        "results/primers/{panel}_primers.filtered.bam",
     output:
-        "results/primers/primers.{ext}",
+        "results/primers/{panel}_primers.{ext}",
     wildcard_constraints:
         ext="bedpe|bed",
     params:
         format=lambda wc: "-bedpe" if wc.ext == "bedpe" else "",
     log:
-        "logs/primers/primers_{ext}.log",
+        "logs/primers/{panel}_primers_{ext}.log",
     conda:
         "../envs/bedtools.yaml"
     shell:
@@ -158,11 +160,11 @@ rule primer_to_bed:
 
 rule build_primer_regions:
     input:
-        get_primer_bed(),
+        lambda w: get_primer_bed(w),
     output:
-        "results/primers/primer_regions.tsv",
+        "results/primers/{panel}_primer_regions.tsv",
     log:
-        "logs/primers/build_primer_regions.log",
+        "logs/primers/build_{panel}_primer_regions.log",
     conda:
         "../envs/pandas.yaml"
     script:

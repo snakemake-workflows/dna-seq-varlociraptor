@@ -84,6 +84,21 @@ units = (
 )
 validate(units, schema="../schemas/units.schema.yaml")
 
+primer_panels = (
+    (
+        pd.read_csv(
+            config["primers"]["trimming"]["tsv"],
+            sep="\t",
+            dtype={"panel": str, "fa1": str, "fa2": str},
+            comment="#",
+        )
+        .set_index(["panel"], drop=False)
+        .sort_index()
+    )
+    if config["primers"]["trimming"].get("tsv", "")
+    else None
+)
+
 
 def get_gather_calls_input(ext="bcf"):
     def inner(wildcards):
@@ -238,20 +253,62 @@ def get_sample_bam(wildcards, bai=False):
     )
 
 
-def get_primer_bed():
-    if config["primers"]["trimming"].get("primers_fa2", ""):
-        return "results/primers/primers.bedpe"
+def get_primer_bed(wc):
+    if isinstance(primer_panels, pd.DataFrame):
+        if primer_panel.loc[wc.panel, "fa2"]:
+            return "results/primers/{}_primers.bedpe".format(wc.panel)
+        else:
+            return "results/primers/{}_primers.bed".format(wc.panel)
     else:
-        return "results/primers/primers.bed"
+        if config["primers"]["trimming"].get("primers_fa2", ""):
+            return "results/primers/uniform_primers.bedpe"
+        else:
+            return "results/primers/uniform_primers.bed"
 
 
-def get_primer_fastqs():
-    if config["primers"]["trimming"].get("primers_fa2", ""):
-        return [
-            config["primers"]["trimming"]["primers_fa1"],
-            config["primers"]["trimming"]["primers_fa2"],
-        ]
-    return config["primers"]["trimming"]["primers_fa1"]
+def get_sample_primer_fastas(sample):
+    if isinstance(primer_panels, pd.DataFrame):
+        panel = samples.loc[sample, "primer_panel"]
+        if primer_panels.loc[panel, "fa2"]:
+            return [
+                primer_panels.loc[panel, "fa1"],
+                primer_panels.loc[panel, "fa2"],
+            ]
+        return primer_panels.loc[panel, "fa1"]
+    else:
+        if config["primers"]["trimming"].get("primers_fa2", ""):
+            return [
+                config["primers"]["trimming"]["primers_fa1"],
+                config["primers"]["trimming"]["primers_fa2"],
+            ]
+        return config["primers"]["trimming"]["primers_fa1"]
+
+
+def get_panel_primer_fastas(panel):
+    if panel == "uniform":
+        if config["primers"]["trimming"].get("primers_fa2", ""):
+            return [
+                config["primers"]["trimming"]["primers_fa1"],
+                config["primers"]["trimming"]["primers_fa2"],
+            ]
+        return config["primers"]["trimming"]["primers_fa1"]
+    else:
+        panel = primer_panels.loc[panel]
+        if panel["fa2"]:
+            return [
+                panel["fa1"],
+                panel["fa2"],
+            ]
+        return panel["fa1"]
+
+
+def get_primer_regions(wc):
+    print(samples.loc[wc.sample])
+    if isinstance(primer_panels, pd.DataFrame):
+        return "results/primers/{}_primer_regions.tsv".format(
+            samples.loc[wc.sample, "primer_panel"]
+        )
+    return "results/primers/uniform_primer_regions.tsv"
 
 
 def get_group_bams(wildcards, bai=False):
