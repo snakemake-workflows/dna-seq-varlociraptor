@@ -160,7 +160,7 @@ rule primer_to_bed:
 
 rule build_primer_regions:
     input:
-        lambda w: get_primer_bed(w),
+        get_primer_bed,
     output:
         "results/primers/{panel}_primer_regions.tsv",
     log:
