@@ -22,8 +22,8 @@ rule varlociraptor_preprocess:
         ref="resources/genome.fasta",
         ref_idx="resources/genome.fasta.fai",
         candidates=get_candidate_calls(),
-        bam=lambda w: get_sample_bam(w),
-        bai=lambda w: get_sample_bam(w, bai=True),
+        bam="results/recal/{sample}.sorted.bam",
+        bai="results/recal/{sample}.sorted.bai",
     output:
         "results/observations/{group}/{sample}.{caller}.{scatteritem}.bcf",
     params:

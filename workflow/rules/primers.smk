@@ -1,7 +1,7 @@
 # TODO Wait for merge/Add own jar file
 rule trim_primers:
     input:
-        bams="results/recal/{sample}.sorted.bam",
+        bam=get_trimming_input,
         primers=get_primer_regions,
     output:
         trimmed="results/trimmed/{sample}.trimmed.bam",
@@ -19,7 +19,7 @@ rule trim_primers:
     log:
         "logs/trimming/{sample}.log",
     shell:
-        "java -jar ../workflow/scripts/fgbio.jar TrimPrimers -H -i {input.bams} -p {input.primers} -s {params.sort_order} {params.single_primer} -o {output.trimmed} -u {output.primerless} &> {log}"
+        "java -jar ../workflow/scripts/fgbio.jar TrimPrimers -H -i {input.bam} -p {input.primers} -s {params.sort_order} {params.single_primer} -o {output.trimmed} -u {output.primerless} &> {log}"
 
 
 rule bowtie_build:

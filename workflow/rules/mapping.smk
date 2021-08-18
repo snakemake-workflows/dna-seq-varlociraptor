@@ -16,6 +16,7 @@ rule map_reads:
         "0.56.0/bio/bwa/mem"
 
 
+# TODO Currently mark duplicates and consensus reads will not be called sequentially
 rule mark_duplicates:
     input:
         "results/mapped/{sample}.sorted.bam",
@@ -32,7 +33,7 @@ rule mark_duplicates:
 
 rule calc_consensus_reads:
     input:
-        "results/mapped/{sample}.sorted.bam",
+        get_consensus_input,
     output:
         consensus_r1="results/consensus/fastq/{sample}.1.fq",
         consensus_r2="results/consensus/fastq/{sample}.2.fq",
@@ -48,7 +49,7 @@ rule calc_consensus_reads:
 
 rule map_consensus_reads:
     input:
-        reads=get_consensus_input,
+        reads=get_processed_consensus_input,
         idx=rules.bwa_index.output,
     output:
         "results/consensus/{sample}.consensus.{read_type}.mapped.bam",

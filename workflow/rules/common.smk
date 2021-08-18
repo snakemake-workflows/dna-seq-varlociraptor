@@ -130,6 +130,10 @@ def get_recalibrate_quality_input(wildcards, bai=False):
     ext = "bai" if bai else "bam"
     if is_activated("calc_consensus_reads"):
         return "results/consensus/{}.sorted.{}".format(wildcards.sample, ext)
+    elif is_activated("primers/trimming"):
+        return "results/trimmed/{sample}.trimmed.{ext}".format(
+            sample=wildcards.sample, ext=ext
+        )
     elif is_activated("remove_duplicates"):
         return "results/dedup/{}.sorted.{}".format(wildcards.sample, ext)
     else:
@@ -239,18 +243,20 @@ def get_group_sample_aliases(wildcards, controls=True):
     ]["alias"]
 
 
-def get_sample_bam(wildcards, bai=False):
-    ext = "bai" if bai else "bam"
+def get_consensus_input(wildcards):
     if is_activated("primers/trimming"):
-        if group_is_paired_end(wildcards.group):
-            return "results/trimmed/{sample}.trimmed.{ext}".format(
-                sample=wildcards.sample, ext=ext
-            )
-        else:
-            WorkflowError("Primer trimming is only available for paired end data.")
-    return "results/recal/{sample}.sorted.{ext}".format(
-        sample=wildcards.sample, ext=ext
-    )
+        return "results/trimmed/{}.trimmed.bam".format(wildcards.sample)
+    elif is_activated("remove_duplicates"):
+        return "results/dedup/{}.sorted.bam".format(wildcards.sample)
+    else:
+        return "results/mapped/{}.sorted.bam".format(wildcards.sample)
+
+
+def get_trimming_input(wildcards):
+    if is_activated("remove_duplicates"):
+        return "results/dedup/{}.sorted.bam".format(wildcards.sample)
+    else:
+        return "results/mapped/{}.sorted.bam".format(wildcards.sample)
 
 
 def get_primer_bed(wc):
@@ -309,15 +315,8 @@ def get_primer_regions(wc):
 
 def get_group_bams(wildcards, bai=False):
     ext = "bai" if bai else "bam"
-    if is_activated("primers/trimming"):
-        if group_is_paired_end(wildcards.group):
-            return expand(
-                "results/trimmed/{sample}.trimmed.{ext}",
-                sample=get_group_samples(wildcards.group),
-                ext=ext,
-            )
-        else:
-            WorkflowError("Primer trimming is only available for paired end data.")
+    if is_activated("primers/trimming") and not group_is_paired_end(wildcards.group):
+        WorkflowError("Primer trimming is only available for paired end data.")
     return expand(
         "results/recal/{sample}.sorted.{ext}",
         sample=get_group_samples(wildcards.group),
@@ -326,14 +325,6 @@ def get_group_bams(wildcards, bai=False):
 
 
 def get_group_bams_report(group):
-    if is_activated("primers/trimming"):
-        if group_is_paired_end(group):
-            return [
-                (sample, "results/trimmed/{}.trimmed.bam".format(sample))
-                for sample in get_group_samples(group)
-            ]
-        else:
-            WorkflowError("Primer trimming is only available for paired end data.")
     return [
         (sample, "results/recal/{}.sorted.bam".format(sample))
         for sample in get_group_samples(group)
@@ -371,7 +362,7 @@ def get_report_bcf_params(wildcards, input):
     ]
 
 
-def get_consensus_input(wildcards):
+def get_processed_consensus_input(wildcards):
     if wildcards.read_type == "se":
         return "results/consensus/fastq/{}.se.fq".format(wildcards.sample)
     return [
