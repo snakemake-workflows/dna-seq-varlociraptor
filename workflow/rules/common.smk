@@ -255,7 +255,7 @@ def get_sample_bam(wildcards, bai=False):
 
 def get_primer_bed(wc):
     if isinstance(primer_panels, pd.DataFrame):
-        if primer_panels.loc[wc.panel, "fa2"]:
+        if not pd.isna(primer_panels.loc[wc.panel, "fa2"]):
             return "results/primers/{}_primers.bedpe".format(wc.panel)
         else:
             return "results/primers/{}_primers.bed".format(wc.panel)
@@ -269,7 +269,7 @@ def get_primer_bed(wc):
 def get_sample_primer_fastas(sample):
     if isinstance(primer_panels, pd.DataFrame):
         panel = samples.loc[sample, "primer_panel"]
-        if primer_panels.loc[panel, "fa2"]:
+        if not pd.isna(primer_panels.loc[panel, "fa2"]):
             return [
                 primer_panels.loc[panel, "fa1"],
                 primer_panels.loc[panel, "fa2"],
