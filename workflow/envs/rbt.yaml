@@ -2,5 +2,5 @@ channels:
   - bioconda
   - conda-forge
 dependencies:
-  - rust-bio-tools =0.25
+  - rust-bio-tools =0.27
   - bcftools =1.12
