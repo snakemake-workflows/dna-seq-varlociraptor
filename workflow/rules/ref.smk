@@ -8,9 +8,10 @@ rule get_genome:
         datatype="dna",
         build=config["ref"]["build"],
         release=config["ref"]["release"],
+        chromosome=config["ref"].get("chromosome"),
     cache: True
     wrapper:
-        "0.59.2/bio/reference/ensembl-sequence"
+        "0.77.0/bio/reference/ensembl-sequence"
 
 
 rule genome_faidx:

@@ -1,0 +1,66 @@
+name: Benchmark
+
+# TODO disable
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+# TODO enable
+# on:
+#   schedule:
+#     - cron: 0 13 * * 1 # every monday at 1PM UTC
+
+jobs:
+  benchmark-giab:
+    name: Benchmark GIAB exome
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v2
+
+      - name: Download benchmark
+        id: benchmark_download
+        uses: compsci-common/qc-benchmark-action@master
+        with:
+          task: download
+          benchmark-name: giab-na12878-exome
+
+      - name: Run pipeline
+        
+        run: |
+          # run your pipeline with the test data downloaded above
+          # Read location: $DATA/reads.1.fq and $DATA/reads.2.fq
+          # Reference genome: $DATA/reference.fa
+          echo -e 'NA12878\t1\t$DATA/reads.1.fq\t$DATA/reads.2.fq\t\t"-a AGATCGGAAGAGCACACGTCTGAACTCCAGTCA -A AGATCGGAAGAGCGTCGTGTAGGGAAAGAGTGT"' > .test/config-giab/units.tsv
+          snakemake --directory .test --configfile .test/config-giab/config.yaml --cores 1 --use-conda
+
+      - name: Write config
+        env:
+          DATA: ${{ steps.benchmark_eval.outputs.data }}
+        run: |
+          # Read location: $DATA/reads.1.fq and $DATA/reads.2.fq
+          # Reference genome: $DATA/reference.fa
+          echo -e 'NA12878\t1\t$DATA/reads.1.fq\t$DATA/reads.2.fq\t\t"-a AGATCGGAAGAGCACACGTCTGAACTCCAGTCA -A AGATCGGAAGAGCGTCGTGTAGGGAAAGAGTGT"' > .test/config-giab/units.tsv
+
+      - name: Run workflow
+        uses: snakemake/snakemake-github-action@v1.22.0
+        with:
+          directory: .test
+          snakefile: workflow/Snakefile
+          args: "--configfile .test/config-giab/config.yaml --use-conda --show-failed-logs --cores 10 --conda-cleanup-pkgs cache"
+
+      - name: Eval benchmark
+        uses: ./
+        id: benchmark_eval
+        with:
+          task: eval
+          benchmark-name: giab-na12878-exome
+          results-path: .test/results/final-calls/NA12878.present.fdr-controlled.bcf
+
+      - name: Show results
+        env:
+          REPORT: ${{ steps.benchmark_eval.outputs.report }}
+        run: |
+          cat $REPORT.summary.csv
