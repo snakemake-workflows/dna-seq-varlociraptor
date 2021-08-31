@@ -33,7 +33,7 @@ jobs:
         run: |
           # Read location: $DATA/reads.1.fq and $DATA/reads.2.fq
           # Reference genome: $DATA/reference.fa
-          echo -e "NA12878\t1\t../$DATA/reads.1.fq\t../$DATA/reads.2.fq\t\t'-a AGATCGGAAGAGCACACGTCTGAACTCCAGTCA -A AGATCGGAAGAGCGTCGTGTAGGGAAAGAGTGT'" >> .test/config-giab/units.tsv
+          echo -e "NA12878\t1\t../$DATA/reads.1.fq\t../$DATA/reads.2.fq\t\t-a AGATCGGAAGAGCACACGTCTGAACTCCAGTCA -A AGATCGGAAGAGCGTCGTGTAGGGAAAGAGTGT" >> .test/config-giab/units.tsv
 
       - name: Run workflow
         uses: snakemake/snakemake-github-action@v1.22.0
