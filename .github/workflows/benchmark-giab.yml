@@ -22,7 +22,7 @@ jobs:
 
       - name: Download benchmark
         id: benchmark_download
-        uses: compsci-common/qc-benchmark-action@main
+        uses: compsci-commons/qc-benchmark-action@main
         with:
           task: download
           benchmark-name: giab-na12878-exome
@@ -52,7 +52,7 @@ jobs:
           args: "results/final-calls/NA12878.present.fdr-controlled.vcf.gz --configfile .test/config-giab/config.yaml --use-conda --show-failed-logs --cores 10 --conda-cleanup-pkgs cache"
 
       - name: Eval benchmark
-        uses: ./
+        uses: compsci-commons/qc-benchmark-action@main
         id: benchmark_eval
         with:
           task: eval
