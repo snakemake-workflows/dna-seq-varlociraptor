@@ -27,15 +27,6 @@ jobs:
           task: download
           benchmark-name: giab-na12878-exome
 
-      - name: Run pipeline
-        
-        run: |
-          # run your pipeline with the test data downloaded above
-          # Read location: $DATA/reads.1.fq and $DATA/reads.2.fq
-          # Reference genome: $DATA/reference.fa
-          echo -e 'NA12878\t1\t$DATA/reads.1.fq\t$DATA/reads.2.fq\t\t"-a AGATCGGAAGAGCACACGTCTGAACTCCAGTCA -A AGATCGGAAGAGCGTCGTGTAGGGAAAGAGTGT"' > .test/config-giab/units.tsv
-          snakemake --directory .test --configfile .test/config-giab/config.yaml --cores 1 --use-conda
-
       - name: Write config
         env:
           DATA: ${{ steps.benchmark_eval.outputs.data }}
