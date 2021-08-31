@@ -49,7 +49,7 @@ jobs:
         with:
           directory: .test
           snakefile: workflow/Snakefile
-          args: "--configfile .test/config-giab/config.yaml --use-conda --show-failed-logs --cores 10 --conda-cleanup-pkgs cache"
+          args: "results/final-calls/NA12878.present.fdr-controlled.vcf.gz --configfile .test/config-giab/config.yaml --use-conda --show-failed-logs --cores 10 --conda-cleanup-pkgs cache"
 
       - name: Eval benchmark
         uses: ./
