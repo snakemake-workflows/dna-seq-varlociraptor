@@ -13,7 +13,7 @@ samples:
       by: normal
       fraction: {{ 1.0 - samples[samples["alias"] == "tumor"]["purity"][0] }}
   normal:
-    resolution: 0.2
+    resolution: 0.1
     universe: "0.0 | 0.5 | 1.0 | ]0.0,0.5["
 
 events:
