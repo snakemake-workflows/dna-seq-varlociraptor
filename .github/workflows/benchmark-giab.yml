@@ -63,3 +63,9 @@ jobs:
           REPORT: ${{ steps.benchmark_eval.outputs.report }}
         run: |
           cat $REPORT.summary.csv
+
+      - name: Upload report as artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: benchmark-report
+          path: ${{ steps.benchmark_eval.outputs.report }}.*
