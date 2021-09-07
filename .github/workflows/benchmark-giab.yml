@@ -48,7 +48,7 @@ jobs:
         with:
           task: eval
           benchmark-name: giab-na12878-exome
-          results-path: .test/results/final-calls/NA12878.present.fdr-controlled.vcf
+          results-path: .test/results/final-calls/NA12878.present.fdr-controlled.vcf.gz
 
       - name: Show results
         env:
