@@ -36,6 +36,7 @@ jobs:
           echo -e "NA12878\t1\t../$DATA/reads.1.fq\t../$DATA/reads.2.fq\t\t-a AGATCGGAAGAGCACACGTCTGAACTCCAGTCA -A AGATCGGAAGAGCGTCGTGTAGGGAAAGAGTGT" >> .test/config-giab/units.tsv
 
       - name: Cache workflow results
+        id: cache-results
         uses: actions/cache@v2
         with:
           path: .test/results/final-calls/NA12878.present.fdr-controlled.vcf.gz
@@ -43,6 +44,7 @@ jobs:
 
       - name: Run workflow
         uses: snakemake/snakemake-github-action@v1.22.0
+        if: steps.cache-results.outputs.cache-hit != 'true'
         with:
           directory: .test
           snakefile: workflow/Snakefile
