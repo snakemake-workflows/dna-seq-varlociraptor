@@ -41,6 +41,9 @@ jobs:
     - name: Checkout submodules
       uses: textbook/git-checkout-submodule-action@2.0.0
 
+    - name: Setup upterm session
+      uses: lhotari/action-upterm@v1
+
     - name: Test workflow (local FASTQs)
       uses: snakemake/snakemake-github-action@v1.22.0
       with:
