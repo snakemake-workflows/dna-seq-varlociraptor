@@ -1,0 +1,4 @@
+channels:
+  - conda-forge
+dependencies:
+  - rust-script>=0.15.0
