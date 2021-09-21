@@ -16,6 +16,7 @@ use std::collections::HashSet;
 
 
 fn main() -> Result<(), Box<dyn Error>> {
+    snakemake.redirect_stderr(&snakemake.log[0])?;
     let mut input = bam::Reader::from_path(&snakemake.input[0])?;
     let header = input.header().to_owned();
 
