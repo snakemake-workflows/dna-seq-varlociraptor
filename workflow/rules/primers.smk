@@ -1,11 +1,40 @@
-# TODO Wait for merge/Add own jar file
-rule trim_primers:
+rule assign_primers:
     input:
         bam=get_trimming_input,
         primers=get_primer_regions,
     output:
+        assigned="results/primers/{sample}.assigned.bam",
+        metric="results/primers/{sample}.metric.bam",
+    conda:
+        #"../envs/fgbio.yaml"
+        "../envs/fgbio_tmp.yaml"
+    log:
+        "logs/primers/assignment/{sample}.log",
+    shell:
+        "java -jar ../workflow/scripts/fgbio.jar AssignPrimers -i {input.bam} -p {input.primers} -m {output.metric} -o {output.assigned} &> {log}"
+
+
+rule filter_primerless_reads:
+    input:
+        "results/primers/{sample}.assigned.bam",
+    output:
+        primers="results/primers/{sample}.primers.bam",
+        primerless="results/primers/{sample}.primerless.bam",
+    conda:
+        "../envs/filter_reads.yaml"
+    log:
+        "logs/primers/filter/{sample}.log",
+    script:
+        "../scripts/filter_primers.rs"
+
+
+# TODO Wait for merge/Add own jar file
+rule trim_primers:
+    input:
+        bam="results/primers/{sample}.primers.bam",
+        primers=get_primer_regions,
+    output:
         trimmed="results/trimmed/{sample}.trimmed.bam",
-        primerless="results/trimmed/{sample}.primerless.bam",
     params:
         sort_order="Coordinate",
         single_primer=lambda w: (
@@ -19,7 +48,7 @@ rule trim_primers:
     log:
         "logs/trimming/{sample}.log",
     shell:
-        "java -jar ../workflow/scripts/fgbio.jar TrimPrimers -H -i {input.bam} -p {input.primers} -s {params.sort_order} {params.single_primer} -o {output.trimmed} -u {output.primerless} &> {log}"
+        "java -jar ../workflow/scripts/fgbio.jar TrimPrimers -H -i {input.bam} -p {input.primers} -s {params.sort_order} {params.single_primer} -o {output.trimmed} &> {log}"
 
 
 rule bowtie_build:
