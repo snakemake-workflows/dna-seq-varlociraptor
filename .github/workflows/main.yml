@@ -62,9 +62,6 @@ jobs:
         snakefile: workflow/Snakefile
         args: "--configfile .test/config-no-candidate-filtering/config.yaml --dryrun --use-conda --show-failed-logs -j 10 --conda-cleanup-pkgs cache --conda-frontend mamba"
 
-    - name: Setup upterm session
-      uses: lhotari/action-upterm@v1
-
     - name: Test workflow (local FASTQs primer)
       uses: snakemake/snakemake-github-action@v1.22.0
       with:
