@@ -42,11 +42,11 @@ jobs:
       uses: textbook/git-checkout-submodule-action@2.0.0
 
     - name: Test workflow (local FASTQs)
-        uses: snakemake/snakemake-github-action@v1.22.0
-        with:
-          directory: .test
-          snakefile: workflow/Snakefile
-          args: "--use-conda --show-failed-logs -j 10 --conda-cleanup-pkgs cache --conda-frontend mamba"
+      uses: snakemake/snakemake-github-action@v1.22.0
+      with:
+        directory: .test
+        snakefile: workflow/Snakefile
+        args: "--use-conda --show-failed-logs -j 10 --conda-cleanup-pkgs cache --conda-frontend mamba"
 
     - name: Test report
       uses: snakemake/snakemake-github-action@v1.22.0
@@ -69,7 +69,7 @@ jobs:
         snakefile: workflow/Snakefile
         args: "--configfile .test/config_primers/config.yaml --use-conda --show-failed-logs -j 10 --conda-cleanup-pkgs cache --conda-frontend mamba"
         stagein: |
-           rm -rf .test/resources .test/results
+          rm -rf .test/resources .test/results
 
     - name: Test workflow (SRA FASTQs)
       uses: snakemake/snakemake-github-action@v1.22.0
