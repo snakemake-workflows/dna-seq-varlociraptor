@@ -28,7 +28,7 @@ rule merge_group_regions:
     conda:
         "../envs/bedtools.yaml"
     shell:
-        "zcat {input} | sort -k1,1 -k2,2n - | mergeBed -i - > {output} 2> {log}"
+        "zcat {input} | sort -k1,1 -k2,2n - | mergeBed -i - -d 15000 > {output} 2> {log}"
 
 
 rule filter_group_regions:
