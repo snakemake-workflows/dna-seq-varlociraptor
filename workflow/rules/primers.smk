@@ -95,64 +95,6 @@ rule bowtie_map:
         "bowtie {params.reads} -x {params.prefix} {params.insertsize} -S | samtools view -b - > {output} 2> {log}"
 
 
-"""
-rule yara_index:
-    input:
-        "resources/genome.fasta",
-    output:
-        multiext(
-            "resources/genome",
-            ".txt.size",
-            ".txt.limits",
-            ".txt.concat",
-            ".rid.limits",
-            ".rid.concat",
-            ".sa.len",
-            ".sa.val",
-            ".sa.ind",
-            ".lf.drp",
-            ".lf.drs",
-            ".lf.drv",
-            ".lf.pst",
-        ),
-    log:
-        "logs/yara/index.log",
-    conda:
-        "../envs/yara.yaml"
-    shell:
-        "yara_indexer {input} &> {log}"
-
-# ToDO Return all best matches. Requires replacing bamToBed-rules
-rule map_primers:
-    threads: 12
-    input:
-        reads=get_primer_fastqs(),
-        ref="resources/genome.fasta",
-        idx=rules.yara_index.output,
-    output:
-        "results/primers/primers.bam",
-    params:
-        library_len=(
-            "-ll {}".format(config["primers"]["trimming"]["library_length"])
-            if config["primers"]["trimming"].get("library_length", 0) > 0
-            else ""
-        ),
-        library_error=(
-            "-ld {}".format(config["primers"]["trimming"]["library_error"])
-            if config["primers"]["trimming"].get("library_error", 0) > 0
-            else ""
-        ),
-        ref_prefix=lambda w, input: os.path.splitext(input.ref)[0],
-    log:
-        "logs/yara/map_primers.log",
-    conda:
-        "../envs/yara.yaml"
-    shell:
-        "yara_mapper -t {threads} {params.library_len} {params.library_error} -o {output} {params.ref_prefix} {input.reads} > {log}"
-"""
-
-
-# TODO This might be done by separating bowtie output
 rule filter_unmapped_primers:
     input:
         "results/primers/{panel}_primers.bam",
