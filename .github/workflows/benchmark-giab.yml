@@ -63,11 +63,15 @@ jobs:
           REPORT: ${{ steps.benchmark_eval.outputs.report }}
         run: |
           cat $REPORT.summary.csv
+      
+      - name: Upload calls as artifact
+        uses: actions/upload-artifact@v2
+          with:
+            name: benchmark-calls
+            path: .test/results/final-calls/NA12878.present.fdr-controlled.vcf.gz
 
       - name: Upload report as artifact
         uses: actions/upload-artifact@v2
         with:
           name: benchmark-report
-          path: |
-            ${{ steps.benchmark_eval.outputs.report }}.*
-            .test/results/final-calls/NA12878.present.fdr-controlled.vcf.gz
+          path: ${{ steps.benchmark_eval.outputs.report }}.*
