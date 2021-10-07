@@ -52,6 +52,9 @@ rule varlociraptor_call:
             "{}={}".format(s, f) for s, f in zip(get_group_aliases(w), input.obs)
         ],
         extra=config["params"]["varlociraptor"]["call"],
+        postprocess=">"
+        if not config["calling"].get("infer_genotypes")
+        else "| varlociraptor genotype >",
     conda:
         "../envs/varlociraptor.yaml"
     benchmark:
@@ -59,7 +62,7 @@ rule varlociraptor_call:
     shell:
         "varlociraptor "
         "call variants {params.extra} generic --obs {params.obs} "
-        "--scenario {input.scenario} > {output} 2> {log}"
+        "--scenario {input.scenario} {params.postprocess} {output} 2> {log}"
 
 
 rule sort_calls:

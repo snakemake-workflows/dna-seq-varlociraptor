@@ -75,6 +75,8 @@ tables:
   generate_excel: true
 
 calling:
+  # Set to true to infer classical genotypes from Varlociraptor's VAF predictions
+  infer_genotypes: false
   delly:
     activate: true
   freebayes:
