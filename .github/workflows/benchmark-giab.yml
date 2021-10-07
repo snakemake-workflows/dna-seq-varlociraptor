@@ -66,9 +66,9 @@ jobs:
       
       - name: Upload calls as artifact
         uses: actions/upload-artifact@v2
-          with:
-            name: benchmark-calls
-            path: .test/results/final-calls/NA12878.present.fdr-controlled.vcf.gz
+        with:
+          name: benchmark-calls
+          path: .test/results/final-calls/NA12878.present.fdr-controlled.vcf.gz
 
       - name: Upload report as artifact
         uses: actions/upload-artifact@v2
