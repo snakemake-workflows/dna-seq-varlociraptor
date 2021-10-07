@@ -68,4 +68,6 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: benchmark-report
-          path: ${{ steps.benchmark_eval.outputs.report }}.*
+          path: |
+            ${{ steps.benchmark_eval.outputs.report }}.*
+            .test/results/final-calls/NA12878.present.fdr-controlled.vcf.gz
