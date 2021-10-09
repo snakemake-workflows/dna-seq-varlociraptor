@@ -14,7 +14,7 @@ rule cutadapt_pipe:
     output:
         pipe("pipe/cutadapt/{sample}/{unit}.{fq}.{ext}"),
     log:
-        "logs/pipe-fastqs/catadapt/{sample}-{unit}.{fq}.{ext}.log",
+        "logs/pipe-fastqs/cutadapt/{sample}-{unit}.{fq}.{ext}.log",
     wildcard_constraints:
         ext=r"fastq|fastq\.gz",
     threads: 0  # this does not need CPU
@@ -26,8 +26,8 @@ rule cutadapt_pe:
     input:
         get_cutadapt_input,
     output:
-        fastq1="results/trimmed/{sample}/{unit}_R1.fastq.gz",
-        fastq2="results/trimmed/{sample}/{unit}_R2.fastq.gz",
+        fastq1=temp("results/trimmed/{sample}/{unit}_R1.fastq.gz"),
+        fastq2=temp("results/trimmed/{sample}/{unit}_R2.fastq.gz"),
         qc="results/trimmed/{sample}/{unit}.paired.qc.txt",
     log:
         "logs/cutadapt/{sample}-{unit}.log",
@@ -43,8 +43,8 @@ rule cutadapt_se:
     input:
         get_cutadapt_input,
     output:
-        fastq="results/trimmed/{sample}/{unit}.single.fastq.gz",
-        qc="results/trimmed/{sample}/{unit}.single.qc.txt",
+        fastq=temp("results/trimmed/{sample}/{unit}_single.fastq.gz"),
+        qc="results/trimmed/{sample}/{unit}_single.qc.txt",
     log:
         "logs/cutadapt/{sample}-{unit}.log",
     params:

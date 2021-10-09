@@ -121,7 +121,7 @@ def get_recalibrate_quality_input(wildcards, bai=False):
         return "results/mapped/{}.sorted.{}".format(wildcards.sample, ext)
 
 
-def get_cutadapt_input(wildcards):
+def get_cutadapt_input(wildcards, reads=["fq1", "fq2"]):
     unit = units.loc[wildcards.sample].loc[wildcards.unit]
 
     if pd.isna(unit["fq1"]):
@@ -145,7 +145,7 @@ def get_cutadapt_input(wildcards):
             "pipe/cutadapt/{S}/{U}.{{read}}.fastq{E}".format(
                 S=unit.sample_name, U=unit.unit_name, E=ending
             ),
-            read=["fq1", "fq2"],
+            read=reads,
         )
 
 
@@ -545,12 +545,20 @@ def get_tabix_params(wildcards):
 
 
 def get_fastqs(wc):
-    return expand(
-        "results/trimmed/{sample}/{unit}_{read}.fastq.gz",
-        unit=units.loc[wc.sample, "unit_name"],
-        sample=wc.sample,
-        read=wc.read,
-    )
+    unit = units.loc[wc.sample]
+    if not unit["adapters"]:
+        # no adapter trimming configured, skipping cutadapt for unit
+        if wc.read == "single":
+            return get_cutadapt_input(wc)
+        else:
+            return get_cutadapt_input(wc, reads=["fq1"] if wc.read == "R1" else ["fq2"])
+    else:
+        return expand(
+            "results/trimmed/{sample}/{unit}_{read}.fastq.gz",
+            unit=unit["unit_name"],
+            sample=wc.sample,
+            read=wc.read,
+        )
 
 
 def get_vembrane_expression(wc):
