@@ -546,7 +546,7 @@ def get_tabix_params(wildcards):
 
 def get_fastqs(wc):
     unit = units.loc[wc.sample]
-    if pd.isna(unit["adapters"]):
+    if pd.isna(unit["adapters"]).all():
         # no adapter trimming configured, skipping cutadapt for unit
         if wc.read == "single":
             return get_cutadapt_input(wc)
