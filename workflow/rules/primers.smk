@@ -6,12 +6,11 @@ rule assign_primers:
         assigned="results/primers/{sample}.assigned.bam",
         metric="results/primers/{sample}.metric.bam",
     conda:
-        #"../envs/fgbio.yaml"
-        "../envs/fgbio_tmp.yaml"
+        "../envs/fgbio.yaml"
     log:
         "logs/primers/assignment/{sample}.log",
     shell:
-        "java -jar ../workflow/scripts/fgbio.jar AssignPrimers -i {input.bam} -p {input.primers} -m {output.metric} -o {output.assigned} &> {log}"
+        "fgbio AssignPrimers -i {input.bam} -p {input.primers} -m {output.metric} -o {output.assigned} &> {log}"
 
 
 rule filter_primerless_reads:
@@ -43,12 +42,11 @@ rule trim_primers:
             else ""
         ),
     conda:
-        #"../envs/fgbio.yaml"
-        "../envs/fgbio_tmp.yaml"
+        "../envs/fgbio.yaml"
     log:
         "logs/trimming/{sample}.log",
     shell:
-        "java -jar ../workflow/scripts/fgbio.jar TrimPrimers -H -i {input.bam} -p {input.primers} -s {params.sort_order} {params.single_primer} -o {output.trimmed} &> {log}"
+        "fgbio TrimPrimers -H -i {input.bam} -p {input.primers} -s {params.sort_order} {params.single_primer} -o {output.trimmed} &> {log}"
 
 
 rule bowtie_build:
