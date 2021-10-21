@@ -27,7 +27,6 @@ rule filter_primerless_reads:
         "../scripts/filter_primers.rs"
 
 
-# TODO Wait for merge/Add own jar file
 rule trim_primers:
     input:
         bam="results/primers/{sample}.primers.bam",
