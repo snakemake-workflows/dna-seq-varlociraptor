@@ -48,7 +48,7 @@ jobs:
         with:
           directory: .test
           snakefile: workflow/Snakefile
-          args: "results/final-calls/NA12878.present.fdr-controlled.vcf.gz --configfile .test/config-giab/config.yaml --use-conda --show-failed-logs --cores 1 --conda-cleanup-pkgs cache --all-temp"
+          args: "results/final-calls/NA12878.present.fdr-controlled.vcf.gz results/final-calls/NA12878.annotated.bcf --configfile .test/config-giab/config.yaml --use-conda --show-failed-logs --cores 1 --conda-cleanup-pkgs cache --all-temp"
 
       - name: Eval benchmark
         uses: compsci-commons/qc-benchmark-action@main
@@ -64,10 +64,16 @@ jobs:
         run: |
           cat $REPORT.summary.csv
       
-      - name: Upload calls as artifact
+      - name: Upload all calls as artifact
         uses: actions/upload-artifact@v2
         with:
-          name: benchmark-calls
+          name: benchmark-all-calls
+          path: results/final-calls/NA12878.annotated.bcf
+
+      - name: Upload filtered calls as artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: benchmark-filtered-calls
           path: .test/results/final-calls/NA12878.present.fdr-controlled.vcf.gz
 
       - name: Upload report as artifact
