@@ -40,7 +40,7 @@ jobs:
         uses: actions/cache@v2
         with:
           path: .test/results/final-calls/NA12878.present.fdr-controlled.vcf.gz
-          key: ${{ hashFiles('workflow/**') }}-${{ hashFiles('.test/config-giab/**') }}
+          key: key-${{ hashFiles('workflow/**') }}-${{ hashFiles('.test/config-giab/**') }}
 
       - name: Run workflow
         uses: snakemake/snakemake-github-action@v1.22.0
