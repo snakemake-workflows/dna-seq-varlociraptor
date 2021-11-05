@@ -420,7 +420,6 @@ def get_gather_annotated_calls_input(ext="bcf"):
 
 def get_candidate_calls():
     filter = config["calling"]["filter"].get("candidates")
-    import pdb; pdb.set_trace()
     if filter:
         return "results/candidate-calls/{group}.{caller}.{scatteritem}.filtered.bcf"
     else:
