@@ -25,7 +25,7 @@ jobs:
         uses: compsci-commons/qc-benchmark-action@main
         with:
           task: download
-          benchmark-name: giab-na12878-exome
+          benchmark_name: giab-na12878-exome
 
       - name: Write config
         env:
@@ -50,12 +50,15 @@ jobs:
           snakefile: workflow/Snakefile
           args: "results/final-calls/NA12878.present.fdr-controlled.vcf.gz --configfile .test/config-giab/config.yaml --use-conda --show-failed-logs --cores 1 --conda-cleanup-pkgs cache --all-temp"
 
+      - name: Coverage
+        
+
       - name: Eval benchmark
         uses: compsci-commons/qc-benchmark-action@main
         id: benchmark_eval
         with:
           task: eval
-          benchmark-name: giab-na12878-exome
+          benchmark_name: giab-na12878-exome
           results-path: .test/results/final-calls/NA12878.present.fdr-controlled.vcf.gz
 
       - name: Show results
