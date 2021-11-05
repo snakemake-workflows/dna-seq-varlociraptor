@@ -68,7 +68,7 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: benchmark-all-calls
-          path: results/final-calls/NA12878.annotated.bcf
+          path: .test/results/final-calls/NA12878.annotated.bcf
 
       - name: Upload filtered calls as artifact
         uses: actions/upload-artifact@v2
