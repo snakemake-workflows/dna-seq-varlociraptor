@@ -30,11 +30,6 @@ rule merge_group_regions:
         "zcat {input} | sort -k1,1 -k2,2n - | mergeBed -i - -d 15000 > {output} 2> {log}"
 
 
-# TODO: move into common.smk
-def get_filter_targets(wildcards, input):
-    return " | bedtools intersect -a /dev/stdin -b {input.predefined} ".format(input=input) if input.predefined else ""
-
-
 rule filter_group_regions:
     input:
         "results/regions/{group}.target_regions.bed",
