@@ -17,7 +17,7 @@ definitions:
         items: 
           type: string
       filter:
-        type: string
+        type: [string, "null"]
       local:
         type: boolean
       threshold:

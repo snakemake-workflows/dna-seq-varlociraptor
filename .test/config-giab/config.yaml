@@ -92,6 +92,7 @@ calling:
       present:
         varlociraptor:
           - present
+        filter: null
 
 # Will be ignored if calc_consensus_reads is activated
 remove_duplicates:
