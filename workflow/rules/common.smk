@@ -497,7 +497,7 @@ def get_filter_targets(wildcards, input):
             input=input
         )
     else:
-        """"""
+        return ""
 
 
 wildcard_constraints:
