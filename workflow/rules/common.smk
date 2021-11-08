@@ -491,6 +491,15 @@ def get_fixed_candidate_calls(wildcards):
         return "results/candidate-calls/{group}.{caller}.bcf"
 
 
+def get_filter_targets(wildcards, input):
+    if input.predefined:
+        return " | bedtools intersect -a /dev/stdin -b {input.predefined} ".format(
+            input=input
+        )
+    else:
+        return ""
+
+
 wildcard_constraints:
     group="|".join(samples["group"].unique()),
     sample="|".join(samples["sample_name"]),

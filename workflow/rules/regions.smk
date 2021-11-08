@@ -33,14 +33,18 @@ rule merge_group_regions:
 rule filter_group_regions:
     input:
         "results/regions/{group}.target_regions.bed",
+        predefined=config["targets_bed"] if "targets_bed" in config else [],
     output:
         "results/regions/{group}.target_regions.filtered.bed",
     params:
         chroms=config["ref"]["n_chromosomes"],
+        filter_targets=get_filter_targets,
     log:
         "logs/regions/{group}.target_regions.filtered.log",
     shell:
-        'cat {input} | grep -f <(head -n {params.chroms} resources/genome.fasta.fai | awk \'{{print "^"$1"\\t"}}\') > {output} 2> {log}'
+        "cat {input} | grep -f <(head -n {params.chroms} resources/genome.fasta.fai | "
+        'awk \'{{print "^"$1"\\t"}}\') {params.filter_targets} '
+        "> {output} 2> {log}"
 
 
 rule build_excluded_group_regions:
