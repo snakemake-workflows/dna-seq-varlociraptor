@@ -38,7 +38,6 @@ jobs:
       - Formatting
     steps:
     - uses: actions/checkout@v2
-      submodules: recursive
 
     - name: Test workflow (local FASTQs)
       uses: snakemake/snakemake-github-action@v1.22.0
