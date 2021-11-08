@@ -1,0 +1,107 @@
+samples: config/samples.tsv
+
+units: config/units.tsv
+
+ref:
+  # Number of chromosomes to consider for calling.
+  # The first n entries of the FASTA will be considered.
+  n_chromosomes: 17
+  # Ensembl species name
+  species: saccharomyces_cerevisiae
+  # Ensembl release
+  release: 100
+  # Genome build
+  build: R64-1-1
+
+primers:
+  trimming:
+    activate: false
+    primers_fa1: ""
+    primers_fa2: ""
+    library_error: 0
+    library_length: 0
+
+
+# Estimation of mutational burden.
+mutational_burden:
+  activate: true
+  # Size of the sequenced coding genome for mutational burden estimation
+  # Attention: when doing panel sequencing, set this to the
+  # CAPTURED coding genome, not the entire one!
+  coding_genome_size: 3.0e7
+  events:
+    - present
+
+calling:
+  delly:
+    activate: true
+  freebayes:
+    activate: true
+  # See https://varlociraptor.github.io/docs/calling/#generic-variant-calling
+  scenario: config/scenario.yaml
+  # See http://snpeff.sourceforge.net/SnpSift.html#filter
+  filter:
+    candidates: "ANN['IMPACT'] != 'LOW'"
+    moderate: "ANN['IMPACT'] == 'MODERATE'"
+  fdr-control:
+    threshold: 0.05
+    local: true
+    events: 
+      present:
+        varlociraptor: 
+          - present
+        filter: moderate
+
+annotations:
+  vcfs:
+    activate: true
+    known: resources/variation.vcf.gz
+  dgidb:
+    activate: false
+    datasources:
+      - DrugBank
+  vep:
+    params: --everything
+    plugins:
+      # Add any plugin from https://www.ensembl.org/info/docs/tools/vep/script/vep_plugins.html
+      # Plugin args can be passed as well, e.g. "LoFtool,path/to/custom/scores.txt".
+      - LoFtool
+
+
+params:
+  cutadapt: ""
+  picard:
+    MarkDuplicates: ""
+  gatk:
+    BaseRecalibrator: ""
+    applyBQSR: ""
+  varlociraptor:
+    # add extra arguments for varlociraptor call
+    # For example, in case of panel data consider to omit certain bias estimations
+    # which might be misleading because all reads of an amplicon have the sample start
+    # position, strand etc. (--omit-strand-bias, --omit-read-position-bias, 
+    # --omit-softclip-bias, --omit-read-orientation-bias).
+    call: ""
+    # Add extra arguments for varlociraptor preprocess. By default, we limit the depth to 200.
+    # Increase this value for panel sequencing!
+    preprocess: "--max-depth 200"
+  freebayes:
+    min_alternate_fraction: 0.05 # Reduce for calling variants with lower VAFs
+
+report:
+  activate: true
+  max_read_depth: 250
+  stratify:
+    activate: false
+    by-column: condition
+
+# printing of variants in a table format
+tables:
+  activate: true
+  # vembrane expression to generate the table
+  output:
+    expression: "INDEX, CHROM, POS, REF, ALT[0], ANN['Consequence'], ANN['IMPACT'], ANN['SYMBOL'], ANN['Feature']"
+    genotype: true
+    coverage: true
+    event_prob: true
+  generate_excel: true
