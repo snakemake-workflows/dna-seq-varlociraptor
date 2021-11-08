@@ -493,9 +493,11 @@ def get_fixed_candidate_calls(wildcards):
 
 def get_filter_targets(wildcards, input):
     if input.predefined:
-        return " | bedtools intersect -a /dev/stdin -b {input.predefined} ".format(input=input)
+        return " | bedtools intersect -a /dev/stdin -b {input.predefined} ".format(
+            input=input
+        )
     else:
-        ""
+        """"""
 
 
 wildcard_constraints:

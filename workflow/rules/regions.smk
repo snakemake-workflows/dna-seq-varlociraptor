@@ -42,9 +42,9 @@ rule filter_group_regions:
     log:
         "logs/regions/{group}.target_regions.filtered.log",
     shell:
-        'cat {input} | grep -f <(head -n {params.chroms} resources/genome.fasta.fai | '
+        "cat {input} | grep -f <(head -n {params.chroms} resources/genome.fasta.fai | "
         'awk \'{{print "^"$1"\\t"}}\') {params.filter_targets} '
-        '> {output} 2> {log}'
+        "> {output} 2> {log}"
 
 
 rule build_excluded_group_regions:
