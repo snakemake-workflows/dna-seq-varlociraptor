@@ -64,8 +64,8 @@ rule annotate_dgidb:
     params:
         datasources=(
             "-s {}".format(" ".join(config["annotations"]["dgidb"]["datasources"]))
-        if config["annotations"]["dgidb"].get("datasources", "")
-        else ""
+            if config["annotations"]["dgidb"].get("datasources", "")
+            else ""
         ),
     output:
         "results/calls/{prefix}.dgidb.bcf",
