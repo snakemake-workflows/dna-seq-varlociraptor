@@ -31,8 +31,8 @@ Varlociraptor supports integrated uncertainty aware calling and filtering of var
 # Primer trimming
 
 For panel data the pipeline allows trimming of amplicon primers on both ends of a fragment but also on a single end only. 
-In case of single end primers these are suppost to be located at the left end of a read.
-When primer trimming is enabled primers have to be defined either directly in the `config.yaml` or in a seperate tsv-file.
+In case of single end primers these are supposed to be located at the left end of a read.
+When primer trimming is enabled, primers have to be defined either directly in the `config.yaml` or in a seperate tsv-file.
 Defining primers directly in the config file is prefered when all samples come from the same primer set.
 In case of different panels, primers have to be set panel-wise in a seperate tsv-file.
 For each panel the following columns need to be set: `panel`, `fa1` and `fa2` (optional).
