@@ -81,8 +81,8 @@ rule bowtie_map:
         prefix="resources/bowtie_build/genome.fasta",
         insertsize=(
             "-X {}".format(config["primers"]["trimming"].get("library_length"))
-        if config["primers"]["trimming"].get("library_length", 0) != 0
-        else ""
+            if config["primers"]["trimming"].get("library_length", 0) != 0
+            else ""
         ),
     log:
         "logs/bowtie/{panel}_map.log",
