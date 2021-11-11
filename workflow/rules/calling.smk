@@ -17,6 +17,21 @@ rule render_scenario:
         "../scripts/render-scenario.py"
 
 
+rule varlociraptor_alignment_properties:
+    input:
+        ref="resources/genome.fasta",
+        ref_idx="resources/genome.fasta.fai",
+        bam=lambda w: get_sample_bam(w),
+    output:
+        "results/alignment-properties/{group}/{sample}.json",
+    log:
+        "logs/varlociraptor/estimate-alignment-properties/{group}/{sample}.log",
+    conda:
+        "../envs/varlociraptor.yaml"
+    shell:
+        "varlociraptor estimate alignment-properties {input.ref} --bam {input.bam} > {output} 2> {log}"
+
+
 rule varlociraptor_preprocess:
     input:
         ref="resources/genome.fasta",
@@ -24,6 +39,7 @@ rule varlociraptor_preprocess:
         candidates=get_candidate_calls(),
         bam="results/recal/{sample}.sorted.bam",
         bai="results/recal/{sample}.sorted.bai",
+        alignment_props="results/alignment-properties/{group}/{sample}.json",
     output:
         "results/observations/{group}/{sample}.{caller}.{scatteritem}.bcf",
     params:
@@ -36,7 +52,8 @@ rule varlociraptor_preprocess:
         "../envs/varlociraptor.yaml"
     shell:
         "varlociraptor preprocess variants --candidates {input.candidates} {params.extra} "
-        "{input.ref} --bam {input.bam} --output {output} 2> {log}"
+        "--alignment-properties {input.alignment_props} {input.ref} --bam {input.bam} --output {output} "
+        "2> {log}"
 
 
 rule varlociraptor_call:

@@ -2,6 +2,9 @@ samples: config/samples.tsv
 
 units: config/units.tsv
 
+# Optional BED file with target regions
+# target_regions: "path/to/taget-regions.bed"
+
 ref:
   # Number of chromosomes to consider for calling.
   # The first n entries of the FASTA will be considered.

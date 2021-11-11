@@ -29,6 +29,9 @@ properties:
   units:
     type: string
 
+  target_regions:
+    type: string
+
   ref:
     type: object
     properties:
