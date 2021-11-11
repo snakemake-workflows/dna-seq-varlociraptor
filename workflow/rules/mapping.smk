@@ -16,7 +16,6 @@ rule map_reads:
         "0.56.0/bio/bwa/mem"
 
 
-# TODO Currently mark duplicates and consensus reads will not be called sequentially
 rule mark_duplicates:
     input:
         "results/mapped/{sample}.sorted.bam",
