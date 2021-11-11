@@ -2,7 +2,7 @@ rule freebayes:
     input:
         ref="resources/genome.fasta",
         ref_idx="resources/genome.fasta.fai",
-        regions=get_regions,
+        regions="results/regions/{group}.target_regions.filtered.bed",
         # you can have a list of samples here
         samples=lambda w: get_group_bams(w),
         index=lambda w: get_group_bams(w, bai=True),
@@ -13,8 +13,9 @@ rule freebayes:
     params:
         # genotyping is performed by varlociraptor, hence we deactivate it in freebayes by 
         # always setting --pooled-continuous
-        extra="--pooled-continuous --min-alternate-count 2 --min-alternate-fraction {}".format(
-            config["params"]["freebayes"].get("min_alternate_fraction", "0.05")
+        extra="--pooled-continuous --min-alternate-count {} --min-alternate-fraction {}".format(
+            1 if is_activated("calc_consensus_reads") else 2,
+            config["params"]["freebayes"].get("min_alternate_fraction", "0.05"),
         ),
     threads: workflow.cores - 1  # use all available cores -1 (because of the pipe) for calling
     wrapper:
@@ -27,7 +28,7 @@ rule delly:
         ref_idx="resources/genome.fasta.fai",
         samples=lambda w: get_group_bams(w),
         index=lambda w: get_group_bams(w, bai=True),
-        exclude=get_excluded_regions,
+        exclude="results/regions/{group}.excluded_regions.bed",
     output:
         "results/candidate-calls/{group}.delly.bcf",
     log:

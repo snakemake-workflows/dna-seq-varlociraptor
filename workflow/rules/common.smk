@@ -84,6 +84,21 @@ units = (
 )
 validate(units, schema="../schemas/units.schema.yaml")
 
+primer_panels = (
+    (
+        pd.read_csv(
+            config["primers"]["trimming"]["tsv"],
+            sep="\t",
+            dtype={"panel": str, "fa1": str, "fa2": str},
+            comment="#",
+        )
+        .set_index(["panel"], drop=False)
+        .sort_index()
+    )
+    if config["primers"]["trimming"].get("tsv", "")
+    else None
+)
+
 
 def get_gather_calls_input(ext="bcf"):
     def inner(wildcards):
@@ -115,6 +130,10 @@ def get_recalibrate_quality_input(wildcards, bai=False):
     ext = "bai" if bai else "bam"
     if is_activated("calc_consensus_reads"):
         return "results/consensus/{}.sorted.{}".format(wildcards.sample, ext)
+    elif is_activated("primers/trimming"):
+        return "results/trimmed/{sample}.trimmed.{ext}".format(
+            sample=wildcards.sample, ext=ext
+        )
     elif is_activated("remove_duplicates"):
         return "results/dedup/{}.sorted.{}".format(wildcards.sample, ext)
     else:
@@ -224,31 +243,80 @@ def get_group_sample_aliases(wildcards, controls=True):
     ]["alias"]
 
 
-def get_sample_bam(wildcards, bai=False):
-    ext = "bai" if bai else "bam"
+def get_consensus_input(wildcards):
     if is_activated("primers/trimming"):
-        if group_is_paired_end(wildcards.group):
-            return "results/trimmed/{sample}.trimmed.{ext}".format(
-                sample=wildcards.sample, ext=ext
-            )
+        return "results/trimmed/{}.trimmed.bam".format(wildcards.sample)
+    elif is_activated("remove_duplicates"):
+        return "results/dedup/{}.sorted.bam".format(wildcards.sample)
+    else:
+        return "results/mapped/{}.sorted.bam".format(wildcards.sample)
+
+
+def get_trimming_input(wildcards):
+    if is_activated("remove_duplicates"):
+        return "results/dedup/{}.sorted.bam".format(wildcards.sample)
+    else:
+        return "results/mapped/{}.sorted.bam".format(wildcards.sample)
+
+
+def get_primer_bed(wc):
+    if isinstance(primer_panels, pd.DataFrame):
+        if not pd.isna(primer_panels.loc[wc.panel, "fa2"]):
+            return "results/primers/{}_primers.bedpe".format(wc.panel)
         else:
-            WorkflowError("Primer trimming is only available for paired end data.")
-    return "results/recal/{sample}.sorted.{ext}".format(
-        sample=wildcards.sample, ext=ext
-    )
+            return "results/primers/{}_primers.bed".format(wc.panel)
+    else:
+        if config["primers"]["trimming"].get("primers_fa2", ""):
+            return "results/primers/uniform_primers.bedpe"
+        else:
+            return "results/primers/uniform_primers.bed"
+
+
+def get_sample_primer_fastas(sample):
+    if isinstance(primer_panels, pd.DataFrame):
+        panel = samples.loc[sample, "primer_panel"]
+        if not pd.isna(primer_panels.loc[panel, "fa2"]):
+            return [
+                primer_panels.loc[panel, "fa1"],
+                primer_panels.loc[panel, "fa2"],
+            ]
+        return primer_panels.loc[panel, "fa1"]
+    else:
+        if config["primers"]["trimming"].get("primers_fa2", ""):
+            return [
+                config["primers"]["trimming"]["primers_fa1"],
+                config["primers"]["trimming"]["primers_fa2"],
+            ]
+        return config["primers"]["trimming"]["primers_fa1"]
+
+
+def get_panel_primer_fastas(panel):
+    if panel == "uniform":
+        if config["primers"]["trimming"].get("primers_fa2", ""):
+            return [
+                config["primers"]["trimming"]["primers_fa1"],
+                config["primers"]["trimming"]["primers_fa2"],
+            ]
+        return config["primers"]["trimming"]["primers_fa1"]
+    else:
+        panel = primer_panels.loc[panel]
+        if not pd.isna(panel["fa2"]):
+            return [panel["fa1"], panel["fa2"]]
+        return panel["fa1"]
+
+
+def get_primer_regions(wc):
+    if isinstance(primer_panels, pd.DataFrame):
+        return "results/primers/{}_primer_regions.tsv".format(
+            samples.loc[wc.sample, "primer_panel"]
+        )
+    return "results/primers/uniform_primer_regions.tsv"
 
 
 def get_group_bams(wildcards, bai=False):
     ext = "bai" if bai else "bam"
-    if is_activated("primers/trimming"):
-        if group_is_paired_end(wildcards.group):
-            return expand(
-                "results/trimmed/{sample}.trimmed.{ext}",
-                sample=get_group_samples(wildcards.group),
-                ext=ext,
-            )
-        else:
-            WorkflowError("Primer trimming is only available for paired end data.")
+    if is_activated("primers/trimming") and not group_is_paired_end(wildcards.group):
+        WorkflowError("Primer trimming is only available for paired end data.")
     return expand(
         "results/recal/{sample}.sorted.{ext}",
         sample=get_group_samples(wildcards.group),
@@ -257,14 +325,6 @@ def get_group_bams(wildcards, bai=False):
 
 
 def get_group_bams_report(group):
-    if is_activated("primers/trimming"):
-        if group_is_paired_end(group):
-            return [
-                (sample, "results/trimmed/{}.trimmed.bam".format(sample))
-                for sample in get_group_samples(group)
-            ]
-        else:
-            WorkflowError("Primer trimming is only available for paired end data.")
     return [
         (sample, "results/recal/{}.sorted.bam".format(sample))
         for sample in get_group_samples(group)
@@ -302,7 +362,7 @@ def get_report_bcf_params(wildcards, input):
     ]
 
 
-def get_consensus_input(wildcards):
+def get_processed_consensus_input(wildcards):
     if wildcards.read_type == "se":
         return "results/consensus/fastq/{}.se.fq".format(wildcards.sample)
     return [
@@ -313,22 +373,6 @@ def get_consensus_input(wildcards):
 
 def get_resource(name):
     return workflow.source_path("../resources/{}".format(name))
-
-
-# TODO Can be reduced to "results/regions/{group}.target_regions.bed" when single primer trimming gets implemented
-def get_regions(wildcards):
-    if is_activated("primers/trimming"):
-        return "results/primers/target_regions.merged.bed"
-    return "results/regions/{group}.target_regions.filtered.bed".format(
-        group=wildcards.group
-    )
-
-
-# TODO Can be reduced to "results/regions/{group}.excluded_regions.bed" when single primer trimming gets implemented
-def get_excluded_regions(wildcards):
-    if is_activated("primers/trimming"):
-        return "results/primers/excluded_regions.bed"
-    return "results/regions/{group}.excluded_regions.bed".format(group=wildcards.group)
 
 
 def get_group_observations(wildcards):

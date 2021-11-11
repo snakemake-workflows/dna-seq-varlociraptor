@@ -22,11 +22,12 @@ primers:
     # path to fasta files containg primer sequences
     primers_fa1: "path/to/primer-fa1"
     primers_fa2: "path/to/primer-fa2"
-    # Library mean + error determines the maximum insert size between the outer primer ends.
-    # Specify 0 to have yara autodetect the primer library insert size error.
-    library_error: 0
+    # optional primer file allowing to define primers per sample
+    # overwrites primers_fa1 and primers_fa2
+    # the primer file has three fields: panel, fa1 and fa2 (optional)
+    tsv: ""
     # Mean insert size between the outer primer ends.
-    # Specify 0 to have yara autodetect the primer library insert size.
+    # If 0 or not set the bowtie default value of 250 will be used
     library_length: 0
 
 # Estimation of tumor mutational burden.

@@ -1,6 +1,7 @@
 rule build_sample_regions:
     input:
-        bam=get_sample_bam,
+        bam="results/recal/{sample}.sorted.bam",
+        bai="results/recal/{sample}.sorted.bai",
     output:
         "results/regions/{group}/{sample}.mosdepth.global.dist.txt",
         "results/regions/{group}/{sample}.quantized.bed.gz",

@@ -45,14 +45,14 @@ jobs:
         directory: .test
         snakefile: workflow/Snakefile
         args: "--use-conda --show-failed-logs -j 10 --conda-cleanup-pkgs cache --conda-frontend mamba"
-    
+
     - name: Test workflow (local FASTQs, target regions)
       uses: snakemake/snakemake-github-action@v1.22.0
       with:
         directory: .test
         snakefile: workflow/Snakefile
         args: "--configfile .test/config-target-regions/config.yaml --use-conda --show-failed-logs -j 10 --conda-cleanup-pkgs cache --conda-frontend mamba"
-    
+
     - name: Test report
       uses: snakemake/snakemake-github-action@v1.22.0
       with:
