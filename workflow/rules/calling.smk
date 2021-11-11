@@ -21,7 +21,7 @@ rule varlociraptor_alignment_properties:
     input:
         ref="resources/genome.fasta",
         ref_idx="resources/genome.fasta.fai",
-        bam=lambda w: get_sample_bam(w),
+        bam="results/recal/{sample}.sorted.bam",
     output:
         "results/alignment-properties/{group}/{sample}.json",
     log:
