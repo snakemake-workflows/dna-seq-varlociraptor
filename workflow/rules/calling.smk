@@ -51,7 +51,7 @@ rule varlociraptor_preprocess:
     conda:
         "../envs/varlociraptor.yaml"
     shell:
-        "varlociraptor preprocess variants --candidates {input.candidates} {params.extra} "
+        "/vol/tiny/home/koester/scms/varlociraptor/target/release/varlociraptor preprocess variants --candidates {input.candidates} {params.extra} "
         "--alignment-properties {input.alignment_props} {input.ref} --bam {input.bam} --output {output} "
         "2> {log}"
 
@@ -77,9 +77,9 @@ rule varlociraptor_call:
     benchmark:
         "benchmarks/varlociraptor/call/{group}.{caller}.{scatteritem}.tsv"
     shell:
-        "varlociraptor "
-        "call variants {params.extra} generic --obs {params.obs} "
-        "--scenario {input.scenario} {params.postprocess} {output} 2> {log}"
+        "(/vol/tiny/home/koester/scms/varlociraptor/target/release/varlociraptor"
+        " call variants {params.extra} generic --obs {params.obs}"
+        " --scenario {input.scenario} {params.postprocess} {output}) 2> {log}"
 
 
 rule sort_calls:
