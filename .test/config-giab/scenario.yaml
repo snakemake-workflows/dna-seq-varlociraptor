@@ -13,8 +13,8 @@ species:
 samples:
   NA12878:
     sex: female
-    somatic-effective-mutation-rate: 1e-10
+    somatic-effective-mutation-rate: 4.4e-7
 
 events:
   present: "NA12878:0.5 | NA12878:1.0"
-  somatic: "NA12878:]0.0,0.1]"
+  somatic: "NA12878:]0.0,0.2]"
