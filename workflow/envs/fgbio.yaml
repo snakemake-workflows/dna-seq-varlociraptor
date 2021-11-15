@@ -2,4 +2,4 @@ channels:
   - conda-forge
   - bioconda
 dependencies:
-  - fgbio =1.2
+  - fgbio =1.4

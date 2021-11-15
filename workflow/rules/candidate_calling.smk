@@ -2,7 +2,7 @@ rule freebayes:
     input:
         ref="resources/genome.fasta",
         ref_idx="resources/genome.fasta.fai",
-        regions=get_regions,
+        regions="results/regions/{group}.target_regions.filtered.bed",
         # you can have a list of samples here
         samples=lambda w: get_group_bams(w),
         index=lambda w: get_group_bams(w, bai=True),
@@ -13,10 +13,12 @@ rule freebayes:
     params:
         # genotyping is performed by varlociraptor, hence we deactivate it in freebayes by 
         # always setting --pooled-continuous
-        extra= "--pooled-continuous " + config["params"]["freebayes"].get("extra","")
+        extra="--pooled-continuous --min-alternate-count 2 --min-alternate-fraction {}".format(
+            config["params"]["freebayes"].get("min_alternate_fraction", "0.05")
+        ),
     threads: workflow.cores - 1  # use all available cores -1 (because of the pipe) for calling
     wrapper:
-        "0.68.0/bio/freebayes"
+        "0.80.0/bio/freebayes"
 
 
 rule delly:
@@ -25,7 +27,7 @@ rule delly:
         ref_idx="resources/genome.fasta.fai",
         samples=lambda w: get_group_bams(w),
         index=lambda w: get_group_bams(w, bai=True),
-        exclude=get_excluded_regions,
+        exclude="results/regions/{group}.excluded_regions.bed",
     output:
         "results/candidate-calls/{group}.delly.bcf",
     log:
@@ -34,7 +36,7 @@ rule delly:
         extra=config["params"].get("delly", ""),
     threads: lambda _, input: len(input.samples)  # delly parallelizes over the number of samples
     wrapper:
-        "0.68.0/bio/delly"
+        "0.80.0/bio/delly"
 
 
 # Delly breakends lead to invalid BCFs after VEP annotation (invalid RLEN). Therefore we exclude them for now.
