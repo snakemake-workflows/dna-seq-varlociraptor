@@ -15,19 +15,38 @@ rule map_reads:
     wrapper:
         "0.56.0/bio/bwa/mem"
 
+# TODO: Concider adding read structure as param
+rule annotate_umis:
+    input:
+        bam="results/mapped/{sample}.sorted.bam",
+        umi=lambda wc: units.loc[wc.sample]["umis"],
+    output:
+        "results/mapped/{sample}.annotated.bam",
+    params:
+        "",
+    log:
+        "logs/fgbio/annotate_bam/{sample}.log",
+    wrapper:
+        "v0.80.1/bio/fgbio/annotatebamwithumis"
+
 
 rule mark_duplicates:
     input:
-        "results/mapped/{sample}.sorted.bam",
+        lambda wc: "results/mapped/{sample}.sorted.bam"
+        if units.loc[wc.sample]["umis"].isnull()
+        else "results/mapped/{sample}.annotated.bam",
     output:
         bam=temp("results/dedup/{sample}.sorted.bam"),
         metrics="results/qc/dedup/{sample}.metrics.txt",
     log:
         "logs/picard/dedup/{sample}.log",
     params:
-        config["params"]["picard"]["MarkDuplicates"],
+        extra="{c} {b}".format(
+            c=config["params"]["picard"]["MarkDuplicates"],
+            b="" if units.loc[wc.sample]["umis"].isnull() else "BARCODE=RX",
+        ),
     wrapper:
-        "0.59.2/bio/picard/markduplicates"
+        "0.80.1/bio/picard/markduplicates"
 
 
 rule calc_consensus_reads:
