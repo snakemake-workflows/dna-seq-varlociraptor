@@ -16,6 +16,7 @@ rule map_reads:
         "0.56.0/bio/bwa/mem"
 
 # TODO: Concider adding read structure as param
+# TODO: Set output as temp
 rule annotate_umis:
     input:
         bam="results/mapped/{sample}.sorted.bam",
