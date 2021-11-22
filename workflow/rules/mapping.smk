@@ -41,7 +41,7 @@ rule mark_duplicates:
     log:
         "logs/picard/dedup/{sample}.log",
     params:
-        extra="{c} {b}".format(
+        extra=lambda wc: "{c} {b}".format(
             c=config["params"]["picard"]["MarkDuplicates"],
             b="" if units.loc[wc.sample]["umis"].isnull() else "BARCODE=RX",
         ),
