@@ -12,7 +12,7 @@ ref:
   release: 104
   # Genome build
   build: GRCh38
-  chromosome: 15
+  chromosome: 1
 
 primers:
   trimming:
