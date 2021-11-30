@@ -62,7 +62,7 @@ rule annotate_dgidb:
     input:
         "results/calls/{prefix}.bcf",
     params:
-        datasources=get_dgidb_sources,
+        datasources=get_dgidb_sources(),
     output:
         "results/calls/{prefix}.dgidb.bcf",
     log:

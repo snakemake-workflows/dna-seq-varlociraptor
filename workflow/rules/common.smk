@@ -671,9 +671,17 @@ def get_freebayes_normalize(wildcards, input):
     return False
 
 
-def get_dgidb_sources(wildcards):
+def get_dgidb_sources():
     return (
         "-s {}".format(" ".join(config["annotations"]["dgidb"]["datasources"]))
         if config["annotations"]["dgidb"].get("datasources", "")
+        else ""
+    )
+
+
+def get_single_primer_params(wildcards):
+    return (
+        "--first-of-pair"
+        if not isinstance(get_sample_primer_fastas(w.sample), list)
         else ""
     )
