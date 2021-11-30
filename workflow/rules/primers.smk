@@ -67,19 +67,7 @@ rule bowtie_map:
     output:
         "results/primers/{panel}_primers.bam",
     params:
-        reads=(
-            lambda wc, input: "-1 {r1} -2 {r2}".format(
-                r1=input.reads[0], r2=input.reads[1]
-            )
-            if isinstance(input.reads, list)
-            else "-f {}".format(input.reads)
-        ),
-        prefix="resources/bowtie_build/genome.fasta",
-        insertsize=(
-            "-X {}".format(config["primers"]["trimming"].get("library_length"))
-        if config["primers"]["trimming"].get("library_length", 0) != 0
-        else ""
-        ),
+        unpack(get_bowtie_params),
     log:
         "logs/bowtie/{panel}_map.log",
     conda:

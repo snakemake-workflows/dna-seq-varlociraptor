@@ -682,6 +682,22 @@ def get_dgidb_sources():
 def get_single_primer_params(wildcards):
     return (
         "--first-of-pair"
-        if not isinstance(get_sample_primer_fastas(w.sample), list)
+        if not isinstance(get_sample_primer_fastas(wildcards.sample), list)
         else ""
     )
+
+
+def get_bowtie_params(wildcards, input):
+    return {
+        "reads": (
+            "-1 {r1} -2 {r2}".format(r1=input.reads[0], r2=input.reads[1])
+            if isinstance(input.reads, list)
+            else "-f {}".format(input.reads)
+        ),
+        "insertsize": (
+            "-X {}".format(config["primers"]["trimming"].get("library_length"))
+            if config["primers"]["trimming"].get("library_length", 0) != 0
+            else ""
+        ),
+        "prefix": str(Path(input.idx) / "genome.fasta"),
+    }
