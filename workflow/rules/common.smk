@@ -669,3 +669,11 @@ def get_freebayes_normalize(wildcards, input):
     if len(group) != 1:
         return "-a --rm-dup exact -f {input.ref}".format(input=input)
     return False
+
+
+def get_dgidb_sources(wildcards):
+    return (
+        "-s {}".format(" ".join(config["annotations"]["dgidb"]["datasources"]))
+        if config["annotations"]["dgidb"].get("datasources", "")
+        else ""
+    )
