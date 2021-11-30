@@ -35,11 +35,7 @@ rule trim_primers:
         trimmed="results/trimmed/{sample}.trimmed.bam",
     params:
         sort_order="Coordinate",
-        single_primer=lambda w: (
-            "--first-of-pair"
-            if not isinstance(get_sample_primer_fastas(w.sample), list)
-            else ""
-        ),
+        single_primer=get_single_primer_params,
     conda:
         "../envs/fgbio.yaml"
     log:
