@@ -642,3 +642,62 @@ def get_vembrane_expression(wc):
 
 def get_sample_alias(wildcards):
     return samples.loc[wildcards.sample, "alias"]
+
+
+def get_freebayes_params(wildcards):
+    return "--pooled-continuous --min-alternate-count {} --min-alternate-fraction {}".format(
+        1 if is_activated("calc_consensus_reads") else 2,
+        config["params"]["freebayes"].get("min_alternate_fraction", "0.05"),
+    )
+
+
+def get_freebayes_normalize(wildcards, input):
+    group = get_group_samples(wildcards.group)
+    # METHOD: Normalize whenever we call more than one sample per group
+    # The reason is that in complex scenarios, we want primitive alleles
+    # in order to be able to correctly identify events.
+    #
+    # Example:
+    # The child has
+    # CGAGCGGA -> TGGCTGGA
+    # while both parent have
+    # CGAGCGGA -> TGGCTGGG
+    #
+    # The correct genomic interpretation is that the G allele in the end is lost in the child.
+    # But in above MNV representation, it looks like a denovo event overall, while the
+    # two SNVs at the beginning are actually inherited.
+    if len(group) != 1:
+        return "-a --rm-dup exact -f {input.ref}".format(input=input)
+    return False
+
+
+def get_dgidb_sources():
+    return (
+        "-s {}".format(" ".join(config["annotations"]["dgidb"]["datasources"]))
+        if config["annotations"]["dgidb"].get("datasources", "")
+        else ""
+    )
+
+
+def get_single_primer_params(wildcards):
+    return (
+        "--first-of-pair"
+        if not isinstance(get_sample_primer_fastas(wildcards.sample), list)
+        else ""
+    )
+
+
+def get_bowtie_params(wildcards, input):
+    return {
+        "reads": (
+            "-1 {r1} -2 {r2}".format(r1=input.reads[0], r2=input.reads[1])
+            if isinstance(input.reads, list)
+            else "-f {}".format(input.reads)
+        ),
+        "insertsize": (
+            "-X {}".format(config["primers"]["trimming"].get("library_length"))
+            if config["primers"]["trimming"].get("library_length", 0) != 0
+            else ""
+        ),
+        "prefix": str(Path(input.idx) / "genome.fasta"),
+    }
