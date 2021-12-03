@@ -73,7 +73,10 @@ rule bowtie_map:
     conda:
         "../envs/bowtie.yaml"
     shell:
-        "bowtie {params.extra[reads]} -x {params.extra[prefix]} {params.extra[insertsize]} -S | samtools view -b - > {output} 2> {log}"
+        "(bowtie {params.extra[reads]}"
+        " -x {params.extra[prefix]} {params.extra[insertsize]} -S |"
+        " samtools view -b - > {output} "
+        ") 2> {log}"
 
 
 rule filter_unmapped_primers:
