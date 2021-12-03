@@ -67,13 +67,13 @@ rule bowtie_map:
     output:
         "results/primers/{panel}_primers.bam",
     params:
-        get_bowtie_params,
+        extra=get_bowtie_params,
     log:
         "logs/bowtie/{panel}_map.log",
     conda:
         "../envs/bowtie.yaml"
     shell:
-        "bowtie {params[reads]} -x {params[prefix]} {params[insertsize]} -S | samtools view -b - > {output} 2> {log}"
+        "bowtie {params.extra[reads]} -x {params.extra[prefix]} {params.extra[insertsize]} -S | samtools view -b - > {output} 2> {log}"
 
 
 rule filter_unmapped_primers:
