@@ -38,8 +38,6 @@ jobs:
       - Formatting
     steps:
     - uses: actions/checkout@v2
-    - name: Checkout submodules
-      uses: textbook/git-checkout-submodule-action@2.0.0
 
     - name: Test workflow (local FASTQs)
       uses: snakemake/snakemake-github-action@v1.22.0
@@ -47,13 +45,20 @@ jobs:
         directory: .test
         snakefile: workflow/Snakefile
         args: "--configfile .test/config-simple/config.yaml --use-conda --show-failed-logs -j 10 --conda-cleanup-pkgs cache --conda-frontend mamba"
-    
+
     - name: Test report
       uses: snakemake/snakemake-github-action@v1.22.0
       with:
         directory: .test
         snakefile: workflow/Snakefile
         args: "--configfile .test/config-simple/config.yaml --report report.zip"
+
+    - name: Test workflow (local FASTQs, target regions)
+      uses: snakemake/snakemake-github-action@v1.22.0
+      with:
+        directory: .test
+        snakefile: workflow/Snakefile
+        args: "--configfile .test/config-target-regions/config.yaml --use-conda --show-failed-logs -j 10 --conda-cleanup-pkgs cache --conda-frontend mamba"
 
     - name: Test workflow (local FASTQs, no candidate filtering)
       uses: snakemake/snakemake-github-action@v1.22.0

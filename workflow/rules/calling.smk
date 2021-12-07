@@ -21,7 +21,7 @@ rule varlociraptor_alignment_properties:
     input:
         ref="resources/genome.fasta",
         ref_idx="resources/genome.fasta.fai",
-        bam=lambda w: get_sample_bam(w),
+        bam="results/recal/{sample}.sorted.bam",
     output:
         "results/alignment-properties/{group}/{sample}.json",
     log:
@@ -37,8 +37,8 @@ rule varlociraptor_preprocess:
         ref="resources/genome.fasta",
         ref_idx="resources/genome.fasta.fai",
         candidates=get_candidate_calls(),
-        bam=lambda w: get_sample_bam(w),
-        bai=lambda w: get_sample_bam(w, bai=True),
+        bam="results/recal/{sample}.sorted.bam",
+        bai="results/recal/{sample}.sorted.bai",
         alignment_props="results/alignment-properties/{group}/{sample}.json",
     output:
         "results/observations/{group}/{sample}.{caller}.{scatteritem}.bcf",
