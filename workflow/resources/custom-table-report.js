@@ -462,6 +462,7 @@ $(document).ready(function () {
             var x_title = {"SIFT": "1-score", "PolyPhen": "Score"}
             var ScoreSpec = {
                 "$schema": "https://vega.github.io/schema/vega-lite/v3.json",
+                "title": score_type,
                 "data": {
                     values: scores
                 },

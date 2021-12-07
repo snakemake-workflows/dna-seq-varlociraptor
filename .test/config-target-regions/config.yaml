@@ -1,6 +1,8 @@
-samples: config/samples.tsv
+samples: config-target-regions/samples.tsv
 
-units: config/units.tsv
+units: config-target-regions/units.tsv
+
+target_regions: config-target-regions/target-regions.bed
 
 ref:
   # Number of chromosomes to consider for calling.
@@ -8,31 +10,28 @@ ref:
   n_chromosomes: 17
   # Ensembl species name
   species: saccharomyces_cerevisiae
-  # Ensembl release (make sure to take one where snpeff data is available, check 'snpEff databases' output)
-  release: 98
-  snpeff_release: 86
+  # Ensembl release
+  release: 100
   # Genome build
   build: R64-1-1
 
 primers:
   trimming:
-    activate: true
-    primers_fa1: "a.scerevisiae.1_primers.fq"
-    primers_fa2: "a.scerevisiae.2_primers.fq"
-    library_length: 400
+    activate: false
+    primers_fa1: ""
+    primers_fa2: ""
+    library_length: 0
 
 
-# Estimation of tumor mutational burden.
+# Estimation of mutational burden.
 mutational_burden:
-  activate: false
-  # Size of the sequenced coding genome for TMB estimation
+  activate: true
+  # Size of the sequenced coding genome for mutational burden estimation
   # Attention: when doing panel sequencing, set this to the
   # CAPTURED coding genome, not the entire one!
   coding_genome_size: 3.0e7
   events:
-    - SOMATIC_TUMOR_LOW
-    - SOMATIC_TUMOR_MEDIUM
-    - SOMATIC_TUMOR_HIGH
+    - present
 
 calling:
   delly:
@@ -43,18 +42,18 @@ calling:
   scenario: config/scenario.yaml
   # See http://snpeff.sourceforge.net/SnpSift.html#filter
   filter:
+    candidates: "ANN['IMPACT'] != 'LOW'"
     moderate: "ANN['IMPACT'] == 'MODERATE'"
   fdr-control:
     threshold: 0.05
+    local: true
     events: 
       present:
         varlociraptor: 
-          - "PRESENT"
+          - present
         filter: moderate
 
 annotations:
-  dbnsfp:
-    activate: false
   vcfs:
     activate: true
     known: resources/variation.vcf.gz
@@ -62,6 +61,12 @@ annotations:
     activate: false
     datasources:
       - DrugBank
+  vep:
+    params: --everything
+    plugins:
+      # Add any plugin from https://www.ensembl.org/info/docs/tools/vep/script/vep_plugins.html
+      # Plugin args can be passed as well, e.g. "LoFtool,path/to/custom/scores.txt".
+      - LoFtool
 
 
 params:
@@ -90,3 +95,14 @@ report:
   stratify:
     activate: false
     by-column: condition
+
+# printing of variants in a table format
+tables:
+  activate: true
+  # vembrane expression to generate the table
+  output:
+    expression: "INDEX, CHROM, POS, REF, ALT[0], ANN['Consequence'], ANN['IMPACT'], ANN['SYMBOL'], ANN['Feature']"
+    genotype: true
+    coverage: true
+    event_prob: true
+  generate_excel: true
