@@ -101,6 +101,7 @@ rule get_vep_cache:
 rule get_vep_plugins:
     output:
         directory("resources/vep/plugins"),
+        "resources/vep/plugins/LoFtool_scores.txt",
     params:
         release=config["ref"]["release"],
     log:
