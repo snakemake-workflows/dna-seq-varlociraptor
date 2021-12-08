@@ -22,9 +22,9 @@ rule annotate_variants:
         calls="results/calls/{group}.{scatteritem}.bcf",
         cache="resources/vep/cache",
         plugins="resources/vep/plugins",
-        REVEL = lambda wc: "resources/revel_scores.tsv.gz" if config["annotations"]["vep"]["plugins"].get("REVEL", None) else "",
-        revel_tbi = lambda wc: "resources/revel_scores.tsv.gz.tbi" if config["annotations"]["vep"]["plugins"].get("REVEL", None) else "",
-        LoFtool = lambda wc: "resources/vep/plugins/LoFtool_scores.txt" if config["annotations"]["vep"]["plugins"].get("LoFtool", None) else ""
+        REVEL = lambda wc: "resources/revel_scores.tsv.gz" if "REVEL" in config["annotations"]["vep"]["plugins"] else "",
+        revel_tbi = lambda wc: "resources/revel_scores.tsv.gz.tbi" if "REVEL" in config["annotations"]["vep"]["plugins"] else "",
+        LoFtool = lambda wc: "resources/vep/plugins/LoFtool_scores.txt" if "LoFtool" in config["annotations"]["vep"]["plugins"] else ""
     output:
         calls="results/calls/{group}.{scatteritem}.annotated.bcf",
         stats="results/calls/{group}.{scatteritem}.stats.html",
