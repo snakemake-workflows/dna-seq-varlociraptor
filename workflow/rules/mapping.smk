@@ -16,17 +16,14 @@ rule map_reads:
         "0.56.0/bio/bwa/mem"
 
 
-# TODO: Concider adding read structure as param
-# TODO: Set output as temp
 rule annotate_umis:
     input:
         bam="results/mapped/{sample}.sorted.bam",
         umi=lambda wc: units.loc[wc.sample]["umis"][0],
     output:
         temp("results/mapped/{sample}.annotated.bam"),
-    params: ""
     resources:
-        mem_gb = "10"
+        mem_gb="10",
     log:
         "logs/fgbio/annotate_bam/{sample}.log",
     wrapper:
@@ -47,7 +44,9 @@ rule mark_duplicates:
         extra=lambda wc: "{c} {b} {d}".format(
             c=config["params"]["picard"]["MarkDuplicates"],
             b="" if units.loc[wc.sample]["umis"].isnull() else "BARCODE_TAG=RX",
-            d="TAG_DUPLICATE_SET_MEMBERS=true" if is_activated("calc_consensus_reads") else ""
+            d="TAG_DUPLICATE_SET_MEMBERS=true"
+            if is_activated("calc_consensus_reads")
+            else "",
         ),
     wrapper:
         "0.80.2/bio/picard/markduplicates"

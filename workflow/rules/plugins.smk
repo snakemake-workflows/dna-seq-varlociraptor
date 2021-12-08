@@ -2,7 +2,7 @@ rule download_revel:
     output:
         temp("resources/revel_scores.zip"),
     log:
-        "logs/vep_plugins/download_revel.log"
+        "logs/vep_plugins/download_revel.log",
     shell:
         "curl https://rothsj06.u.hpc.mssm.edu/revel-v1.3_all_chromosomes.zip -o {output} &> {log}"
 
@@ -13,7 +13,7 @@ rule process_revel_scores:
     output:
         "resources/{ref}_revel_scores.tsv.gz",
     log:
-        "logs/vep_plugins/process_{ref}_revel_scores.log"
+        "logs/vep_plugins/process_{ref}_revel_scores.log",
     shell:
         """
         tmpfile=$(mktemp {resources.tmpdir}/revel_scores.XXXXXX)
