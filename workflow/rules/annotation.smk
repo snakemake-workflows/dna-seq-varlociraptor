@@ -24,17 +24,17 @@ rule annotate_variants:
         plugins="resources/vep/plugins",
         REVEL=lambda wc: "resources/{}_revel_scores.tsv.gz".format(
             config["ref"]["build"]
-            )
-            if "REVEL" in config["annotations"]["vep"]["plugins"]
-            else "",
+        )
+        if "REVEL" in config["annotations"]["vep"]["plugins"]
+        else "",
         revel_tbi=lambda wc: "resources/{}_revel_scores.tsv.gz.tbi".format(
             config["ref"]["build"]
-            )
-            if "REVEL" in config["annotations"]["vep"]["plugins"]
-            else "",
+        )
+        if "REVEL" in config["annotations"]["vep"]["plugins"]
+        else "",
         LoFtool=lambda wc: "resources/vep/plugins/LoFtool_scores.txt"
-            if "LoFtool" in config["annotations"]["vep"]["plugins"]
-            else "",
+        if "LoFtool" in config["annotations"]["vep"]["plugins"]
+        else "",
     output:
         calls="results/calls/{group}.{scatteritem}.annotated.bcf",
         stats="results/calls/{group}.{scatteritem}.stats.html",
