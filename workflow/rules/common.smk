@@ -514,6 +514,18 @@ def get_vep_threads():
         return 1
 
 
+def get_plugin_aux(plugin, index=False):
+    if plugin in config["annotations"]["vep"]["plugins"]:
+        if plugin == "REVEL":
+            suffix = ".tbi" if index else ""
+            return "resources/{build}_revel_scores.tsv.gz{suffix}".format(
+                build=config["ref"]["build"], suffix=suffix
+            )
+        if plugin == "LoFtool":
+            return "resources/vep/plugins/LoFtool_scores.txt"
+    return []
+
+
 def get_fdr_control_params(wildcards):
     query = config["calling"]["fdr-control"]["events"][wildcards.event]
     threshold = query.get(
