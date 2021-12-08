@@ -274,7 +274,7 @@ def get_primer_bed(wc):
 
 def get_sample_primer_fastas(sample):
     if isinstance(primer_panels, pd.DataFrame):
-        panel = samples.loc[sample, "primer_panel"]
+        panel = samples.loc[sample, "panel"]
         if not pd.isna(primer_panels.loc[panel, "fa2"]):
             return [
                 primer_panels.loc[panel, "fa1"],
@@ -308,7 +308,7 @@ def get_panel_primer_fastas(panel):
 def get_primer_regions(wc):
     if isinstance(primer_panels, pd.DataFrame):
         return "results/primers/{}_primer_regions.tsv".format(
-            samples.loc[wc.sample, "primer_panel"]
+            samples.loc[wc.sample, "panel"]
         )
     return "results/primers/uniform_primer_regions.tsv"
 
@@ -594,6 +594,8 @@ def get_tabix_params(wildcards):
         return "-p vcf"
     if wildcards.format == "txt":
         return "-s 1 -b 2 -e 2"
+    if wildcards.format == "tsv":
+        return "-f -s 1 -b 3 -e 3"
     raise ValueError("Invalid format for tabix: {}".format(wildcards.format))
 
 
