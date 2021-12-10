@@ -22,9 +22,8 @@ rule annotate_variants:
         calls="results/calls/{group}.{scatteritem}.bcf",
         cache="resources/vep/cache",
         plugins="resources/vep/plugins",
-        REVEL=lambda wc: get_plugin_aux("REVEL"),
+        revel=lambda wc: get_plugin_aux("REVEL"),
         revel_tbi=lambda wc: get_plugin_aux("REVEL", True),
-        LoFtool=lambda wc: get_plugin_aux("Loftool"),
     output:
         calls="results/calls/{group}.{scatteritem}.annotated.bcf",
         stats="results/calls/{group}.{scatteritem}.stats.html",

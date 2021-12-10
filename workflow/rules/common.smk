@@ -521,8 +521,6 @@ def get_plugin_aux(plugin, index=False):
             return "resources/{build}_revel_scores.tsv.gz{suffix}".format(
                 build=config["ref"]["build"], suffix=suffix
             )
-        if plugin == "LoFtool":
-            return "resources/vep/plugins/LoFtool_scores.txt"
     return []
 
 
