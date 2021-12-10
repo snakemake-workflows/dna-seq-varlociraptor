@@ -21,7 +21,9 @@ definitions:
       local:
         type: boolean
       threshold:
-        type: boolean
+        type: number
+        minimum: 0.0
+        maximum: 1.0
 
 properties:
   samples:
@@ -160,7 +162,6 @@ properties:
             $ref: "#/definitions/evententry"
             description: "a map of <eventname: event> pairs"
         required:
-          - threshold
           - events
     required:
       - delly
