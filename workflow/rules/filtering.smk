@@ -18,11 +18,11 @@ rule filter_by_annotation:
     input:
         get_annotated_bcf,
     output:
-        "results/calls/{group}.{filter}.{scatteritem}.filtered_ann.bcf",
+        "results/calls/{group}.{event}.{scatteritem}.filtered_ann.bcf",
     log:
-        "logs/filter-calls/annotation/{group}.{filter}.{scatteritem}.log",
+        "logs/filter-calls/annotation/{group}.{event}.{scatteritem}.log",
     params:
-        filter=lambda w: config["calling"]["filter"][w.filter],
+        filter=get_annotation_filter
     conda:
         "../envs/vembrane.yaml"
     shell:
@@ -31,15 +31,15 @@ rule filter_by_annotation:
 
 rule filter_odds:
     input:
-        "results/calls/{group}.{filter}.{scatteritem}.filtered_ann.bcf",
+        "results/calls/{group}.{event}.{scatteritem}.filtered_ann.bcf",
     output:
-        "results/calls/{group}.{event}.{filter}.{scatteritem}.filtered_odds.bcf",
+        "results/calls/{group}.{event}.{scatteritem}.filtered_odds.bcf",
     params:
         events=lambda wc: config["calling"]["fdr-control"]["events"][wc.event][
             "varlociraptor"
         ],
     log:
-        "logs/filter-calls/posterior_odds/{group}.{event}.{filter}.{scatteritem}.log",
+        "logs/filter-calls/posterior_odds/{group}.{event}.{scatteritem}.log",
     conda:
         "../envs/varlociraptor.yaml"
     shell:
@@ -51,9 +51,9 @@ rule gather_calls:
         calls=get_gather_calls_input(),
         idx=get_gather_calls_input(ext="bcf.csi"),
     output:
-        "results/calls/{group}.{event}.{filter}.filtered_{by}.bcf",
+        "results/calls/{group}.{event}.filtered_{by}.bcf",
     log:
-        "logs/gather-calls/{group}.{event}.{filter}.filtered_{by}.log",
+        "logs/gather-calls/{group}.{event}.filtered_{by}.log",
     params:
         "-a -Ob",
     wrapper:
@@ -64,9 +64,9 @@ rule control_fdr:
     input:
         get_control_fdr_input,
     output:
-        "results/calls/{group}.{vartype}.{event}.{filter}.fdr-controlled.bcf",
+        "results/calls/{group}.{vartype}.{event}.fdr-controlled.bcf",
     log:
-        "logs/control-fdr/{group}.{vartype}.{event}.{filter}.log",
+        "logs/control-fdr/{group}.{vartype}.{event}.log",
     params:
         query=get_fdr_control_params,
     conda:

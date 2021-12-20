@@ -103,9 +103,9 @@ primer_panels = (
 def get_gather_calls_input(ext="bcf"):
     def inner(wildcards):
         if wildcards.by == "odds":
-            pattern = "results/calls/{{{{group}}}}.{{{{event}}}}.{{{{filter}}}}.{{scatteritem}}.filtered_odds.{ext}"
+            pattern = "results/calls/{{{{group}}}}.{{{{event}}}}.{{scatteritem}}.filtered_odds.{ext}"
         elif wildcards.by == "ann":
-            pattern = "results/calls/{{{{group}}}}.{{{{filter}}}}.{{scatteritem}}.filtered_ann.{ext}"
+            pattern = "results/calls/{{{{group}}}}.{{{{event}}}}.{{scatteritem}}.filtered_ann.{ext}"
         else:
             raise ValueError(
                 "Unexpected wildcard value for 'by': {}".format(wildcards.by)
@@ -119,7 +119,7 @@ def get_control_fdr_input(wildcards):
     query = get_fdr_control_params(wildcards)
     if not is_activated("benchmarking"):
         by = "ann" if query["local"] else "odds"
-        return "results/calls/{{group}}.{{event}}.{{filter}}.filtered_{by}.bcf".format(
+        return "results/calls/{{group}}.{{event}}.filtered_{by}.bcf".format(
             by=by
         )
     else:
@@ -486,24 +486,12 @@ def get_report_batch(wildcards):
 def get_merge_calls_input(ext="bcf"):
     def inner(wildcards):
         return expand(
-            "results/calls/{{group}}.{vartype}.{{event}}.{filter}.fdr-controlled.{ext}",
+            "results/calls/{{group}}.{vartype}.{{event}}.fdr-controlled.{ext}",
             ext=ext,
             vartype=["SNV", "INS", "DEL", "MNV", "BND", "INV", "DUP", "REP"],
-            filter=config["calling"]["fdr-control"]["events"][wildcards.event][
-                "filter"
-            ],
         )
 
     return inner
-
-
-def get_merge_calls_input_report(wildcards, ext="bcf"):
-    return expand(
-        "{{group}}.{vartype}.{{event}}.{filter}=results/calls/{{group}}.{vartype}.{{event}}.{filter}.fdr-controlled.{ext}",
-        ext=ext,
-        vartype=["SNV", "INS", "DEL", "MNV", "BND", "INV", "DUP", "REP"],
-        filter=config["calling"]["fdr-control"]["events"][wildcards.event]["filter"],
-    )
 
 
 def get_vep_threads():
@@ -553,13 +541,19 @@ def get_filter_targets(wildcards, input):
     else:
         return ""
 
+def get_annotation_filter(wildcards):
+    filter = config["calling"]["fdr-control"]["events"][wildcards.event]["filter"]
+    return " and ".join(map(lambda x: config["calling"]["filter"][x], filter))
+
+
+
 
 wildcard_constraints:
     group="|".join(samples["group"].unique()),
     sample="|".join(samples["sample_name"]),
     caller="|".join(["freebayes", "delly"]),
     filter="|".join(config["calling"]["filter"]),
-
+    event="|".join(config["calling"]["fdr-control"]["events"].keys()),
 
 caller = list(
     filter(

@@ -48,7 +48,8 @@ calling:
         threshold: 0.01
         varlociraptor: 
           - "PRESENT"
-        filter: dummy
+        filter:
+          - dummy
       fdr005:
         threshold: 0.05
         varlociraptor: 
@@ -58,47 +59,56 @@ calling:
         threshold: 0.1
         varlociraptor: 
           - "PRESENT"
-        filter: dummy
+        filter:
+          - dummy
       fdr015:
         threshold: 0.15
         varlociraptor: 
           - "PRESENT"
-        filter: dummy
+        filter:
+          - dummy
       fdr02:
         threshold: 0.2
         varlociraptor: 
           - "PRESENT"
-        filter: dummy
+        filter:
+          - dummy
       fdr025:
         threshold: 0.25
         varlociraptor: 
           - "PRESENT"
-        filter: dummy
+        filter:
+          - dummy
       fdr03:
         threshold: 0.3
         varlociraptor: 
           - "PRESENT"
-        filter: dummy
+        filter:
+          - dummy
       fdr035:
         threshold: 0.35
         varlociraptor: 
           - "PRESENT"
-        filter: dummy
+        filter:
+          - dummy
       fdr04:
         threshold: 0.4
         varlociraptor: 
           - "PRESENT"
-        filter: dummy
+        filter:
+          - dummy
       fdr045:
         threshold: 0.45
         varlociraptor: 
           - "PRESENT"
-        filter: dummy
+        filter:
+          - dummy
       fdr10:
         threshold: 1.0
         varlociraptor:
           - "PRESENT"
-        filter: dummy
+        filter:
+          - dummy
 
 
 
