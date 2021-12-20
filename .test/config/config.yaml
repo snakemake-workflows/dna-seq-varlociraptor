@@ -49,8 +49,7 @@ calling:
       present:
         varlociraptor: 
           - present
-        filter:
-          - moderate
+        filter: moderate
 
 annotations:
   vcfs:

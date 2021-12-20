@@ -542,7 +542,12 @@ def get_filter_targets(wildcards, input):
 
 def get_annotation_filter(wildcards):
     filter = config["calling"]["fdr-control"]["events"][wildcards.event]["filter"]
-    return " and ".join(map(lambda x: config["calling"]["filter"][x], filter))
+    filter = (
+        [config["calling"]["filter"][filter]]
+        if isinstance(filter, str)
+        else map(lambda x: config["calling"]["filter"][x], filter)
+    )
+    return " and ".join(filter)
 
 
 wildcard_constraints:
