@@ -112,7 +112,9 @@ calling:
           # the FDR.
           - somatic_tumor_high
           - somatic_tumor_medium
-        filter: myfilter
+        filter: 
+          # Multiple filters can be defined which will be concatenated by an 'and'
+          - myfilter
 
 # If calc_consensus_reads is activated duplicates will be merged
 remove_duplicates:

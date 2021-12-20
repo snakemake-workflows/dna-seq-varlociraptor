@@ -119,9 +119,7 @@ def get_control_fdr_input(wildcards):
     query = get_fdr_control_params(wildcards)
     if not is_activated("benchmarking"):
         by = "ann" if query["local"] else "odds"
-        return "results/calls/{{group}}.{{event}}.filtered_{by}.bcf".format(
-            by=by
-        )
+        return "results/calls/{{group}}.{{event}}.filtered_{by}.bcf".format(by=by)
     else:
         return "results/calls/{group}.bcf"
 
@@ -541,11 +539,10 @@ def get_filter_targets(wildcards, input):
     else:
         return ""
 
+
 def get_annotation_filter(wildcards):
     filter = config["calling"]["fdr-control"]["events"][wildcards.event]["filter"]
     return " and ".join(map(lambda x: config["calling"]["filter"][x], filter))
-
-
 
 
 wildcard_constraints:
@@ -554,6 +551,7 @@ wildcard_constraints:
     caller="|".join(["freebayes", "delly"]),
     filter="|".join(config["calling"]["filter"]),
     event="|".join(config["calling"]["fdr-control"]["events"].keys()),
+
 
 caller = list(
     filter(
