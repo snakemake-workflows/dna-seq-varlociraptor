@@ -16,28 +16,50 @@ rule map_reads:
         "0.56.0/bio/bwa/mem"
 
 
+rule annotate_umis:
+    input:
+        bam="results/mapped/{sample}.sorted.bam",
+        umi=lambda wc: units.loc[wc.sample]["umis"][0],
+    output:
+        temp("results/mapped/{sample}.annotated.bam"),
+    resources:
+        mem_gb="10",
+    log:
+        "logs/fgbio/annotate_bam/{sample}.log",
+    wrapper:
+        "0.80.2/bio/fgbio/annotatebamwithumis"
+
+
 rule mark_duplicates:
     input:
-        "results/mapped/{sample}.sorted.bam",
+        lambda wc: "results/mapped/{sample}.sorted.bam"
+        if units.loc[wc.sample, "umis"].isnull().any()
+        else "results/mapped/{sample}.annotated.bam",
     output:
         bam=temp("results/dedup/{sample}.sorted.bam"),
         metrics="results/qc/dedup/{sample}.metrics.txt",
     log:
         "logs/picard/dedup/{sample}.log",
     params:
-        config["params"]["picard"]["MarkDuplicates"],
+        extra=lambda wc: "{c} {b} {d}".format(
+            c=config["params"]["picard"]["MarkDuplicates"],
+            b="" if units.loc[wc.sample]["umis"].isnull() else "BARCODE_TAG=RX",
+            d="TAG_DUPLICATE_SET_MEMBERS=true"
+            if is_activated("calc_consensus_reads")
+            else "",
+        ),
     wrapper:
-        "0.59.2/bio/picard/markduplicates"
+        "0.80.2/bio/picard/markduplicates"
 
 
 rule calc_consensus_reads:
     input:
         get_consensus_input,
     output:
-        consensus_r1="results/consensus/fastq/{sample}.1.fq",
-        consensus_r2="results/consensus/fastq/{sample}.2.fq",
-        consensus_se="results/consensus/fastq/{sample}.se.fq",
-        skipped="results/consensus/{sample}.skipped.bam",
+        consensus_r1=temp("results/consensus/fastq/{sample}.1.fq"),
+        consensus_r2=temp("results/consensus/fastq/{sample}.2.fq"),
+        consensus_se=temp("results/consensus/fastq/{sample}.se.fq"),
+        skipped=temp("results/consensus/{sample}.skipped.bam"),
     log:
         "logs/consensus/{sample}.log",
     conda:
@@ -51,7 +73,7 @@ rule map_consensus_reads:
         reads=get_processed_consensus_input,
         idx=rules.bwa_index.output,
     output:
-        "results/consensus/{sample}.consensus.{read_type}.mapped.bam",
+        temp("results/consensus/{sample}.consensus.{read_type}.mapped.bam"),
     params:
         index=lambda w, input: os.path.splitext(input.idx[0])[0],
         extra=lambda w: "-C {}".format(get_read_group(w)),
@@ -72,7 +94,7 @@ rule merge_consensus_reads:
         "results/consensus/{sample}.consensus.se.mapped.bam",
         "results/consensus/{sample}.consensus.pe.mapped.bam",
     output:
-        "results/consensus/{sample}.merged.bam",
+        temp("results/consensus/{sample}.merged.bam"),
     log:
         "logs/samtools_merge/{sample}.log",
     threads: 8
@@ -84,7 +106,7 @@ rule sort_consensus_reads:
     input:
         "results/consensus/{sample}.merged.bam",
     output:
-        "results/consensus/{sample}.sorted.bam",
+        temp("results/consensus/{sample}.sorted.bam"),
     log:
         "logs/samtools_sort/{sample}.log",
     threads: 8

@@ -1,0 +1,19 @@
+$schema: "http://json-schema.org/draft-04/schema#"
+description: row of the primer_panels.tsv, representing a primer panel, i.e. single-end or paired-end data
+type: object
+properties:
+  panel:
+    type: string
+    pattern: "^[a-zA-Z_0-9-]+$"
+    description: sample name/id the unit has been sequenced from (alphanumeric string, that may additionally contain '_' and '-')
+  fa1:
+    type: string
+    pattern: "^[^ \t]+$"
+    description: path to FASTA file (may not contain whitespace)
+  fa2:
+    type: string
+    description: path to second FASTA file (leave empty in case of single-end)
+
+required:
+  - panel
+  - fa1

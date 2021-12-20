@@ -24,7 +24,7 @@ primers:
     primers_fa2: "path/to/primer-fa2"
     # optional primer file allowing to define primers per sample
     # overwrites primers_fa1 and primers_fa2
-    # the primer file has three fields: panel, fa1 and fa2 (optional)
+    # the tsv file requires three fields: panel, fa1 and fa2 (optional)
     tsv: ""
     # Mean insert size between the outer primer ends.
     # If 0 or not set the bowtie default value of 250 will be used
@@ -112,13 +112,18 @@ calling:
           # the FDR.
           - somatic_tumor_high
           - somatic_tumor_medium
-        filter: myfilter
+        filter: # myfilter
+          # Add any number of filters here.
+          # A single filter can be set as string.
+          # Multiple filters can be defined as list and will be concatenated by 'and'
+          - myfilter
 
-# Will be ignored if calc_consensus_reads is activated
+# If calc_consensus_reads is activated duplicates will be merged
 remove_duplicates:
   activate: true
 
-# Experimental: calculate consensus reads from PCR duplicates
+# Experimental: calculate consensus reads from PCR duplicates.
+# if 'remove_duplicates' is deactivate only overlapping pairs will be merged
 calc_consensus_reads:
   activate: false
 

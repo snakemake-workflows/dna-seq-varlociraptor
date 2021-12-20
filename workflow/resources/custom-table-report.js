@@ -16,13 +16,13 @@ $(document).ready(function () {
         var polyphen_scores = []
         for (let j = 1; j <= ann_length; j++) {
             var transcript = $(that).data('ann[' + j + '][7]')
-            sift_score = $(that).data('ann[' + j + '][35]')
+            sift_score = $(that).data('ann[' + j + '][36]')
             if (sift_score != "" && sift_score !== undefined) {
                 sift_score = sift_score.split("(")[1].slice(0, -1)
                 sift_scores = parse_score(sift_scores, sift_score, "SIFT", transcript)
             }
 
-            polyphen_score = $(that).data('ann[' + j + '][36]')
+            polyphen_score = $(that).data('ann[' + j + '][37]')
             if (polyphen_score != "" && polyphen_score !== undefined) {
                 polyphen_score = polyphen_score.split("(")[1].slice(0, -1)
                 polyphen_scores = parse_score(polyphen_scores, polyphen_score, "PolyPhen", transcript)
