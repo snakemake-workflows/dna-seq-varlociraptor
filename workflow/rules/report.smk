@@ -14,7 +14,7 @@ rule vcf_report:
     params:
         bcfs=get_report_bcf_params,
         bams=get_report_bam_params,
-        format_field="DP AF OBS",
+        format_field="DP AF SOBS OBS AFD",
         max_read_depth=config["report"]["max_read_depth"],
         js_files="{math} {template}".format(
             math=get_resource("math.min.js"),
