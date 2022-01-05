@@ -43,7 +43,7 @@ rule mark_duplicates:
     params:
         extra=lambda wc: "{c} {b} {d}".format(
             c=config["params"]["picard"]["MarkDuplicates"],
-            b="" if units.loc[wc.sample]["umis"].isnull() else "BARCODE_TAG=RX",
+            b="" if units.loc[wc.sample]["umis"].isnull().any() else "BARCODE_TAG=RX",
             d="TAG_DUPLICATE_SET_MEMBERS=true"
             if is_activated("calc_consensus_reads")
             else "",
