@@ -10,5 +10,6 @@ with open(snakemake.input[0]) as template, open(snakemake.output[0], "w") as out
     out.write(
         Template(template.read()).render(
             samples=samples[samples["group"] == snakemake.wildcards.group]
+            trim_blocks=True,
         )
     )
