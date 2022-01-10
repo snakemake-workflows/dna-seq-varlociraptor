@@ -2,5 +2,5 @@ channels:
   - conda-forge
   - bioconda
 dependencies:
-  - varlociraptor =4.9
+  - varlociraptor =4.10
   - vega-lite-cli =3.4
