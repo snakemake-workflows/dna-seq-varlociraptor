@@ -9,7 +9,7 @@ with open(snakemake.input[0]) as template, open(snakemake.output[0], "w") as out
     samples = snakemake.params.samples
     out.write(
         Template(template.read()).render(
-            samples=samples[samples["group"] == snakemake.wildcards.group]
+            samples=samples[samples["group"] == snakemake.wildcards.group],
             trim_blocks=True,
         )
     )
