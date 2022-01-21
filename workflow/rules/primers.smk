@@ -76,7 +76,7 @@ rule bowtie_map:
                 r1=input.reads[0], r2=input.reads[1]
             )
             if isinstance(input.reads, list)
-            else "-f {}".format(input.reads)
+            else input.reads
         ),
         prefix="resources/bowtie_build/genome.fasta",
         insertsize=(
@@ -89,7 +89,7 @@ rule bowtie_map:
     conda:
         "../envs/bowtie.yaml"
     shell:
-        "bowtie {params.reads} -x {params.prefix} {params.insertsize} -S | samtools view -b - > {output} 2> {log}"
+        "bowtie {params.reads} -x {params.prefix} {params.insertsize} -f -S | samtools view -b - > {output} 2> {log}"
 
 
 rule filter_unmapped_primers:
