@@ -84,13 +84,13 @@ rule bowtie_map:
             if config["primers"]["trimming"].get("library_length", 0) != 0
             else ""
         ),
-        read_format=lambda wc, input: "-f" if input_is_fasta(input.primers) else "",
+        primer_format=lambda wc, input: "-f" if input_is_fasta(input.primers) else "",
     log:
         "logs/bowtie/{panel}_map.log",
     conda:
         "../envs/bowtie.yaml"
     shell:
-        "bowtie {params.primers} -x {params.prefix} {params.insertsize} {params.read_format} -S | samtools view -b - > {output} 2> {log}"
+        "bowtie {params.primers} -x {params.prefix} {params.insertsize} {params.primer_format} -S | samtools view -b - > {output} 2> {log}"
 
 
 rule filter_unmapped_primers:
@@ -101,7 +101,7 @@ rule filter_unmapped_primers:
     params:
         extra=(
             lambda wc: "-b -f 2"
-            if isinstance(get_panel_primer_fastas(wc.panel), list)
+            if isinstance(get_panel_primer_input(wc.panel), list)
             else "-b -F 4"
         ),
     log:
