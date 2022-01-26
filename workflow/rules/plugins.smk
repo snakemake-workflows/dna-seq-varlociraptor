@@ -17,9 +17,9 @@ rule process_revel_scores:
     shell:
         """
         tmpfile=$(mktemp {resources.tmpdir}/revel_scores.XXXXXX)
-        unzip -p {input} | tr "," "\t" | sed '1s/.*/#&/' | bgzip -c > $tmpfile
+        unzip -p {input} | tr "," "\t" | sed '1s/.*/#&/' | gzip -c > $tmpfile
         if [ "{wildcards.ref}" == "GRCh38" ] ; then
-            zgrep -h -v ^#chr $tmpfile | awk '$3 != "." ' | sort -k1,1 -k3,3n - | cat <(zcat $tmpfile | head -n1) - | bgzip -c > {output}
+            zgrep -h -v ^#chr $tmpfile | awk '$3 != "." ' | sort -k1,1 -k3,3n - | cat <(zcat $tmpfile | head -n1) - | gzip -c > {output}
         elif [ "{wildcards.ref}" == "GRCh37" ] ; then
             cat $tmpfile > {output}
         else
