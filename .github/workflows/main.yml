@@ -29,6 +29,7 @@ jobs:
       with:
         directory: .
         snakefile: workflow/Snakefile
+        stagein: "mamba install fastparquet"
         args: "--lint"
 
   Testing:
