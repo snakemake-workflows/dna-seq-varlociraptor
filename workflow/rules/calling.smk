@@ -10,7 +10,7 @@ rule render_scenario:
     log:
         "logs/render-scenario/{group}.log",
     params:
-        samples=samples,
+        samples=samples.to_parquet(),
     conda:
         "../envs/render_scenario.yaml"
     script:
