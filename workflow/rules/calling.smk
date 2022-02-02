@@ -1,3 +1,5 @@
+import fastparquet
+
 rule render_scenario:
     input:
         local(config["calling"]["scenario"]),
