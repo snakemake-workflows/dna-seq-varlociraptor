@@ -35,11 +35,7 @@ rule trim_primers:
         trimmed="results/trimmed/{sample}.trimmed.bam",
     params:
         sort_order="Coordinate",
-        single_primer=lambda w: (
-            "--first-of-pair"
-            if not isinstance(get_sample_primer_fastas(w.sample), list)
-            else ""
-        ),
+        single_primer=get_single_primer_flag,
     conda:
         "../envs/fgbio.yaml"
     log:
@@ -71,19 +67,9 @@ rule bowtie_map:
     output:
         "results/primers/{panel}_primers.bam",
     params:
-        primers=(
-            lambda wc, input: "-1 {r1} -2 {r2}".format(
-                r1=input.primers[0], r2=input.primers[1]
-            )
-            if isinstance(input.primers, list)
-            else input.primers
-        ),
+        primers=lambda wc, input: format_bowtie_primers(wc, input.primers),
         prefix="resources/bowtie_build/genome.fasta",
-        insertsize=(
-            "-X {}".format(config["primers"]["trimming"].get("library_length"))
-            if config["primers"]["trimming"].get("library_length", 0) != 0
-            else ""
-        ),
+        insertsize=get_bowtie_insertsize(),
         primer_format=lambda wc, input: "-f" if input_is_fasta(input.primers) else "",
     log:
         "logs/bowtie/{panel}_map.log",
@@ -99,11 +85,7 @@ rule filter_unmapped_primers:
     output:
         "results/primers/{panel}_primers.filtered.bam",
     params:
-        extra=(
-            lambda wc: "-b -f 2"
-            if isinstance(get_panel_primer_input(wc.panel), list)
-            else "-b -F 4"
-        ),
+        extra=get_filter_params,
     log:
         "logs/primers/{panel}_primers_filtered.log",
     wrapper:
