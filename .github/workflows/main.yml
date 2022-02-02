@@ -44,6 +44,7 @@ jobs:
       with:
         directory: .test
         snakefile: workflow/Snakefile
+        stagein: "mamba install fastparquet"
         args: "--use-conda --show-failed-logs -j 10 --conda-cleanup-pkgs cache --conda-frontend mamba"
 
     - name: Test workflow (local FASTQs, target regions)
