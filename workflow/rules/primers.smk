@@ -66,17 +66,17 @@ rule bowtie_build:
 
 rule bowtie_map:
     input:
-        reads=lambda w: get_panel_primer_fastas(w.panel),
+        primers=lambda w: get_panel_primer_input(w.panel),
         idx="resources/bowtie_build",
     output:
         "results/primers/{panel}_primers.bam",
     params:
-        reads=(
+        primers=(
             lambda wc, input: "-1 {r1} -2 {r2}".format(
-                r1=input.reads[0], r2=input.reads[1]
+                r1=input.primers[0], r2=input.primers[1]
             )
-            if isinstance(input.reads, list)
-            else "-f {}".format(input.reads)
+            if isinstance(input.primers, list)
+            else input.primers
         ),
         prefix="resources/bowtie_build/genome.fasta",
         insertsize=(
@@ -84,12 +84,13 @@ rule bowtie_map:
             if config["primers"]["trimming"].get("library_length", 0) != 0
             else ""
         ),
+        primer_format=lambda wc, input: "-f" if input_is_fasta(input.primers) else "",
     log:
         "logs/bowtie/{panel}_map.log",
     conda:
         "../envs/bowtie.yaml"
     shell:
-        "bowtie {params.reads} -x {params.prefix} {params.insertsize} -S | samtools view -b - > {output} 2> {log}"
+        "bowtie {params.primers} -x {params.prefix} {params.insertsize} {params.primer_format} -S | samtools view -b - > {output} 2> {log}"
 
 
 rule filter_unmapped_primers:
@@ -100,7 +101,7 @@ rule filter_unmapped_primers:
     params:
         extra=(
             lambda wc: "-b -f 2"
-            if isinstance(get_panel_primer_fastas(wc.panel), list)
+            if isinstance(get_panel_primer_input(wc.panel), list)
             else "-b -F 4"
         ),
     log:

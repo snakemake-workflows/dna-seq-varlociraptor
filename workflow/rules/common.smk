@@ -288,7 +288,7 @@ def get_sample_primer_fastas(sample):
         return config["primers"]["trimming"]["primers_fa1"]
 
 
-def get_panel_primer_fastas(panel):
+def get_panel_primer_input(panel):
     if panel == "uniform":
         if config["primers"]["trimming"].get("primers_fa2", ""):
             return [
@@ -301,6 +301,12 @@ def get_panel_primer_fastas(panel):
         if not pd.isna(panel["fa2"]):
             return [panel["fa1"], panel["fa2"]]
         return panel["fa1"]
+
+
+def input_is_fasta(primers):
+    primers = primers[0] if isinstance(primers, list) else primers
+    fasta_suffixes = ("fasta", "fa")
+    return True if primers.endswith(fasta_suffixes) else False
 
 
 def get_primer_regions(wc):
