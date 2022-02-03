@@ -20,17 +20,17 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           VALIDATE_SNAKEMAKE_SNAKEFMT: true
 
-  Linting:
-    runs-on: ubuntu-latest
-    steps:
-    - uses: actions/checkout@v2
-    - name: Lint workflow
-      uses: snakemake/snakemake-github-action@v1.24.0
-      with:
-        directory: .
-        snakefile: workflow/Snakefile
-        stagein: "mamba install -y --channel conda-forge fastparquet=0.8.0; conda list;"
-        args: "--lint"
+#  Linting:
+#    runs-on: ubuntu-latest
+#    steps:
+#    - uses: actions/checkout@v2
+#    - name: Lint workflow
+#      uses: snakemake/snakemake-github-action@v1.24.0
+#      with:
+#        directory: .
+#        snakefile: workflow/Snakefile
+#        stagein: "mamba install -y --channel conda-forge fastparquet=0.8.0; conda list;"
+#        args: "--lint"
 
   Testing:
     runs-on: ubuntu-latest
