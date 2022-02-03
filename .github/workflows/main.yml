@@ -29,7 +29,7 @@ jobs:
       with:
         directory: .
         snakefile: workflow/Snakefile
-        stagein: "mamba install -y fastparquet; conda list;"
+        stagein: "mamba install -y --channel conda-forge fastparquet=0.8.0; conda list;"
         args: "--lint"
 
   Testing:
@@ -45,7 +45,7 @@ jobs:
       with:
         directory: .test
         snakefile: workflow/Snakefile
-        stagein: "mamba install -y fastparquet; conda list;"
+        stagein: "mamba install -y --channel conda-forge fastparquet=0.8.0; conda list;"
         args: "--use-conda --show-failed-logs -j 10 --conda-cleanup-pkgs cache --conda-frontend mamba"
 
     - name: Test workflow (local FASTQs, target regions)
