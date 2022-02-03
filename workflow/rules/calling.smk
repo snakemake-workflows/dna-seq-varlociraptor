@@ -1,6 +1,3 @@
-import fastparquet
-
-
 rule render_scenario:
     input:
         local(config["calling"]["scenario"]),
@@ -13,7 +10,7 @@ rule render_scenario:
     log:
         "logs/render-scenario/{group}.log",
     params:
-        samples=samples.to_parquet(),
+        samples=samples.to_parquet(engine="fastparquet"),
     conda:
         "../envs/render_scenario.yaml"
     script:
