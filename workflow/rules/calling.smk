@@ -1,3 +1,9 @@
+import io
+
+
+samples_parquet_bytes = io.BytesIO()
+samples.to_parquet(samples_parquet_bytes, engine="pyarrow")
+
 rule render_scenario:
     input:
         local(config["calling"]["scenario"]),
@@ -10,7 +16,7 @@ rule render_scenario:
     log:
         "logs/render-scenario/{group}.log",
     params:
-        samples=samples.to_parquet(index=False, engine="fastparquet"),
+        samples=samples_parquet_bytes,
     conda:
         "../envs/render_scenario.yaml"
     script:
