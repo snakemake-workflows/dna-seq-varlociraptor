@@ -10,7 +10,7 @@ rule render_scenario:
     log:
         "logs/render-scenario/{group}.log",
     params:
-        samples=samples.to_parquet(engine="fastparquet"),
+        samples=samples.to_parquet(index=False, engine="fastparquet"),
     conda:
         "../envs/render_scenario.yaml"
     script:
