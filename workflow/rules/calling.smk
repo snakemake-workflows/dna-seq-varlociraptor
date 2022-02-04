@@ -18,8 +18,7 @@ rule render_scenario:
         "logs/render-scenario/{group}.log",
     params:
         samples=samples_parquet_bytes,
-    conda:
-        "../envs/render_scenario.yaml"
+    conda: none
     script:
         "../scripts/render-scenario.py"
 
