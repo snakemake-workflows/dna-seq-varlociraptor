@@ -1,10 +1,6 @@
 import io
 
 
-samples_parquet_bytes = io.BytesIO()
-samples.to_parquet(samples_parquet_bytes, engine="pyarrow")
-
-
 rule render_scenario:
     input:
         local(config["calling"]["scenario"]),
