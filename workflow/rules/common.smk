@@ -678,7 +678,7 @@ def get_filter_params(wc):
 
 
 def get_single_primer_flag(wc):
-    if not isinstance(get_sample_primer_fastas(w.sample), list):
+    if not isinstance(get_sample_primer_fastas(wc.sample), list):
         return "--first-of-pair"
     return ""
 
