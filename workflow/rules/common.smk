@@ -634,7 +634,7 @@ def get_vembrane_expression(wc):
     if config["tables"].get("output", {}).get("event_prob", False):
         parts.append(
             ", ".join(
-                f"1-10**(-INFO['PROB_{x.upper()}']/10)"
+                f"10**(-INFO['PROB_{x.upper()}']/10)"
                 for x in config["calling"]["fdr-control"]["events"][wc.event][
                     "varlociraptor"
                 ]

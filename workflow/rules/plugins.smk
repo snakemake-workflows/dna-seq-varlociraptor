@@ -14,6 +14,8 @@ rule process_revel_scores:
         "resources/{ref}_revel_scores.tsv.gz",
     log:
         "logs/vep_plugins/process_{ref}_revel_scores.log",
+    conda:
+        "../envs/htslib.yaml"
     shell:
         """
         tmpfile=$(mktemp {resources.tmpdir}/revel_scores.XXXXXX)
