@@ -657,3 +657,33 @@ def get_vembrane_expression(wc):
 
 def get_sample_alias(wildcards):
     return samples.loc[wildcards.sample, "alias"]
+
+
+def get_dgidb_datasources():
+    if config["annotations"]["dgidb"].get("datasources", ""):
+        return "-s {}".format(" ".join(config["annotations"]["dgidb"]["datasources"]))
+    return ""
+
+
+def get_bowtie_insertsize():
+    if config["primers"]["trimming"].get("library_length", 0) != 0:
+        return "-X {}".format(config["primers"]["trimming"].get("library_length"))
+    return ""
+
+
+def get_filter_params(wc):
+    if isinstance(get_panel_primer_input(wc.panel), list):
+        return "-b -f 2"
+    return "-b -F 4"
+
+
+def get_single_primer_flag(wc):
+    if not isinstance(get_sample_primer_fastas(wc.sample), list):
+        return "--first-of-pair"
+    return ""
+
+
+def format_bowtie_primers(wc, primers):
+    if isinstance(primers, list):
+        return "-1 {r1} -2 {r2}".format(r1=primers[0], r2=primers[1])
+    return primers
