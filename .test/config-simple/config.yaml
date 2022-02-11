@@ -1,6 +1,6 @@
-samples: config/samples.tsv
+samples: config-simple/samples.tsv
 
-units: config/units.tsv
+units: config-simple/units.tsv
 
 ref:
   # Number of chromosomes to consider for calling.
