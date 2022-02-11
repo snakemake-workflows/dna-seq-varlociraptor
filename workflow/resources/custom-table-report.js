@@ -1,10 +1,12 @@
 let score_thresholds = {}
 score_thresholds["PolyPhen"] = { "Benign": [0, 0.149], "Possibly Damaging": [0.15, 0.849], "Probably Damaging": [0.85, 1] }
 score_thresholds["SIFT"] = {"Benign": [0, 0.05], "Damaging": [0.051, 1] }
+score_thresholds["REVEL"] = {"Malign": [0, 0.5], "Benign": [0.501, 1]}
 
 let score_scales = {}
 score_scales["SIFT"] = { "colors": ["#2ba6cb", "#ff5555"], "entries": ["Benign", "Damaging"] }
 score_scales["PolyPhen"] = { "colors": ["#2ba6cb", "#ffa3a3", "#ff5555"], "entries": ["Benign", "Possibly Damaging", "Probably Damaging"] }
+score_scales["REVEL"] = { "colors": ["#2ba6cb", "#ff5555"], "entries": ["Benign", "Malign"] }
 
 $(document).ready(function () {
     $("html").on('click', '.variant-row', function () {
@@ -14,18 +16,24 @@ $(document).ready(function () {
         $('#ann-sidebar').append('<th class="thead-dark" style="position: sticky; left:-1px; z-index: 1; background: white">Linkouts</th>');
         var sift_scores = []
         var polyphen_scores = []
+        var revel_scores = []
         for (let j = 1; j <= ann_length; j++) {
             var transcript = $(that).data('ann[' + j + '][7]')
-            sift_score = $(that).data('ann[' + j + '][37]')
+            sift_score = $(that).data('ann[' + j + '][36]')
             if (sift_score != "" && sift_score !== undefined) {
                 sift_score = sift_score.split("(")[1].slice(0, -1)
                 sift_scores = parse_score(sift_scores, sift_score, "SIFT", transcript)
             }
 
-            polyphen_score = $(that).data('ann[' + j + '][38]')
+            polyphen_score = $(that).data('ann[' + j + '][37]')
             if (polyphen_score != "" && polyphen_score !== undefined) {
                 polyphen_score = polyphen_score.split("(")[1].slice(0, -1)
                 polyphen_scores = parse_score(polyphen_scores, polyphen_score, "PolyPhen", transcript)
+            }
+
+            revel_score = $(that).data('ann[' + j + '][71]')
+            if (revel_score != "" && revel_score !== undefined) {
+                revel_scores = parse_score(revel_scores, revel_score, "REVEL", transcript)
             }
 
             var linkout_button = true
@@ -375,6 +383,12 @@ $(document).ready(function () {
             plotScores("PolyPhen", polyphen_scores, "PolyPhenScores")
         }
 
+        if (revel_scores.length > 0) {
+            $('#custom-sidebar').append('<div id="REVELScores">');
+            $('#custom-sidebar').append('</div>');
+            plotScores("REVEL", revel_scores, "REVELScores")
+        }
+
 
         function parse_score(scores, variant_value, score_type, transcript) {
             if (score_type == "SIFT") {
@@ -395,7 +409,6 @@ $(document).ready(function () {
             }
             return scores
         }
-
 
 
         function build_effect_bins(name, score) {
@@ -453,7 +466,7 @@ $(document).ready(function () {
         }
 
         function plotScores(score_type, scores, cell_id) {
-            var x_title = {"SIFT": "1-score", "PolyPhen": "Score"}
+            var x_title = {"SIFT": "1-score", "PolyPhen": "Score", "REVEL": "Score"}
             var ScoreSpec = {
                 "$schema": "https://vega.github.io/schema/vega-lite/v3.json",
                 "title": score_type,
