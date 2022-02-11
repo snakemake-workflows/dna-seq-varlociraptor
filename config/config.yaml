@@ -12,7 +12,7 @@ ref:
   # Ensembl species name
   species: homo_sapiens
   # Ensembl release
-  release: 100
+  release: 105
   # Genome build
   build: GRCh38
 
@@ -149,6 +149,7 @@ annotations:
       # Add any plugin from https://www.ensembl.org/info/docs/tools/vep/script/vep_plugins.html
       # Plugin args can be passed as well, e.g. "LoFtool,path/to/custom/scores.txt".
       - LoFtool
+      - REVEL
 
 params:
   cutadapt: ""
