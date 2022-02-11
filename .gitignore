@@ -18,3 +18,4 @@
 !.travis.yml
 !.test
 !.test/data
+.DS_Store
