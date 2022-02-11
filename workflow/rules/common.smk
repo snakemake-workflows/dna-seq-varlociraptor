@@ -103,9 +103,9 @@ primer_panels = (
 def get_gather_calls_input(ext="bcf"):
     def inner(wildcards):
         if wildcards.by == "odds":
-            pattern = "results/calls/{{{{group}}}}.{{{{event}}}}.{{{{filter}}}}.{{scatteritem}}.filtered_odds.{ext}"
+            pattern = "results/calls/{{{{group}}}}.{{{{event}}}}.{{scatteritem}}.filtered_odds.{ext}"
         elif wildcards.by == "ann":
-            pattern = "results/calls/{{{{group}}}}.{{{{filter}}}}.{{scatteritem}}.filtered_ann.{ext}"
+            pattern = "results/calls/{{{{group}}}}.{{{{event}}}}.{{scatteritem}}.filtered_ann.{ext}"
         else:
             raise ValueError(
                 "Unexpected wildcard value for 'by': {}".format(wildcards.by)
@@ -119,9 +119,7 @@ def get_control_fdr_input(wildcards):
     query = get_fdr_control_params(wildcards)
     if not is_activated("benchmarking") and query["filter"]:
         by = "ann" if query["local"] else "odds"
-        return "results/calls/{{group}}.{{event}}.{{filter}}.filtered_{by}.bcf".format(
-            by=by
-        )
+        return "results/calls/{{group}}.{{event}}.filtered_{by}.bcf".format(by=by)
     else:
         return "results/calls/{group}.bcf"
 
@@ -274,7 +272,7 @@ def get_primer_bed(wc):
 
 def get_sample_primer_fastas(sample):
     if isinstance(primer_panels, pd.DataFrame):
-        panel = samples.loc[sample, "primer_panel"]
+        panel = samples.loc[sample, "panel"]
         if not pd.isna(primer_panels.loc[panel, "fa2"]):
             return [
                 primer_panels.loc[panel, "fa1"],
@@ -290,7 +288,7 @@ def get_sample_primer_fastas(sample):
         return config["primers"]["trimming"]["primers_fa1"]
 
 
-def get_panel_primer_fastas(panel):
+def get_panel_primer_input(panel):
     if panel == "uniform":
         if config["primers"]["trimming"].get("primers_fa2", ""):
             return [
@@ -305,10 +303,16 @@ def get_panel_primer_fastas(panel):
         return panel["fa1"]
 
 
+def input_is_fasta(primers):
+    primers = primers[0] if isinstance(primers, list) else primers
+    fasta_suffixes = ("fasta", "fa")
+    return True if primers.endswith(fasta_suffixes) else False
+
+
 def get_primer_regions(wc):
     if isinstance(primer_panels, pd.DataFrame):
         return "results/primers/{}_primer_regions.tsv".format(
-            samples.loc[wc.sample, "primer_panel"]
+            samples.loc[wc.sample, "panel"]
         )
     return "results/primers/uniform_primer_regions.tsv"
 
@@ -486,24 +490,12 @@ def get_report_batch(wildcards):
 def get_merge_calls_input(ext="bcf"):
     def inner(wildcards):
         return expand(
-            "results/calls/{{group}}.{vartype}.{{event}}.{filter}.fdr-controlled.{ext}",
+            "results/calls/{{group}}.{vartype}.{{event}}.fdr-controlled.{ext}",
             ext=ext,
             vartype=["SNV", "INS", "DEL", "MNV", "BND", "INV", "DUP", "REP"],
-            filter=config["calling"]["fdr-control"]["events"][wildcards.event][
-                "filter"
-            ],
         )
 
     return inner
-
-
-def get_merge_calls_input_report(wildcards, ext="bcf"):
-    return expand(
-        "{{group}}.{vartype}.{{event}}.{filter}=results/calls/{{group}}.{vartype}.{{event}}.{filter}.fdr-controlled.{ext}",
-        ext=ext,
-        vartype=["SNV", "INS", "DEL", "MNV", "BND", "INV", "DUP", "REP"],
-        filter=config["calling"]["fdr-control"]["events"][wildcards.event]["filter"],
-    )
 
 
 def get_vep_threads():
@@ -512,6 +504,16 @@ def get_vep_threads():
         return max(workflow.cores / n, 1)
     else:
         return 1
+
+
+def get_plugin_aux(plugin, index=False):
+    if plugin in config["annotations"]["vep"]["plugins"]:
+        if plugin == "REVEL":
+            suffix = ".tbi" if index else ""
+            return "resources/{build}_revel_scores.tsv.gz{suffix}".format(
+                build=config["ref"]["build"], suffix=suffix
+            )
+    return []
 
 
 def get_fdr_control_params(wildcards):
@@ -549,11 +551,22 @@ def get_filter_targets(wildcards, input):
         return ""
 
 
+def get_annotation_filter(wildcards):
+    filter = config["calling"]["fdr-control"]["events"][wildcards.event]["filter"]
+    filter = (
+        [config["calling"]["filter"][filter]]
+        if isinstance(filter, str)
+        else map(lambda x: config["calling"]["filter"][x], filter)
+    )
+    return " and ".join(filter)
+
+
 wildcard_constraints:
     group="|".join(samples["group"].unique()),
     sample="|".join(samples["sample_name"]),
     caller="|".join(["freebayes", "delly"]),
     filter="|".join(config["calling"]["filter"]),
+    event="|".join(config["calling"]["fdr-control"]["events"].keys()),
 
 
 caller = list(
@@ -599,6 +612,8 @@ def get_tabix_params(wildcards):
         return "-p vcf"
     if wildcards.format == "txt":
         return "-s 1 -b 2 -e 2"
+    if wildcards.format == "tsv":
+        return "-f -s 1 -b 3 -e 3"
     raise ValueError("Invalid format for tabix: {}".format(wildcards.format))
 
 
@@ -624,7 +639,7 @@ def get_vembrane_expression(wc):
     if config["tables"].get("output", {}).get("event_prob", False):
         parts.append(
             ", ".join(
-                f"1-10**(-INFO['PROB_{x.upper()}']/10)"
+                f"10**(-INFO['PROB_{x.upper()}']/10)"
                 for x in config["calling"]["fdr-control"]["events"][wc.event][
                     "varlociraptor"
                 ]
@@ -647,3 +662,33 @@ def get_vembrane_expression(wc):
 
 def get_sample_alias(wildcards):
     return samples.loc[wildcards.sample, "alias"]
+
+
+def get_dgidb_datasources():
+    if config["annotations"]["dgidb"].get("datasources", ""):
+        return "-s {}".format(" ".join(config["annotations"]["dgidb"]["datasources"]))
+    return ""
+
+
+def get_bowtie_insertsize():
+    if config["primers"]["trimming"].get("library_length", 0) != 0:
+        return "-X {}".format(config["primers"]["trimming"].get("library_length"))
+    return ""
+
+
+def get_filter_params(wc):
+    if isinstance(get_panel_primer_input(wc.panel), list):
+        return "-b -f 2"
+    return "-b -F 4"
+
+
+def get_single_primer_flag(wc):
+    if not isinstance(get_sample_primer_fastas(wc.sample), list):
+        return "--first-of-pair"
+    return ""
+
+
+def format_bowtie_primers(wc, primers):
+    if isinstance(primers, list):
+        return "-1 {r1} -2 {r2}".format(r1=primers[0], r2=primers[1])
+    return primers

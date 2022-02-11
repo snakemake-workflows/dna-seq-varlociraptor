@@ -17,7 +17,11 @@ definitions:
         items: 
           type: string
       filter:
-        type: string
+        anyOf:
+          - type: string
+          - type: array
+            items:
+              type: string
       local:
         type: boolean
       threshold:

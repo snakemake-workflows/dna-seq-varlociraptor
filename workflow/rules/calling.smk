@@ -1,3 +1,6 @@
+import io
+
+
 rule render_scenario:
     input:
         local(config["calling"]["scenario"]),
@@ -12,7 +15,7 @@ rule render_scenario:
     params:
         samples=samples,
     conda:
-        "../envs/render_scenario.yaml"
+        None
     script:
         "../scripts/render-scenario.py"
 

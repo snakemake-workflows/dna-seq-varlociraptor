@@ -35,11 +35,7 @@ rule trim_primers:
         trimmed="results/trimmed/{sample}.trimmed.bam",
     params:
         sort_order="Coordinate",
-        single_primer=lambda w: (
-            "--first-of-pair"
-            if not isinstance(get_sample_primer_fastas(w.sample), list)
-            else ""
-        ),
+        single_primer=get_single_primer_flag,
     conda:
         "../envs/fgbio.yaml"
     log:
@@ -66,30 +62,21 @@ rule bowtie_build:
 
 rule bowtie_map:
     input:
-        reads=lambda w: get_panel_primer_fastas(w.panel),
+        primers=lambda w: get_panel_primer_input(w.panel),
         idx="resources/bowtie_build",
     output:
         "results/primers/{panel}_primers.bam",
     params:
-        reads=(
-            lambda wc, input: "-1 {r1} -2 {r2}".format(
-                r1=input.reads[0], r2=input.reads[1]
-            )
-            if isinstance(input.reads, list)
-            else "-f {}".format(input.reads)
-        ),
+        primers=lambda wc, input: format_bowtie_primers(wc, input.primers),
         prefix="resources/bowtie_build/genome.fasta",
-        insertsize=(
-            "-X {}".format(config["primers"]["trimming"].get("library_length"))
-            if config["primers"]["trimming"].get("library_length", 0) != 0
-            else ""
-        ),
+        insertsize=get_bowtie_insertsize(),
+        primer_format=lambda wc, input: "-f" if input_is_fasta(input.primers) else "",
     log:
         "logs/bowtie/{panel}_map.log",
     conda:
         "../envs/bowtie.yaml"
     shell:
-        "bowtie {params.reads} -x {params.prefix} {params.insertsize} -S | samtools view -b - > {output} 2> {log}"
+        "bowtie {params.primers} -x {params.prefix} {params.insertsize} {params.primer_format} -S | samtools view -b - > {output} 2> {log}"
 
 
 rule filter_unmapped_primers:
@@ -98,11 +85,7 @@ rule filter_unmapped_primers:
     output:
         "results/primers/{panel}_primers.filtered.bam",
     params:
-        extra=(
-            lambda wc: "-b -f 2"
-            if isinstance(get_panel_primer_fastas(wc.panel), list)
-            else "-b -F 4"
-        ),
+        extra=get_filter_params,
     log:
         "logs/primers/{panel}_primers_filtered.log",
     wrapper:

@@ -1,10 +1,12 @@
 let score_thresholds = {}
 score_thresholds["PolyPhen"] = { "Benign": [0, 0.149], "Possibly Damaging": [0.15, 0.849], "Probably Damaging": [0.85, 1] }
 score_thresholds["SIFT"] = {"Benign": [0, 0.05], "Damaging": [0.051, 1] }
+score_thresholds["REVEL"] = {"Malign": [0, 0.5], "Benign": [0.501, 1]}
 
 let score_scales = {}
 score_scales["SIFT"] = { "colors": ["#2ba6cb", "#ff5555"], "entries": ["Benign", "Damaging"] }
 score_scales["PolyPhen"] = { "colors": ["#2ba6cb", "#ffa3a3", "#ff5555"], "entries": ["Benign", "Possibly Damaging", "Probably Damaging"] }
+score_scales["REVEL"] = { "colors": ["#2ba6cb", "#ff5555"], "entries": ["Benign", "Malign"] }
 
 $(document).ready(function () {
     $("html").on('click', '.variant-row', function () {
@@ -14,18 +16,24 @@ $(document).ready(function () {
         $('#ann-sidebar').append('<th class="thead-dark" style="position: sticky; left:-1px; z-index: 1; background: white">Linkouts</th>');
         var sift_scores = []
         var polyphen_scores = []
+        var revel_scores = []
         for (let j = 1; j <= ann_length; j++) {
             var transcript = $(that).data('ann[' + j + '][7]')
-            sift_score = $(that).data('ann[' + j + '][35]')
+            sift_score = $(that).data('ann[' + j + '][36]')
             if (sift_score != "" && sift_score !== undefined) {
                 sift_score = sift_score.split("(")[1].slice(0, -1)
                 sift_scores = parse_score(sift_scores, sift_score, "SIFT", transcript)
             }
 
-            polyphen_score = $(that).data('ann[' + j + '][36]')
+            polyphen_score = $(that).data('ann[' + j + '][37]')
             if (polyphen_score != "" && polyphen_score !== undefined) {
                 polyphen_score = polyphen_score.split("(")[1].slice(0, -1)
                 polyphen_scores = parse_score(polyphen_scores, polyphen_score, "PolyPhen", transcript)
+            }
+
+            revel_score = $(that).data('ann[' + j + '][71]')
+            if (revel_score != "" && revel_score !== undefined) {
+                revel_scores = parse_score(revel_scores, revel_score, "REVEL", transcript)
             }
 
             var linkout_button = true
@@ -209,9 +217,10 @@ $(document).ready(function () {
             vegaEmbed('#Prob', probSpec);
         }
 
-        var regex = /([0-9]+)(N|B|P|S|V|n|b|p|s|v)(s|p)(\+|\-|\*)(\>|\<|\*|\!)/g;
+        var regex = /([0-9]+)(N|E|B|P|S|V|n|e|b|p|s|v)(s|p)(\#|\*|\.)(\+|\-|\*)(\>|\<|\*|\!)(\^|\*)(\$|\.)(\*|\.)/g;
         var effects = {
             "N": "None",
+            "E": "Equal",
             "B": "Barely",
             "P": "Positive",
             "S": "Strong",
@@ -226,7 +235,7 @@ $(document).ready(function () {
         }
         $.each($(this).data("format")["OBS"], function(sample_name, observation) {
             while ((result = regex.exec(observation)) != null) {
-                strand = result[4].replace("*", "±")
+                strand = result[5].replace("*", "±")
                 effect = effects[result[2].toUpperCase()]
                 var quality = "Low mapping quality";
                 if (result[2] == result[2].toUpperCase()) {
@@ -235,11 +244,11 @@ $(document).ready(function () {
                 observations.push({
                     "sample": sample_name,
                     "strand": strand,
-                    "strand_orientation": strand + ' ' + orientation[result[5]],
+                    "strand_orientation": strand + ' ' + orientation[result[6]],
                     "effect": effect,
                     "times": parseFloat(result[1]),
                     "quality": quality,
-                    "orientation": orientation[result[5]]
+                    "orientation": orientation[result[6]]
                 })
             }
         })
@@ -307,9 +316,20 @@ $(document).ready(function () {
         }
 
         var binom_dist = []
-        af = $(this).data("format")["DP"]
-        $.each($(this).data("format")["AF"], function(sample_name, allele_frequency) {
-            binom_dist = binom_dist.concat(calcBinomDist(parseFloat(allele_frequency), af[sample_name][0], sample_name));
+        $.each($(this).data("format")["AFD"], function(sample_name, afd_string) {
+            if (afd_string !== undefined) {
+                var allele_frequency_distribution = afd_string.split(',')
+                for (let dist_idx in allele_frequency_distribution) {
+                    var values = allele_frequency_distribution[dist_idx].split('=')
+                    var frequency = values[0]
+                    var posterior_density = Math.pow(10, (-values[1]/10))
+                    binom_dist.push({
+                        "frequency": frequency,
+                        "binomProb": posterior_density,
+                        "sample": sample_name
+                    });
+                }
+            }
         })
         if (binom_dist.length > 0) {
             $('#custom-sidebar').append('<div id="AlleleFreq">');
@@ -319,10 +339,7 @@ $(document).ready(function () {
                 "data": {
                     values: binom_dist
                 },
-                "mark": {
-                    "type": "line",
-                    "interpolate": "linear"
-                },
+                "mark": "point",
                 "encoding": {
                     "column": {
                         "field": "sample",
@@ -337,7 +354,8 @@ $(document).ready(function () {
                     "y": {
                         "field": "binomProb",
                         "type": "quantitative",
-                        "title": "Density"
+                        "title": "Density",
+                        "scale": {"type": "log"}
                     },
                     "tooltip": [{
                         "field": "binomProb",
@@ -365,20 +383,10 @@ $(document).ready(function () {
             plotScores("PolyPhen", polyphen_scores, "PolyPhenScores")
         }
 
-        function calcBinomDist(alleleFreq, coverage, sample_name) {
-            var binomValues = [];
-            var frequency = 0.01;
-            var k = Math.round(alleleFreq * coverage);
-            while (frequency < 1) {
-                var prob_binom = Math.exp(((coverage+0.5)*Math.log(coverage)-(k+0.5)*Math.log(k)-(coverage-k+0.5)*Math.log(coverage-k)-0.5*Math.log(2*Math.PI)) + (Math.log(frequency)*k) + (Math.log(1 - frequency)*(coverage - k)))
-                binomValues.push({
-                    "frequency": frequency,
-                    "binomProb": prob_binom,
-                    "sample": sample_name
-                });
-                frequency += 0.01;
-            }
-            return binomValues;
+        if (revel_scores.length > 0) {
+            $('#custom-sidebar').append('<div id="REVELScores">');
+            $('#custom-sidebar').append('</div>');
+            plotScores("REVEL", revel_scores, "REVELScores")
         }
 
 
@@ -401,7 +409,6 @@ $(document).ready(function () {
             }
             return scores
         }
-
 
 
         function build_effect_bins(name, score) {
@@ -459,7 +466,7 @@ $(document).ready(function () {
         }
 
         function plotScores(score_type, scores, cell_id) {
-            var x_title = {"SIFT": "1-score", "PolyPhen": "Score"}
+            var x_title = {"SIFT": "1-score", "PolyPhen": "Score", "REVEL": "Score"}
             var ScoreSpec = {
                 "$schema": "https://vega.github.io/schema/vega-lite/v3.json",
                 "title": score_type,

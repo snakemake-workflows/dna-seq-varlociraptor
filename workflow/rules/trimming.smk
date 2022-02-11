@@ -59,7 +59,7 @@ rule merge_fastqs:
     input:
         get_fastqs,
     output:
-        "results/merged/{sample}_{read}.fastq.gz",
+        temp("results/merged/{sample}_{read}.fastq.gz"),
     log:
         "logs/merge-fastqs/{sample}_{read}.log",
     wildcard_constraints:

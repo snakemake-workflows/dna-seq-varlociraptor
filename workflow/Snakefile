@@ -33,6 +33,7 @@ include: "rules/utils.smk"
 include: "rules/primers.smk"
 include: "rules/table.smk"
 include: "rules/regions.smk"
+include: "rules/plugins.smk"
 
 
 groups = samples["group"].unique()
