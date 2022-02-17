@@ -4,3 +4,5 @@ dependencies:
   - rust-script >=0.17.0
   - rust >=1.58
   - cryptography >=36.0
+  - cmake =3.21 
+  - perl =5.32
