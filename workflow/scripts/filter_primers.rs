@@ -3,6 +3,7 @@
 //! `cargo` "language".
 //!
 //! ```cargo
+//! cargo-features = ["edition2021"]
 //! [dependencies]
 //! indexmap = "1.8"
 //! noodles = { version = "0.18.0", features = ["bam", "sam", "bgzf"] }
