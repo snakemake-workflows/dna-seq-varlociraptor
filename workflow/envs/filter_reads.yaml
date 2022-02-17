@@ -6,4 +6,3 @@ dependencies:
   - cryptography >=36.0
   - c-compiler =1.3
   - cmake =3.21 
-  - make =4.3
