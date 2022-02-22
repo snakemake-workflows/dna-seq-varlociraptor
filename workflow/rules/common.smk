@@ -608,9 +608,9 @@ def get_tabix_params(wildcards):
     if wildcards.format == "txt":
         return "-s 1 -b 2 -e 2"
     if wildcards.format == "tsv":
-        if config["ref"]["build"] == "GRCh37":
-            return "-f -s 1 -b 2 -e 2"
-        return "-f -s 1 -b 3 -e 3"
+        # Indexing of REVEL-score file where the column depends on the reference
+        column = 2 if config["ref"]["build"] == "GRCh37" else 3
+        return f"-f -s 1 -b {column} -e {column}"
     raise ValueError("Invalid format for tabix: {}".format(wildcards.format))
 
 
