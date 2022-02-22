@@ -1,7 +1,7 @@
 let score_thresholds = {}
 score_thresholds["PolyPhen"] = { "Benign": [0, 0.149], "Possibly Damaging": [0.15, 0.849], "Probably Damaging": [0.85, 1] }
 score_thresholds["SIFT"] = {"Benign": [0, 0.05], "Damaging": [0.051, 1] }
-score_thresholds["REVEL"] = {"Malign": [0, 0.5], "Benign": [0.501, 1]}
+score_thresholds["REVEL"] = {"Likely Benign": [0, 0.5], "Likely Malign": [0.501, 1]}
 
 let score_scales = {}
 score_scales["SIFT"] = { "colors": ["#2ba6cb", "#ff5555"], "entries": ["Benign", "Damaging"] }
