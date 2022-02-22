@@ -608,6 +608,8 @@ def get_tabix_params(wildcards):
     if wildcards.format == "txt":
         return "-s 1 -b 2 -e 2"
     if wildcards.format == "tsv":
+        if config["ref"]["build"] == "GRCh37":
+            return "-f -s 1 -b 2 -e 2"
         return "-f -s 1 -b 3 -e 3"
     raise ValueError("Invalid format for tabix: {}".format(wildcards.format))
 
