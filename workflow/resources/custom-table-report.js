@@ -18,24 +18,24 @@ $(document).ready(function () {
         var polyphen_scores = []
         var revel_scores = []
         for (let j = 1; j <= ann_length; j++) {
-            var transcript_index = ANN_DESCRIPTION.indexOf("Feature")
+            var transcript_index = ANN_DESCRIPTION.indexOf("Feature")+1
             var transcript = $(that).data('ann[' + j + '][' + transcript_index + ']')
-            sift_index = ANN_DESCRIPTION.indexOf("SIFT")
+            sift_index = ANN_DESCRIPTION.indexOf("SIFT")+1
             sift_score = $(that).data('ann[' + j + ']['+ sift_index + ']')
             if (sift_score != "" && sift_score !== undefined) {
                 sift_score = sift_score.split("(")[1].slice(0, -1)
                 sift_scores = parse_score(sift_scores, sift_score, "SIFT", transcript)
             }
 
-            var polyphen_index = ANN_DESCRIPTION.indexOf("PolyPhen")
+            var polyphen_index = ANN_DESCRIPTION.indexOf("PolyPhen")+1
             var polyphen_score = $(that).data('ann[' + j + ']['+ polyphen_index + ']')
             if (polyphen_score != "" && polyphen_score !== undefined) {
                 polyphen_score = polyphen_score.split("(")[1].slice(0, -1)
                 polyphen_scores = parse_score(polyphen_scores, polyphen_score, "PolyPhen", transcript)
             }
 
-            var revel_index = ANN_DESCRIPTION.indexOf("REVEL")
-            if (revel_index != -1) {
+            var revel_index = ANN_DESCRIPTION.indexOf("REVEL")+1
+            if (revel_index != 0) {
                 var revel_score = $(that).data('ann[' + j + ']['+ revel_index + ']')
                 if (revel_score != "" && revel_score !== undefined) {
                     revel_scores = parse_score(revel_scores, revel_score, "REVEL", transcript)
