@@ -6,7 +6,7 @@ score_thresholds["REVEL"] = {"Likely Benign": [0, 0.5], "Likely Malign": [0.501,
 let score_scales = {}
 score_scales["SIFT"] = { "colors": ["#2ba6cb", "#ff5555"], "entries": ["Benign", "Damaging"] }
 score_scales["PolyPhen"] = { "colors": ["#2ba6cb", "#ffa3a3", "#ff5555"], "entries": ["Benign", "Possibly Damaging", "Probably Damaging"] }
-score_scales["REVEL"] = { "colors": ["#2ba6cb", "#ff5555"], "entries": ["Benign", "Malign"] }
+score_scales["REVEL"] = { "colors": ["#2ba6cb", "#ff5555"], "entries": ["Likely Benign", "Likely Malign"] }
 
 $(document).ready(function () {
     $("html").on('click', '.variant-row', function () {
