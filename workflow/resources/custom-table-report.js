@@ -65,7 +65,7 @@ $(document).ready(function () {
                 if (transcript_hgvsc !== undefined) {
                     transcript = transcript_hgvsc.split(":")[0]
                     hgvs = transcript_hgvsc.split(":")[1]
-                    $('#Button'+ j).append('<a class="dropdown-item" href="https://varseak.bio/ssp.php?gene=' + gene + '&transcript='+ transcript +'&variant=&hgvs='+ hgsv +'" target="_blank">varSEAK Splice Site Prediction</a>');
+                    $('#Button'+ j).append('<a class="dropdown-item" href="https://varseak.bio/ssp.php?gene=' + gene + '&transcript='+ transcript +'&variant=&hgvs='+ hgvs +'" target="_blank">varSEAK Splice Site Prediction</a>');
                 }
             }
             var ensembl_idx = ANN_DESCRIPTION.indexOf("Gene")+1
