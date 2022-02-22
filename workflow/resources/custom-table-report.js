@@ -45,7 +45,8 @@ $(document).ready(function () {
             var linkout_button = true
             $('#ann-sidebar').append('<td id="Linkout' + j +'">')
             $('#Linkout'+ j).append('<div id="Div' + j +'" class="dropdown show">')
-            gene_field = 'ann[' + j + '][4]'
+            var gene_index = ANN_DESCRIPTION.indexOf("SYMBOL")+1
+            gene_field = 'ann[' + j + '][' + gene_index + ']'
             gene = $(that).data(gene_field)
             if (gene !== undefined) {
                 linkout_button = create_linkout_button(linkout_button, j);
@@ -58,15 +59,17 @@ $(document).ready(function () {
                 $('#Button'+ j).append('<a class="dropdown-item" href="https://search.cancervariants.org/#'+ gene +'" target="_blank">MetaKB</a>');
                 $('#Button'+ j).append('<a class="dropdown-item" href="https://www.proteinatlas.org/search/'+ gene +'" target="_blank">The Human Protein Atlas</a>');
                 $('#Button'+ j).append('<a class="dropdown-item" href="https://varseak.bio/search.php?gene='+ gene +'" target="_blank">varSEAK Variant Table</a>');
-                transcript_hgsv_field = 'ann[' + j + '][11]'
-                transcript_hgsv = $(that).data(transcript_hgsv_field)
-                if (transcript_hgsv !== undefined) {
-                    transcript = transcript_hgsv.split(":")[0]
-                    hgsv = transcript_hgsv.split(":")[1]
+                var hgvsc_index = ANN_DESCRIPTION.indexOf("HGVSc")+1
+                transcript_hgvsc_field = 'ann[' + j + '][' + hgvsc_index + ']'
+                transcript_hgvsc = $(that).data(transcript_hgvsc_field)
+                if (transcript_hgvsc !== undefined) {
+                    transcript = transcript_hgvsc.split(":")[0]
+                    hgvs = transcript_hgvsc.split(":")[1]
                     $('#Button'+ j).append('<a class="dropdown-item" href="https://varseak.bio/ssp.php?gene=' + gene + '&transcript='+ transcript +'&variant=&hgvs='+ hgsv +'" target="_blank">varSEAK Splice Site Prediction</a>');
                 }
             }
-            ensembl_field = 'ann[' + j + '][5]'
+            var ensembl_idx = ANN_DESCRIPTION.indexOf("Gene")+1
+            ensembl_field = 'ann[' + j + '][' + ensembl_idx + ']'
             ensembl_id = $(that).data(ensembl_field)
             if (ensembl_id !== undefined) {
                 create_linkout_button(linkout_button, j)
