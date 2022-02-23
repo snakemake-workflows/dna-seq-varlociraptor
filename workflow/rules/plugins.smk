@@ -29,3 +29,14 @@ rule process_revel_scores:
             exit 125
         fi
         """
+
+
+use rule tabix_known_variants as tabix_revel_scores with:
+    input:
+        "resources/{ref}_revel_scores.tsv.gz",
+    output:
+        "resources/{ref}_revel_scores.tsv.gz.tbi",
+    params:
+        get_tabix_revel_params,
+    log:
+        "logs/tabix/revel_{ref}.log",

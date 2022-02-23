@@ -31,6 +31,8 @@ rule tabix_known_variants:
         "logs/tabix/{prefix}.{format}.log",
     params:
         get_tabix_params,
+    wildcard_constraints:
+        format=r"txt|vcf",
     cache: True
     wrapper:
         "0.59.2/bio/tabix"
