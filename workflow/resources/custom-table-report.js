@@ -1,12 +1,12 @@
 let score_thresholds = {}
 score_thresholds["PolyPhen"] = { "Benign": [0, 0.149], "Possibly Damaging": [0.15, 0.849], "Probably Damaging": [0.85, 1] }
 score_thresholds["SIFT"] = {"Benign": [0, 0.05], "Damaging": [0.051, 1] }
-score_thresholds["REVEL"] = {"Malign": [0, 0.5], "Benign": [0.501, 1]}
+score_thresholds["REVEL"] = {"Likely Benign": [0, 0.5], "Likely Malign": [0.501, 1]}
 
 let score_scales = {}
 score_scales["SIFT"] = { "colors": ["#2ba6cb", "#ff5555"], "entries": ["Benign", "Damaging"] }
 score_scales["PolyPhen"] = { "colors": ["#2ba6cb", "#ffa3a3", "#ff5555"], "entries": ["Benign", "Possibly Damaging", "Probably Damaging"] }
-score_scales["REVEL"] = { "colors": ["#2ba6cb", "#ff5555"], "entries": ["Benign", "Malign"] }
+score_scales["REVEL"] = { "colors": ["#2ba6cb", "#ff5555"], "entries": ["Likely Benign", "Likely Malign"] }
 
 $(document).ready(function () {
     $("html").on('click', '.variant-row', function () {
@@ -18,28 +18,35 @@ $(document).ready(function () {
         var polyphen_scores = []
         var revel_scores = []
         for (let j = 1; j <= ann_length; j++) {
-            var transcript = $(that).data('ann[' + j + '][7]')
-            sift_score = $(that).data('ann[' + j + '][36]')
+            var transcript_index = ANN_DESCRIPTION.indexOf("Feature")+1
+            var transcript = $(that).data('ann[' + j + '][' + transcript_index + ']')
+            sift_index = ANN_DESCRIPTION.indexOf("SIFT")+1
+            sift_score = $(that).data('ann[' + j + ']['+ sift_index + ']')
             if (sift_score != "" && sift_score !== undefined) {
                 sift_score = sift_score.split("(")[1].slice(0, -1)
                 sift_scores = parse_score(sift_scores, sift_score, "SIFT", transcript)
             }
 
-            polyphen_score = $(that).data('ann[' + j + '][37]')
+            var polyphen_index = ANN_DESCRIPTION.indexOf("PolyPhen")+1
+            var polyphen_score = $(that).data('ann[' + j + ']['+ polyphen_index + ']')
             if (polyphen_score != "" && polyphen_score !== undefined) {
                 polyphen_score = polyphen_score.split("(")[1].slice(0, -1)
                 polyphen_scores = parse_score(polyphen_scores, polyphen_score, "PolyPhen", transcript)
             }
 
-            revel_score = $(that).data('ann[' + j + '][71]')
-            if (revel_score != "" && revel_score !== undefined) {
-                revel_scores = parse_score(revel_scores, revel_score, "REVEL", transcript)
+            var revel_index = ANN_DESCRIPTION.indexOf("REVEL")+1
+            if (revel_index != 0) {
+                var revel_score = $(that).data('ann[' + j + ']['+ revel_index + ']')
+                if (revel_score != "" && revel_score !== undefined) {
+                    revel_scores = parse_score(revel_scores, revel_score, "REVEL", transcript)
+                }
             }
 
             var linkout_button = true
             $('#ann-sidebar').append('<td id="Linkout' + j +'">')
             $('#Linkout'+ j).append('<div id="Div' + j +'" class="dropdown show">')
-            gene_field = 'ann[' + j + '][4]'
+            var gene_index = ANN_DESCRIPTION.indexOf("SYMBOL")+1
+            gene_field = 'ann[' + j + '][' + gene_index + ']'
             gene = $(that).data(gene_field)
             if (gene !== undefined) {
                 linkout_button = create_linkout_button(linkout_button, j);
@@ -52,15 +59,17 @@ $(document).ready(function () {
                 $('#Button'+ j).append('<a class="dropdown-item" href="https://search.cancervariants.org/#'+ gene +'" target="_blank">MetaKB</a>');
                 $('#Button'+ j).append('<a class="dropdown-item" href="https://www.proteinatlas.org/search/'+ gene +'" target="_blank">The Human Protein Atlas</a>');
                 $('#Button'+ j).append('<a class="dropdown-item" href="https://varseak.bio/search.php?gene='+ gene +'" target="_blank">varSEAK Variant Table</a>');
-                transcript_hgsv_field = 'ann[' + j + '][11]'
-                transcript_hgsv = $(that).data(transcript_hgsv_field)
-                if (transcript_hgsv !== undefined) {
-                    transcript = transcript_hgsv.split(":")[0]
-                    hgsv = transcript_hgsv.split(":")[1]
-                    $('#Button'+ j).append('<a class="dropdown-item" href="https://varseak.bio/ssp.php?gene=' + gene + '&transcript='+ transcript +'&variant=&hgvs='+ hgsv +'" target="_blank">varSEAK Splice Site Prediction</a>');
+                var hgvsc_index = ANN_DESCRIPTION.indexOf("HGVSc")+1
+                transcript_hgvsc_field = 'ann[' + j + '][' + hgvsc_index + ']'
+                transcript_hgvsc = $(that).data(transcript_hgvsc_field)
+                if (transcript_hgvsc !== undefined) {
+                    transcript = transcript_hgvsc.split(":")[0]
+                    hgvs = transcript_hgvsc.split(":")[1]
+                    $('#Button'+ j).append('<a class="dropdown-item" href="https://varseak.bio/ssp.php?gene=' + gene + '&transcript='+ transcript +'&variant=&hgvs='+ hgvs +'" target="_blank">varSEAK Splice Site Prediction</a>');
                 }
             }
-            ensembl_field = 'ann[' + j + '][5]'
+            var ensembl_idx = ANN_DESCRIPTION.indexOf("Gene")+1
+            ensembl_field = 'ann[' + j + '][' + ensembl_idx + ']'
             ensembl_id = $(that).data(ensembl_field)
             if (ensembl_id !== undefined) {
                 create_linkout_button(linkout_button, j)

@@ -11,21 +11,34 @@ rule process_revel_scores:
     input:
         "resources/revel_scores.zip",
     output:
-        "resources/{ref}_revel_scores.tsv.gz",
+        "resources/revel_scores.tsv.gz",
+    params:
+        build=config["ref"]["build"],
     log:
-        "logs/vep_plugins/process_{ref}_revel_scores.log",
+        "logs/vep_plugins/process_revel_scores.log",
     conda:
         "../envs/htslib.yaml"
     shell:
         """
         tmpfile=$(mktemp {resources.tmpdir}/revel_scores.XXXXXX)
         unzip -p {input} | tr "," "\t" | sed '1s/.*/#&/' | bgzip -c > $tmpfile
-        if [ "{wildcards.ref}" == "GRCh38" ] ; then
+        if [ "{params.build}" == "GRCh38" ] ; then
             zgrep -h -v ^#chr $tmpfile | awk '$3 != "." ' | sort -k1,1 -k3,3n - | cat <(zcat $tmpfile | head -n1) - | bgzip -c > {output}
-        elif [ "{wildcards.ref}" == "GRCh37" ] ; then
+        elif [ "{params.build}" == "GRCh37" ] ; then
             cat $tmpfile > {output}
         else
             echo "Annotation of REVEL scores only supported for GRCh37 or GRCh38" > {log}
             exit 125
         fi
         """
+
+
+use rule tabix_known_variants as tabix_revel_scores with:
+    input:
+        "resources/revel_scores.tsv.gz",
+    output:
+        "resources/revel_scores.tsv.gz.tbi",
+    params:
+        get_tabix_revel_params(),
+    log:
+        "logs/tabix/revel.log",
