@@ -10,7 +10,8 @@ rule vembrane_table:
     log:
         "logs/vembrane-table/{group}.{event}.log",
     shell:
-        'vembrane table --header "{params.config[header]}" "{params.config[expr]}" {input.bcf} > {output.bcf} 2> {log}'
+        'vembrane table --header "{params.config[header]}" "{params.config[expr]}" '
+        "{input.bcf} > {output.bcf} 2> {log}"
 
 
 rule tsv_to_excel:
