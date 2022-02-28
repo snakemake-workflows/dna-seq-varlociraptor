@@ -21,13 +21,55 @@ samples = (
 )
 
 
+def _group_or_sample(row):
+    group = row.get("group", None)
+    if pd.isnull(group):
+        return row["sample_name"]
+    return group
+
+
+samples["group"] = [_group_or_sample(row) for _, row in samples.iterrows()]
+validate(samples, schema="../schemas/samples.schema.yaml")
+
+
+groups = samples["group"].unique()
+
+
+units = (
+    pd.read_csv(
+        config["units"],
+        sep="\t",
+        dtype={"sample_name": str, "unit_name": str},
+        comment="#",
+    )
+    .set_index(["sample_name", "unit_name"], drop=False)
+    .sort_index()
+)
+validate(units, schema="../schemas/units.schema.yaml")
+
+primer_panels = (
+    (
+        pd.read_csv(
+            config["primers"]["trimming"]["tsv"],
+            sep="\t",
+            dtype={"panel": str, "fa1": str, "fa2": str},
+            comment="#",
+        )
+        .set_index(["panel"], drop=False)
+        .sort_index()
+    )
+    if config["primers"]["trimming"].get("tsv", "")
+    else None
+)
+
+
 def get_final_output():
     final_output = []
 
     if config["report"]["activate"]:
         final_output.extend(
             expand(
-                "results/vcf-report/all.{event}/",
+                "results/datavzrd-report/all.{event}.fdr-controlled"
                 event=config["calling"]["fdr-control"]["events"],
             )
         )
@@ -60,44 +102,6 @@ def get_final_output():
     final_output.extend(get_mutational_burden_targets())
 
     return final_output
-
-
-def _group_or_sample(row):
-    group = row.get("group", None)
-    if pd.isnull(group):
-        return row["sample_name"]
-    return group
-
-
-samples["group"] = [_group_or_sample(row) for _, row in samples.iterrows()]
-validate(samples, schema="../schemas/samples.schema.yaml")
-
-units = (
-    pd.read_csv(
-        config["units"],
-        sep="\t",
-        dtype={"sample_name": str, "unit_name": str},
-        comment="#",
-    )
-    .set_index(["sample_name", "unit_name"], drop=False)
-    .sort_index()
-)
-validate(units, schema="../schemas/units.schema.yaml")
-
-primer_panels = (
-    (
-        pd.read_csv(
-            config["primers"]["trimming"]["tsv"],
-            sep="\t",
-            dtype={"panel": str, "fa1": str, "fa2": str},
-            comment="#",
-        )
-        .set_index(["panel"], drop=False)
-        .sort_index()
-    )
-    if config["primers"]["trimming"].get("tsv", "")
-    else None
-)
 
 
 def get_gather_calls_input(ext="bcf"):
@@ -476,15 +480,15 @@ def get_candidate_calls():
 
 def get_report_batch(wildcards):
     if wildcards.batch == "all":
-        groups = samples["group"].unique()
+        _groups = groups
     else:
-        groups = samples.loc[
+        _groups = samples.loc[
             samples[config["report"]["stratify"]["by-column"]] == wildcards.batch,
             "group",
         ].unique()
-    if not any(groups):
+    if not any(_groups):
         raise ValueError("No samples found. Is your sample sheet empty?")
-    return groups
+    return _groups
 
 
 def get_merge_calls_input(ext="bcf"):
@@ -555,7 +559,7 @@ def get_annotation_filter(wildcards):
 
 
 wildcard_constraints:
-    group="|".join(samples["group"].unique()),
+    group="|".join(groups),
     sample="|".join(samples["sample_name"]),
     caller="|".join(["freebayes", "delly"]),
     filter="|".join(config["calling"]["filter"]),
@@ -623,38 +627,47 @@ def get_fastqs(wc):
     )
 
 
-def get_vembrane_expression(wc):
-    expression = (
-        config["tables"]
-        .get("output", {})
-        .get(
-            "expression",
-            "INDEX, CHROM, POS, REF, ALT[0], ANN['Consequence'], ANN['IMPACT'], ANN['SYMBOL'], ANN['Feature']",
-        )
+def get_vembrane_config(wildcards):
+    parts = ["CHROM, POS, REF, ALT[0], INFO['END'], INFO['EVENT'], ID"]
+    header = [
+        "'chromsome', 'position', 'reference allele', 'alternative allele', 'end position', 'event', 'id'"
+    ]
+    join_items = ", ".join
+
+    config_output = config["tables"].get("output", {})
+
+    def append_items(items, field_func, header_func):
+        for item in items:
+            parts.append(field_func(item))
+            header.append(header_func(item))
+
+    annotation_fields = ["SYMBOL", "Gene", "Feature", "IMPACT", "HGVSp", "Consequence"]
+    annotation_fields.extend([field for field in config_output.get("annotation_fields", []) if field not in annotation_fields])
+
+    append_items(
+        annotation_fields, "ANN['{}']".format, str.lower
     )
-    parts = [expression]
-    if config["tables"].get("output", {}).get("event_prob", False):
-        parts.append(
-            ", ".join(
-                f"10**(-INFO['PROB_{x.upper()}']/10)"
-                for x in config["calling"]["fdr-control"]["events"][wc.event][
-                    "varlociraptor"
-                ]
-            )
+
+    samples = get_group_sample_aliases(wildcards)
+
+    def append_format_field(field, name):
+        append_items(
+            samples, f"FORMAT['{field}']['{{}}']".format, f"{{}}: {name}".format
         )
-    if config["tables"].get("output", {}).get("genotype", False):
-        parts.append(
-            ", ".join(
-                f"FORMAT['AF']['{sample}']" for sample in get_group_sample_aliases(wc)
-            )
-        )
-    if config["tables"].get("output", {}).get("depth", False):
-        parts.append(
-            ", ".join(
-                f"FORMAT['DP']['{sample}']" for sample in get_group_sample_aliases(wc)
-            )
-        )
-    return ", ".join(parts)
+
+    if config_output.get("event_prob", False):
+        events = config["calling"]["fdr-control"]["events"][wildcards]
+        append_items(events, lambda x: f"INFO['PROB_{x.upper()}']", str.lower)
+
+    if config_output.get("genotype", False):
+        append_format_field("AF", "allele frequency")
+
+    if config_output.get("depth", False):
+        append_format_field("DP", "read depth")
+
+    if config_output.get("observations", False):
+        append_format_field("OBS", "observations")
+    return {"expr": join_items(parts), "header": join_items(header)}
 
 
 def get_sample_alias(wildcards):
@@ -689,3 +702,12 @@ def format_bowtie_primers(wc, primers):
     if isinstance(primers, list):
         return "-1 {r1} -2 {r2}".format(r1=primers[0], r2=primers[1])
     return primers
+
+
+def get_call_tables(impact):
+    def inner(wildcards):
+        return expand(
+            "results/tables/{group}.{event}.{impact}.fdr-controlled.tsv", impact=impact, event=wildcards.event, group=groups
+        )
+
+    return inner

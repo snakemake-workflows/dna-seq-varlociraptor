@@ -66,11 +66,13 @@ report:
 # printing of variants in a table format
 tables:
   activate: true
-  # vembrane expression to generate the table
   output:
-    expression: "INDEX, CHROM, POS, REF, ALT[0], ANN['Consequence'], ANN['IMPACT'], ANN['SYMBOL'], ANN['Feature']"
+    # Uncomment and add VEP annotation fields to include (IMPACT, Consequence, Feature, SYMBOL, and HGVSp are always included)
+    #annotation_fields:
+    #  - somefieldname
+    #  - someotherfieldname
     genotype: true
-    coverage: true
+    depth: true
     event_prob: true
   generate_excel: true
 
@@ -117,6 +119,10 @@ calling:
           # A single filter can be set as string.
           # Multiple filters can be defined as list and will be concatenated by 'and'
           - myfilter
+        # Natural language description of the callset obtained here.
+        # This will occur in the report.
+        desc: |
+          Some description.
 
 # If calc_consensus_reads is activated duplicates will be merged
 remove_duplicates:
