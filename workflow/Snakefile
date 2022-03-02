@@ -34,6 +34,7 @@ include: "rules/primers.smk"
 include: "rules/table.smk"
 include: "rules/regions.smk"
 include: "rules/plugins.smk"
+include: "rules/datavzrd.smk"
 
 
 batches = "all"

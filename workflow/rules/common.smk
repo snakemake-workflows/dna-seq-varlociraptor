@@ -69,7 +69,7 @@ def get_final_output():
     if config["report"]["activate"]:
         final_output.extend(
             expand(
-                "results/datavzrd-report/all.{event}.fdr-controlled"
+                "results/datavzrd-report/all.{event}.fdr-controlled",
                 event=config["calling"]["fdr-control"]["events"],
             )
         )
@@ -642,11 +642,15 @@ def get_vembrane_config(wildcards):
             header.append(header_func(item))
 
     annotation_fields = ["SYMBOL", "Gene", "Feature", "IMPACT", "HGVSp", "Consequence"]
-    annotation_fields.extend([field for field in config_output.get("annotation_fields", []) if field not in annotation_fields])
-
-    append_items(
-        annotation_fields, "ANN['{}']".format, str.lower
+    annotation_fields.extend(
+        [
+            field
+            for field in config_output.get("annotation_fields", [])
+            if field not in annotation_fields
+        ]
     )
+
+    append_items(annotation_fields, "ANN['{}']".format, str.lower)
 
     samples = get_group_sample_aliases(wildcards)
 
@@ -707,7 +711,10 @@ def format_bowtie_primers(wc, primers):
 def get_call_tables(impact):
     def inner(wildcards):
         return expand(
-            "results/tables/{group}.{event}.{impact}.fdr-controlled.tsv", impact=impact, event=wildcards.event, group=groups
+            "results/tables/{group}.{event}.{impact}.fdr-controlled.tsv",
+            impact=impact,
+            event=wildcards.event,
+            group=groups,
         )
 
     return inner
