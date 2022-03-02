@@ -1,0 +1,82 @@
+name: Benchmark
+
+#on:
+#  push:
+#    branches: [ master ]
+#  pull_request:
+#    branches: [ master ]
+
+# TODO enable
+# on:
+#   schedule:
+#     - cron: 0 13 * * 1 # every monday at 1PM UTC
+
+jobs:
+  benchmark-giab:
+    name: Benchmark GIAB exome
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v2
+
+      - name: Download benchmark
+        id: benchmark_download
+        uses: compsci-commons/qc-benchmark-action@main
+        with:
+          task: download
+          benchmark_name: giab-na12878-exome
+
+      - name: Write config
+        env:
+          DATA: ${{ steps.benchmark_download.outputs.data }}
+        run: |
+          # Read location: $DATA/reads.1.fq and $DATA/reads.2.fq
+          # Reference genome: $DATA/reference.fa
+          echo -e "NA12878\t1\t../$DATA/reads.1.fq\t../$DATA/reads.2.fq\t\t-a AGATCGGAAGAGCACACGTCTGAACTCCAGTCA -A AGATCGGAAGAGCGTCGTGTAGGGAAAGAGTGT" >> .test/config-giab/units.tsv
+
+      - name: Cache workflow results
+        id: cache-results
+        uses: actions/cache@v2
+        with:
+          path: .test/results/final-calls/NA12878.present.fdr-controlled.vcf.gz
+          key: key-${{ hashFiles('workflow/**') }}-${{ hashFiles('.test/config-giab/**') }}
+
+      - name: Run workflow
+        uses: snakemake/snakemake-github-action@v1.22.0
+        if: steps.cache-results.outputs.cache-hit != 'true'
+        with:
+          directory: .test
+          snakefile: workflow/Snakefile
+          args: "results/final-calls/NA12878.present.fdr-controlled.vcf.gz results/final-calls/NA12878.annotated.bcf --configfile .test/config-giab/config.yaml --use-conda --show-failed-logs --cores 1 --conda-cleanup-pkgs cache --all-temp"
+
+      - name: Eval benchmark
+        uses: compsci-commons/qc-benchmark-action@main
+        id: benchmark_eval
+        with:
+          task: eval
+          benchmark_name: giab-na12878-exome
+          results-path: .test/results/final-calls/NA12878.present.fdr-controlled.vcf.gz
+
+      - name: Show results
+        env:
+          REPORT: ${{ steps.benchmark_eval.outputs.report }}
+        run: |
+          cat $REPORT.summary.csv
+      
+      - name: Upload all calls as artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: benchmark-all-calls
+          path: .test/results/final-calls/NA12878.annotated.bcf
+
+      - name: Upload filtered calls as artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: benchmark-filtered-calls
+          path: .test/results/final-calls/NA12878.present.fdr-controlled.vcf.gz
+
+      - name: Upload report as artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: benchmark-report
+          path: ${{ steps.benchmark_eval.outputs.report }}.*

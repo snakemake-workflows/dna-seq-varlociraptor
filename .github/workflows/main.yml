@@ -45,8 +45,15 @@ jobs:
       with:
         directory: .test
         snakefile: workflow/Snakefile
-        stagein: "mamba install -y -n snakemake --channel conda-forge  pyarrow=6.0"
-        args: "--use-conda --show-failed-logs -j 10 --conda-cleanup-pkgs cache --conda-frontend mamba"
+        args: "--configfile .test/config-simple/config.yaml --use-conda --show-failed-logs -j 10 --conda-cleanup-pkgs cache --conda-frontend mamba"
+
+    - name: Test report
+      uses: snakemake/snakemake-github-action@v1.24.0
+      with:
+        directory: .test
+        snakefile: workflow/Snakefile
+        args: "--configfile .test/config-simple/config.yaml --report report.zip"
+
 
     - name: Test workflow (local FASTQs, target regions)
       uses: snakemake/snakemake-github-action@v1.24.0
@@ -54,13 +61,6 @@ jobs:
         directory: .test
         snakefile: workflow/Snakefile
         args: "--configfile .test/config-target-regions/config.yaml --use-conda --show-failed-logs -j 10 --conda-cleanup-pkgs cache --conda-frontend mamba"
-
-    - name: Test report
-      uses: snakemake/snakemake-github-action@v1.24.0
-      with:
-        directory: .test
-        snakefile: workflow/Snakefile
-        args: "--report report.zip"
 
     - name: Test workflow (local FASTQs, no candidate filtering)
       uses: snakemake/snakemake-github-action@v1.24.0
