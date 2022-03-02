@@ -1,0 +1,47 @@
+name: ?f"Variant calls {wildcards.event}"
+
+datasets:
+  ?for group, path in zip(params.groups, params.coding_calls):
+    ?f"{group}-coding":
+      path: ?path
+  ?for group, path in zip(params.groups, params.noncoding_calls):
+    ?f"{group}-noncoding":
+      path: ?path
+
+views:
+  ?for group in params.groups:
+    ?f"{group}-coding":
+      desc: ?f"Variants in coding regions.\n{config["calling"]["fdr-control"][wildcards.event]["desc"]}"
+
+      render-columns:
+        gene:
+          link-to-url: "https://www.ensembl.org/Gene/Summary?g={value}"
+        feature:
+          link-to-url: "https://www.ensembl.org/Multi/Search/Results?q={value}"
+        impact:
+          plot:
+            heatmap:
+              scale: nominal
+              color-scheme: category10
+        consequence:
+          plot:
+            heatmap:
+              scale: nominal
+              color-scheme: category20
+
+    ?f"{group}-noncoding":
+      desc: ?f"Variants in non-coding regions.\n{config["calling"]["fdr-control"][wildcards.event]["desc"]}"
+
+      render-columns:
+        gene:
+          link-to-url: "https://www.ensembl.org/Gene/Summary?g={value}"
+        impact:
+          plot:
+            heatmap:
+              scale: nominal
+              color-scheme: category10
+        consequence:
+          plot:
+            heatmap:
+              scale: nominal
+              color-scheme: category20
