@@ -7,7 +7,7 @@ rule vembrane_table:
     conda:
         "../envs/vembrane.yaml"
     params:
-        config=get_vembrane_config,
+        config=lambda wc, input: get_vembrane_config(wc, input),
     log:
         "logs/vembrane-table/{group}.{event}.log",
     shell:
