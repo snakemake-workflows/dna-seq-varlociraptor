@@ -11,7 +11,7 @@ datasets:
 views:
   ?for group in params.groups:
     ?f"{group}-coding":
-      desc: ?f"Variants in coding regions.\n{config['calling']['fdr-control'][wildcards.event]['desc']}"
+      desc: ?f"Variants in coding regions.\n{config['calling']['fdr-control']['events'][wildcards.event]['desc']}"
 
       render-columns:
         gene:
@@ -30,7 +30,7 @@ views:
               color-scheme: category20
 
     ?f"{group}-noncoding":
-      desc: ?f"Variants in non-coding regions.\n{config['calling']['fdr-control'][wildcards.event]['desc']}"
+      desc: ?f"Variants in non-coding regions.\n{config['calling']['fdr-control']['events'][wildcards.event]['desc']}"
 
       render-columns:
         gene:
