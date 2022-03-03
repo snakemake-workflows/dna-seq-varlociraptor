@@ -3,7 +3,7 @@ rule split_call_tables:
         "results/tables/{group}.{event}.fdr-controlled.tsv"
     output:
         coding="results/tables/{group}.{event}.coding.fdr-controlled.tsv",
-        noncoding"results/tables/{group}.{event}.noncoding.fdr-controlled.tsv",
+        noncoding="results/tables/{group}.{event}.noncoding.fdr-controlled.tsv",
     script:
         "../scripts/split-call-tables.py"
 
