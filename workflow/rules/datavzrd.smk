@@ -4,6 +4,8 @@ rule split_call_tables:
     output:
         coding="results/tables/{group}.{event}.coding.fdr-controlled.tsv",
         noncoding="results/tables/{group}.{event}.noncoding.fdr-controlled.tsv",
+    log:
+        "logs/split_tables/{group}.{event}.log",
     script:
         "../scripts/split-call-tables.py"
 
@@ -19,6 +21,8 @@ rule render_datavzrd_config:
         groups=groups,
         coding_calls=get_call_tables("coding"),
         noncoding_calls=get_call_tables("noncoding"),
+    log:
+        "logs/datavzrd_render/{event}.log",
     template_engine:
         "yte"
 
@@ -32,5 +36,7 @@ rule datavzrd_variants_calls:
         directory("results/datavzrd-report/all.{event}.fdr-controlled"),
     conda:
         "../envs/datavzrd.yaml"
+    log:
+        "logs/datavzrd_report/{event}.log",
     shell:
-        "datavzrd {input.config} --output {output}"
+        "datavzrd {input.config} --output {output} &> {log}"

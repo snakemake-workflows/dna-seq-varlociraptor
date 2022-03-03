@@ -1,5 +1,6 @@
 import pandas as pd
 
+sys.stderr = open(snakemake.log[0], "w")
 
 calls = pd.read_csv(snakemake.input[0], sep="\t")
 
