@@ -89,16 +89,3 @@ rule gather_annotated_calls:
         "-a -Ob",
     wrapper:
         "0.67.0/bio/bcftools/concat"
-
-
-rule convert_phred_scores:
-    input:
-        "results/final-calls/{group}.annotated.bcf",
-    output:
-        "results/final-calls/{group}.annotated.normal-probs.bcf",
-    log:
-        "logs/convert-phred-scores/{group}.log",
-    conda:
-        "../envs/varlociraptor.yaml"
-    shell:
-        "varlociraptor decode-phred < {input} > {output} 2> {log}"

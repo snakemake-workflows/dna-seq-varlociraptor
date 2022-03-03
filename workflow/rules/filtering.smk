@@ -88,3 +88,16 @@ rule merge_calls:
         "-a -Ob",
     wrapper:
         "0.59.2/bio/bcftools/concat"
+
+
+rule convert_phred_scores:
+    input:
+        "results/final-calls/{group}.{event}.fdr-controlled.bcf",
+    output:
+        "results/final-calls/{group}.{event}.fdr-controlled.normal-probs.bcf",
+    log:
+        "logs/convert-phred-scores/{group}.{event}.log",
+    conda:
+        "../envs/varlociraptor.yaml"
+    shell:
+        "varlociraptor decode-phred < {input} > {output} 2> {log}"
