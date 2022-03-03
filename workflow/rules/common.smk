@@ -629,7 +629,7 @@ def get_fastqs(wc):
 
 
 def get_vembrane_config(wildcards, input):
-    with open(input.scenario, 'r') as scenario_file:
+    with open(input.scenario, "r") as scenario_file:
         scenario = yaml.load(scenario_file, Loader=yaml.SafeLoader)
     parts = ["CHROM, POS, REF, ALT[0], INFO['END'], INFO['EVENT'], ID"]
     header = [
