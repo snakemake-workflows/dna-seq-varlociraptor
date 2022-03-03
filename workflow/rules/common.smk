@@ -627,7 +627,8 @@ def get_fastqs(wc):
     )
 
 
-def get_vembrane_config(wildcards):
+def get_vembrane_config(wildcards, input):
+    scenario = yaml.load(input.scenario, Loader=yaml.SafeLoader)
     parts = ["CHROM, POS, REF, ALT[0], INFO['END'], INFO['EVENT'], ID"]
     header = [
         "'chromsome', 'position', 'reference allele', 'alternative allele', 'end position', 'event', 'id'"
@@ -660,7 +661,7 @@ def get_vembrane_config(wildcards):
         )
 
     if config_output.get("event_prob", False):
-        events = config["calling"]["fdr-control"]["events"]
+        events = scenario["events"]
         append_items(events, lambda x: f"INFO['PROB_{x.upper()}']", str.lower)
 
     if config_output.get("genotype", False):

@@ -1,6 +1,7 @@
 rule vembrane_table:
     input:
         bcf="results/final-calls/{group}.{event}.fdr-controlled.normal-probs.bcf",
+        scenario="results/scenarios/{group}.yaml",
     output:
         bcf="results/tables/{group}.{event}.fdr-controlled.tsv",
     conda:
