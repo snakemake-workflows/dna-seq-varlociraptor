@@ -11,6 +11,17 @@ rule bcf_index:
         "bcftools index {input} 2> {log}"
 
 
+rule bcf_to_vcf_gz:
+    input:
+        "{prefix}.bcf",
+    output:
+        "{prefix}.vcf.gz",
+    log:
+        "logs/bcf-to-vcf/{prefix}.log",
+    wrapper:
+        "0.77.0/bio/bcftools/view"
+
+
 rule bam_index:
     input:
         "{prefix}.bam",

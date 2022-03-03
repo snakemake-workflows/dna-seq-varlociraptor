@@ -122,7 +122,7 @@ def get_gather_calls_input(ext="bcf"):
 
 def get_control_fdr_input(wildcards):
     query = get_fdr_control_params(wildcards)
-    if not is_activated("benchmarking"):
+    if not is_activated("benchmarking") and query["filter"]:
         by = "ann" if query["local"] else "odds"
         return "results/calls/{{group}}.{{event}}.filtered_{by}.bcf".format(by=by)
     else:
@@ -530,7 +530,12 @@ def get_fdr_control_params(wildcards):
         if query.get("local", config["calling"]["fdr-control"].get("local", False))
         else ""
     )
-    return {"threshold": threshold, "events": events, "local": local}
+    return {
+        "threshold": threshold,
+        "events": events,
+        "local": local,
+        "filter": query.get("filter"),
+    }
 
 
 def get_fixed_candidate_calls(wildcards):
