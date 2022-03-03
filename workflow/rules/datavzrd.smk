@@ -27,5 +27,7 @@ rule datavzrd_variants_calls:
         config="resources/datavzrd/all.{event}.datavzrd.yaml",
     output:
         directory("results/datavzrd-report/all.{event}.fdr-controlled")
+    conda:
+        "../envs/datavzrd.yaml"
     shell:
         "datavzrd {input.config} --output {output}"
