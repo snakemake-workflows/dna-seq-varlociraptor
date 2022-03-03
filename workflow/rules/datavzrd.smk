@@ -2,8 +2,8 @@ rule split_call_tables:
     input:
         "results/tables/{group}.{event}.fdr-controlled.tsv"
     output:
-        "results/tables/{group}.{event}.coding.fdr-controlled.tsv",
-        "results/tables/{group}.{event}.noncoding.fdr-controlled.tsv",
+        coding="results/tables/{group}.{event}.coding.fdr-controlled.tsv",
+        noncoding"results/tables/{group}.{event}.noncoding.fdr-controlled.tsv",
     script:
         "../scripts/split-call-tables.py"
 
