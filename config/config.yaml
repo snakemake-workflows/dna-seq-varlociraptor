@@ -75,9 +75,8 @@ tables:
     #annotation_fields:
     #  - somefieldname
     #  - someotherfieldname
-    genotype: true
-    depth: true
     event_prob: true
+    observations: true
   generate_excel: true
 
 calling:

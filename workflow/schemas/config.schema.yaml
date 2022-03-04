@@ -104,14 +104,14 @@ properties:
       output:
         type: object
         properties:
-          expression:
-            type: string
-          genotype:
-            type: boolean
-          coverage:
-            type: boolean
           event_prob:
             type: boolean
+          observations:
+            type: boolean
+          annotation_fields:
+            type: array
+            items:
+              type: string
     generate_excel:
       type: boolean
     required:

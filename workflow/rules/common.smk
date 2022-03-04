@@ -649,7 +649,15 @@ def get_vembrane_config(wildcards, input):
             parts.append(field_func(item))
             header.append(header_func(item))
 
-    annotation_fields = ["SYMBOL", "Gene", "Feature", "IMPACT", "HGVSp", "Consequence"]
+    annotation_fields = [
+        "SYMBOL",
+        "Gene",
+        "Feature",
+        "IMPACT",
+        "HGVSp",
+        "Consequence",
+        "CANONICAL",
+    ]
     annotation_fields.extend(
         [
             field
@@ -671,11 +679,8 @@ def get_vembrane_config(wildcards, input):
         events = scenario["events"]
         append_items(events, lambda x: f"INFO['PROB_{x.upper()}']", str.lower)
 
-    if config_output.get("genotype", False):
-        append_format_field("AF", "allele frequency")
-
-    if config_output.get("depth", False):
-        append_format_field("DP", "read depth")
+    append_format_field("AF", "allele frequency")
+    append_format_field("DP", "read depth")
 
     if config_output.get("observations", False):
         append_format_field("OBS", "observations")
