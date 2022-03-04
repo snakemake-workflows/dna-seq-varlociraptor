@@ -13,7 +13,7 @@ views:
     ?f"{group}-coding":
       desc: ?f"Variants in coding regions.\n{config['calling']['fdr-control']['events'][wildcards.event]['desc']}"
       dataset: ?f"{group}-coding"
-      render-columns:
+      render-table:
         gene:
           link-to-url: "https://www.ensembl.org/Gene/Summary?g={value}"
         feature:
@@ -32,7 +32,7 @@ views:
     ?f"{group}-noncoding":
       desc: ?f"Variants in non-coding regions.\n{config['calling']['fdr-control']['events'][wildcards.event]['desc']}"
       dataset: ?f"{group}-noncoding"
-      render-columns:
+      render-table:
         gene:
           link-to-url: "https://www.ensembl.org/Gene/Summary?g={value}"
         impact:
