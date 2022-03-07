@@ -6,7 +6,7 @@ sys.stderr = open(snakemake.log[0], "w")
 
 def write(df, path):
     df.drop(["canonical"], axis="columns").dropna(how="all", axis="columns").to_csv(
-        path, index=False, sep="\t"
+        path, index=False, sep=","
     )
 
 

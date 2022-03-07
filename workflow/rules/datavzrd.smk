@@ -2,8 +2,8 @@ rule split_call_tables:
     input:
         "results/tables/{group}.{event}.fdr-controlled.tsv",
     output:
-        coding="results/tables/{group}.{event}.coding.fdr-controlled.tsv",
-        noncoding="results/tables/{group}.{event}.noncoding.fdr-controlled.tsv",
+        coding="results/tables/{group}.{event}.coding.fdr-controlled.csv",
+        noncoding="results/tables/{group}.{event}.noncoding.fdr-controlled.csv",
     log:
         "logs/split_tables/{group}.{event}.log",
     script:
