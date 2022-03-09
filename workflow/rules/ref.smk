@@ -11,7 +11,7 @@ rule get_genome:
         chromosome=config["ref"].get("chromosome"),
     cache: True
     wrapper:
-        "1.2.0/bio/reference/ensembl-sequence"
+        "v1.2.0/bio/reference/ensembl-sequence"
 
 
 rule genome_faidx:
@@ -23,7 +23,7 @@ rule genome_faidx:
         "logs/genome-faidx.log",
     cache: True
     wrapper:
-        "1.2.0/bio/samtools/faidx"
+        "v1.2.0/bio/samtools/faidx"
 
 
 rule genome_dict:
@@ -56,7 +56,7 @@ rule get_known_variants:
         chromosome=config["ref"].get("chromosome"),
     cache: True
     wrapper:
-        "1.2.0/bio/reference/ensembl-variation"
+        "v1.2.0/bio/reference/ensembl-variation"
 
 
 rule remove_iupac_codes:
@@ -84,7 +84,7 @@ rule bwa_index:
         mem_mb=369000,
     cache: True
     wrapper:
-        "1.2.0/bio/bwa/index"
+        "v1.2.0/bio/bwa/index"
 
 
 rule get_vep_cache:
@@ -97,7 +97,7 @@ rule get_vep_cache:
     log:
         "logs/vep/cache.log",
     wrapper:
-        "1.2.0/bio/vep/cache"
+        "v1.2.0/bio/vep/cache"
 
 
 rule get_vep_plugins:
@@ -108,4 +108,4 @@ rule get_vep_plugins:
     log:
         "logs/vep/plugins.log",
     wrapper:
-        "1.2.0/bio/vep/plugins"
+        "v1.2.0/bio/vep/plugins"

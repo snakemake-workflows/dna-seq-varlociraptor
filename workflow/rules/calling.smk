@@ -111,4 +111,4 @@ rule bcftools_concat:
     params:
         "-a -Ob",  # TODO Check this
     wrapper:
-        "1.2.0/bio/bcftools/concat"
+        "v1.2.0/bio/bcftools/concat"

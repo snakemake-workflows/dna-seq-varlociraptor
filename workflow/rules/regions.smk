@@ -12,7 +12,7 @@ rule build_sample_regions:
         extra="--no-per-base",
         quantize="1:",
     wrapper:
-        "1.2.0/bio/mosdepth"
+        "v1.2.0/bio/mosdepth"
 
 
 rule merge_group_regions:

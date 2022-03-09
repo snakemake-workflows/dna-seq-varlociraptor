@@ -57,7 +57,7 @@ rule gather_calls:
     params:
         "-a -Ob",
     wrapper:
-        "1.2.0/bio/bcftools/concat"
+        "v1.2.0/bio/bcftools/concat"
 
 
 rule control_fdr:
@@ -87,4 +87,4 @@ rule merge_calls:
     params:
         "-a -Ob",
     wrapper:
-        "1.2.0/bio/bcftools/concat"
+        "v1.2.0/bio/bcftools/concat"

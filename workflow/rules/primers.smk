@@ -89,7 +89,7 @@ rule filter_unmapped_primers:
     log:
         "logs/primers/{panel}_primers_filtered.log",
     wrapper:
-        "1.2.0/bio/samtools/view"
+        "v1.2.0/bio/samtools/view"
 
 
 rule primer_to_bed:
