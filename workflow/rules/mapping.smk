@@ -7,9 +7,8 @@ rule map_reads:
     log:
         "logs/bwa_mem/{sample}.log",
     params:
-        index=lambda w, input: os.path.splitext(input.idx[0])[0],
         extra=get_read_group,
-        sort="samtools",
+        sorting="samtools",
         sort_order="coordinate",
     threads: 8
     wrapper:
