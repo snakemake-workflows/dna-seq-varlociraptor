@@ -109,6 +109,6 @@ rule bcftools_concat:
     log:
         "logs/concat-calls/{group}.{scatteritem}.log",
     params:
-        "-a -Ob",  # TODO Check this
+        extra="-a",  # TODO Check this
     wrapper:
         "v1.2.0/bio/bcftools/concat"
