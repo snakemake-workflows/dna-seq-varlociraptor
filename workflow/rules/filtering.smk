@@ -85,6 +85,6 @@ rule merge_calls:
     log:
         "logs/merge-calls/{group}.{event}.log",
     params:
-        "-a -Ob",
+        extra="-a",
     wrapper:
         "v1.2.0/bio/bcftools/concat"

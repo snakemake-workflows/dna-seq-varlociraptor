@@ -10,7 +10,7 @@ rule gather_benchmark_calls:
     log:
         "logs/gather-benchmark-calls/{group}.log",
     params:
-        "-a -Ob",
+        extra="-a",
     wrapper:
         "v1.2.0/bio/bcftools/concat"
 

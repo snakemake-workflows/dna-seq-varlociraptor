@@ -86,6 +86,6 @@ rule gather_annotated_calls:
     log:
         "logs/gather-annotated-calls/{group}.annotated.log",
     params:
-        "-a -Ob",
+        extra="-a",
     wrapper:
         "v1.2.0/bio/bcftools/concat"
