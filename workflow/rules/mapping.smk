@@ -13,7 +13,7 @@ rule map_reads:
         sort_order="coordinate",
     threads: 8
     wrapper:
-        "0.56.0/bio/bwa/mem"
+        "1.2.0/bio/bwa/mem"
 
 
 rule annotate_umis:
@@ -27,7 +27,7 @@ rule annotate_umis:
     log:
         "logs/fgbio/annotate_bam/{sample}.log",
     wrapper:
-        "0.80.2/bio/fgbio/annotatebamwithumis"
+        "1.2.0/bio/fgbio/annotatebamwithumis"
 
 
 rule mark_duplicates:
@@ -49,7 +49,7 @@ rule mark_duplicates:
             else "",
         ),
     wrapper:
-        "0.80.2/bio/picard/markduplicates"
+        "1.2.0/bio/picard/markduplicates"
 
 
 rule calc_consensus_reads:
@@ -85,7 +85,7 @@ rule map_consensus_reads:
         "logs/bwa_mem/{sample}.{read_type}.consensus.log",
     threads: 8
     wrapper:
-        "0.67.0/bio/bwa/mem"
+        "1.2.0/bio/bwa/mem"
 
 
 rule merge_consensus_reads:
@@ -99,7 +99,7 @@ rule merge_consensus_reads:
         "logs/samtools_merge/{sample}.log",
     threads: 8
     wrapper:
-        "0.67.0/bio/samtools/merge"
+        "1.2.0/bio/samtools/merge"
 
 
 rule sort_consensus_reads:
@@ -111,7 +111,7 @@ rule sort_consensus_reads:
         "logs/samtools_sort/{sample}.log",
     threads: 8
     wrapper:
-        "0.67.0/bio/samtools/sort"
+        "1.2.0/bio/samtools/sort"
 
 
 rule recalibrate_base_qualities:
@@ -132,7 +132,7 @@ rule recalibrate_base_qualities:
         "logs/gatk/baserecalibrator/{sample}.log",
     threads: 8
     wrapper:
-        "0.77.0/bio/gatk/baserecalibratorspark"
+        "1.2.0/bio/gatk/baserecalibratorspark"
 
 
 ruleorder: apply_bqsr > bam_index
@@ -155,4 +155,4 @@ rule apply_bqsr:
         extra=config["params"]["gatk"]["applyBQSR"],  # optional
         java_opts="",  # optional
     wrapper:
-        "0.77.0/bio/gatk/applybqsr"
+        "1.2.0/bio/gatk/applybqsr"
