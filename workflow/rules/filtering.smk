@@ -55,9 +55,9 @@ rule gather_calls:
     log:
         "logs/gather-calls/{group}.{event}.filtered_{by}.log",
     params:
-        "-a -Ob",
+        extra="-a",
     wrapper:
-        "0.67.0/bio/bcftools/concat"
+        "v1.2.0/bio/bcftools/concat"
 
 
 rule control_fdr:
@@ -85,9 +85,9 @@ rule merge_calls:
     log:
         "logs/merge-calls/{group}.{event}.log",
     params:
-        "-a -Ob",
+        extra="-a",
     wrapper:
-        "0.59.2/bio/bcftools/concat"
+        "v1.2.0/bio/bcftools/concat"
 
 
 rule convert_phred_scores:
