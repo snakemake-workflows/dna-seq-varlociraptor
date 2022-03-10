@@ -724,7 +724,7 @@ def format_bowtie_primers(wc, primers):
 def get_call_tables(impact):
     def inner(wildcards):
         return expand(
-            "results/tables/{group}.{event}.{impact}.fdr-controlled.csv",
+            "results/tables/{group}.{event}.{impact}.fdr-controlled.tsv",
             impact=impact,
             event=wildcards.event,
             group=groups,

@@ -4,9 +4,11 @@ datasets:
   ?for group, path in zip(params.groups, params.coding_calls):
     ?f"{group}-coding":
       path: ?path
+      separator: "\t"
   ?for group, path in zip(params.groups, params.noncoding_calls):
     ?f"{group}-noncoding":
       path: ?path
+      separator: "\t"
 
 views:
   ?for group in params.groups:
