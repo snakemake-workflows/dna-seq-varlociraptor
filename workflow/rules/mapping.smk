@@ -47,6 +47,7 @@ rule mark_duplicates:
             if is_activated("calc_consensus_reads")
             else "",
         ),
+        java_opts="-Dpicard.useLegacyParser=false",
     wrapper:
         "v1.2.0/bio/picard/markduplicates"
 
