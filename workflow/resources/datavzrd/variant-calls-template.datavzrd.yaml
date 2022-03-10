@@ -23,12 +23,12 @@ views:
         impact:
           plot:
             heatmap:
-              scale: nominal
+              scale: ordinal
               color-scheme: category10
         consequence:
           plot:
             heatmap:
-              scale: nominal
+              scale: ordinal
               color-scheme: category20
 
     ?f"{group}-noncoding":
@@ -40,10 +40,10 @@ views:
         impact:
           plot:
             heatmap:
-              scale: nominal
+              scale: ordinal
               color-scheme: category10
         consequence:
           plot:
             heatmap:
-              scale: nominal
+              scale: ordinal
               color-scheme: category20
