@@ -318,17 +318,17 @@ def get_primer_regions(wc):
 
 
 def get_markduplicates_extra(wc):
-    c=config["params"]["picard"]["MarkDuplicates"]
+    c = config["params"]["picard"]["MarkDuplicates"]
 
     if units.loc[wc.sample]["umis"].isnull().any():
-        b=""
+        b = ""
     else:
-        b="--BARCODE_TAG RX"
+        b = "--BARCODE_TAG RX"
 
     if is_activated("calc_consensus_reads"):
-        d="--TAG_DUPLICATE_SET_MEMBERS true"
+        d = "--TAG_DUPLICATE_SET_MEMBERS true"
     else:
-        d=""
+        d = ""
 
     return f"{c} {b} {d}"
 
