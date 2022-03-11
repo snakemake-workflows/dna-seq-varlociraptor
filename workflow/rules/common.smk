@@ -317,6 +317,22 @@ def get_primer_regions(wc):
     return "results/primers/uniform_primer_regions.tsv"
 
 
+def get_markduplicates_extra(wc):
+    c=config["params"]["picard"]["MarkDuplicates"]
+
+    if units.loc[wc.sample]["umis"].isnull().any():
+        b=""
+    else:
+        b="--BARCODE_TAG RX"
+
+    if is_activated("calc_consensus_reads"):
+        d="--TAG_DUPLICATE_SET_MEMBERS true"
+    else:
+        d=""
+
+    return f"{c} {b} {d}"
+
+
 def get_group_bams(wildcards, bai=False):
     ext = "bai" if bai else "bam"
     if is_activated("primers/trimming") and not group_is_paired_end(wildcards.group):

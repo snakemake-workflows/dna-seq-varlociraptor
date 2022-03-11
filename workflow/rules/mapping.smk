@@ -40,15 +40,7 @@ rule mark_duplicates:
     log:
         "logs/picard/dedup/{sample}.log",
     params:
-        extra=lambda wc: "{c} {b} {d}".format(
-            c=config["params"]["picard"]["MarkDuplicates"],
-            b=""
-            if units.loc[wc.sample]["umis"].isnull().any()
-            else "--BARCODE_TAG RX",
-            d="--TAG_DUPLICATE_SET_MEMBERS true"
-            if is_activated("calc_consensus_reads")
-            else "",
-        ),
+        extra=get_markduplicates_extra,
     wrapper:
         "v1.2.0/bio/picard/markduplicates"
 
