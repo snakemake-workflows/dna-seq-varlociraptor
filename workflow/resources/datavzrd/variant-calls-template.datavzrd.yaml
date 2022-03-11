@@ -16,10 +16,11 @@ views:
       desc: ?f"Variants in coding regions.\n{config['calling']['fdr-control']['events'][wildcards.event]['desc']}"
       dataset: ?f"{group}-coding"
       render-table:
-        gene:
-          link-to-url: "https://www.ensembl.org/Gene/Summary?g={value}"
-        feature:
-          link-to-url: "https://www.ensembl.org/Multi/Search/Results?q={value}"
+        symbol:
+          custom: |
+            function(value, row) {
+              return `<a href="https://www.ensembl.org/Multi/Search/Results?q=${row['feature']}" target="_blank">${value}</a>`
+            }
         impact:
           plot:
             heatmap:
@@ -35,8 +36,11 @@ views:
       desc: ?f"Variants in non-coding regions.\n{config['calling']['fdr-control']['events'][wildcards.event]['desc']}"
       dataset: ?f"{group}-noncoding"
       render-table:
-        gene:
-          link-to-url: "https://www.ensembl.org/Gene/Summary?g={value}"
+        symbol:
+          custom: |
+            function(value, row) {
+              return `<a href="https://www.ensembl.org/Multi/Search/Results?q=${row['feature']}" target="_blank">${value}</a>`
+            }
         impact:
           plot:
             heatmap:

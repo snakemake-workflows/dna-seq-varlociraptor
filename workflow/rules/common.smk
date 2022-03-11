@@ -676,7 +676,8 @@ def get_vembrane_config(wildcards, input):
         )
 
     if config_output.get("event_prob", False):
-        events = scenario["events"]
+        events = list(scenario["events"].keys())
+        events += ["artifact", "absent"]
         append_items(events, lambda x: f"INFO['PROB_{x.upper()}']", "prob: {}".format)
 
     append_format_field("AF", "allele frequency")
