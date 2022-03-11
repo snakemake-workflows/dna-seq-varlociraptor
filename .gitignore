@@ -15,5 +15,5 @@
 !.editorconfig
 !.travis.yml
 !.test
-!.test/data
+!.test/**/*
 .DS_Store
