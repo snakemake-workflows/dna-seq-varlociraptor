@@ -160,7 +160,7 @@ annotations:
 params:
   cutadapt: ""
   picard:
-    MarkDuplicates: "VALIDATION_STRINGENCY=LENIENT"
+    MarkDuplicates: "--VALIDATION_STRINGENCY LENIENT"
   gatk:
     BaseRecalibrator: ""
     applyBQSR: ""
