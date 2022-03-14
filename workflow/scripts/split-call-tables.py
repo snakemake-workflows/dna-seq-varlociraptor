@@ -70,6 +70,7 @@ def plot_spec(samples):
                     "scale": {"domain": [0, 1.0]},
                 },
                 "color": {"field": "variant", "legend": None},
+                "href": {"field": "variant-link"},
                 "opacity": {
                     "condition": {
                         "test": {

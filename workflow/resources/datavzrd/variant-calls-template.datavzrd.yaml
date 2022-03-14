@@ -13,10 +13,18 @@ datasets:
     ?f"{group}-coding-plotdata":
       path: ?path
       separator: "\t"
+      links:
+        variant-link:
+          column: variant
+          table-row: hgvsp
   ?for group, path in zip(params.groups, params.noncoding_plotdata):
     ?f"{group}-noncoding-plotdata":
       path: ?path
       separator: "\t"
+      links:
+        variant-link:
+          column: variant
+          table-row: hgvsg
 
 views:
   ?for group in params.groups:
