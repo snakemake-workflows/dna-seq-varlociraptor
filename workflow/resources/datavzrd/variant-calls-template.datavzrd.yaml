@@ -9,6 +9,14 @@ datasets:
     ?f"{group}-noncoding":
       path: ?path
       separator: "\t"
+  ?for group, path in zip(params.groups, params.coding_plotdata):
+    ?f"{group}-coding-plotdata":
+      path: ?path
+      separator: "\t"
+  ?for group, path in zip(params.groups, params.noncoding_plotdata):
+    ?f"{group}-noncoding-plotdata":
+      path: ?path
+      separator: "\t"
 
 views:
   ?for group in params.groups:
@@ -51,3 +59,10 @@ views:
             heatmap:
               scale: ordinal
               color-scheme: category20
+
+  ?for group, plot_spec in zip(params.groups, params.plot_specs):
+    ?for impact in ["coding", "noncoding"]:
+      ?f"{group}-{impact}-plot:
+        dataset: ?f"{group}-{impact}-plotdata"
+        render-plot:
+          spec-path: ?plot_spec

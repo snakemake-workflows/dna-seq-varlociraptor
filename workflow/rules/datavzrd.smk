@@ -4,6 +4,9 @@ rule split_call_tables:
     output:
         coding="results/tables/{group}.{event}.coding.fdr-controlled.tsv",
         noncoding="results/tables/{group}.{event}.noncoding.fdr-controlled.tsv",
+        coding_plot="results/tables/{group}.{event}.plotdata.coding.fdr-controlled.tsv",
+        noncoding_plot="results/tables/{group}.{event}.plotdata.noncoding.fdr-controlled.tsv",
+        plot_spec="results/specs/{group}.{event}.varplot.json",
     log:
         "logs/split_tables/{group}.{event}.log",
     script:
@@ -19,8 +22,11 @@ rule render_datavzrd_config:
         "resources/datavzrd/all.{event}.datavzrd.yaml",
     params:
         groups=groups,
-        coding_calls=get_call_tables("coding"),
-        noncoding_calls=get_call_tables("noncoding"),
+        coding_calls=get_datavzrd_data(impact="coding"),
+        noncoding_calls=get_datavzrd_data(impact="noncoding"),
+        coding_plotdata=get_datavzrd_data(impact="coding", kind="plotdata"),
+        noncoding_plotdata=get_datavzrd_data(impact="noncoding", kind="plotdata"),
+        plot_spec=get_datavzrd_data(kind="plotspec"),
     log:
         "logs/datavzrd_render/{event}.log",
     template_engine:
@@ -29,8 +35,8 @@ rule render_datavzrd_config:
 
 rule datavzrd_variants_calls:
     input:
-        coding_calls=get_call_tables("coding"),
-        noncoding_calls=get_call_tables("noncoding"),
+        coding_calls=get_datavzrd_data(impact="coding"),
+        noncoding_calls=get_datavzrd_data(impact="noncoding"),
         config="resources/datavzrd/all.{event}.datavzrd.yaml",
     output:
         directory("results/datavzrd-report/all.{event}.fdr-controlled"),
