@@ -21,6 +21,12 @@ rule render_datavzrd_config:
         groups=groups,
         coding_calls=get_call_tables("coding"),
         noncoding_calls=get_call_tables("noncoding"),
+        spec_observations=workflow.source_path(
+            "../resources/datavzrd/spec_observations.json"
+        ),
+        data_observations=workflow.source_path(
+            "../resources/datavzrd/data_observations.js"
+        ),
     log:
         "logs/datavzrd_render/{event}.log",
     template_engine:

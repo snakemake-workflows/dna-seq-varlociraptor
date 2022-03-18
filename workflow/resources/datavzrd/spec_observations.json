@@ -1,0 +1,54 @@
+{
+    "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+    "mark": {
+        "type": "bar",
+        "height": {
+        "band": 1
+        }
+    },
+    "encoding": {
+        "x": {
+            "field": "count",
+            "type": "quantitative",
+            "title": null,
+            "axis": null
+        },
+        "y": {
+            "field": "quality",
+            "type": "ordinal",
+            "title": "Map. Q.",
+            "scale": {
+            "paddingInner": 0.00,
+            "paddingOuter": 0
+            }
+        },
+        "color": {
+            "field": "effect",
+            "type": "nominal",
+            "sort": ["None", "Barely", "Positive", "Strong", "Very Strong"],
+            "scale": {
+                "domain": ["None", "Barely", "Positive", "Strong", "Very Strong"],
+                "range": ["#999999", "#2ba6cb", "#afdfee", "#ffa3a3", "#ff5555"]
+            },
+            "legend": null
+        },
+        "tooltip": [{
+            "field": "quality",
+            "type": "nominative",
+            "title": "Mapping Quality"
+            }, {
+            "field": "effect",
+            "type": "nominative",
+            "title": "Effect"
+            }, {
+            "field": "count",
+            "type": "quantitative",
+            "title": "Count"
+        }]
+    },
+    "config": {
+        "view": {
+            "stroke": "transparent"
+        }
+    }
+}

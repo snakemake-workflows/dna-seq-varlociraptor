@@ -1,5 +1,10 @@
 name: ?f"Variant calls {wildcards.event}"
 
+__definitions__:
+  - |
+    def read_file(path):
+        return open(path, 'r').read()
+
 datasets:
   ?for group, path in zip(params.groups, params.coding_calls):
     ?f"{group}-coding":
@@ -41,88 +46,8 @@ views:
         ?for sample in ["normal", "tumor"]:
           '?f"{sample}: observations"':
             custom-plot:
-              data: |
-                function(value) {
-                  var regex = /([0-9]+)(N|E|B|P|S|V|n|e|b|p|s|v)/g;
-                  var effects = {
-                    "N": "None",
-                    "E": "Equal",
-                    "B": "Barely",
-                    "P": "Positive",
-                    "S": "Strong",
-                    "V": "Very Strong"
-                  }
-                  var observations = [];
-                  while ((result = regex.exec(value)) != null) {
-                    effect = effects[result[2].toUpperCase()]
-                    count = parseFloat(result[1])
-                    var quality = "Low";
-                    if (result[2] == result[2].toUpperCase()) {
-                        quality = "High";
-                    }
-                    observations.push({
-                      "effect": effect,
-                      "count": count,
-                      "quality": quality
-                    })
-                  }
-                  return observations
-                }
-              spec: |
-                {
-                  "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
-                  "mark": {
-                    "type": "bar",
-                    "height": {
-                      "band": 1
-                    }
-                  },
-                  "encoding": {
-                    "x": {
-                      "field": "count",
-                      "type": "quantitative",
-                      "title": null,
-                      "axis": null
-                    },
-                    "y": {
-                      "field": "quality",
-                      "type": "ordinal",
-                      "title": "Map. Q.",
-                      "scale": {
-                        "paddingInner": 0.00,
-                        "paddingOuter": 0
-                      }
-                    },
-                    "color": {
-                      "field": "effect",
-                      "type": "nominal",
-                      "sort": ["None", "Barely", "Positive", "Strong", "Very Strong"],
-                      "scale": {
-                          "domain": ["None", "Barely", "Positive", "Strong", "Very Strong"],
-                          "range": ["#999999", "#2ba6cb", "#afdfee", "#ffa3a3", "#ff5555"]
-                      },
-                      "legend": null,
-                    },
-                    "tooltip": [{
-                        "field": "quality",
-                        "type": "nominative",
-                        "title": "Mapping Quality"
-                      }, {
-                        "field": "effect",
-                        "type": "nominative",
-                        "title": "Effect"
-                      }, {
-                        "field": "count",
-                        "type": "quantitative",
-                        "title": "Count"
-                      }]
-                  },
-                  "config": {
-                    "view": {
-                      "stroke": "transparent"
-                    }
-                  }
-                }
+              data: ?read_file(params.data_observations)
+              spec: ?read_file(params.spec_observations)
 
 
     ?f"{group}-noncoding":
@@ -152,87 +77,7 @@ views:
                 - "#ecca00"
 
         ?for sample in ["normal", "tumor"]:
-          ?f"{sample} observations":
+          '?f"{sample}: observations"':
             custom-plot:
-              data: |
-                function(value) {
-                  var regex = /([0-9]+)(N|E|B|P|S|V|n|e|b|p|s|v)/g;
-                  var effects = {
-                    "N": "None",
-                    "E": "Equal",
-                    "B": "Barely",
-                    "P": "Positive",
-                    "S": "Strong",
-                    "V": "Very Strong"
-                  }
-                  var observations = [];
-                  while ((result = regex.exec(value)) != null) {
-                    effect = effects[result[2].toUpperCase()]
-                    count = parseFloat(result[1])
-                    var quality = "Low";
-                    if (result[2] == result[2].toUpperCase()) {
-                        quality = "High";
-                    }
-                    observations.push({
-                      "effect": effect,
-                      "count": count,
-                      "quality": quality
-                    })
-                  }
-                  return observations
-                }
-              spec: |
-                {
-                  "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
-                  "mark": {
-                    "type": "bar",
-                    "height": {
-                      "band": 1
-                    }
-                  },
-                  "encoding": {
-                    "x": {
-                      "field": "count",
-                      "type": "quantitative",
-                      "title": null,
-                      "axis": null
-                    },
-                    "y": {
-                      "field": "quality",
-                      "type": "ordinal",
-                      "title": "Map. Q.",
-                      "scale": {
-                        "paddingInner": 0.00,
-                        "paddingOuter": 0
-                      }
-                    },
-                    "color": {
-                      "field": "effect",
-                      "type": "nominal",
-                      "sort": ["None", "Barely", "Positive", "Strong", "Very Strong"],
-                      "scale": {
-                          "domain": ["None", "Barely", "Positive", "Strong", "Very Strong"],
-                          "range": ["#999999", "#2ba6cb", "#afdfee", "#ffa3a3", "#ff5555"]
-                      },
-                      "legend": null
-                    },
-                    "tooltip": [{
-                        "field": "quality",
-                        "type": "nominative",
-                        "title": "Mapping Quality"
-                      }, {
-                        "field": "effect",
-                        "type": "nominative",
-                        "title": "Effect"
-                      }, {
-                        "field": "count",
-                        "type": "quantitative",
-                        "title": "Count"
-                      }]
-                  },
-                  "config": {
-                    "view": {
-                      "stroke": "transparent"
-                    }
-                  }
-                }
+              data: ?read_file(params.data_observations)
+              spec: ?read_file(params.spec_observations)
