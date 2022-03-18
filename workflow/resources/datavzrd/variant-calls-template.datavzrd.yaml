@@ -39,7 +39,7 @@ views:
                 - "#ecca00"
 
         ?for sample in ["normal", "tumor"]:
-          '[?f"{sample}: observations"]':
+          '?f"{sample}: observations"':
             custom-plot:
               data: |
                 function(value) {
