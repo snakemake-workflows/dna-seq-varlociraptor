@@ -8,7 +8,10 @@ definitions:
   filterentry:
     type: object
     additionalProperties:
-      type: [string, "null"]
+      anyOf:
+        - type: string
+        - type: "null"
+        - type: object
   evententry:
     type: object
     properties:
