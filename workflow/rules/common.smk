@@ -566,9 +566,12 @@ def get_filter_targets(wildcards, input):
 
 
 def get_filter_expression(filter):
-    return config["calling"]["filter"][filter]
-    if isinstance(filter, str)
-    else config["calling"]["filter"][filter]["expression"]
+    expr = (
+        config["calling"]["filter"][filter]
+        if isinstance(filter, str)
+        else config["calling"]["filter"][filter]["expression"]
+    )
+    return expr
 
 
 def get_annotation_filter(wildcards):
