@@ -565,12 +565,18 @@ def get_filter_targets(wildcards, input):
         return ""
 
 
+def get_filter_expression(filter):
+    return config["calling"]["filter"][filter]
+    if isinstance(filter, str)
+    else config["calling"]["filter"][filter]["expression"]
+
+
 def get_annotation_filter(wildcards):
     filter = config["calling"]["fdr-control"]["events"][wildcards.event]["filter"]
     filter = (
-        [config["calling"]["filter"][filter]]
+        [get_filter_expression(filter)]
         if isinstance(filter, str)
-        else map(lambda x: config["calling"]["filter"][x], filter)
+        else map(lambda x: get_filter_expression(x), filter)
     )
     return " and ".join(filter)
 
