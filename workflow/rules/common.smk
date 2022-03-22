@@ -584,7 +584,6 @@ def get_annotation_filter(wildcards):
         if isinstance(filter, str)
         else map(lambda x: get_filter_expression(x), filter)
     )
-    filters = 
     return " and ".join(filters)
 
 
