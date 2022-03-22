@@ -23,7 +23,7 @@ rule filter_by_annotation:
         "logs/filter-calls/annotation/{group}.{event}.{scatteritem}.log",
     params:
         filter=get_annotation_filter,
-        extra=lambda w: config["calling"]["filter"][w.event].get(extra, ""),
+        extra=get_vembrane_filter_extra,
     conda:
         "../envs/vembrane.yaml"
     shell:
