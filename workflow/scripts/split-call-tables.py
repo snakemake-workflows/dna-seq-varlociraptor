@@ -46,7 +46,7 @@ def plot_data(df):
     if "hgvsp" not in df.columns:
         varcol = "hgvsg"
     df = df[vafcols + [varcol]]
-    df.columns = ["variant", *samples]
+    df.columns = [*samples, "variant"]
     return df
 
 
@@ -59,7 +59,7 @@ def plot_spec(samples):
                 {
                     "mark": {"type": "text", "dx": 13, "align": "left"},
                     "encoding": {"text": {"field": "variant", "type": "nominal"}},
-                    "transform": [{"filter": f"datum.sample == {samples[-1]}"}],
+                    "transform": [{"filter": f"datum.sample == '{samples[-1]}'"}],
                 },
             ],
             "encoding": {

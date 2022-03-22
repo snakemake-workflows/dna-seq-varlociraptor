@@ -16,7 +16,7 @@ datasets:
       links:
         variant-link:
           column: variant
-          table-row: hgvsp
+          table-row: ?f"{group}-coding/hgvsp"
   ?for group, path in zip(params.groups, params.noncoding_plotdata):
     ?f"{group}-noncoding-plotdata":
       path: ?path
@@ -24,7 +24,7 @@ datasets:
       links:
         variant-link:
           column: variant
-          table-row: hgvsg
+          table-row: ?f"{group}-noncoding/hgvsg"
 
 views:
   ?for group in params.groups:
