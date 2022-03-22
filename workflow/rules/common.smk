@@ -592,7 +592,7 @@ def get_vembrane_filter_extra(wildcards):
     filters = get_annotation_filter_names(wildcards)
     extras = []
     for f in filters:
-        if isinstance(config["calling"]["filter"][f], str)
+        if isinstance(config["calling"]["filter"][f], str):
             extras.append("")
         else:
             extras.append(config["calling"]["filter"][f].get("extra", ""))
