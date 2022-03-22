@@ -4,8 +4,8 @@ rule split_call_tables:
     output:
         coding="results/tables/{group}.{event}.coding.fdr-controlled.tsv",
         noncoding="results/tables/{group}.{event}.noncoding.fdr-controlled.tsv",
-        coding_plot="results/tables/{group}.{event}.plotdata.coding.fdr-controlled.tsv",
-        noncoding_plot="results/tables/{group}.{event}.plotdata.noncoding.fdr-controlled.tsv",
+        coding_plot_data="results/tables/{group}.{event}.plotdata.coding.fdr-controlled.tsv",
+        noncoding_plot_data="results/tables/{group}.{event}.plotdata.noncoding.fdr-controlled.tsv",
         plot_spec="results/specs/{group}.{event}.varplot.json",
     log:
         "logs/split_tables/{group}.{event}.log",

@@ -8,7 +8,7 @@ sys.stderr = open(snakemake.log[0], "w")
 
 
 def write(df, path):
-    df.drop(["canonical"], axis="columns").dropna(how="all", axis="columns").to_csv(
+    df.drop(["canonical"], axis="columns", errors="ignore").dropna(how="all", axis="columns").to_csv(
         path, index=False, sep="\t"
     )
 
@@ -32,21 +32,21 @@ def trim_hgvsp_entries(df):
 
 
 def get_vaf_columns(df):
-    return df.columns[df.columns.str.startswith("allele frequency: ")]
+    return df.columns[df.columns.str.endswith(": allele frequency")]
 
 
 def get_samples(df):
-    return get_vaf_columns(df).str.replace("allele frequency: ", "")
+    return list(get_vaf_columns(df).str.replace(": allele frequency", ""))
 
 
 def plot_data(df):
     samples = get_samples(df)
-    vafcols = get_vaf_columns(df)
+    vafcols = list(get_vaf_columns(df))
     varcol = "hgvsp"
     if "hgvsp" not in df.columns:
         varcol = "hgvsg"
-    df = df[[varcol] + vafcols]
-    df.columns = ["variant", samples]
+    df = df[vafcols + [varcol]]
+    df.columns = ["variant", *samples]
     return df
 
 

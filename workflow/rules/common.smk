@@ -739,5 +739,4 @@ def get_datavzrd_data(impact="coding", kind="full"):
             group=groups,
             kindspec=kindspec,
         )
-
     return inner

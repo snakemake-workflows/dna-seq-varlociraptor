@@ -68,9 +68,9 @@ views:
               scale: ordinal
               color-scheme: category20
 
-  ?for group, plot_spec in zip(params.groups, params.plot_specs):
+  ?for group, plot_spec in zip(params.groups, params.plot_spec):
     ?for impact in ["coding", "noncoding"]:
-      ?f"{group}-{impact}-plot:
+      ?f"{group}-{impact}-plot":
         dataset: ?f"{group}-{impact}-plotdata"
         render-plot:
           spec-path: ?plot_spec
