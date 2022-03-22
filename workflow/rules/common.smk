@@ -574,22 +574,22 @@ def get_filter_expression(filter):
     return expr
 
 
-def get_annotation_filters(wildcards):
-    filter = config["calling"]["fdr-control"]["events"][wildcards.event]["filter"]
-    return (
-        [get_filter_expression(filter)]
-        if isinstance(filter, str)
-        else map(lambda x: get_filter_expression(x), filter)
-    )
+def get_annotation_filter_names(wildcards):
+    return config["calling"]["fdr-control"]["events"][wildcards.event]["filter"]
 
 
 def get_annotation_filter(wildcards):
-    filters = get_annotation_filters(wildcards)
+    filters = (
+        [get_filter_expression(get_annotation_filter_names(wildcards))]
+        if isinstance(filter, str)
+        else map(lambda x: get_filter_expression(x), filter)
+    )
+    filters = 
     return " and ".join(filters)
 
 
 def get_vembrane_filter_extra(wildcards):
-    filters = get_annotation_filters(wildcards)
+    filters = get_annotation_filter_names(wildcards)
     extras = map(lambda x: config["calling"]["filter"][x].get("extra", ""), filters)
     return " ".join(extras)
 
