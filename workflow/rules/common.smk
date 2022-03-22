@@ -590,12 +590,17 @@ def get_annotation_filter_names(wildcards):
 
 
 def get_annotation_filter_expression(wildcards):
-    filters = [get_filter_expression(filter) for filter in get_annotation_filter_names(wildcards)]
+    filters = [
+        get_filter_expression(filter)
+        for filter in get_annotation_filter_names(wildcards)
+    ]
     return " and ".join(filters)
 
 
 def get_annotation_filter_extra(wildcards):
-    extras = [get_filter_extra(filter) for filter in get_annotation_filter_names(wildcards)]
+    extras = [
+        get_filter_extra(filter) for filter in get_annotation_filter_names(wildcards)
+    ]
     return " ".join(extras)
 
 
