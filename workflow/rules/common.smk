@@ -579,8 +579,9 @@ def get_annotation_filter_names(wildcards):
 
 
 def get_annotation_filter(wildcards):
+    filter = get_annotation_filter_names(wildcards)
     filters = (
-        [get_filter_expression(get_annotation_filter_names(wildcards))]
+        [get_filter_expression(filter)]
         if isinstance(filter, str)
         else map(lambda x: get_filter_expression(x), filter)
     )
@@ -589,7 +590,7 @@ def get_annotation_filter(wildcards):
 
 def get_vembrane_filter_extra(wildcards):
     filters = get_annotation_filter_names(wildcards)
-    extras = map(lambda x: config["calling"]["filter"][x].get("extra", ""), filters)
+    extras = [ config["calling"]["filter"][f].get("extra", "") for f in filters ]
     return " ".join(extras)
 
 
