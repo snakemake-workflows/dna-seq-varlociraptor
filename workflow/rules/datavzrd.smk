@@ -27,6 +27,12 @@ rule render_datavzrd_config:
         coding_plotdata=get_datavzrd_data(impact="coding", kind="plotdata"),
         noncoding_plotdata=get_datavzrd_data(impact="noncoding", kind="plotdata"),
         plot_spec=get_datavzrd_data(kind="plotspec"),
+        spec_observations=workflow.source_path(
+            "../resources/datavzrd/spec_observations.json"
+        ),
+        data_observations=workflow.source_path(
+            "../resources/datavzrd/data_observations.js"
+        ),
     log:
         "logs/datavzrd_render/{event}.log",
     template_engine:

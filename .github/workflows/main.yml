@@ -61,6 +61,8 @@ jobs:
         directory: .test
         snakefile: workflow/Snakefile
         args: "--configfile .test/config-target-regions/config.yaml --use-conda --show-failed-logs -j 10 --conda-cleanup-pkgs cache --conda-frontend mamba"
+        stagein: |
+          rm -rf .test/results
 
     - name: Test workflow (local FASTQs, no candidate filtering)
       uses: snakemake/snakemake-github-action@v1.24.0
@@ -68,6 +70,8 @@ jobs:
         directory: .test
         snakefile: workflow/Snakefile
         args: "--configfile .test/config-no-candidate-filtering/config.yaml --dryrun --use-conda --show-failed-logs -j 10 --conda-cleanup-pkgs cache --conda-frontend mamba"
+        stagein: |
+          rm -rf .test/results
 
     - name: Test workflow (local FASTQs primer)
       uses: snakemake/snakemake-github-action@v1.24.0
@@ -76,7 +80,7 @@ jobs:
         snakefile: workflow/Snakefile
         args: "--configfile .test/config_primers/config.yaml --use-conda --show-failed-logs -j 10 --conda-cleanup-pkgs cache --conda-frontend mamba"
         stagein: |
-          rm -rf .test/resources .test/results
+          rm -rf .test/results
 
     - name: Test workflow (SRA FASTQs)
       uses: snakemake/snakemake-github-action@v1.24.0
@@ -85,4 +89,4 @@ jobs:
         snakefile: workflow/Snakefile
         args: "--configfile .test/config-sra/config.yaml --show-failed-logs --use-conda -n -j 10 --conda-cleanup-pkgs cache --conda-frontend mamba"
         stagein: |
-          rm -rf .test/resources .test/results
+          rm -rf .test/results

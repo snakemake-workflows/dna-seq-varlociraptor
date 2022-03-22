@@ -1,5 +1,10 @@
 name: ?f"Variant calls {wildcards.event}"
 
+__definitions__:
+  - |
+    def read_file(path):
+        return open(path, 'r').read()
+
 datasets:
   ?for group, path in zip(params.groups, params.coding_calls):
     ?f"{group}-coding":
@@ -33,44 +38,62 @@ views:
       dataset: ?f"{group}-coding"
       render-table:
         symbol:
-          custom: |
-            function(value, row) {
-              return `<a href="https://www.ensembl.org/Multi/Search/Results?q=${row['feature']}" target="_blank">${value}</a>`
-            }
+          link-to-url: https://www.ensembl.org/Multi/Search/Results?q={feature}
+        consequence:
+          plot:
+            heatmap:
+              color-scheme: category20
+              scale: ordinal
         impact:
           plot:
             heatmap:
               scale: ordinal
-              color-scheme: category10
-        consequence:
-          plot:
-            heatmap:
-              scale: ordinal
-              color-scheme: category20
+              domain:
+                - HIGH
+                - MODERATE
+                - LOW
+                - MODIFIER
+              range:
+                - "#ec0000"
+                - "#ec5300"
+                - "#ec9b00"
+                - "#ecca00"
+
+        ?for sample in ["normal", "tumor"]:
+          '?f"{sample}: observations"':
+            custom-plot:
+              data: ?read_file(params.data_observations)
+              spec: ?read_file(params.spec_observations)
+
 
     ?f"{group}-noncoding":
       desc: ?f"Variants in non-coding regions.\n{config['calling']['fdr-control']['events'][wildcards.event]['desc']}"
       dataset: ?f"{group}-noncoding"
       render-table:
         symbol:
-          custom: |
-            function(value, row) {
-              return `<a href="https://www.ensembl.org/Multi/Search/Results?q=${row['feature']}" target="_blank">${value}</a>`
-            }
+          link-to-url: https://www.ensembl.org/Multi/Search/Results?q={feature}
+        consequence:
+          plot:
+            heatmap:
+              color-scheme: category20
+              scale: ordinal
         impact:
           plot:
             heatmap:
               scale: ordinal
-              color-scheme: category10
-        consequence:
-          plot:
-            heatmap:
-              scale: ordinal
-              color-scheme: category20
+              domain:
+                - HIGH
+                - MODERATE
+                - LOW
+                - MODIFIER
+              range:
+                - "#ec0000"
+                - "#ec5300"
+                - "#ec9b00"
+                - "#ecca00"
 
-  ?for group, plot_spec in zip(params.groups, params.plot_spec):
-    ?for impact in ["coding", "noncoding"]:
-      ?f"{group}-{impact}-plot":
-        dataset: ?f"{group}-{impact}-plotdata"
-        render-plot:
-          spec-path: ?plot_spec
+        ?for sample in ["normal", "tumor"]:
+          '?f"{sample}: observations"':
+            custom-plot:
+              data: ?read_file(params.data_observations)
+              spec: ?read_file(params.spec_observations)
