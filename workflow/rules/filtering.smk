@@ -22,8 +22,8 @@ rule filter_by_annotation:
     log:
         "logs/filter-calls/annotation/{group}.{event}.{scatteritem}.log",
     params:
-        filter=get_annotation_filter,
-        extra=get_vembrane_filter_extra,
+        filter=get_annotation_filter_epxression,
+        extra=get_annotation_filter_extra,
     conda:
         "../envs/vembrane.yaml"
     shell:
