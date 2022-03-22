@@ -590,7 +590,7 @@ def get_annotation_filter(wildcards):
 
 def get_vembrane_filter_extra(wildcards):
     filters = get_annotation_filter_names(wildcards)
-    extras = [ config["calling"]["filter"][f].get("extra", "") for f in filters ]
+    extras = [config["calling"]["filter"][f].get("extra", "") for f in filters]
     return " ".join(extras)
 
 
