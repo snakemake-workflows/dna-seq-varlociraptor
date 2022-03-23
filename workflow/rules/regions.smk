@@ -65,3 +65,4 @@ rule build_excluded_group_regions:
         "(complementBed -i {input.target_regions} -g <(head "
         "-n {params.chroms} {input.genome_index} | cut "
         "-f 1,2 | sort -k1,1 -k 2,2n) > {output}) 2> {log}"
+
