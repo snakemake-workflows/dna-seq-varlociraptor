@@ -33,8 +33,9 @@ rule merge_group_regions:
 
 rule filter_group_regions:
     input:
-        "results/regions/{group}.target_regions.bed",
+        regions="results/regions/{group}.target_regions.bed",
         predefined=config["targets_bed"] if "targets_bed" in config else [],
+        fai="resources/genome.fasta.fai",
     output:
         "results/regions/{group}.target_regions.filtered.bed",
     params:
@@ -43,7 +44,7 @@ rule filter_group_regions:
     log:
         "logs/regions/{group}.target_regions.filtered.log",
     shell:
-        "cat {input} | grep -f <(head -n {params.chroms} resources/genome.fasta.fai | "
+        "cat {input.regions} {input.predefined} | grep -f <(head -n {params.chroms} {input.fai} | "
         'awk \'{{print "^"$1"\\t"}}\') {params.filter_targets} '
         "> {output} 2> {log}"
 
