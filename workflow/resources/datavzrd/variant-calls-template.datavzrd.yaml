@@ -14,6 +14,22 @@ datasets:
     ?f"{group}-noncoding":
       path: ?path
       separator: "\t"
+  ?for group, path in zip(params.groups, params.coding_plotdata):
+    ?f"{group}-coding-plotdata":
+      path: ?path
+      separator: "\t"
+      links:
+        variant-link:
+          column: variant
+          table-row: ?f"{group}-coding/hgvsp"
+  ?for group, path in zip(params.groups, params.noncoding_plotdata):
+    ?f"{group}-noncoding-plotdata":
+      path: ?path
+      separator: "\t"
+      links:
+        variant-link:
+          column: variant
+          table-row: ?f"{group}-noncoding/hgvsg"
 
 views:
   ?for group in params.groups:

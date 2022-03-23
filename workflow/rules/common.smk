@@ -671,6 +671,7 @@ def get_vembrane_config(wildcards, input):
         "Feature",
         "IMPACT",
         "HGVSp",
+        "HGVSg",
         "Consequence",
         "CANONICAL",
     ]
@@ -738,13 +739,20 @@ def format_bowtie_primers(wc, primers):
     return primers
 
 
-def get_call_tables(impact):
+def get_datavzrd_data(impact="coding", kind="full"):
+    kindspec = ""
+    pattern = "results/tables/{group}.{event}{kindspec}.{impact}.fdr-controlled.tsv"
+    if kind == "plotdata":
+        kindspec = ".plotdata"
+    if kind == "plotspec":
+        pattern = "results/specs/{group}.{event}.varplot.json"
+
     def inner(wildcards):
         return expand(
-            "results/tables/{group}.{event}.{impact}.fdr-controlled.tsv",
+            pattern,
             impact=impact,
             event=wildcards.event,
             group=groups,
+            kindspec=kindspec,
         )
-
     return inner
