@@ -97,3 +97,10 @@ views:
             custom-plot:
               data: ?read_file(params.data_observations)
               spec: ?read_file(params.spec_observations)
+
+    ?for group, plot_spec in zip(params.groups, params.plot_spec):
+      ?for impact in ["coding", "noncoding"]:
+        ?f"{group}-{impact}-plot":
+          dataset: ?f"{group}-{impact}-plotdata"
+          render-plot:
+            spec-path: ?plot_spec

@@ -43,7 +43,7 @@ def plot_data(df):
     samples = get_samples(df)
     vafcols = list(get_vaf_columns(df))
     varcol = "hgvsp"
-    if "hgvsp" not in df.columns:
+    if pd.isna(df["hgvsp"]).all():
         varcol = "hgvsg"
     df = df[vafcols + [varcol]]
     df.columns = [*samples, "variant"]
@@ -51,6 +51,26 @@ def plot_data(df):
 
 
 def plot_spec(samples):
+    plot_spec = {
+        "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+        "description": "Drag the sliders to highlight points.",
+        "transform": [{"fold": samples, "as": ["sample", "vaf"]}],
+        "mark": "rect",
+        "encoding": {
+            "x": {"field": "sample", "type": "ordinal"},
+            "color": {
+            "field": "vaf",
+            "type": "quantitative",
+            "scale": {"domain": [0, 1]}
+            },
+            "y": {"field": "variant"},
+            "href": {"field": "variant-link", "type": "nominal"}
+        }
+    }
+    return plot_spec
+
+
+def plot_spec_old(samples):
     plots = [
         {
             "layer": [
@@ -114,6 +134,7 @@ def plot_spec(samples):
 
 
 calls = pd.read_csv(snakemake.input[0], sep="\t")
+print(calls.columns)
 calls = format_floats(calls)
 calls = trim_hgvsp_entries(calls)
 calls.set_index("gene", inplace=True, drop=False)
