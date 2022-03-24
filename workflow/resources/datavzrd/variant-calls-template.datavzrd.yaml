@@ -39,7 +39,7 @@ views:
       render-table:
         symbol:
           link-to-url: https://www.ensembl.org/Homo_sapiens/Transcript/Summary?t={feature}
-        ?if varsome_url:
+        ?if params.varsome_url:
           hgvsp:
             custom: |
               ?f"""
@@ -70,6 +70,7 @@ views:
               color-scheme: category20
               scale: ordinal
         revel:
+          optional: true
           plot: 
             ticks:
               scale: "linear"
