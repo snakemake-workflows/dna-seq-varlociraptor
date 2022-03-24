@@ -38,12 +38,18 @@ views:
       dataset: ?f"{group}-coding"
       render-table:
         symbol:
-          link-to-url: https://www.ensembl.org/Multi/Search/Results?q={feature}
-        consequence:
-          plot:
-            heatmap:
-              color-scheme: category20
-              scale: ordinal
+          link-to-url: https://www.ensembl.org/Homo_sapiens/Transcript/Summary?t={feature}
+        ?if varsome_url:
+          hgvsp:
+            custom: |
+              ?f"""
+              function(value, row) {{
+                const url = "{params.varsome_url}";
+                const descriptor = row.hgvsg.replace(":g.", ":").replace(">", ":");
+
+                return `<a href="${{url}}${{descriptor}}" target="_blank">${{value}}</a>`;
+              }}
+              """
         impact:
           plot:
             heatmap:
@@ -58,12 +64,39 @@ views:
                 - "#ec5300"
                 - "#ec9b00"
                 - "#ecca00"
+        consequence:
+          plot:
+            heatmap:
+              color-scheme: category20
+              scale: ordinal
+        revel:
+          plot: 
+            ticks:
+              scale: "linear"
+        # ".+: allele frequency":
+        #   plot: 
+        #     ticks:
+        #       scale: "linear"
+        #       domain: [0.0, 1.0]
+        # ".+: read depth":
+        #   plot: 
+        #     ticks:
+        #       scale: "linear"
+        #"prob: .+":
+        #  display-mode: detail
+        gene:
+          display-mode: detail
+        feature:
+          display-mode: detail
+        hgvsg:
+          display-mode: detail
 
         ?for sample in ["normal", "tumor"]:
           '?f"{sample}: observations"':
             custom-plot:
               data: ?read_file(params.data_observations)
               spec: ?read_file(params.spec_observations)
+            display-mode: detail
 
 
     ?f"{group}-noncoding":
@@ -71,7 +104,7 @@ views:
       dataset: ?f"{group}-noncoding"
       render-table:
         symbol:
-          link-to-url: https://www.ensembl.org/Multi/Search/Results?q={feature}
+          link-to-url: https://www.ensembl.org/Homo_sapiens/Transcript/Summary?t={feature}
         consequence:
           plot:
             heatmap:

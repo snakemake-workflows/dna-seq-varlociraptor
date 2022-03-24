@@ -16,4 +16,6 @@
 !.travis.yml
 !.test
 !.test/**/*
+.test/.snakemake
+.test/results
 .DS_Store

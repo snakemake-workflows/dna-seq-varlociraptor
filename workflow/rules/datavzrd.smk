@@ -33,6 +33,7 @@ rule render_datavzrd_config:
         data_observations=workflow.source_path(
             "../resources/datavzrd/data_observations.js"
         ),
+        varsome_url=get_varsome_url(),
     log:
         "logs/datavzrd_render/{event}.log",
     template_engine:
@@ -43,6 +44,15 @@ rule datavzrd_variants_calls:
     input:
         coding_calls=get_datavzrd_data(impact="coding"),
         noncoding_calls=get_datavzrd_data(impact="noncoding"),
+        coding_plotdata=get_datavzrd_data(impact="coding", kind="plotdata"),
+        noncoding_plotdata=get_datavzrd_data(impact="noncoding", kind="plotdata"),
+        plot_spec=get_datavzrd_data(kind="plotspec"),
+        spec_observations=workflow.source_path(
+            "../resources/datavzrd/spec_observations.json"
+        ),
+        data_observations=workflow.source_path(
+            "../resources/datavzrd/data_observations.js"
+        ),
         config="resources/datavzrd/all.{event}.datavzrd.yaml",
     output:
         directory("results/datavzrd-report/all.{event}.fdr-controlled"),
