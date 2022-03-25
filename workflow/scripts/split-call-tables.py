@@ -7,10 +7,13 @@ import pandas as pd
 sys.stderr = open(snakemake.log[0], "w")
 
 
+PROB_EPSILON = 0.01  # columns with all probabilities below will be dropped
+
+
 def write(df, path):
-    df.drop(["canonical"], axis="columns", errors="ignore").dropna(how="all", axis="columns").to_csv(
-        path, index=False, sep="\t"
-    )
+    df.drop(["canonical"], axis="columns", errors="ignore").dropna(
+        how="all", axis="columns"
+    ).to_csv(path, index=False, sep="\t")
 
 
 def format_floats(df):
@@ -29,6 +32,25 @@ def trim_hgvsp_entries(df):
             lambda x: re.sub(r"^.*?:", "", x) if pd.notnull(x) else x
         )
     return df
+
+
+def drop_cols_by_predicate(df, columns, predicate):
+    predicate_true_cols = [col for col in columns if predicate(df[col]).all()]
+    return df.drop(labels=predicate_true_cols, axis="columns")
+
+
+def drop_low_prob_cols(df):
+    return drop_cols_by_predicate(
+        df, df.columns.str.startswith("prob: "), lambda probs: probs <= PROB_EPSILON
+    )
+
+
+def drop_zero_vaf_cols(df):
+    return drop_cols_by_predicate(
+        df,
+        df.columns.str.endswith(": allele frequency"),
+        lambda vafs: vafs == 0.0,
+    )
 
 
 def get_vaf_columns(df):
@@ -59,13 +81,13 @@ def plot_spec(samples):
         "encoding": {
             "x": {"field": "sample", "type": "ordinal"},
             "color": {
-            "field": "vaf",
-            "type": "quantitative",
-            "scale": {"domain": [0, 1]}
+                "field": "vaf",
+                "type": "quantitative",
+                "scale": {"domain": [0, 1]},
             },
             "y": {"field": "variant"},
-            "href": {"field": "variant-link", "type": "nominal"}
-        }
+            "href": {"field": "variant-link", "type": "nominal"},
+        },
     }
     return plot_spec
 
@@ -134,9 +156,10 @@ def plot_spec_old(samples):
 
 
 calls = pd.read_csv(snakemake.input[0], sep="\t")
-print(calls.columns)
 calls = format_floats(calls)
 calls = trim_hgvsp_entries(calls)
+calls = drop_low_prob_cols(calls)
+calls = drop_zero_vaf_cols(calls)
 calls.set_index("gene", inplace=True, drop=False)
 samples = get_samples(calls)
 

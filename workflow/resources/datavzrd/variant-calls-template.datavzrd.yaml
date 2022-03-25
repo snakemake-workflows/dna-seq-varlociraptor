@@ -84,7 +84,11 @@ views:
             ticks:
               scale: "linear"
         "regex('prob: .+')":
-          display-mode: detail
+          plot:
+            heatmap:
+              scale: linear
+              color-scheme: blues
+              domain: [0.0, 1.0]
         gene:
           display-mode: detail
         feature:
