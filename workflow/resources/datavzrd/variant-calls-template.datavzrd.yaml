@@ -74,17 +74,17 @@ views:
           plot: 
             ticks:
               scale: "linear"
-        # ".+: allele frequency":
-        #   plot: 
-        #     ticks:
-        #       scale: "linear"
-        #       domain: [0.0, 1.0]
-        # ".+: read depth":
-        #   plot: 
-        #     ticks:
-        #       scale: "linear"
-        #"prob: .+":
-        #  display-mode: detail
+        "regex('.+: allele frequency')":
+          plot: 
+            ticks:
+              scale: "linear"
+              domain: [0.0, 1.0]
+        "regex('.+: read depth')":
+          plot: 
+            ticks:
+              scale: "linear"
+        "regex('prob: .+')":
+          display-mode: detail
         gene:
           display-mode: detail
         feature:
@@ -97,7 +97,7 @@ views:
             custom-plot:
               data: ?read_file(params.data_observations)
               spec: ?read_file(params.spec_observations)
-            display-mode: detail
+            # display-mode: detail
 
 
     ?f"{group}-noncoding":
