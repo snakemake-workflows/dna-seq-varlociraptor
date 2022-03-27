@@ -45,9 +45,43 @@ views:
               ?f"""
               function(value, row) {{
                 const url = "{params.varsome_url}";
-                const descriptor = row.hgvsg.replace(":g.", ":").replace(">", ":");
-
-                return `<a href="${{url}}${{descriptor}}" target="_blank">${{value}}</a>`;
+                const regex = [
+                  /(\d+):[gG]\.(\d+)([GCTAgcta])?>([GCTAgcta])/,
+                  /(\d+):[gG]\.(\d+)([gctaGCTA])?=/,
+                  /(\d+):[gG]\.(\d+)(?:_(\d+))?([GCTAgcta]+)?delins([GCTAgcta]+)/,
+                  /(\d+):[gG]\.(\d+)(?:_(\d+))?del([GCTAgcta]+)?/,
+                  /(\d+):[gG]\.(\d+)_(\d+)ins([GCTAgcta]+)/,
+                  /(\d+):[gG]\.(\d+)_(\d+)ins(\d+)_(\d+)inv/,
+                ];
+                for (let i = 0; i < regex.length; i++) {{
+                  const match = row.hgvsg.match(regex[i]);
+                  if ( match ) {{
+                    switch (i) {{
+                      // SNV
+                      case 0:
+                        descriptor = match.splice(1).join(":");
+                        break;
+                      // Deletion
+                      case 3:
+                        del_size = match[3]-match[2]+1;
+                        descriptor = [match[1], match[2], del_size, ""].join(":");
+                        break;
+                      // Insertion
+                      case 4:
+                        descriptor = [match[1], match[3], "", match[4]].join(":");
+                        break;
+                      default:
+                        descriptor = null;
+                    }}
+                    if (descriptor) {{
+                      return `<a href="${{url}}${{descriptor}}" target="_blank">${{value}}</a>`;
+                    }} else {{
+                      // End for-loop
+                      break;
+                    }}
+                  }}
+                }}
+                return `${{value}}`;
               }}
               """
         impact:

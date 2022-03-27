@@ -35,20 +35,20 @@ def trim_hgvsp_entries(df):
 
 
 def drop_cols_by_predicate(df, columns, predicate):
-    predicate_true_cols = [col for col in columns if predicate(df[col]).all()]
+    predicate_true_cols = [col for col in columns if predicate(df[col].astype(float)).all()]
     return df.drop(labels=predicate_true_cols, axis="columns")
 
 
 def drop_low_prob_cols(df):
     return drop_cols_by_predicate(
-        df, df.columns.str.startswith("prob: "), lambda probs: probs <= PROB_EPSILON
+        df, df.columns[df.columns.str.startswith("prob: ")], lambda probs: probs <= PROB_EPSILON
     )
 
 
 def drop_zero_vaf_cols(df):
     return drop_cols_by_predicate(
         df,
-        df.columns.str.endswith(": allele frequency"),
+        df.columns[df.columns.str.endswith(": allele frequency")],
         lambda vafs: vafs == 0.0,
     )
 
