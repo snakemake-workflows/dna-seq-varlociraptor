@@ -50,6 +50,7 @@ calling:
         varlociraptor: 
           - present
         filter: moderate
+        desc: Variants with moderate impact
 
 annotations:
   vcfs:

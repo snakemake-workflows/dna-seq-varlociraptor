@@ -52,6 +52,7 @@ calling:
           - "PRESENT"
         filter:
           - moderate
+        desc: Variants with moderate impact
 
 annotations:
   dbnsfp:

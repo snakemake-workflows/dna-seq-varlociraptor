@@ -51,6 +51,7 @@ calling:
           - "PRESENT"
         filter:
           - moderate
+        desc: Moderate variants
 
 annotations:
   vcfs:

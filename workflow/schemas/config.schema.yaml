@@ -22,6 +22,8 @@ definitions:
           - type: array
             items:
               type: string
+      desc:
+        type: string
       local:
         type: boolean
       threshold:
