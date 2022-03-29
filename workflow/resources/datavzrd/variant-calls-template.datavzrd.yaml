@@ -1,5 +1,7 @@
 name: ?f"Variant calls {wildcards.event}"
 
+default-view: ?f"{params.groups[0]}-coding"
+
 __definitions__:
   - |
     def read_file(path):
@@ -46,12 +48,12 @@ views:
               function(value, row) {{
                 const url = "{params.varsome_url}";
                 const regex = [
-                  /(\d+):[gG]\.(\d+)([GCTAgcta])?>([GCTAgcta])/,
-                  /(\d+):[gG]\.(\d+)([gctaGCTA])?=/,
-                  /(\d+):[gG]\.(\d+)(?:_(\d+))?([GCTAgcta]+)?delins([GCTAgcta]+)/,
-                  /(\d+):[gG]\.(\d+)(?:_(\d+))?del([GCTAgcta]+)?/,
-                  /(\d+):[gG]\.(\d+)_(\d+)ins([GCTAgcta]+)/,
-                  /(\d+):[gG]\.(\d+)_(\d+)ins(\d+)_(\d+)inv/,
+                  /(\d+):[gG]\.(\d+)([GCTAgcta])?>([GCTAgcta])$/,
+                  /(\d+):[gG]\.(\d+)([gctaGCTA])?=$/,
+                  /(\d+):[gG]\.(\d+)(?:_(\d+))?([GCTAgcta]+)?delins([GCTAgcta]+)$/,
+                  /(\d+):[gG]\.(\d+)(?:_(\d+))?del([GCTAgcta]+)?$/,
+                  /(\d+):[gG]\.(\d+)_(\d+)ins([GCTAgcta]+)$/,
+                  /(\d+):[gG]\.(\d+)_(\d+)ins(\d+)_(\d+)inv$/,
                 ];
                 for (let i = 0; i < regex.length; i++) {{
                   const match = row.hgvsg.match(regex[i]);
@@ -106,8 +108,12 @@ views:
         revel:
           optional: true
           plot: 
-            ticks:
+            heatmap:
               scale: "linear"
+              domain: [0.0, 1.0]
+              range:
+                - white
+                - "#ff5555"
         "regex('.+: allele frequency')":
           plot: 
             ticks:
@@ -121,8 +127,10 @@ views:
           plot:
             heatmap:
               scale: linear
-              color-scheme: blues
               domain: [0.0, 1.0]
+              range:
+                - white
+                - "#1f77b4"
         gene:
           display-mode: detail
         feature:

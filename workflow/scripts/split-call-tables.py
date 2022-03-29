@@ -35,13 +35,17 @@ def trim_hgvsp_entries(df):
 
 
 def drop_cols_by_predicate(df, columns, predicate):
-    predicate_true_cols = [col for col in columns if predicate(df[col].astype(float)).all()]
+    predicate_true_cols = [
+        col for col in columns if predicate(df[col].astype(float)).all()
+    ]
     return df.drop(labels=predicate_true_cols, axis="columns")
 
 
 def drop_low_prob_cols(df):
     return drop_cols_by_predicate(
-        df, df.columns[df.columns.str.startswith("prob: ")], lambda probs: probs <= PROB_EPSILON
+        df,
+        df.columns[df.columns.str.startswith("prob: ")],
+        lambda probs: probs <= PROB_EPSILON,
     )
 
 
@@ -156,6 +160,9 @@ def plot_spec_old(samples):
 
 
 calls = pd.read_csv(snakemake.input[0], sep="\t")
+calls["clinical significance"] = (
+    calls["clinical significance"].apply(eval).apply(sorted).apply(", ".join)
+)
 calls = format_floats(calls)
 calls = trim_hgvsp_entries(calls)
 calls = drop_low_prob_cols(calls)

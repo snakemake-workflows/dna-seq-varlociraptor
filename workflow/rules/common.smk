@@ -684,6 +684,7 @@ def get_vembrane_config(wildcards, input):
     )
 
     append_items(annotation_fields, "ANN['{}']".format, str.lower)
+    append_items(["CLIN_SIG"], "ANN['{}']".format, lambda x: "clinical significance")
 
     samples = get_group_sample_aliases(wildcards)
 
@@ -696,7 +697,6 @@ def get_vembrane_config(wildcards, input):
         events = list(scenario["events"].keys())
         events += ["artifact", "absent"]
         append_items(events, lambda x: f"INFO['PROB_{x.upper()}']", "prob: {}".format)
-
     append_format_field("AF", "allele frequency")
     append_format_field("DP", "read depth")
 
