@@ -105,8 +105,6 @@ views:
             heatmap:
               color-scheme: category20
               scale: ordinal
-        'clinical significance':
-          optional: true 
         revel:
           optional: true
           plot: 
