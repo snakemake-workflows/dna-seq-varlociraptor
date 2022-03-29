@@ -76,6 +76,13 @@ def plot_data(df):
     return df
 
 
+def sort_calls(df):
+    order_impact = ["MODIFIER", "LOW", "MODERATE", "HIGH"]
+    df["impact"] = pd.Categorical(df["impact"], order_impact)
+    df.sort_values(snakemake.params.sorting, ascending=False, inplace=True)
+    return df
+
+
 def plot_spec(samples):
     plot_spec = {
         "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
@@ -161,8 +168,13 @@ def plot_spec_old(samples):
 
 calls = pd.read_csv(snakemake.input[0], sep="\t")
 calls["clinical significance"] = (
-    calls["clinical significance"].apply(eval).apply(sorted).apply(", ".join)
+    calls["clinical significance"]
+    .apply(eval)
+    .apply(sorted)
+    .apply(", ".join)
+    .replace("", np.nan)
 )
+calls = sort_calls(calls)
 calls = format_floats(calls)
 calls = trim_hgvsp_entries(calls)
 calls = drop_low_prob_cols(calls)

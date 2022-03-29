@@ -24,6 +24,10 @@ definitions:
               type: string
       desc:
         type: string
+      sort:
+        type: array
+        items:
+          type: string
       local:
         type: boolean
       threshold:

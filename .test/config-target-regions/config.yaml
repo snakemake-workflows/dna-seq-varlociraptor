@@ -54,6 +54,9 @@ calling:
         filter:
           - moderate
         desc: Variants with moderate impact
+        # Optional column names for sorting
+        sort:
+          - impact
 
 annotations:
   vcfs:

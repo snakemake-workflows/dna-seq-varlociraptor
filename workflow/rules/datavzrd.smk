@@ -7,6 +7,10 @@ rule split_call_tables:
         coding_plot_data="results/tables/{group}.{event}.plotdata.coding.fdr-controlled.tsv",
         noncoding_plot_data="results/tables/{group}.{event}.plotdata.noncoding.fdr-controlled.tsv",
         plot_spec="results/specs/{group}.{event}.varplot.json",
+    params:
+        sorting=lambda wc: config["calling"]["fdr-control"]["events"][wc.event].get(
+            "sort", list()
+        ),
     log:
         "logs/split_tables/{group}.{event}.log",
     script:
