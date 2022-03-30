@@ -586,7 +586,13 @@ def get_filter_extra(filter_name):
 
 
 def get_annotation_filter_names(wildcards):
-    return config["calling"]["fdr-control"]["events"][wildcards.event]["filter"]
+    entry = config["calling"]["fdr-control"]["events"][wildcards.event]["filter"]
+    filter_names = (
+        [ entry ]
+        if isinstance(entry, str)
+        else entry
+    )
+    return filter_names
 
 
 def get_annotation_filter_expression(wildcards):
