@@ -587,11 +587,7 @@ def get_filter_extra(filter_name):
 
 def get_annotation_filter_names(wildcards):
     entry = config["calling"]["fdr-control"]["events"][wildcards.event]["filter"]
-    filter_names = (
-        [ entry ]
-        if isinstance(entry, str)
-        else entry
-    )
+    filter_names = [entry] if isinstance(entry, str) else entry
     return filter_names
 
 
