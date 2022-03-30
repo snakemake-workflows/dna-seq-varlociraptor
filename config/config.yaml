@@ -109,7 +109,7 @@ calling:
     # by gene lists with the `--aux` option (with a file containing one gene name per line).
     gene_list_filter:
       extra: "--aux super_interesting_genes config/super_interesting_genes.tsv"
-      expression: "ANN['IMPACT'] == 'HIGH'"
+      expression: "ANN['GENE'] in AUX['super_interesting_genes']"
   fdr-control:
     threshold: 0.05
     # denote whether local or global FDR shall be controlled
