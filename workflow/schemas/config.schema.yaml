@@ -12,6 +12,14 @@ definitions:
         - type: string
         - type: "null"
         - type: object
+          properties:
+            extra:
+              type: string
+            expression:
+              type: string
+          required:
+            - extra
+            - expression
   evententry:
     type: object
     properties:
