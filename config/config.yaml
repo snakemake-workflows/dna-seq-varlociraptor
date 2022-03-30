@@ -100,10 +100,17 @@ calling:
     # (see https://github.com/vembrane/vembrane), and you can refer to any fields that
     # have been added by VEP during annotation (in the INFO/ANN field, see section 
     # annotations/vep below).
-    # Filters will be applied independenty,
-    # and can be referred in FDR control below to generate calls for different events.
-    # You can also e.g. filter by ID or dbsnp annotations here.
-    myfilter: "ANN['IMPACT'] == 'HIGH'"
+    # Filters will be applied independenty, and can be referred in FDR control below
+    # to generate calls for different events.
+    # You can for example filter by ANN fields, ID or dbsnp annotations here.
+    impact_filter: "ANN['IMPACT'] == 'HIGH'"
+    # If you need to use vembrane command line options beyond the filter expression,
+    # please use the filter sub-structure with 'expression:' for the filter expression
+    # and "extra:" for the extra options. This can for example be used for filtering
+    # by gene lists with the `--aux` option (with a file containing one gene name per line).
+    gene_list_filter:
+      extra: "--aux super_interesting_genes config/super_interesting_genes.tsv"
+      expression: "ANN['GENE'] in AUX['super_interesting_genes']"
   fdr-control:
     threshold: 0.05
     # denote whether local or global FDR shall be controlled
@@ -123,7 +130,8 @@ calling:
           # Add any number of filters here.
           # A single filter can be set as string.
           # Multiple filters can be defined as list and will be concatenated by 'and'
-          - myfilter
+          - impact_filter
+          - gene_list_filter
         # Natural language description of the callset obtained here.
         # This will occur in the report.
         desc: |

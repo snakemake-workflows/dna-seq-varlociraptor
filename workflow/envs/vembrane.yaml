@@ -3,4 +3,4 @@ channels:
   - bioconda
 dependencies:
   - vembrane =0.7
-  - bcftools =1.12
+  - bcftools =1.15
