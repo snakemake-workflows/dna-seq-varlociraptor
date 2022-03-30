@@ -5,5 +5,4 @@ dependencies:
   - rust >=1.58
   - cryptography >=36.0
   - c-compiler =1.3
-  - cmake =3.21 
   - pkg-config
