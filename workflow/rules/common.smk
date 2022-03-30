@@ -565,14 +565,45 @@ def get_filter_targets(wildcards, input):
         return ""
 
 
-def get_annotation_filter(wildcards):
-    filter = config["calling"]["fdr-control"]["events"][wildcards.event]["filter"]
-    filter = (
-        [config["calling"]["filter"][filter]]
+def get_filter_expression(filter_name):
+    filter = config["calling"]["filter"][filter_name]
+    expr = (
+        filter
         if isinstance(filter, str)
-        else map(lambda x: config["calling"]["filter"][x], filter)
+        else config["calling"]["filter"][filter_name]["expression"]
     )
-    return " and ".join(filter)
+    return expr
+
+
+def get_filter_extra(filter_name):
+    filter = config["calling"]["filter"][filter_name]
+    extra = (
+        ""
+        if isinstance(filter, str)
+        else config["calling"]["filter"][filter_name].get("extra", "")
+    )
+    return extra
+
+
+def get_annotation_filter_names(wildcards):
+    entry = config["calling"]["fdr-control"]["events"][wildcards.event]["filter"]
+    filter_names = [entry] if isinstance(entry, str) else entry
+    return filter_names
+
+
+def get_annotation_filter_expression(wildcards):
+    filters = [
+        get_filter_expression(filter)
+        for filter in get_annotation_filter_names(wildcards)
+    ]
+    return " and ".join(filters)
+
+
+def get_annotation_filter_extra(wildcards):
+    extras = [
+        get_filter_extra(filter) for filter in get_annotation_filter_names(wildcards)
+    ]
+    return " ".join(extras)
 
 
 wildcard_constraints:
