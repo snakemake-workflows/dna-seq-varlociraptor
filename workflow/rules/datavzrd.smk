@@ -42,6 +42,7 @@ rule render_datavzrd_config:
     output:
         "resources/datavzrd/{batch}.{event}.datavzrd.yaml",
     params:
+        oncoprint=get_oncoprint_table,
         groups=get_report_batch,
         coding_calls=get_datavzrd_data(impact="coding"),
         noncoding_calls=get_datavzrd_data(impact="noncoding"),
@@ -75,6 +76,7 @@ rule datavzrd_variants_calls:
             "../resources/datavzrd/data_observations.js"
         ),
         config="resources/datavzrd/{batch}.{event}.datavzrd.yaml",
+        oncoprint=get_oncoprint_table,
     output:
         report(
             directory("results/datavzrd-report/{batch}.{event}.fdr-controlled"),

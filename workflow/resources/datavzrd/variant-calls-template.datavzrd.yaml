@@ -1,6 +1,6 @@
 name: ?f"Variant calls {wildcards.event}"
 
-default-view: ?f"{params.groups[0]}-coding"
+default-view: ?"overview" if params.oncoprint else f"{params.groups[0]}-coding"
 
 __definitions__:
   - |
@@ -34,6 +34,16 @@ datasets:
           table-row: ?f"{group}-noncoding/hgvsg"
 
 views:
+  ?if params.oncoprint:
+    overview:
+      desc: |
+        Overview plot showing all discovered variants in all samples. Click
+        on cells to jump to the respective variants.
+      dataset: oncoprint
+      render-plot:
+
+
+
   ?for group in params.groups:
     ?f"{group}-coding":
       desc: ?f"Variants in coding regions.\n{config['calling']['fdr-control']['events'][wildcards.event]['desc']}"

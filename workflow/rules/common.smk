@@ -818,3 +818,11 @@ def get_oncoprint_input(wildcards):
 
 def get_datavzrd_report_labels(wildcards):
     return {"batch": wildcards.batch, "callset": wildcards.event.replace("_", " ")}
+
+
+def get_oncoprint_table(wildcards):
+    groups = get_report_batch(wildcards)
+    if len(groups) > 1:
+        return "results/tables/{batch}.{event}.oncoprint.tsv"
+    else:
+        return []
