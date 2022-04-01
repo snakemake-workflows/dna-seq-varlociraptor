@@ -39,7 +39,7 @@ rule render_datavzrd_config:
         ),
         varsome_url=get_varsome_url(),
     log:
-        "logs/datavzrd_render/{event}.log",
+        "logs/datavzrd_render/{batch}.{event}.log",
     template_engine:
         "yte"
 
