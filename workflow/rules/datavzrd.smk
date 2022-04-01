@@ -13,6 +13,8 @@ rule split_call_tables:
         ),
     log:
         "logs/split_tables/{group}.{event}.log",
+    conda:
+        "../envs/pandas.yaml"
     script:
         "../scripts/split-call-tables.py"
 
@@ -24,6 +26,8 @@ rule prepare_oncoprint:
         "results/tables/{batch}.oncoprint.tsv",
     log:
         "logs/prepare_oncoprint/{batch}.log",
+    conda:
+        "../envs/pandas.yaml"
     script:
         "../scripts/oncoprint.py"
 
