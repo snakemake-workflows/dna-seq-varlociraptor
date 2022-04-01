@@ -17,6 +17,17 @@ rule split_call_tables:
         "../scripts/split-call-tables.py"
 
 
+rule prepare_oncoprint:
+    input:
+        get_oncoprint_input,
+    output:
+        "results/tables/{batch}.oncoprint.tsv",
+    log:
+        "logs/prepare_oncoprint/{batch}.log",
+    script:
+        "../scripts/oncoprint.py"
+
+
 rule render_datavzrd_config:
     input:
         workflow.source_path(
