@@ -40,9 +40,9 @@ rule render_datavzrd_config:
             "../resources/datavzrd/variant-calls-template.datavzrd.yaml"
         ),
     output:
-        "resources/datavzrd/all.{event}.datavzrd.yaml",
+        "resources/datavzrd/{batch}.{event}.datavzrd.yaml",
     params:
-        groups=groups,
+        groups=get_report_batch,
         coding_calls=get_datavzrd_data(impact="coding"),
         noncoding_calls=get_datavzrd_data(impact="noncoding"),
         coding_plotdata=get_datavzrd_data(impact="coding", kind="plotdata"),
@@ -56,7 +56,7 @@ rule render_datavzrd_config:
         ),
         varsome_url=get_varsome_url(),
     log:
-        "logs/datavzrd_render/{event}.log",
+        "logs/datavzrd_render/{batch}.{event}.log",
     template_engine:
         "yte"
 
@@ -74,12 +74,18 @@ rule datavzrd_variants_calls:
         data_observations=workflow.source_path(
             "../resources/datavzrd/data_observations.js"
         ),
-        config="resources/datavzrd/all.{event}.datavzrd.yaml",
+        config="resources/datavzrd/{batch}.{event}.datavzrd.yaml",
     output:
-        directory("results/datavzrd-report/all.{event}.fdr-controlled"),
+        report(
+            directory("results/datavzrd-report/{batch}.{event}.fdr-controlled"),
+            htmlindex="index.html",
+            caption="../report/calls.rst",
+            category="Variant calls",
+            labels=get_datavzrd_report_labels,
+        ),
     conda:
         "../envs/datavzrd.yaml"
     log:
-        "logs/datavzrd_report/{event}.log",
+        "logs/datavzrd_report/{batch}.{event}.log",
     shell:
         "datavzrd {input.config} --output {output} &> {log}"

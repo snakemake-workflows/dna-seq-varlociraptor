@@ -1,6 +1,6 @@
 from snakemake.utils import min_version
 
-min_version("7.0.0")
+min_version("7.3.0")
 
 
 configfile: "config/config.yaml"
@@ -26,7 +26,6 @@ include: "rules/candidate_calling.smk"
 include: "rules/calling.smk"
 include: "rules/annotation.smk"
 include: "rules/filtering.smk"
-include: "rules/report.smk"
 include: "rules/mutational_burden.smk"
 include: "rules/vega.smk"
 include: "rules/utils.smk"

@@ -70,8 +70,9 @@ def get_final_output():
     if config["report"]["activate"]:
         final_output.extend(
             expand(
-                "results/datavzrd-report/all.{event}.fdr-controlled",
+                "results/datavzrd-report/{batch}.{event}.fdr-controlled",
                 event=config["calling"]["fdr-control"]["events"],
+                batch=get_report_batches(),
             )
         )
     else:
@@ -508,6 +509,14 @@ def get_report_batch(wildcards):
     return _groups
 
 
+def get_report_batches():
+    if is_activated("report/stratify"):
+        yield "all"
+        yield from samples[config["report"]["stratify"]["by-column"]].unique()
+    else:
+        yield "all"
+
+
 def get_merge_calls_input(ext="bcf"):
     def inner(wildcards):
         return expand(
@@ -783,7 +792,7 @@ def get_datavzrd_data(impact="coding", kind="full"):
             pattern,
             impact=impact,
             event=wildcards.event,
-            group=groups,
+            group=get_report_batch(wildcards),
             kindspec=kindspec,
         )
 
@@ -805,3 +814,7 @@ def get_oncoprint_input(wildcards):
         group=groups,
         event=wildcards.event,
     )
+
+
+def get_datavzrd_report_labels(wildcards):
+    return {"batch": wildcards.batch, "callset": wildcards.event.replace("_", " ")}
