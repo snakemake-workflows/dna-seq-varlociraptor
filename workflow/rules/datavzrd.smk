@@ -23,9 +23,9 @@ rule render_datavzrd_config:
             "../resources/datavzrd/variant-calls-template.datavzrd.yaml"
         ),
     output:
-        "resources/datavzrd/all.{event}.datavzrd.yaml",
+        "resources/datavzrd/{batch}.{event}.datavzrd.yaml",
     params:
-        groups=groups,
+        groups=get_report_batch,
         coding_calls=get_datavzrd_data(impact="coding"),
         noncoding_calls=get_datavzrd_data(impact="noncoding"),
         coding_plotdata=get_datavzrd_data(impact="coding", kind="plotdata"),
@@ -57,7 +57,7 @@ rule datavzrd_variants_calls:
         data_observations=workflow.source_path(
             "../resources/datavzrd/data_observations.js"
         ),
-        config="resources/datavzrd/all.{event}.datavzrd.yaml",
+        config="resources/datavzrd/{batch}.{event}.datavzrd.yaml",
     output:
         report(
             directory("results/datavzrd-report/{batch}.{event}.fdr-controlled"),

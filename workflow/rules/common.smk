@@ -792,7 +792,7 @@ def get_datavzrd_data(impact="coding", kind="full"):
             pattern,
             impact=impact,
             event=wildcards.event,
-            group=groups,
+            group=get_report_batch(wildcards),
             kindspec=kindspec,
         )
 
