@@ -59,7 +59,13 @@ rule datavzrd_variants_calls:
         ),
         config="resources/datavzrd/all.{event}.datavzrd.yaml",
     output:
-        directory("results/datavzrd-report/all.{event}.fdr-controlled"),
+        report(
+            directory("results/datavzrd-report/{batch}.{event}.fdr-controlled"),
+            htmlindex="index.html",
+            caption="../report/calls.rst",
+            category="Variant calls",
+            labels=get_datavzrd_report_labels,
+        ),
     conda:
         "../envs/datavzrd.yaml"
     log:

@@ -9,6 +9,7 @@ rule render_scenario:
             "results/scenarios/{group}.yaml",
             caption="../report/scenario.rst",
             category="Variant calling scenarios",
+            labels={"sample group": "{group}"},
         ),
     log:
         "logs/render-scenario/{group}.log",
