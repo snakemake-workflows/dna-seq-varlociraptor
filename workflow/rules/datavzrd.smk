@@ -23,9 +23,11 @@ rule prepare_oncoprint:
     input:
         get_oncoprint_input,
     output:
-        "results/tables/{batch}.oncoprint.tsv",
+        "results/tables/{batch}.{event}.oncoprint.tsv",
     log:
-        "logs/prepare_oncoprint/{batch}.log",
+        "logs/prepare_oncoprint/{batch}.{event}.log",
+    params:
+        groups=get_report_batch,
     conda:
         "../envs/pandas.yaml"
     script:

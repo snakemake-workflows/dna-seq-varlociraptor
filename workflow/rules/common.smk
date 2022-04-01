@@ -796,3 +796,12 @@ def get_varsome_url():
         return f"https://varsome.com/variant/{build}/chr"
     else:
         return None
+
+
+def get_oncoprint_input(wildcards):
+    groups = get_report_batch(wildcards)
+    return expand(
+        "results/tables/{group}.{event}.fdr-controlled.tsv",
+        group=groups,
+        event=wildcards.event,
+    )
