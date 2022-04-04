@@ -592,22 +592,19 @@ def get_filter_targets(wildcards, input):
 
 def get_filter_expression(filter_name):
     filter = config["calling"]["filter"][filter_name]
-    expr = (
-        filter
-        if isinstance(filter, str)
-        else config["calling"]["filter"][filter_name]["expression"]
-    )
-    return expr
+    if isinstance(filter, str):
+        return filter
+    else:
+        return config["calling"]["filter"][filter_name]["expression"]
 
 
-def get_filter_extra(filter_name):
+def get_filter_aux_entries(filter_name):
     filter = config["calling"]["filter"][filter_name]
-    extra = (
-        ""
-        if isinstance(filter, str)
-        else config["calling"]["filter"][filter_name].get("extra", "")
-    )
-    return extra
+    if isinstance(filter, str):
+        return {}
+    else:
+        aux = config["calling"]["filter"][filter_name].get("aux-files", {})
+        return aux  # [f"--aux {name} {path}" for name, path in aux.items()]
 
 
 def get_annotation_filter_names(wildcards):
@@ -621,14 +618,23 @@ def get_annotation_filter_expression(wildcards):
         get_filter_expression(filter)
         for filter in get_annotation_filter_names(wildcards)
     ]
-    return " and ".join(filters)
+    return repr(" and ".join(filters))
 
 
-def get_annotation_filter_extra(wildcards):
-    extras = [
-        get_filter_extra(filter) for filter in get_annotation_filter_names(wildcards)
+def get_annotation_filter_aux(wildcards):
+    return [
+        f"--aux {name} {path}"
+        for filter in get_annotation_filter_names(wildcards)
+        for name, path in get_filter_aux_entries(filter).items()
     ]
-    return " ".join(extras)
+
+
+def get_annotation_filter_aux_files(wildcards):
+    return [
+        path
+        for filter in get_annotation_filter_names(wildcards)
+        for name, path in get_filter_aux_entries(filter).items()
+    ]
 
 
 wildcard_constraints:

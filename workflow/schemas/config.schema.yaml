@@ -13,12 +13,15 @@ definitions:
         - type: "null"
         - type: object
           properties:
-            extra:
-              type: string
+            aux-files:
+              type: object
+              additionalProperties:
+                anyOf:
+                  - type: string
             expression:
               type: string
           required:
-            - extra
+            - aux-files
             - expression
   evententry:
     type: object
