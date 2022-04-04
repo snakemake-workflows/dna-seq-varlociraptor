@@ -20,6 +20,8 @@ samples = (
     .set_index("sample_name", drop=False)
     .sort_index()
 )
+if not "mutational_burden_events" in samples.columns:
+    samples["mutational_burden_events"] = pd.NA
 
 
 def _group_or_sample(row):
@@ -431,21 +433,15 @@ def get_mutational_burden_targets():
         return expand(
             "results/plots/mutational-burden/{sample.group}.{sample.sample_name}.{mode}.mutational-burden.svg",
             mode=config["mutational_burden"].get("mode", "curve"),
-            sample=samples.itertuples(),
+            sample=samples[~pd.isna(samples["mutational_burden_events"])].itertuples(),
         )
     else:
         return []
 
 
 def get_mutational_burden_events(wildcards):
-    try:
-        events = samples.loc[wildcards.sample, "mutational_burden_events"]
-    except KeyError:
-        events = None
-    if pd.isna(events):
-        events = config["mutational_burden"]["events"]
-    else:
-        events = map(str.strip, events.split(","))
+    events = samples.loc[wildcards.sample, "mutational_burden_events"]
+    events = map(str.strip, events.split(","))
     return " ".join(events)
 
 

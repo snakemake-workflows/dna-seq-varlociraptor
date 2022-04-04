@@ -44,17 +44,8 @@ mutational_burden:
   # Plotting modes - hist (stratified histogram)
   # or curve (stratified curve)
   mode:
-    - hist
     - curve
-  # Events to use for mutational burden plotting.
-  # In case you have certain samples where this differs, 
-  # you can add an additional column mutational_burden_events
-  # to the sample table (samples.tsv).
-  # There events can be specified comma separated.
-  events:
-    - somatic_tumor_high
-    - somatic_tumor_medium
-    - somatic_tumor_low
+    - hist
 
 # printing of variants in a matrix, sorted by recurrence
 report:

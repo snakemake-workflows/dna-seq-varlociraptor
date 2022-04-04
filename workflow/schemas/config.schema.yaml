@@ -144,14 +144,9 @@ properties:
       coding_genome_size:
         # TODO allow integer here!
         type: string
-      events:
-        type: array
-        items: 
-          type: string
     required:
       - activate
       - coding_genome_size
-      - events
 
 
   calling:

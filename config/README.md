@@ -9,6 +9,8 @@ Add samples to `config/samples.tsv`. For each sample, the columns `sample_name`,
 * Aliases represent the name of the sample within its group (they can be the same as the sample name, or something simpler, e.g. tumor or normal).
 * The `platform` column needs to contain the used sequencing plaform (one of 'CAPILLARY', 'LS454', 'ILLUMINA', 'SOLID', 'HELICOS', 'IONTORRENT', 'ONT', 'PACBIO’).
 
+If mutational burdens shall be estimated for a sample, the to be used ``events`` from the calling scenario (see below) have to be specified in an additional column ``mutational_burden_events``. Multiple events have to be separated by commas within that column.
+
 Missing values can be specified by empty columns or by writing `NA`. Lines can be commented out with `#`.
 
 # Unit sheet
