@@ -35,8 +35,8 @@ definitions:
               type: string
       desc:
         type: string
-      name:
-        type: string
+      labels:
+        type: object
       sort:
         type: array
         items:

@@ -121,8 +121,10 @@ calling:
       # only alphanumerics and underscores
       # ("somatic" below is just an example and can be modified as needed).
       some_id:
-        # name of the callset. Will fall back to id if no name specified  
-        name: some short name
+        # labels for the callset, displayed in the report. Will fall back to id if no labels specified
+        labels:
+          some-label: label text
+          other-label: label text
         # Natural language description of the callset obtained here.
         # This will occur in the report.
         desc: |
