@@ -117,9 +117,16 @@ calling:
     local: true
     events: 
       # Add any number of events here to filter for.
-      # The name of each event can be chosen freely 
+      # The id of each event can be chosen freely, but needs to contain
+      # only alphanumerics and underscores
       # ("somatic" below is just an example and can be modified as needed).
-      somatic:
+      some_id:
+        # name of the callset. Will fall back to id if no name specified  
+        name: some short name
+        # Natural language description of the callset obtained here.
+        # This will occur in the report.
+        desc: |
+          Some description.
         varlociraptor: 
           # Add varlociraptor events to aggregated over.
           # The probability for the union of these events is used for controlling
@@ -132,10 +139,6 @@ calling:
           # Multiple filters can be defined as list and will be concatenated by 'and'
           - impact_filter
           - gene_list_filter
-        # Natural language description of the callset obtained here.
-        # This will occur in the report.
-        desc: |
-          Some description.
 
 # If calc_consensus_reads is activated duplicates will be merged
 remove_duplicates:

@@ -808,4 +808,6 @@ def get_varsome_url():
 
 
 def get_datavzrd_report_labels(wildcards):
-    return {"batch": wildcards.batch, "callset": wildcards.event.replace("_", " ")}
+    fallback_name = wildcards.event.replace("_", " ")
+    name = config["calling"]["fdr-control"]["events"][wildcards.event].get("name", fallback_name)
+    return {"batch": wildcards.batch, "callset": name}
