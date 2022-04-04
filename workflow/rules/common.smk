@@ -67,7 +67,11 @@ primer_panels = (
 
 
 def get_final_output():
-    final_output = []
+
+    final_output = expand(
+        "results/qc/multiqc/{group}.html",
+        group=groups,
+    )
 
     if config["report"]["activate"]:
         final_output.extend(
@@ -150,9 +154,7 @@ def get_cutadapt_input(wildcards):
     unit = units.loc[wildcards.sample].loc[wildcards.unit]
 
     if pd.isna(unit["fq1"]):
-        # SRA sample (always paired-end for now)
-        accession = unit["sra"]
-        return expand("sra/{accession}_{read}.fastq", accession=accession, read=[1, 2])
+        return get_sra_reads(wildcards.sample, wildcards.unit, ["fq1", "fq2"])
 
     if unit["fq1"].endswith("gz"):
         ending = ".gz"
@@ -174,23 +176,36 @@ def get_cutadapt_input(wildcards):
         )
 
 
-def get_cutadapt_pipe_input(wildcards):
-    pattern = units.loc[wildcards.sample].loc[wildcards.unit, wildcards.fq]
+def get_sra_reads(sample, unit, fq):
+    pattern = units.loc[sample].loc[unit]
+    # SRA sample (always paired-end for now)
+    accession = unit["sra"]
+    return expand("sra/{accession}_{read}.fastq.gz", accession=accession, read=fq)
+
+
+def get_raw_reads(sample, unit, fq):
+    pattern = units.loc[sample].loc[unit, fq]
+    if pd.isna(pattern):
+        return get_sra_reads(sample, unit, fq)
+
     if "*" in pattern:
-        files = sorted(
-            glob.glob(units.loc[wildcards.sample].loc[wildcards.unit, wildcards.fq])
-        )
+        files = sorted(glob.glob(units.loc[sample].loc[unit, fq]))
         if not files:
             raise ValueError(
                 "No raw fastq files found for unit pattern {} (sample {}). "
-                "Please check the your sample sheet.".format(
-                    wildcards.unit, wildcards.sample
-                )
+                "Please check the your sample sheet.".format(unit, sample)
             )
     else:
         files = [pattern]
-
     return files
+
+
+def get_cutadapt_pipe_input(wildcards):
+    return get_raw_reads(wildcards.sample, wildcards.unit, wildcards.fq)
+
+
+def get_fastqc_input(wildcards):
+    return get_raw_reads(wildcards.sample, wildcards.unit, wildcards.fq)[0]
 
 
 def get_cutadapt_adapters(wildcards):
@@ -811,3 +826,32 @@ def get_datavzrd_report_labels(wildcards):
     else:
         labels["callset"] = wildcards.event.replace("_", " ")
     return labels
+
+
+def get_fastqc_results(wildcards):
+    group_samples = get_group_samples(wildcards.group)
+    sample_units = units.loc[group_samples]
+    sra_units = pd.isna(sample_units["fq1"])
+    paired_end_units = sra_units | ~pd.isna(sample_units["fq2"])
+
+    # fastqc
+    pattern = "results/qc/fastqc/{unit.sample_name}/{unit.unit_name}.{fq}_fastqc.zip"
+    yield from expand(pattern, unit=sample_units.itertuples(), fq="fq1")
+    yield from expand(
+        pattern, unit=sample_units[paired_end_units].itertuples(), fq="fq2"
+    )
+
+    # cutadapt
+    pattern = "results/trimmed/{unit.sample_name}/{unit.unit_name}.{mode}.qc.txt"
+    yield from expand(
+        pattern, unit=sample_units[paired_end_units].itertuples(), mode="paired"
+    )
+    yield from expand(
+        pattern, unit=sample_units[~paired_end_units].itertuples(), mode="single"
+    )
+
+    # samtools idxstats
+    yield from expand("results/qc/{sample}.bam.idxstats", sample=group_samples)
+
+    # samtools stats
+    yield from expand("results/qc/{sample}.bam.stats", sample=group_samples)
