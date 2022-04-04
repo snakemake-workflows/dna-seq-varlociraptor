@@ -811,7 +811,7 @@ def get_datavzrd_report_labels(wildcards):
     event = config["calling"]["fdr-control"]["events"][wildcards.event]
     labels = {"batch": wildcards.batch}
     if "labels" in event:
-        labels.update({key: str(value) for key, value in event["labels"].items())
+        labels.update({key: str(value) for key, value in event["labels"].items()})
     else:
         labels["callset"] = wildcards.event.replace("_", " ")
     return labels
