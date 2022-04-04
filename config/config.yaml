@@ -47,9 +47,9 @@ mutational_burden:
     - curve
     - hist
 
-# printing of variants in a matrix, sorted by recurrence
+# printing of variants in interactive tables
 report:
-  # if stratificatio is deactivated, one oncoprint for all
+  # if stratification is deactivated, one report for all
   # samples will be created.
   activate: true
   max_read_depth: 250
