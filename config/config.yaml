@@ -58,18 +58,6 @@ report:
     # select a sample sheet column for stratification
     by-column: condition
 
-# printing of variants in a table format
-tables:
-  activate: true
-  output:
-    # Uncomment and add VEP annotation fields to include (IMPACT, Consequence, Feature, SYMBOL, and HGVSp are always included)
-    annotation_fields:
-      - EXON
-      - CLIN_SIG
-    event_prob: true
-    observations: true
-  generate_excel: true
-
 calling:
   # Set to true to infer classical genotypes from Varlociraptor's VAF predictions
   infer_genotypes: false
@@ -165,6 +153,18 @@ annotations:
       # Plugin args can be passed as well, e.g. "LoFtool,path/to/custom/scores.txt".
       - LoFtool
       - REVEL
+
+# printing of variants in a table format (might be deprecated soon)
+tables:
+  activate: false
+  output:
+    # Uncomment and add VEP annotation fields to include (IMPACT, Consequence, Feature, SYMBOL, and HGVSp are always included)
+    annotation_fields:
+      - EXON
+      - CLIN_SIG
+    event_prob: true
+    observations: true
+  generate_excel: true
 
 params:
   cutadapt: ""
