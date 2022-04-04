@@ -834,6 +834,11 @@ def get_datavzrd_report_labels(wildcards):
     return labels
 
 
+def get_datavzrd_report_subcategory(wildcards):
+    event = config["calling"]["fdr-control"]["events"][wildcards.event]
+    return event.get("subcategory", None)
+
+
 def get_fastqc_results(wildcards):
     group_samples = get_group_samples(wildcards.group)
     sample_units = units.loc[group_samples]

@@ -40,6 +40,8 @@ definitions:
         type: string
       labels:
         type: object
+      subcategory:
+        type: string
       sort:
         type: array
         items:

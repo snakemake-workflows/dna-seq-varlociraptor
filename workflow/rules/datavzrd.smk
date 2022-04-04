@@ -65,6 +65,7 @@ rule datavzrd_variants_calls:
             caption="../report/calls.rst",
             category="Variant calls",
             labels=get_datavzrd_report_labels,
+            subcategory=get_datavzrd_report_subcategory,
         ),
     conda:
         "../envs/datavzrd.yaml"

@@ -105,6 +105,9 @@ calling:
         labels:
           some-label: label text
           other-label: label text
+        # optional subcategory for callset (e.g. "known variants", or "VUS"),
+        # comment out or remove to disable
+        subcategory: some subcategory
         # Natural language description of the callset obtained here.
         # This will occur in the report.
         desc: |
