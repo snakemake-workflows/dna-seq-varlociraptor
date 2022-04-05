@@ -48,6 +48,10 @@ units = (
     .set_index(["sample_name", "unit_name"], drop=False)
     .sort_index()
 )
+
+if "umis" not in units.columns:
+    units["umis"] = pd.NA
+
 validate(units, schema="../schemas/units.schema.yaml")
 
 primer_panels = (
