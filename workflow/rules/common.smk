@@ -181,7 +181,7 @@ def get_cutadapt_input(wildcards):
 
 
 def get_sra_reads(sample, unit, fq):
-    pattern = units.loc[sample].loc[unit]
+    unit = units.loc[sample].loc[unit]
     # SRA sample (always paired-end for now)
     accession = unit["sra"]
     return expand("sra/{accession}_{read}.fastq.gz", accession=accession, read=fq)
