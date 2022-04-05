@@ -26,14 +26,6 @@ def format_floats(df):
     return df
 
 
-def trim_hgvsp_entries(df):
-    if "hgvsp" in df.columns:
-        df["hgvsp"] = df["hgvsp"].apply(
-            lambda x: re.sub(r"^.*?:", "", x) if pd.notnull(x) else x
-        )
-    return df
-
-
 def drop_cols_by_predicate(df, columns, predicate):
     predicate_true_cols = [
         col for col in columns if predicate(df[col].astype(float)).all()
@@ -176,7 +168,6 @@ calls["clinical significance"] = (
 )
 calls = sort_calls(calls)
 calls = format_floats(calls)
-calls = trim_hgvsp_entries(calls)
 calls = drop_low_prob_cols(calls)
 calls = drop_zero_vaf_cols(calls)
 calls.set_index("gene", inplace=True, drop=False)

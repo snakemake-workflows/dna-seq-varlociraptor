@@ -46,6 +46,10 @@ views:
             custom: |
               ?f"""
               function(value, row) {{
+                let hgvsp_regex = /^(.+?):(.+)$/;
+                // discard protein id
+                let hgvsp = value.match(hgvsp_regex)[1];
+
                 const url = "{params.varsome_url}";
                 const regex = [
                   /(\d+):[gG]\.(\d+)([GCTAgcta])?>([GCTAgcta])$/,
@@ -76,14 +80,14 @@ views:
                         descriptor = null;
                     }}
                     if (descriptor) {{
-                      return `<a href="${{url}}${{descriptor}}" target="_blank">${{value}}</a>`;
+                      return `<a href="${{url}}${{descriptor}}" target="_blank">${{hgvsp}}</a>`;
                     }} else {{
                       // End for-loop
                       break;
                     }}
                   }}
                 }}
-                return `${{value}}`;
+                return `${{hgvsp}}`;
               }}
               """
         impact:
