@@ -5,6 +5,11 @@ description: snakemake configuration file
 type: object
 
 definitions:
+  aux-file:
+    type: object
+    additionalProperties:
+      anyOf:
+        - type: string
   filterentry:
     type: object
     additionalProperties:
@@ -14,10 +19,8 @@ definitions:
         - type: object
           properties:
             aux-files:
-              type: object
-              additionalProperties:
-                anyOf:
-                  - type: string
+              $ref: "#/definitions/aux-file"
+              description: "a map of <name: string> pairs"
             expression:
               type: string
           required:
