@@ -671,9 +671,7 @@ def get_annotation_pipes(wildcards, input):
         return "| {}".format(
             " | ".join(
                 [
-                    "SnpSift annotate -name {prefix}_ {path} /dev/stdin".format(
-                        prefix=prefix, path=path
-                    )
+                    f"SnpSift annotate -name '{prefix}_' {repr(path)} /dev/stdin"
                     for (prefix, _), path in zip(annotations, input.annotations)
                 ]
             )
