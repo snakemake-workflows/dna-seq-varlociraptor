@@ -11,7 +11,9 @@ import numpy as np
 
 def join_gene_variants(df):
     vartypes = ",".join(pd.unique(df["vartype"]))
-    consequences = ",".join(np.sort(pd.unique(df["consequence"].str.split(",").explode())))
+    consequences = ",".join(
+        np.sort(pd.unique(df["consequence"].str.split(",").explode()))
+    )
     df = df.iloc[:1]
     df.loc[:, "vartype"] = vartypes
     df.loc[:, "consequence"] = consequences
@@ -19,7 +21,9 @@ def join_gene_variants(df):
 
 
 def load_calls(path, group):
-    calls = pd.read_csv(path, sep="\t", usecols=["symbol", "vartype", "hgvsp", "hgvsg", "consequence"])
+    calls = pd.read_csv(
+        path, sep="\t", usecols=["symbol", "vartype", "hgvsp", "hgvsg", "consequence"]
+    )
     calls["group"] = group
     calls.loc[:, "consequence"] = calls["consequence"].str.replace("&", ",")
     return calls.drop_duplicates()
@@ -27,13 +31,20 @@ def load_calls(path, group):
 
 def gene_oncoprint(calls):
     matrix = (
-        calls[["group", "symbol", "vartype", "consequence"]].drop_duplicates().groupby(["group", "symbol"]).apply(join_gene_variants)
+        calls[["group", "symbol", "vartype", "consequence"]]
+        .drop_duplicates()
+        .groupby(["group", "symbol"])
+        .apply(join_gene_variants)
         .set_index(["symbol", "consequence", "group"])
         .unstack(level="group")
     )
     matrix.columns = matrix.columns.droplevel(0)  # remove superfluous header
     matrix["nocalls"] = matrix.isna().sum(axis="columns")
-    return matrix.sort_values("nocalls", ascending=False).drop(labels=["nocalls"], axis="columns").reset_index()
+    return (
+        matrix.sort_values("nocalls", ascending=False)
+        .drop(labels=["nocalls"], axis="columns")
+        .reset_index()
+    )
 
 
 def variant_oncoprint(gene_calls):
@@ -47,7 +58,11 @@ def variant_oncoprint(gene_calls):
     matrix.columns = matrix.columns.droplevel(0)  # remove superfluous header
 
     matrix["nocalls"] = (matrix == 0).sum(axis="columns")
-    return matrix.sort_values("nocalls", ascending=False).drop(labels=["nocalls"], axis="columns").reset_index()
+    return (
+        matrix.sort_values("nocalls", ascending=False)
+        .drop(labels=["nocalls"], axis="columns")
+        .reset_index()
+    )
 
 
 calls = pd.concat(

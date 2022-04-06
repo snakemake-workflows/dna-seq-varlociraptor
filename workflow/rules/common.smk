@@ -850,7 +850,9 @@ def get_variant_oncoprint_tables(wildcards, input):
         tables = [f for f in os.listdir(oncoprint_dir) if valid.match(f)]
         assert all(table.endswith(".tsv") for table in tables)
         genes = [gene_table[:-4] for gene_table in tables]
-        return list(zip(genes, expand(f"{oncoprint_dir}/{{oncoprint}}", oncoprint=tables)))
+        return list(
+            zip(genes, expand(f"{oncoprint_dir}/{{oncoprint}}", oncoprint=tables))
+        )
     else:
         return []
 

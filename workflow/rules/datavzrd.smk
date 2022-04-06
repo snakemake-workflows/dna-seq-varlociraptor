@@ -24,7 +24,9 @@ rule prepare_oncoprint:
         get_oncoprint_input,
     output:
         gene_oncoprint="results/tables/oncoprints/{batch}.{event}/gene-oncoprint.tsv",
-        variant_oncoprints=directory("results/tables/oncoprints/{batch}.{event}/variant-oncoprints"),
+        variant_oncoprints=directory(
+            "results/tables/oncoprints/{batch}.{event}/variant-oncoprints"
+        ),
     log:
         "logs/prepare_oncoprint/{batch}.{event}.log",
     params:
@@ -37,7 +39,7 @@ rule prepare_oncoprint:
 
 rule render_datavzrd_config:
     input:
-        workflow.source_path(
+        template=workflow.source_path(
             "../resources/datavzrd/variant-calls-template.datavzrd.yaml"
         ),
         variant_oncoprints=get_variant_oncoprints,
