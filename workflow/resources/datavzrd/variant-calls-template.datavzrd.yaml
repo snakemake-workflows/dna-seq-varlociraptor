@@ -1,6 +1,6 @@
 name: ?f"Variant calls {wildcards.event}"
 
-default-view: ?"overview" if params.gene_oncoprint else f"{params.groups[0]}-coding"
+default-view: overview
 
 __definitions__:
   - |
@@ -55,23 +55,22 @@ __definitions__:
     """
 
 datasets:
-  ?if params.gene_oncoprint:
-    gene-oncoprint:
-      path: ?params.gene_oncoprint
+  gene-oncoprint:
+    path: ?params.gene_oncoprint
+    separator: "\t"
+    links:
+      gene details:
+        column: symbol
+        view: "overview-{value}"
+  ?for gene, path in params.variant_oncoprints:
+    ?f"variant-oncoprint-{gene}":
+      path: ?path
       separator: "\t"
       links:
-        gene details:
-          column: symbol
-          view: "overview-{value}"
-    ?for gene, path in params.variant_oncoprints:
-      ?f"variant-oncoprint-{gene}":
-        path: ?path
-        separator: "\t"
-        links:
-          ?for group in params.groups:
-            ?group:
-              column: hgvsp
-              table-row: ?f"{group}-coding/hgvsp"
+        ?for group in params.groups:
+          ?group:
+            column: hgvsp
+            table-row: ?f"{group}-coding/hgvsp"
 
   ?for group, path in zip(params.groups, params.coding_calls):
     ?f"{group}-coding":

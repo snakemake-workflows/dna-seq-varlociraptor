@@ -42,11 +42,11 @@ rule render_datavzrd_config:
         template=workflow.source_path(
             "../resources/datavzrd/variant-calls-template.datavzrd.yaml"
         ),
-        variant_oncoprints=get_variant_oncoprints,
+        variant_oncoprints="results/tables/oncoprints/{batch}.{event}/variant-oncoprints",
     output:
         "resources/datavzrd/{batch}.{event}.datavzrd.yaml",
     params:
-        gene_oncoprint=get_gene_oncoprint_table,
+        gene_oncoprint="results/tables/oncoprints/{batch}.{event}/gene-oncoprint.tsv",
         variant_oncoprints=get_variant_oncoprint_tables,
         groups=get_report_batch,
         coding_calls=get_datavzrd_data(impact="coding"),
@@ -81,8 +81,8 @@ rule datavzrd_variants_calls:
             "../resources/datavzrd/data_observations.js"
         ),
         config="resources/datavzrd/{batch}.{event}.datavzrd.yaml",
-        gene_oncoprint=get_gene_oncoprint_table,
-        variant_oncoprints=get_variant_oncoprints,
+        gene_oncoprint="results/tables/oncoprints/{batch}.{event}/gene-oncoprint.tsv",
+        variant_oncoprints="results/tables/oncoprints/{batch}.{event}/variant-oncoprints",
     output:
         report(
             directory("results/datavzrd-report/{batch}.{event}.fdr-controlled"),

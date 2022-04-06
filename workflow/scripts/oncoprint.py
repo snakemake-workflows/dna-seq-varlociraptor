@@ -29,6 +29,13 @@ def load_calls(path, group):
     return calls.drop_duplicates()
 
 
+def sort_by_recurrence(matrix, no_occurence_check_func):
+    matrix["nocalls"] = no_occurence_check_func(matrix).sum(axis="columns")
+    matrix = matrix.sort_values("nocalls", ascending=False).drop(
+        labels=["nocalls"], axis="columns"
+    )
+
+
 def gene_oncoprint(calls):
     matrix = (
         calls[["group", "symbol", "vartype", "consequence"]]
@@ -39,12 +46,10 @@ def gene_oncoprint(calls):
         .unstack(level="group")
     )
     matrix.columns = matrix.columns.droplevel(0)  # remove superfluous header
-    matrix["nocalls"] = matrix.isna().sum(axis="columns")
-    return (
-        matrix.sort_values("nocalls", ascending=False)
-        .drop(labels=["nocalls"], axis="columns")
-        .reset_index()
-    )
+    if len(matrix.columns) > 1:
+        # sort by recurrence
+        matrix = sort_by_recurrence(matrix, lambda matrix: matrix.isna())
+    return matrix.reset_index()
 
 
 def variant_oncoprint(gene_calls):
@@ -57,12 +62,10 @@ def variant_oncoprint(gene_calls):
     )
     matrix.columns = matrix.columns.droplevel(0)  # remove superfluous header
 
-    matrix["nocalls"] = (matrix == 0).sum(axis="columns")
-    return (
-        matrix.sort_values("nocalls", ascending=False)
-        .drop(labels=["nocalls"], axis="columns")
-        .reset_index()
-    )
+    if len(matrix.columns) > 1:
+        # sort by recurrence
+        matrix = sort_by_recurrence(matrix, lambda matrix: matrix == 0)
+    return matrix.reset_index()
 
 
 calls = pd.concat(

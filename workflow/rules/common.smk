@@ -835,34 +835,13 @@ def get_oncoprint_input(wildcards):
     )
 
 
-def get_gene_oncoprint_table(wildcards):
-    groups = get_report_batch(wildcards)
-    if len(groups) >= 1:
-        return f"results/tables/oncoprints/{wildcards.batch}.{wildcards.event}/gene-oncoprint.tsv"
-    else:
-        return []
-
-
 def get_variant_oncoprint_tables(wildcards, input):
-    oncoprint_dir = input.get("variant_oncoprints")
-    if oncoprint_dir:
-        valid = re.compile(r"^[^/]+\.tsv$")
-        tables = [f for f in os.listdir(oncoprint_dir) if valid.match(f)]
-        assert all(table.endswith(".tsv") for table in tables)
-        genes = [gene_table[:-4] for gene_table in tables]
-        return list(
-            zip(genes, expand(f"{oncoprint_dir}/{{oncoprint}}", oncoprint=tables))
-        )
-    else:
-        return []
-
-
-def get_variant_oncoprints(wildcards):
-    groups = get_report_batch(wildcards)
-    if len(groups) >= 1:
-        return "results/tables/oncoprints/{batch}.{event}/variant-oncoprints"
-    else:
-        return []
+    oncoprint_dir = input.variant_oncoprints
+    valid = re.compile(r"^[^/]+\.tsv$")
+    tables = [f for f in os.listdir(oncoprint_dir) if valid.match(f)]
+    assert all(table.endswith(".tsv") for table in tables)
+    genes = [gene_table[:-4] for gene_table in tables]
+    return list(zip(genes, expand(f"{oncoprint_dir}/{{oncoprint}}", oncoprint=tables)))
 
 
 def get_datavzrd_report_labels(wildcards):
