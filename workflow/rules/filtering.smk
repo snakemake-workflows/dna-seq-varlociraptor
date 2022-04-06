@@ -6,12 +6,12 @@ rule filter_candidates_by_annotation:
     log:
         "logs/filter-calls/annotation/{group}.{caller}.{scatteritem}.log",
     params:
-        filter=lambda w: config["calling"]["filter"]["candidates"],
+        filter=lambda w: config["calling"]["filter"]["candidates"].replace('"', '\\"'),
     conda:
         "../envs/vembrane.yaml"
     shell:
         "(bcftools norm -Ou --do-not-normalize --multiallelics -any {input} | "
-        "vembrane filter {params.filter:q} --output-fmt bcf --output {output}) &> {log}"
+        "vembrane filter \"{params.filter}\" --output-fmt bcf --output {output}) &> {log}"
 
 
 rule filter_by_annotation:
@@ -28,7 +28,7 @@ rule filter_by_annotation:
     conda:
         "../envs/vembrane.yaml"
     shell:
-        "vembrane filter {params.aux} {params.filter} {input.bcf} --output-fmt bcf --output {output} &> {log}"
+        "vembrane filter {params.aux} \"{params.filter}\" {input.bcf} --output-fmt bcf --output {output} &> {log}"
 
 
 rule filter_odds:

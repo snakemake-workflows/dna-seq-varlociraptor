@@ -622,7 +622,7 @@ def get_annotation_filter_expression(wildcards):
         get_filter_expression(filter)
         for filter in get_annotation_filter_names(wildcards)
     ]
-    return repr(" and ".join(filters))
+    return " and ".join(filters).replace('"', '\\"')
 
 
 def get_annotation_filter_aux(wildcards):
