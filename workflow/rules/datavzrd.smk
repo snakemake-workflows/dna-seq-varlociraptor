@@ -13,18 +13,41 @@ rule split_call_tables:
         ),
     log:
         "logs/split_tables/{group}.{event}.log",
+    conda:
+        "../envs/pandas.yaml"
     script:
         "../scripts/split-call-tables.py"
 
 
+rule prepare_oncoprint:
+    input:
+        get_oncoprint_input,
+    output:
+        gene_oncoprint="results/tables/oncoprints/{batch}.{event}/gene-oncoprint.tsv",
+        variant_oncoprints=directory(
+            "results/tables/oncoprints/{batch}.{event}/variant-oncoprints"
+        ),
+    log:
+        "logs/prepare_oncoprint/{batch}.{event}.log",
+    params:
+        groups=get_report_batch,
+    conda:
+        "../envs/pandas.yaml"
+    script:
+        "../scripts/oncoprint.py"
+
+
 rule render_datavzrd_config:
     input:
-        workflow.source_path(
+        template=workflow.source_path(
             "../resources/datavzrd/variant-calls-template.datavzrd.yaml"
         ),
+        variant_oncoprints="results/tables/oncoprints/{batch}.{event}/variant-oncoprints",
     output:
         "resources/datavzrd/{batch}.{event}.datavzrd.yaml",
     params:
+        gene_oncoprint="results/tables/oncoprints/{batch}.{event}/gene-oncoprint.tsv",
+        variant_oncoprints=get_variant_oncoprint_tables,
         groups=get_report_batch,
         coding_calls=get_datavzrd_data(impact="coding"),
         noncoding_calls=get_datavzrd_data(impact="noncoding"),
@@ -58,6 +81,8 @@ rule datavzrd_variants_calls:
             "../resources/datavzrd/data_observations.js"
         ),
         config="resources/datavzrd/{batch}.{event}.datavzrd.yaml",
+        gene_oncoprint="results/tables/oncoprints/{batch}.{event}/gene-oncoprint.tsv",
+        variant_oncoprints="results/tables/oncoprints/{batch}.{event}/variant-oncoprints",
     output:
         report(
             directory("results/datavzrd-report/{batch}.{event}.fdr-controlled"),

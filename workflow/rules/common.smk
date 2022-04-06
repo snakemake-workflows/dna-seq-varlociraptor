@@ -826,6 +826,24 @@ def get_varsome_url():
         return None
 
 
+def get_oncoprint_input(wildcards):
+    groups = get_report_batch(wildcards)
+    return expand(
+        "results/tables/{group}.{event}.coding.fdr-controlled.tsv",
+        group=groups,
+        event=wildcards.event,
+    )
+
+
+def get_variant_oncoprint_tables(wildcards, input):
+    oncoprint_dir = input.variant_oncoprints
+    valid = re.compile(r"^[^/]+\.tsv$")
+    tables = [f for f in os.listdir(oncoprint_dir) if valid.match(f)]
+    assert all(table.endswith(".tsv") for table in tables)
+    genes = [gene_table[:-4] for gene_table in tables]
+    return list(zip(genes, expand(f"{oncoprint_dir}/{{oncoprint}}", oncoprint=tables)))
+
+
 def get_datavzrd_report_labels(wildcards):
     event = config["calling"]["fdr-control"]["events"][wildcards.event]
     labels = {"batch": wildcards.batch}

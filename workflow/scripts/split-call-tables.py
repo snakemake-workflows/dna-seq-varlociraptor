@@ -1,19 +1,22 @@
-import json
-import re
 import sys
-import numpy as np
-import pandas as pd
 
 sys.stderr = open(snakemake.log[0], "w")
+
+import json
+import re
+
+import numpy as np
+import pandas as pd
 
 
 PROB_EPSILON = 0.01  # columns with all probabilities below will be dropped
 
 
 def write(df, path):
-    df.drop(["canonical"], axis="columns", errors="ignore").dropna(
-        how="all", axis="columns"
-    ).to_csv(path, index=False, sep="\t")
+    df = df.drop(["canonical"], axis="columns", errors="ignore")
+    if not df.empty:
+        df = df.dropna(how="all", axis="columns")
+    df.to_csv(path, index=False, sep="\t")
 
 
 def format_floats(df):
@@ -55,6 +58,32 @@ def get_vaf_columns(df):
 
 def get_samples(df):
     return list(get_vaf_columns(df).str.replace(": allele frequency", ""))
+
+
+def get_vartype(rec):
+    ref_allele = rec["reference allele"]
+    alt_allele = rec["alternative allele"]
+    if alt_allele == "<DEL>" or (len(ref_allele) > 1 and len(alt_allele) == 1):
+        return "deletion"
+    elif alt_allele == "<INS>" or (len(alt_allele) > 1 and len(ref_allele) == 1):
+        return "insertion"
+    elif alt_allele == "<INV>":
+        return "inversion"
+    elif alt_allele == "<DUP>":
+        return "duplication"
+    elif alt_allele == "<TDUP>":
+        return "tandem duplication"
+    elif alt_allele == "<CNV>":
+        return "copy number variation"
+    elif alt_allele.startswith("<"):
+        # catch other special alleles
+        return "complex"
+    elif len(alt_allele) == 1 and len(ref_allele) == 1:
+        return "snv"
+    elif len(alt_allele) == len(ref_allele):
+        return "mnv"
+    else:
+        return "breakend"
 
 
 def plot_data(df):
@@ -166,6 +195,7 @@ calls["clinical significance"] = (
     .apply(", ".join)
     .replace("", np.nan)
 )
+calls["vartype"] = calls.apply(get_vartype, axis="columns")
 calls = sort_calls(calls)
 calls = format_floats(calls)
 calls = drop_low_prob_cols(calls)
