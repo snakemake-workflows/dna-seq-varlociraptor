@@ -108,20 +108,31 @@ views:
       render-table:
         symbol:
           link-to-url: https://www.ensembl.org/Homo_sapiens/Gene/Summary?g={value}
+        consequence:
+          plot:
+            heatmap:
+              scale: ordinal
+              color-scheme: category20
         ?for group in params.groups:
           ?group:
             plot:
               heatmap:
                 scale: ordinal
-                color-scheme: category20
+                color-scheme: paired
     
     ?for gene, path in params.variant_oncoprints:
       ?f"overview-{gene}":
         desc: ?f"Variants found in gene {gene}."
         dataset: ?f"variant-oncoprint-{gene}"
+        hidden: true
         render-table:
           hgvsp:
             custom: ?varsome_link
+          consequence:
+            plot:
+              heatmap:
+                scale: ordinal
+                color-scheme: category20
           ?for group in params.groups:
             ?group:
               plot:
@@ -132,7 +143,7 @@ views:
                     - 1
                   range:
                     - white
-                    - "#4682b4"
+                    - "#a6cee3"
 
   ?for group in params.groups:
     ?f"{group}-coding":
@@ -144,6 +155,8 @@ views:
         ?if params.varsome_url:
           hgvsp:
             custom: ?varsome_link
+        vartype:
+          display-mode: detail
         impact:
           plot:
             heatmap:
@@ -215,6 +228,8 @@ views:
             heatmap:
               color-scheme: category20
               scale: ordinal
+        vartype:
+          display-mode: detail
         impact:
           plot:
             heatmap:
