@@ -1,0 +1,2 @@
+Quality control plots for sample group {{ snakemake.wildcards.group }}. 
+Quality control was performed with `FastQC <https://www.bioinformatics.babraham.ac.uk/projects/fastqc>`_ and rendered with `MultiQC <https://multiqc.info>`_. 

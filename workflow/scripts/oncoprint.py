@@ -1,44 +1,49 @@
+import sys
+sys.stderr = open(snakemake.log[0], "w")
+
+import os
+from pathlib import Path
+
 import pandas as pd
 
 
-def get_vartype(rec):
-    ref_allele = rec["reference allele"]
-    alt_allele = rec["alternative allele"]
-    if alt_allele == "<DEL>" or (len(ref_allele) > 1 and len(alt_allele) == 1):
-        return "deletion"
-    elif alt_allele == "<INS>" or (len(alt_allele) > 1 and len(ref_allele) == 1):
-        return "insertion"
-    elif alt_allele == "<INV>":
-        return "inversion"
-    elif alt_allele == "<DUP>":
-        return "duplication"
-    elif alt_allele == "<TDUP>":
-        return "tandem duplication"
-    elif alt_allele == "<CNV>":
-        return "copy number variation"
-    elif alt_allele.startswith("<"):
-        # catch other special alleles
-        return "complex"
-    elif len(alt_allele) == 1 and len(ref_allele) == 1:
-        return "snv"
-    elif len(alt_allele) == len(ref_allele):
-        return "mnv"
-    else:
-        return "breakend"
+def join_vartypes(df):
+    df["vartype"] = ",".join(df["vartype"])
+    return df.drop_duplicates()
 
 
 def load_calls(path, group):
     calls = pd.read_csv(
-        path, sep="\t", usecols=["gene", "reference allele", "alternative allele"]
+        path, sep="\t", usecols=["symbol", "vartype", "hgvsp", "hgvsg"]
     )
-    calls["vartype"] = calls.apply(get_vartype, axis="columns")
     calls["group"] = group
-    return calls[["group", "gene", "vartype"]].drop_duplicates()
+    return calls.drop_duplicates()
+
+def gene_oncoprint(calls):
+    matrix = calls[["group", "symbol", "vartype"]].groupby(["group", "symbol"]).apply(join_vartypes).set_index(["symbol", "group"]).unstack(level="group")
+    matrix.columns = matrix.columns.droplevel(0) # remove superfluous header
+    return matrix.reset_index()
 
 
-pd.concat(
+def variant_oncoprint(gene_calls):
+    gene_calls = gene_calls[["group", "hgvsp", "hgvsg"]]
+    gene_calls.loc[:, "exists"] = 1
+    matrix = gene_calls.set_index(["hgvsp", "hgvsg", "group"]).unstack(level="group").fillna(0)
+    matrix.columns = matrix.columns.droplevel(0) # remove superfluous header
+    
+    return matrix.reset_index()
+
+
+calls = pd.concat(
     [
         load_calls(path, sample)
         for path, sample in zip(snakemake.input, snakemake.params.groups)
     ]
-).to_csv(snakemake.output[0], sep="\t", index=False)
+)
+
+
+gene_oncoprint(calls).to_csv(snakemake.output.gene_oncoprint, sep="\t", index=False)
+
+os.makedirs(snakemake.output.variant_oncoprints)
+for gene, gene_calls in calls.groupby("symbol"):
+    variant_oncoprint(gene_calls).to_csv(Path(snakemake.output.variant_oncoprints) / f"{gene}.tsv", sep="\t", index=False)

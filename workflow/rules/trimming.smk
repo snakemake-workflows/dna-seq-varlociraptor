@@ -1,7 +1,7 @@
 rule get_sra:
     output:
-        "sra/{accession}_1.fastq",
-        "sra/{accession}_2.fastq",
+        "sra/{accession}_fq1.fastq.gz",
+        "sra/{accession}_fq2.fastq.gz",
     log:
         "logs/get-sra/{accession}.log",
     wrapper:
@@ -46,7 +46,7 @@ rule cutadapt_se:
         fastq="results/trimmed/{sample}/{unit}.single.fastq.gz",
         qc="results/trimmed/{sample}/{unit}.single.qc.txt",
     log:
-        "logs/cutadapt/{sample}-{unit}.log",
+        "logs/cutadapt/{sample}-{unit}.se.log",
     params:
         others=config["params"]["cutadapt"],
         adapters_r1=get_cutadapt_adapters,

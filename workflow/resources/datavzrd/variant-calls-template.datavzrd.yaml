@@ -1,13 +1,78 @@
 name: ?f"Variant calls {wildcards.event}"
 
-default-view: ?"overview" if params.oncoprint else f"{params.groups[0]}-coding"
+default-view: ?"overview" if params.gene_oncoprint else f"{params.groups[0]}-coding"
 
 __definitions__:
   - |
     def read_file(path):
         return open(path, 'r').read()
+  - |
+    varsome_link = f"""
+    function(value, row) {{
+      let hgvsp_regex = /^(.+?):(.+)$/;
+      // discard protein id
+      let hgvsp = value.match(hgvsp_regex)[2];
+
+      const url = "{params.varsome_url}";
+      const regex = [
+        /(\d+):[gG]\.(\d+)([GCTAgcta])?>([GCTAgcta])$/,
+        /(\d+):[gG]\.(\d+)([gctaGCTA])?=$/,
+        /(\d+):[gG]\.(\d+)(?:_(\d+))?([GCTAgcta]+)?delins([GCTAgcta]+)$/,
+        /(\d+):[gG]\.(\d+)(?:_(\d+))?del([GCTAgcta]+)?$/,
+        /(\d+):[gG]\.(\d+)_(\d+)ins([GCTAgcta]+)$/,
+        /(\d+):[gG]\.(\d+)_(\d+)ins(\d+)_(\d+)inv$/,
+      ];
+      for (let i = 0; i < regex.length; i++) {{
+        const match = row.hgvsg.match(regex[i]);
+        if ( match ) {{
+          switch (i) {{
+            // SNV
+            case 0:
+              descriptor = match.splice(1).join(":");
+              break;
+            // Deletion
+            case 3:
+              del_size = match[3]-match[2]+1;
+              descriptor = [match[1], match[2], del_size, ""].join(":");
+              break;
+            // Insertion
+            case 4:
+              descriptor = [match[1], match[3], "", match[4]].join(":");
+              break;
+            default:
+              descriptor = null;
+          }}
+          if (descriptor) {{
+            return `<a href="${{url}}${{descriptor}}" target="_blank">${{hgvsp}}</a>`;
+          }} else {{
+            // End for-loop
+            break;
+          }}
+        }}
+      }}
+      return `${{hgvsp}}`;
+    }}
+    """
 
 datasets:
+  ?if params.gene_oncoprint:
+    gene-oncoprint:
+      path: ?params.gene_oncoprint
+      separator: "\t"
+      links:
+        gene details:
+          column: symbol
+          view: "overview-{value}"
+    ?for gene, path in params.variant_oncoprints:
+      ?f"variant-oncoprint-{gene}":
+        path: ?path
+        separator: "\t"
+        links:
+          ?for group in params.groups:
+            ?group:
+              column: hgvsp
+              table-row: ?f"{group}-coding/hgvsp"
+
   ?for group, path in zip(params.groups, params.coding_calls):
     ?f"{group}-coding":
       path: ?path
@@ -34,15 +99,40 @@ datasets:
           table-row: ?f"{group}-noncoding/hgvsg"
 
 views:
-  ?if params.oncoprint:
+  ?if params.gene_oncoprint:
     overview:
       desc: |
-        Overview plot showing all discovered variants in all samples. Click
-        on cells to jump to the respective variants.
-      dataset: oncoprint
-      render-plot:
-
-
+        Overview table showing all discovered variants in all samples. Use link
+        button to jump to detail views for the respective genes.
+      dataset: gene-oncoprint
+      render-table:
+        symbol:
+          link-to-url: https://www.ensembl.org/Homo_sapiens/Gene/Summary?g={value}
+        ?for group in params.groups:
+          ?group:
+            plot:
+              heatmap:
+                scale: ordinal
+                color-scheme: category20
+    
+    ?for gene, path in params.variant_oncoprints:
+      ?f"overview-{gene}":
+        desc: ?f"Variants found in gene {gene}."
+        dataset: ?f"variant-oncoprint-{gene}"
+        render-table:
+          hgvsp:
+            custom: ?varsome_link
+          ?for group in params.groups:
+            ?group:
+              plot:
+                heatmap:
+                  scale: ordinal
+                  domain:
+                    - 0
+                    - 1
+                  range:
+                    - white
+                    - "#4682b4"
 
   ?for group in params.groups:
     ?f"{group}-coding":
@@ -53,49 +143,7 @@ views:
           link-to-url: https://www.ensembl.org/Homo_sapiens/Transcript/Summary?t={feature}
         ?if params.varsome_url:
           hgvsp:
-            custom: |
-              ?f"""
-              function(value, row) {{
-                const url = "{params.varsome_url}";
-                const regex = [
-                  /(\d+):[gG]\.(\d+)([GCTAgcta])?>([GCTAgcta])$/,
-                  /(\d+):[gG]\.(\d+)([gctaGCTA])?=$/,
-                  /(\d+):[gG]\.(\d+)(?:_(\d+))?([GCTAgcta]+)?delins([GCTAgcta]+)$/,
-                  /(\d+):[gG]\.(\d+)(?:_(\d+))?del([GCTAgcta]+)?$/,
-                  /(\d+):[gG]\.(\d+)_(\d+)ins([GCTAgcta]+)$/,
-                  /(\d+):[gG]\.(\d+)_(\d+)ins(\d+)_(\d+)inv$/,
-                ];
-                for (let i = 0; i < regex.length; i++) {{
-                  const match = row.hgvsg.match(regex[i]);
-                  if ( match ) {{
-                    switch (i) {{
-                      // SNV
-                      case 0:
-                        descriptor = match.splice(1).join(":");
-                        break;
-                      // Deletion
-                      case 3:
-                        del_size = match[3]-match[2]+1;
-                        descriptor = [match[1], match[2], del_size, ""].join(":");
-                        break;
-                      // Insertion
-                      case 4:
-                        descriptor = [match[1], match[3], "", match[4]].join(":");
-                        break;
-                      default:
-                        descriptor = null;
-                    }}
-                    if (descriptor) {{
-                      return `<a href="${{url}}${{descriptor}}" target="_blank">${{value}}</a>`;
-                    }} else {{
-                      // End for-loop
-                      break;
-                    }}
-                  }}
-                }}
-                return `${{value}}`;
-              }}
-              """
+            custom: ?varsome_link
         impact:
           plot:
             heatmap:

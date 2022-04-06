@@ -6,28 +6,29 @@ rule filter_candidates_by_annotation:
     log:
         "logs/filter-calls/annotation/{group}.{caller}.{scatteritem}.log",
     params:
-        filter=lambda w: config["calling"]["filter"]["candidates"],
+        filter=lambda w: config["calling"]["filter"]["candidates"].replace('"', '\\"'),
     conda:
         "../envs/vembrane.yaml"
     shell:
         "(bcftools norm -Ou --do-not-normalize --multiallelics -any {input} | "
-        "vembrane filter {params.filter:q} --output-fmt bcf --output {output}) &> {log}"
+        'vembrane filter "{params.filter}" --output-fmt bcf --output {output}) &> {log}'
 
 
 rule filter_by_annotation:
     input:
-        get_annotated_bcf,
+        bcf=get_annotated_bcf,
+        aux=get_annotation_filter_aux_files,
     output:
         "results/calls/{group}.{event}.{scatteritem}.filtered_ann.bcf",
     log:
         "logs/filter-calls/annotation/{group}.{event}.{scatteritem}.log",
     params:
         filter=get_annotation_filter_expression,
-        extra=get_annotation_filter_extra,
+        aux=get_annotation_filter_aux,
     conda:
         "../envs/vembrane.yaml"
     shell:
-        "vembrane filter {params.extra} {params.filter:q} {input} --output-fmt bcf --output {output} &> {log}"
+        'vembrane filter {params.aux} "{params.filter}" {input.bcf} --output-fmt bcf --output {output} &> {log}'
 
 
 rule filter_odds:
