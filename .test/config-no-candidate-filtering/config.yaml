@@ -57,6 +57,16 @@ calling:
           - moderate
         desc: Moderate variants
 
+tables:
+  activate: true
+  # vembrane expression to generate the table
+  output:
+    expression: "INDEX, CHROM, POS, REF, ALT[0], ANN['Consequence'], ANN['IMPACT'], ANN['SYMBOL'], ANN['Feature']"
+    genotype: true
+    coverage: true
+    event_prob: true
+  generate_excel: true
+
 annotations:
   vcfs:
     activate: true

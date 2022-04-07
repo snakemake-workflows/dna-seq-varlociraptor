@@ -92,3 +92,13 @@ report:
   stratify:
     activate: false
     by-column: condition
+
+tables:
+  activate: false
+  # vembrane expression to generate the table
+  output:
+    expression: "INDEX, CHROM, POS, REF, ALT[0], ANN['Consequence'], ANN['IMPACT'], ANN['SYMBOL'], ANN['Feature']"
+    genotype: true
+    coverage: true
+    event_prob: true
+  generate_excel: true
