@@ -44,7 +44,8 @@ calling:
   filter:
     moderate: "ANN['IMPACT'] == 'MODERATE'"
     with_aux:
-      extra: "--aux super_interesting_genes config-no-candidate-filtering/super_interesting_genes.tsv"
+      aux-files: 
+        super_interesting_genes: config-no-candidate-filtering/super_interesting_genes.tsv
       expression: "ANN['GENE'] in AUX['super_interesting_genes']"
   fdr-control:
     threshold: 0.05

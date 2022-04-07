@@ -16,14 +16,14 @@ def parse_bed(log_file, out):
             if row[5] == "+":
                 print(
                     "{chrom}\t{start}\t{end}\t-1\t-1".format(
-                        chrom=row[0], start=row[1]+1, end=row[2]
+                        chrom=row[0], start=row[1] + 1, end=row[2]
                     ),
                     file=out,
                 )
             elif row[5] == "-":
                 print(
                     "{chrom}\t-1\t-1\t{start}\t{end}".format(
-                        chrom=row[0], start=row[1]+1, end=row[2]
+                        chrom=row[0], start=row[1] + 1, end=row[2]
                     ),
                     file=out,
                 )
@@ -56,7 +56,7 @@ def parse_bedpe(log_file, out):
         )
 
 
-chunksize = 10 ** 6
+chunksize = 10**6
 with open(snakemake.output[0], "w") as out:
     with open(snakemake.log[0], "w") as log_file:
         if snakemake.input[0].endswith("bedpe"):

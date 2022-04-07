@@ -44,21 +44,12 @@ mutational_burden:
   # Plotting modes - hist (stratified histogram)
   # or curve (stratified curve)
   mode:
-    - hist
     - curve
-  # Events to use for mutational burden plotting.
-  # In case you have certain samples where this differs, 
-  # you can add an additional column mutational_burden_events
-  # to the sample table (samples.tsv).
-  # There events can be specified comma separated.
-  events:
-    - somatic_tumor_high
-    - somatic_tumor_medium
-    - somatic_tumor_low
+    - hist
 
-# printing of variants in a matrix, sorted by recurrence
+# printing of variants in interactive tables
 report:
-  # if stratificatio is deactivated, one oncoprint for all
+  # if stratification is deactivated, one report for all
   # samples will be created.
   activate: true
   max_read_depth: 250
@@ -66,18 +57,6 @@ report:
     activate: false
     # select a sample sheet column for stratification
     by-column: condition
-
-# printing of variants in a table format
-tables:
-  activate: true
-  output:
-    # Uncomment and add VEP annotation fields to include (IMPACT, Consequence, Feature, SYMBOL, and HGVSp are always included)
-    annotation_fields:
-      - EXON
-      - CLIN_SIG
-    event_prob: true
-    observations: true
-  generate_excel: true
 
 calling:
   # Set to true to infer classical genotypes from Varlociraptor's VAF predictions
@@ -106,10 +85,11 @@ calling:
     impact_filter: "ANN['IMPACT'] == 'HIGH'"
     # If you need to use vembrane command line options beyond the filter expression,
     # please use the filter sub-structure with 'expression:' for the filter expression
-    # and "extra:" for the extra options. This can for example be used for filtering
-    # by gene lists with the `--aux` option (with a file containing one gene name per line).
+    # and "aux-files:" for additional files with IDs for filtering. This can for example 
+    # be used for filtering by gene lists (with a file containing one gene name per line).
     gene_list_filter:
-      extra: "--aux super_interesting_genes config/super_interesting_genes.tsv"
+      aux-files:
+        super_interesting_genes: "config/super_interesting_genes.tsv"
       expression: "ANN['GENE'] in AUX['super_interesting_genes']"
   fdr-control:
     threshold: 0.05
@@ -117,9 +97,21 @@ calling:
     local: true
     events: 
       # Add any number of events here to filter for.
-      # The name of each event can be chosen freely 
+      # The id of each event can be chosen freely, but needs to contain
+      # only alphanumerics and underscores
       # ("somatic" below is just an example and can be modified as needed).
-      somatic:
+      some_id:
+        # labels for the callset, displayed in the report. Will fall back to id if no labels specified
+        labels:
+          some-label: label text
+          other-label: label text
+        # optional subcategory for callset (e.g. "known variants", or "VUS"),
+        # comment out or remove to disable
+        subcategory: some subcategory
+        # Natural language description of the callset obtained here.
+        # This will occur in the report.
+        desc: |
+          Some description.
         varlociraptor: 
           # Add varlociraptor events to aggregated over.
           # The probability for the union of these events is used for controlling
@@ -132,10 +124,6 @@ calling:
           # Multiple filters can be defined as list and will be concatenated by 'and'
           - impact_filter
           - gene_list_filter
-        # Natural language description of the callset obtained here.
-        # This will occur in the report.
-        desc: |
-          Some description.
 
 # If calc_consensus_reads is activated duplicates will be merged
 remove_duplicates:
@@ -170,6 +158,18 @@ annotations:
       - LoFtool
       - REVEL
 
+# printing of variants in a table format (might be deprecated soon)
+tables:
+  activate: false
+  output:
+    # Uncomment and add VEP annotation fields to include (IMPACT, Consequence, Feature, SYMBOL, and HGVSp are always included)
+    annotation_fields:
+      - EXON
+      - CLIN_SIG
+    event_prob: true
+    observations: true
+  generate_excel: true
+
 params:
   cutadapt: ""
   picard:
@@ -180,7 +180,7 @@ params:
   varlociraptor:
     # add extra arguments for varlociraptor call
     # For example, in case of panel data consider to omit certain bias estimations
-    # which might be misleading because all reads of an amplicon have the sample start
+    # which might be misleading because all reads of an amplicon have the same start
     # position, strand etc. (--omit-strand-bias, --omit-read-position-bias, 
     # --omit-softclip-bias, --omit-read-orientation-bias).
     call: ""
