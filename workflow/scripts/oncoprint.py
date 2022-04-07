@@ -36,20 +36,29 @@ def sort_by_recurrence(matrix, no_occurence_check_func):
     )
 
 
+def empty_matrix():
+    return pd.DataFrame({group: [] for group in snakemake.params.groups})
+
+
 def gene_oncoprint(calls):
-    matrix = (
-        calls[["group", "symbol", "vartype", "consequence"]]
-        .drop_duplicates()
-        .groupby(["group", "symbol"])
-        .apply(join_gene_variants)
-        .set_index(["symbol", "consequence", "group"])
-        .unstack(level="group")
-    )
-    matrix.columns = matrix.columns.droplevel(0)  # remove superfluous header
-    if len(matrix.columns) > 1:
-        # sort by recurrence
-        matrix = sort_by_recurrence(matrix, lambda matrix: matrix.isna())
-    return matrix.reset_index()
+    calls = calls[["group", "symbol", "vartype", "consequence"]]
+    if not calls.empty:
+        grouped = (
+            calls.drop_duplicates()
+            .groupby(["group", "symbol"])
+            .apply(join_gene_variants)
+        )
+        matrix = grouped.set_index(["symbol", "consequence", "group"]).unstack(
+            level="group"
+        )
+
+        matrix.columns = matrix.columns.droplevel(0)  # remove superfluous header
+        if len(matrix.columns) > 1:
+            # sort by recurrence
+            matrix = sort_by_recurrence(matrix, lambda matrix: matrix.isna())
+        return matrix.reset_index()
+    else:
+        return empty_matrix()
 
 
 def variant_oncoprint(gene_calls):
