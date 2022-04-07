@@ -1,54 +1,54 @@
 {
-    "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
-    "mark": {
-        "type": "bar",
-        "height": {
-        "band": 1
-        }
-    },
+    "$schema": "https://vega.github.io/schema/vega-lite/v3.json",
+    "mark": "bar",
     "encoding": {
-        "x": {
-            "field": "count",
-            "type": "quantitative",
-            "title": null,
-            "axis": null
+        "column": {
+            "field": "sample",
+            "type": "ordinal",
+            "title": "Sample"
         },
-        "y": {
+        "row": {
             "field": "quality",
             "type": "ordinal",
-            "title": "Map. Q.",
-            "scale": {
-            "paddingInner": 0.00,
-            "paddingOuter": 0
-            }
+            "title": null
+        },
+        "x": {
+            "field": "strand_orientation",
+            "type": "ordinal",
+            "title": "Strand"
+        },
+        "y": {
+            "field": "times",
+            "type": "quantitative",
+            "title": "Counts"
         },
         "color": {
             "field": "effect",
             "type": "nominal",
+            "title": "Evidence",
             "sort": ["None", "Barely", "Positive", "Strong", "Very Strong"],
             "scale": {
                 "domain": ["None", "Barely", "Positive", "Strong", "Very Strong"],
                 "range": ["#999999", "#2ba6cb", "#afdfee", "#ffa3a3", "#ff5555"]
-            },
-            "legend": null
+            }
         },
-        "tooltip": [{
-            "field": "quality",
+        "tooltip": [ {
+            "field": "strand",
             "type": "nominative",
-            "title": "Mapping Quality"
-            }, {
-            "field": "effect",
-            "type": "nominative",
-            "title": "Effect"
-            }, {
-            "field": "count",
+            "title": "Strand"
+        }, {
+            "field": "orientation",
+            "type": "nominal",
+            "title": "Orientation"
+        }, {
+            "field": "times",
             "type": "quantitative",
-            "title": "Count"
+            "title": "Counts"
         }]
     },
     "config": {
-        "view": {
-            "stroke": "transparent"
+        "axisX": {
+            "labelAngle": -45
         }
     }
 }

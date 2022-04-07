@@ -732,7 +732,7 @@ def get_vembrane_config(wildcards, input):
     append_format_field("DP", "read depth")
 
     if config_output.get("observations", False):
-        append_format_field("SOBS", "observations")
+        append_format_field("OBS", "observations")
     return {"expr": join_items(parts), "header": join_items(header)}
 
 
