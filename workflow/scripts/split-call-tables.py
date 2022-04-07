@@ -97,11 +97,13 @@ def plot_data(df):
     return df
 
 
-def sort_calls(df):
+def order_impact(df):
     order_impact = ["MODIFIER", "LOW", "MODERATE", "HIGH"]
     df["impact"] = pd.Categorical(df["impact"], order_impact)
+
+
+def sort_calls(df):
     df.sort_values(snakemake.params.sorting, ascending=False, inplace=True)
-    return df
 
 
 def plot_spec(samples):
@@ -195,8 +197,14 @@ calls["clinical significance"] = (
     .apply(", ".join)
     .replace("", np.nan)
 )
-calls["vartype"] = calls.apply(get_vartype, axis="columns")
-calls = sort_calls(calls)
+if not calls.empty:
+    # these below only work on non empty dataframes
+    calls["vartype"] = calls.apply(get_vartype, axis="columns")
+    order_impact(calls)
+    sort_calls(calls)
+else:
+    calls["vartype"] = []
+
 calls = format_floats(calls)
 calls = drop_low_prob_cols(calls)
 calls = drop_zero_vaf_cols(calls)
