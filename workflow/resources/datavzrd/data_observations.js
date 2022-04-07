@@ -23,7 +23,6 @@ function(value) {
         quality = "High mapping quality";
     }
     observations.push({
-        "sample": sample_name,
         "strand": strand,
         "strand_orientation": strand + ' ' + orientation[result[6]],
         "effect": effect,

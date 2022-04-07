@@ -3,11 +3,6 @@
     "mark": "bar",
     "encoding": {
         "column": {
-            "field": "sample",
-            "type": "ordinal",
-            "title": "Sample"
-        },
-        "row": {
             "field": "quality",
             "type": "ordinal",
             "title": null
