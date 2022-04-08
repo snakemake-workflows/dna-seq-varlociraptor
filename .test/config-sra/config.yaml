@@ -50,6 +50,7 @@ calling:
           - "PRESENT"
         filter:
           - moderate
+        desc: Variants with moderate impact
 
 annotations:
   dbnsfp:
@@ -59,6 +60,9 @@ annotations:
     known: resources/variation.vcf.gz
   dgidb:
     activate: false
+  vep:
+    params: --everything
+    plugins: []
 
 
 params:
@@ -87,3 +91,13 @@ report:
   stratify:
     activate: false
     by-column: condition
+
+tables:
+  activate: false
+  # vembrane expression to generate the table
+  output:
+    expression: "INDEX, CHROM, POS, REF, ALT[0], ANN['Consequence'], ANN['IMPACT'], ANN['SYMBOL'], ANN['Feature']"
+    genotype: true
+    coverage: true
+    event_prob: true
+  generate_excel: true
