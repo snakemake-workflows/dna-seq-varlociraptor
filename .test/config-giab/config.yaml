@@ -93,6 +93,7 @@ calling:
         varlociraptor:
           - present
         filter: null
+        desc: Somatic variants
 
 # Will be ignored if calc_consensus_reads is activated
 remove_duplicates:

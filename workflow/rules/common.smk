@@ -1,6 +1,7 @@
 import glob
 from os import path
 
+import yaml
 import pandas as pd
 from snakemake.remote import FTP
 from snakemake.utils import validate
@@ -19,16 +20,69 @@ samples = (
     .set_index("sample_name", drop=False)
     .sort_index()
 )
+if not "mutational_burden_events" in samples.columns:
+    samples["mutational_burden_events"] = pd.NA
+
+
+def _group_or_sample(row):
+    group = row.get("group", None)
+    if pd.isnull(group):
+        return row["sample_name"]
+    return group
+
+
+samples["group"] = [_group_or_sample(row) for _, row in samples.iterrows()]
+validate(samples, schema="../schemas/samples.schema.yaml")
+
+
+groups = samples["group"].unique()
+
+
+units = (
+    pd.read_csv(
+        config["units"],
+        sep="\t",
+        dtype={"sample_name": str, "unit_name": str},
+        comment="#",
+    )
+    .set_index(["sample_name", "unit_name"], drop=False)
+    .sort_index()
+)
+
+if "umis" not in units.columns:
+    units["umis"] = pd.NA
+
+validate(units, schema="../schemas/units.schema.yaml")
+
+primer_panels = (
+    (
+        pd.read_csv(
+            config["primers"]["trimming"]["tsv"],
+            sep="\t",
+            dtype={"panel": str, "fa1": str, "fa2": str},
+            comment="#",
+        )
+        .set_index(["panel"], drop=False)
+        .sort_index()
+    )
+    if config["primers"]["trimming"].get("tsv", "")
+    else None
+)
 
 
 def get_final_output():
-    final_output = []
+
+    final_output = expand(
+        "results/qc/multiqc/{group}.html",
+        group=groups,
+    )
 
     if config["report"]["activate"]:
         final_output.extend(
             expand(
-                "results/vcf-report/all.{event}/",
+                "results/datavzrd-report/{batch}.{event}.fdr-controlled",
                 event=config["calling"]["fdr-control"]["events"],
+                batch=get_report_batches(),
             )
         )
     else:
@@ -60,44 +114,6 @@ def get_final_output():
     final_output.extend(get_mutational_burden_targets())
 
     return final_output
-
-
-def _group_or_sample(row):
-    group = row.get("group", None)
-    if pd.isnull(group):
-        return row["sample_name"]
-    return group
-
-
-samples["group"] = [_group_or_sample(row) for _, row in samples.iterrows()]
-validate(samples, schema="../schemas/samples.schema.yaml")
-
-units = (
-    pd.read_csv(
-        config["units"],
-        sep="\t",
-        dtype={"sample_name": str, "unit_name": str},
-        comment="#",
-    )
-    .set_index(["sample_name", "unit_name"], drop=False)
-    .sort_index()
-)
-validate(units, schema="../schemas/units.schema.yaml")
-
-primer_panels = (
-    (
-        pd.read_csv(
-            config["primers"]["trimming"]["tsv"],
-            sep="\t",
-            dtype={"panel": str, "fa1": str, "fa2": str},
-            comment="#",
-        )
-        .set_index(["panel"], drop=False)
-        .sort_index()
-    )
-    if config["primers"]["trimming"].get("tsv", "")
-    else None
-)
 
 
 def get_gather_calls_input(ext="bcf"):
@@ -142,9 +158,7 @@ def get_cutadapt_input(wildcards):
     unit = units.loc[wildcards.sample].loc[wildcards.unit]
 
     if pd.isna(unit["fq1"]):
-        # SRA sample (always paired-end for now)
-        accession = unit["sra"]
-        return expand("sra/{accession}_{read}.fastq", accession=accession, read=[1, 2])
+        return get_sra_reads(wildcards.sample, wildcards.unit, ["fq1", "fq2"])
 
     if unit["fq1"].endswith("gz"):
         ending = ".gz"
@@ -166,23 +180,36 @@ def get_cutadapt_input(wildcards):
         )
 
 
-def get_cutadapt_pipe_input(wildcards):
-    pattern = units.loc[wildcards.sample].loc[wildcards.unit, wildcards.fq]
+def get_sra_reads(sample, unit, fq):
+    unit = units.loc[sample].loc[unit]
+    # SRA sample (always paired-end for now)
+    accession = unit["sra"]
+    return expand("sra/{accession}_{read}.fastq.gz", accession=accession, read=fq)
+
+
+def get_raw_reads(sample, unit, fq):
+    pattern = units.loc[sample].loc[unit, fq]
+    if pd.isna(pattern):
+        return get_sra_reads(sample, unit, fq)
+
     if "*" in pattern:
-        files = sorted(
-            glob.glob(units.loc[wildcards.sample].loc[wildcards.unit, wildcards.fq])
-        )
+        files = sorted(glob.glob(units.loc[sample].loc[unit, fq]))
         if not files:
             raise ValueError(
                 "No raw fastq files found for unit pattern {} (sample {}). "
-                "Please check the your sample sheet.".format(
-                    wildcards.unit, wildcards.sample
-                )
+                "Please check the your sample sheet.".format(unit, sample)
             )
     else:
         files = [pattern]
-
     return files
+
+
+def get_cutadapt_pipe_input(wildcards):
+    return get_raw_reads(wildcards.sample, wildcards.unit, wildcards.fq)
+
+
+def get_fastqc_input(wildcards):
+    return get_raw_reads(wildcards.sample, wildcards.unit, wildcards.fq)[0]
 
 
 def get_cutadapt_adapters(wildcards):
@@ -425,21 +452,15 @@ def get_mutational_burden_targets():
         return expand(
             "results/plots/mutational-burden/{sample.group}.{sample.sample_name}.{mode}.mutational-burden.svg",
             mode=config["mutational_burden"].get("mode", "curve"),
-            sample=samples.itertuples(),
+            sample=samples[~pd.isna(samples["mutational_burden_events"])].itertuples(),
         )
     else:
         return []
 
 
 def get_mutational_burden_events(wildcards):
-    try:
-        events = samples.loc[wildcards.sample, "mutational_burden_events"]
-    except KeyError:
-        events = None
-    if pd.isna(events):
-        events = config["mutational_burden"]["events"]
-    else:
-        events = map(str.strip, events.split(","))
+    events = samples.loc[wildcards.sample, "mutational_burden_events"]
+    events = map(str.strip, events.split(","))
     return " ".join(events)
 
 
@@ -492,15 +513,23 @@ def get_candidate_calls():
 
 def get_report_batch(wildcards):
     if wildcards.batch == "all":
-        groups = samples["group"].unique()
+        _groups = groups
     else:
-        groups = samples.loc[
+        _groups = samples.loc[
             samples[config["report"]["stratify"]["by-column"]] == wildcards.batch,
             "group",
         ].unique()
-    if not any(groups):
+    if not any(_groups):
         raise ValueError("No samples found. Is your sample sheet empty?")
-    return groups
+    return _groups
+
+
+def get_report_batches():
+    if is_activated("report/stratify"):
+        yield "all"
+        yield from samples[config["report"]["stratify"]["by-column"]].unique()
+    else:
+        yield "all"
 
 
 def get_merge_calls_input(ext="bcf"):
@@ -567,22 +596,19 @@ def get_filter_targets(wildcards, input):
 
 def get_filter_expression(filter_name):
     filter = config["calling"]["filter"][filter_name]
-    expr = (
-        filter
-        if isinstance(filter, str)
-        else config["calling"]["filter"][filter_name]["expression"]
-    )
-    return expr
+    if isinstance(filter, str):
+        return filter
+    else:
+        return config["calling"]["filter"][filter_name]["expression"]
 
 
-def get_filter_extra(filter_name):
+def get_filter_aux_entries(filter_name):
     filter = config["calling"]["filter"][filter_name]
-    extra = (
-        ""
-        if isinstance(filter, str)
-        else config["calling"]["filter"][filter_name].get("extra", "")
-    )
-    return extra
+    if isinstance(filter, str):
+        return {}
+    else:
+        aux = config["calling"]["filter"][filter_name].get("aux-files", {})
+        return aux  # [f"--aux {name} {path}" for name, path in aux.items()]
 
 
 def get_annotation_filter_names(wildcards):
@@ -596,18 +622,27 @@ def get_annotation_filter_expression(wildcards):
         get_filter_expression(filter)
         for filter in get_annotation_filter_names(wildcards)
     ]
-    return " and ".join(filters)
+    return " and ".join(filters).replace('"', '\\"')
 
 
-def get_annotation_filter_extra(wildcards):
-    extras = [
-        get_filter_extra(filter) for filter in get_annotation_filter_names(wildcards)
+def get_annotation_filter_aux(wildcards):
+    return [
+        f"--aux {name} {path}"
+        for filter in get_annotation_filter_names(wildcards)
+        for name, path in get_filter_aux_entries(filter).items()
     ]
-    return " ".join(extras)
+
+
+def get_annotation_filter_aux_files(wildcards):
+    return [
+        path
+        for filter in get_annotation_filter_names(wildcards)
+        for name, path in get_filter_aux_entries(filter).items()
+    ]
 
 
 wildcard_constraints:
-    group="|".join(samples["group"].unique()),
+    group="|".join(groups),
     sample="|".join(samples["sample_name"]),
     caller="|".join(["freebayes", "delly"]),
     filter="|".join(config["calling"]["filter"]),
@@ -637,9 +672,7 @@ def get_annotation_pipes(wildcards, input):
         return "| {}".format(
             " | ".join(
                 [
-                    "SnpSift annotate -name {prefix}_ {path} /dev/stdin".format(
-                        prefix=prefix, path=path
-                    )
+                    f"SnpSift annotate -name '{prefix}_' {repr(path)} /dev/stdin"
                     for (prefix, _), path in zip(annotations, input.annotations)
                 ]
             )
@@ -676,38 +709,60 @@ def get_fastqs(wc):
     )
 
 
-def get_vembrane_expression(wc):
-    expression = (
-        config["tables"]
-        .get("output", {})
-        .get(
-            "expression",
-            "INDEX, CHROM, POS, REF, ALT[0], ANN['Consequence'], ANN['IMPACT'], ANN['SYMBOL'], ANN['Feature']",
-        )
+def get_vembrane_config(wildcards, input):
+    with open(input.scenario, "r") as scenario_file:
+        scenario = yaml.load(scenario_file, Loader=yaml.SafeLoader)
+    parts = ["CHROM, POS, REF, ALT[0], INFO['END'], INFO['EVENT'], ID"]
+    header = [
+        "chromsome, position, reference allele, alternative allele, end position, event, id"
+    ]
+    join_items = ", ".join
+
+    config_output = config["tables"].get("output", {})
+
+    def append_items(items, field_func, header_func):
+        for item in items:
+            parts.append(field_func(item))
+            header.append(header_func(item))
+
+    annotation_fields = [
+        "SYMBOL",
+        "Gene",
+        "Feature",
+        "IMPACT",
+        "HGVSp",
+        "HGVSg",
+        "Consequence",
+        "CANONICAL",
+    ]
+    annotation_fields.extend(
+        [
+            field
+            for field in config_output.get("annotation_fields", [])
+            if field not in annotation_fields
+        ]
     )
-    parts = [expression]
-    if config["tables"].get("output", {}).get("event_prob", False):
-        parts.append(
-            ", ".join(
-                f"10**(-INFO['PROB_{x.upper()}']/10)"
-                for x in config["calling"]["fdr-control"]["events"][wc.event][
-                    "varlociraptor"
-                ]
-            )
+
+    append_items(annotation_fields, "ANN['{}']".format, str.lower)
+    append_items(["CLIN_SIG"], "ANN['{}']".format, lambda x: "clinical significance")
+
+    samples = get_group_sample_aliases(wildcards)
+
+    def append_format_field(field, name):
+        append_items(
+            samples, f"FORMAT['{field}']['{{}}']".format, f"{{}}: {name}".format
         )
-    if config["tables"].get("output", {}).get("genotype", False):
-        parts.append(
-            ", ".join(
-                f"FORMAT['AF']['{sample}']" for sample in get_group_sample_aliases(wc)
-            )
-        )
-    if config["tables"].get("output", {}).get("depth", False):
-        parts.append(
-            ", ".join(
-                f"FORMAT['DP']['{sample}']" for sample in get_group_sample_aliases(wc)
-            )
-        )
-    return ", ".join(parts)
+
+    if config_output.get("event_prob", False):
+        events = list(scenario["events"].keys())
+        events += ["artifact", "absent"]
+        append_items(events, lambda x: f"INFO['PROB_{x.upper()}']", "prob: {}".format)
+    append_format_field("AF", "allele frequency")
+    append_format_field("DP", "read depth")
+
+    if config_output.get("observations", False):
+        append_format_field("OBS", "observations")
+    return {"expr": join_items(parts), "header": join_items(header)}
 
 
 def get_sample_alias(wildcards):
@@ -742,3 +797,93 @@ def format_bowtie_primers(wc, primers):
     if isinstance(primers, list):
         return "-1 {r1} -2 {r2}".format(r1=primers[0], r2=primers[1])
     return primers
+
+
+def get_datavzrd_data(impact="coding", kind="full"):
+    kindspec = ""
+    pattern = "results/tables/{group}.{event}{kindspec}.{impact}.fdr-controlled.tsv"
+    if kind == "plotdata":
+        kindspec = ".plotdata"
+    if kind == "plotspec":
+        pattern = "results/specs/{group}.{event}.varplot.json"
+
+    def inner(wildcards):
+        return expand(
+            pattern,
+            impact=impact,
+            event=wildcards.event,
+            group=get_report_batch(wildcards),
+            kindspec=kindspec,
+        )
+
+    return inner
+
+
+def get_varsome_url():
+    if config["ref"]["species"] == "homo_sapiens":
+        build = "hg38" if config["ref"]["build"] == "GRCh38" else "hg19"
+        return f"https://varsome.com/variant/{build}/chr"
+    else:
+        return None
+
+
+def get_oncoprint_input(wildcards):
+    groups = get_report_batch(wildcards)
+    return expand(
+        "results/tables/{group}.{event}.coding.fdr-controlled.tsv",
+        group=groups,
+        event=wildcards.event,
+    )
+
+
+def get_variant_oncoprint_tables(wildcards, input):
+    oncoprint_dir = input.variant_oncoprints
+    valid = re.compile(r"^[^/]+\.tsv$")
+    tables = [f for f in os.listdir(oncoprint_dir) if valid.match(f)]
+    assert all(table.endswith(".tsv") for table in tables)
+    genes = [gene_table[:-4] for gene_table in tables]
+    return list(zip(genes, expand(f"{oncoprint_dir}/{{oncoprint}}", oncoprint=tables)))
+
+
+def get_datavzrd_report_labels(wildcards):
+    event = config["calling"]["fdr-control"]["events"][wildcards.event]
+    labels = {"batch": wildcards.batch}
+    if "labels" in event:
+        labels.update({key: str(value) for key, value in event["labels"].items()})
+    else:
+        labels["callset"] = wildcards.event.replace("_", " ")
+    return labels
+
+
+def get_datavzrd_report_subcategory(wildcards):
+    event = config["calling"]["fdr-control"]["events"][wildcards.event]
+    return event.get("subcategory", None)
+
+
+def get_fastqc_results(wildcards):
+    group_samples = get_group_samples(wildcards.group)
+    sample_units = units.loc[group_samples]
+    sra_units = pd.isna(sample_units["fq1"])
+    paired_end_units = sra_units | ~pd.isna(sample_units["fq2"])
+
+    # fastqc
+    pattern = "results/qc/fastqc/{unit.sample_name}/{unit.unit_name}.{fq}_fastqc.zip"
+    yield from expand(pattern, unit=sample_units.itertuples(), fq="fq1")
+    yield from expand(
+        pattern, unit=sample_units[paired_end_units].itertuples(), fq="fq2"
+    )
+
+    # cutadapt
+    pattern = "results/trimmed/{unit.sample_name}/{unit.unit_name}.{mode}.qc.txt"
+    yield from expand(
+        pattern, unit=sample_units[paired_end_units].itertuples(), mode="paired"
+    )
+    yield from expand(
+        pattern, unit=sample_units[~paired_end_units].itertuples(), mode="single"
+    )
+
+    # samtools idxstats
+    yield from expand("results/qc/{sample}.bam.idxstats", sample=group_samples)
+
+    # samtools stats
+    yield from expand("results/qc/{sample}.bam.stats", sample=group_samples)

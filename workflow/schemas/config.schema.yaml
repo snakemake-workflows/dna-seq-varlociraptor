@@ -5,6 +5,11 @@ description: snakemake configuration file
 type: object
 
 definitions:
+  aux-file:
+    type: object
+    additionalProperties:
+      anyOf:
+        - type: string
   filterentry:
     type: object
     additionalProperties:
@@ -13,12 +18,13 @@ definitions:
         - type: "null"
         - type: object
           properties:
-            extra:
-              type: string
+            aux-files:
+              $ref: "#/definitions/aux-file"
+              description: "a map of <name: string> pairs"
             expression:
               type: string
           required:
-            - extra
+            - aux-files
             - expression
   evententry:
     type: object
@@ -33,6 +39,16 @@ definitions:
           - type: array
             items:
               type: string
+      desc:
+        type: string
+      labels:
+        type: object
+      subcategory:
+        type: string
+      sort:
+        type: array
+        items:
+          type: string
       local:
         type: boolean
       threshold:
@@ -115,14 +131,14 @@ properties:
       output:
         type: object
         properties:
-          expression:
-            type: string
-          genotype:
-            type: boolean
-          coverage:
-            type: boolean
           event_prob:
             type: boolean
+          observations:
+            type: boolean
+          annotation_fields:
+            type: array
+            items:
+              type: string
     generate_excel:
       type: boolean
     required:
@@ -136,14 +152,9 @@ properties:
       coding_genome_size:
         # TODO allow integer here!
         type: string
-      events:
-        type: array
-        items: 
-          type: string
     required:
       - activate
       - coding_genome_size
-      - events
 
 
   calling:

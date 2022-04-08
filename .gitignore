@@ -14,6 +14,8 @@
 !.gitattributes
 !.editorconfig
 !.travis.yml
-!.test
-!.test/**/*
+!.test/config*
+!.test/data/**
+.test/.snakemake
+.test/results
 .DS_Store

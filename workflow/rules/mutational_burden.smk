@@ -20,6 +20,7 @@ if config["mutational_burden"]["activate"]:
                 caption="../report/mutational_burden.rst",
                 category="Mutational Burden",
                 subcategory="{group}",
+                labels={"sample": "{sample}", "mode": "{mode}"},
             ),
         log:
             "logs/estimate-mutational-burden/{group}.{sample}.{mode}.log",

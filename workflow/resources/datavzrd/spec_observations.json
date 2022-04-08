@@ -1,0 +1,49 @@
+{
+    "$schema": "https://vega.github.io/schema/vega-lite/v3.json",
+    "mark": "bar",
+    "encoding": {
+        "column": {
+            "field": "quality",
+            "type": "ordinal",
+            "title": null
+        },
+        "x": {
+            "field": "strand_orientation",
+            "type": "ordinal",
+            "title": "Strand"
+        },
+        "y": {
+            "field": "times",
+            "type": "quantitative",
+            "title": "Counts"
+        },
+        "color": {
+            "field": "effect",
+            "type": "nominal",
+            "title": "Evidence",
+            "sort": ["None", "Barely", "Positive", "Strong", "Very Strong"],
+            "scale": {
+                "domain": ["None", "Barely", "Positive", "Strong", "Very Strong"],
+                "range": ["#999999", "#2ba6cb", "#afdfee", "#ffa3a3", "#ff5555"]
+            }
+        },
+        "tooltip": [ {
+            "field": "strand",
+            "type": "nominative",
+            "title": "Strand"
+        }, {
+            "field": "orientation",
+            "type": "nominal",
+            "title": "Orientation"
+        }, {
+            "field": "times",
+            "type": "quantitative",
+            "title": "Counts"
+        }]
+    },
+    "config": {
+        "axisX": {
+            "labelAngle": -45
+        }
+    }
+}

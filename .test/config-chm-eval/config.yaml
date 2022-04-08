@@ -46,35 +46,41 @@ calling:
           - "PRESENT"
         filter:
           - dummy
+        desc: Dummy variants
       fdr005:
         threshold: 0.05
         varlociraptor: 
           - "PRESENT"
         filter: dummy
+        desc: Dummy variants
       fdr01:
         threshold: 0.1
         varlociraptor: 
           - "PRESENT"
         filter:
           - dummy
+        desc: Dummy variants
       fdr015:
         threshold: 0.15
         varlociraptor: 
           - "PRESENT"
         filter:
           - dummy
+        desc: Dummy variants
       fdr02:
         threshold: 0.2
         varlociraptor: 
           - "PRESENT"
         filter:
           - dummy
+        desc: Dummy variants
       fdr025:
         threshold: 0.25
         varlociraptor: 
           - "PRESENT"
         filter:
           - dummy
+        desc: Dummy variants
       fdr03:
         threshold: 0.3
         varlociraptor: 
@@ -87,24 +93,28 @@ calling:
           - "PRESENT"
         filter:
           - dummy
+        desc: Dummy variants
       fdr04:
         threshold: 0.4
         varlociraptor: 
           - "PRESENT"
         filter:
           - dummy
+        desc: Dummy variants
       fdr045:
         threshold: 0.45
         varlociraptor: 
           - "PRESENT"
         filter:
           - dummy
+        desc: Dummy variants
       fdr10:
         threshold: 1.0
         varlociraptor:
           - "PRESENT"
         filter:
           - dummy
+        desc: Dummy variants
 
 
 
@@ -114,6 +124,9 @@ annotations:
     known: resources/variation.vcf.gz
   dgidb:
     activate: false
+  vep:
+    params: --everything
+    plugins: []
 
 
 params:
@@ -139,6 +152,16 @@ benchmarking:
   # this disables odds filtering and annotation
   activate: true
 
+
+tables:
+  activate: false
+  # vembrane expression to generate the table
+  output:
+    expression: "INDEX, CHROM, POS, REF, ALT[0], ANN['Consequence'], ANN['IMPACT'], ANN['SYMBOL'], ANN['Feature']"
+    genotype: true
+    coverage: true
+    event_prob: true
+  generate_excel: true
 
 report:
   activate: false

@@ -84,7 +84,7 @@ rule gather_annotated_calls:
     output:
         "results/final-calls/{group}.annotated.bcf",
     log:
-        "logs/gather-annotated-calls/{group}.annotated.log",
+        "logs/gather-annotated-calls/{group}.log",
     params:
         extra="-a",
     wrapper:

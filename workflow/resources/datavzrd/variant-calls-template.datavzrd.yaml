@@ -1,0 +1,258 @@
+name: ?f"Variant calls {wildcards.event}"
+
+default-view: overview
+
+__definitions__:
+  - |
+    def read_file(path):
+        return open(path, 'r').read()
+  - |
+    varsome_link = f"""
+    function(value, row) {{
+      let hgvsp_regex = /^(.+?):(.+)$/;
+      // discard protein id
+      let hgvsp = value.match(hgvsp_regex)[2];
+
+      const url = "{params.varsome_url}";
+      const regex = [
+        /(\d+):[gG]\.(\d+)([GCTAgcta])?>([GCTAgcta])$/,
+        /(\d+):[gG]\.(\d+)([gctaGCTA])?=$/,
+        /(\d+):[gG]\.(\d+)(?:_(\d+))?([GCTAgcta]+)?delins([GCTAgcta]+)$/,
+        /(\d+):[gG]\.(\d+)(?:_(\d+))?del([GCTAgcta]+)?$/,
+        /(\d+):[gG]\.(\d+)_(\d+)ins([GCTAgcta]+)$/,
+        /(\d+):[gG]\.(\d+)_(\d+)ins(\d+)_(\d+)inv$/,
+      ];
+      for (let i = 0; i < regex.length; i++) {{
+        const match = row.hgvsg.match(regex[i]);
+        if ( match ) {{
+          switch (i) {{
+            // SNV
+            case 0:
+              descriptor = match.splice(1).join(":");
+              break;
+            // Deletion
+            case 3:
+              del_size = match[3]-match[2]+1;
+              descriptor = [match[1], match[2], del_size, ""].join(":");
+              break;
+            // Insertion
+            case 4:
+              descriptor = [match[1], match[3], "", match[4]].join(":");
+              break;
+            default:
+              descriptor = null;
+          }}
+          if (descriptor) {{
+            return `<a href="${{url}}${{descriptor}}" target="_blank">${{hgvsp}}</a>`;
+          }} else {{
+            // End for-loop
+            break;
+          }}
+        }}
+      }}
+      return `${{hgvsp}}`;
+    }}
+    """
+
+datasets:
+  gene-oncoprint:
+    path: ?params.gene_oncoprint
+    separator: "\t"
+    links:
+      gene details:
+        column: symbol
+        view: "overview-{value}"
+  ?for gene, path in params.variant_oncoprints:
+    ?f"variant-oncoprint-{gene}":
+      path: ?path
+      separator: "\t"
+      links:
+        ?for group in params.groups:
+          ?group:
+            column: hgvsp
+            table-row: ?f"{group}-coding/hgvsp"
+
+  ?for group, path in zip(params.groups, params.coding_calls):
+    ?f"{group}-coding":
+      path: ?path
+      separator: "\t"
+  ?for group, path in zip(params.groups, params.noncoding_calls):
+    ?f"{group}-noncoding":
+      path: ?path
+      separator: "\t"
+  ?for group, path in zip(params.groups, params.coding_plotdata):
+    ?f"{group}-coding-plotdata":
+      path: ?path
+      separator: "\t"
+      links:
+        variant-link:
+          column: variant
+          table-row: ?f"{group}-coding/hgvsp"
+  ?for group, path in zip(params.groups, params.noncoding_plotdata):
+    ?f"{group}-noncoding-plotdata":
+      path: ?path
+      separator: "\t"
+      links:
+        variant-link:
+          column: variant
+          table-row: ?f"{group}-noncoding/hgvsg"
+
+views:
+  ?if params.gene_oncoprint:
+    overview:
+      desc: |
+        Overview table showing all discovered variants in all samples. Use link
+        button to jump to detail views for the respective genes.
+      dataset: gene-oncoprint
+      render-table:
+        symbol:
+          link-to-url: https://www.ensembl.org/Homo_sapiens/Gene/Summary?g={value}
+        consequence:
+          plot:
+            heatmap:
+              scale: ordinal
+              color-scheme: category20
+        ?for group in params.groups:
+          ?group:
+            plot:
+              heatmap:
+                scale: ordinal
+                color-scheme: paired
+    
+    ?for gene, path in params.variant_oncoprints:
+      ?f"overview-{gene}":
+        desc: ?f"Variants found in gene {gene}."
+        dataset: ?f"variant-oncoprint-{gene}"
+        hidden: true
+        render-table:
+          hgvsp:
+            custom: ?varsome_link
+          consequence:
+            plot:
+              heatmap:
+                scale: ordinal
+                color-scheme: category20
+          ?for group in params.groups:
+            ?group:
+              plot:
+                heatmap:
+                  scale: ordinal
+                  domain:
+                    - 0
+                    - 1
+                  range:
+                    - white
+                    - "#a6cee3"
+
+  ?for group in params.groups:
+    ?f"{group}-coding":
+      desc: ?f"Variants in coding regions.\n{config['calling']['fdr-control']['events'][wildcards.event]['desc']}"
+      dataset: ?f"{group}-coding"
+      render-table:
+        symbol:
+          link-to-url: https://www.ensembl.org/Homo_sapiens/Transcript/Summary?t={feature}
+        ?if params.varsome_url:
+          hgvsp:
+            custom: ?varsome_link
+        vartype:
+          display-mode: detail
+        impact:
+          plot:
+            heatmap:
+              scale: ordinal
+              domain:
+                - HIGH
+                - MODERATE
+                - LOW
+                - MODIFIER
+              range:
+                - "#ec0000"
+                - "#ec5300"
+                - "#ec9b00"
+                - "#ecca00"
+        consequence:
+          plot:
+            heatmap:
+              color-scheme: category20
+              scale: ordinal
+        revel:
+          optional: true
+          plot: 
+            heatmap:
+              scale: "linear"
+              domain: [0.0, 1.0]
+              range:
+                - white
+                - "#ff5555"
+        "regex('.+: allele frequency')":
+          plot: 
+            ticks:
+              scale: "linear"
+              domain: [0.0, 1.0]
+        "regex('.+: read depth')":
+          plot: 
+            ticks:
+              scale: "linear"
+        "regex('prob: .+')":
+          plot:
+            heatmap:
+              scale: linear
+              domain: [0.0, 1.0]
+              range:
+                - white
+                - "#1f77b4"
+        gene:
+          display-mode: detail
+        feature:
+          display-mode: detail
+        hgvsg:
+          display-mode: detail
+
+        ?for sample in ["normal", "tumor"]:
+          '?f"{sample}: observations"':
+            custom-plot:
+              data: ?read_file(params.data_observations)
+              spec: ?read_file(params.spec_observations)
+            display-mode: detail
+
+
+    ?f"{group}-noncoding":
+      desc: ?f"Variants in non-coding regions.\n{config['calling']['fdr-control']['events'][wildcards.event]['desc']}"
+      dataset: ?f"{group}-noncoding"
+      render-table:
+        symbol:
+          link-to-url: https://www.ensembl.org/Homo_sapiens/Transcript/Summary?t={feature}
+        consequence:
+          plot:
+            heatmap:
+              color-scheme: category20
+              scale: ordinal
+        vartype:
+          display-mode: detail
+        impact:
+          plot:
+            heatmap:
+              scale: ordinal
+              domain:
+                - HIGH
+                - MODERATE
+                - LOW
+                - MODIFIER
+              range:
+                - "#ec0000"
+                - "#ec5300"
+                - "#ec9b00"
+                - "#ecca00"
+
+        ?for sample in ["normal", "tumor"]:
+          '?f"{sample}: observations"':
+            custom-plot:
+              data: ?read_file(params.data_observations)
+              spec: ?read_file(params.spec_observations)
+
+    ?for group, plot_spec in zip(params.groups, params.plot_spec):
+      ?for impact in ["coding", "noncoding"]:
+        ?f"{group}-{impact}-plot":
+          dataset: ?f"{group}-{impact}-plotdata"
+          render-plot:
+            spec-path: ?plot_spec
