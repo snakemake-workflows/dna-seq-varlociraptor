@@ -64,6 +64,9 @@ annotations:
     activate: false
     datasources:
       - DrugBank
+  vep:
+    params: --everything
+    plugins: []
 
 
 params:
