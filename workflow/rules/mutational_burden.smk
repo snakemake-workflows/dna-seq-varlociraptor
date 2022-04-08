@@ -1,6 +1,5 @@
 if config["mutational_burden"]["activate"]:
 
-
     rule calculate_covered_genomic_sites:
         input:
             "results/regions/{group}.covered_regions.filtered.bed",
@@ -10,7 +9,6 @@ if config["mutational_burden"]["activate"]:
             "logs/regions/{group}.covered_regions.filtered.coverage_breadth.log",
         shell:
             "awk '{ covered += $3 - $2 } END { print covered }' {input} >{output} 2> {log} "
-
 
     rule estimate_mutational_burden:
         input:
