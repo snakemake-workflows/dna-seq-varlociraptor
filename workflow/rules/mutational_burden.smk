@@ -1,8 +1,21 @@
 if config["mutational_burden"]["activate"]:
 
+
+    rule calculate_covered_genomic_sites:
+        input:
+            "results/regions/{group}.covered_regions.filtered.bed",
+        output:
+            "results/regions/{group}.covered_regions.filtered.coverage_breadth.txt",
+        log:
+            "logs/regions/{group}.covered_regions.filtered.coverage_breadth.log",
+        shell:
+            "awk '{ covered += $3 - $2 } END { print covered }' {input} >{output} 2> {log} "
+
+
     rule estimate_mutational_burden:
         input:
-            "results/final-calls/{group}.annotated.bcf",
+            calls="results/final-calls/{group}.annotated.bcf",
+            coverage_breadth="results/regions/{group}.covered_regions.filtered.coverage_breadth.txt",
         output:
             report(
                 "results/plots/mutational-burden/{group}.{sample}.{mode}.mutational-burden.svg",
@@ -13,7 +26,6 @@ if config["mutational_burden"]["activate"]:
         log:
             "logs/estimate-mutational-burden/{group}.{sample}.{mode}.log",
         params:
-            coding_genome_size=config["mutational_burden"]["coding_genome_size"],
             events=get_mutational_burden_events,
             sample=get_sample_alias,
         conda:
@@ -21,7 +33,7 @@ if config["mutational_burden"]["activate"]:
         shell:
             "(varlociraptor estimate mutational-burden "
             "--plot-mode {wildcards.mode} "
-            "--coding-genome-size {params.coding_genome_size} "
+            "--coding-genome-size $( cat {input.coverage_breadth} ) "
             "--events {params.events} "
             "--sample {params.sample} "
-            "< {input} | vl2svg > {output}) 2> {log}"
+            "< {input.calls} | vl2svg > {output}) 2> {log}"

@@ -612,6 +612,7 @@ wildcard_constraints:
     caller="|".join(["freebayes", "delly"]),
     filter="|".join(config["calling"]["filter"]),
     event="|".join(config["calling"]["fdr-control"]["events"].keys()),
+    regions_type="|".join(["target", "covered"]),
 
 
 caller = list(
