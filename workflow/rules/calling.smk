@@ -3,7 +3,7 @@ import io
 
 rule render_scenario:
     input:
-        template=workflow.source_path(config["calling"]["scenario"]),
+        template=local(config["calling"]["scenario"]),
     output:
         report(
             "results/scenarios/{group}.yaml",
