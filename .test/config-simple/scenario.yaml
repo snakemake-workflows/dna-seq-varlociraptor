@@ -4,7 +4,7 @@ __definitions__:
 
 
 samples:
-  ?sample:
+  ?f"{sample}:
     resolution: 0.01
     universe: "[0.0,1.0]"
 
