@@ -11,7 +11,7 @@ samples:
     universe: "[0.0,1.0]"
     contamination:
       by: normal
-      fraction: {{ 1.0 - samples[samples["alias"] == "tumor"]["purity"][0] }}
+      fraction: ?f"{1.0 - params.samples[params.samples["alias"] == "tumor"]["purity"][0]}"
   normal:
     resolution: 0.1
     universe: "0.0 | 0.5 | 1.0 | ]0.0,0.5["
