@@ -219,7 +219,7 @@ noncoding_calls = calls[~coding & canonical]
 
 coding_calls = calls[coding & canonical].drop(
     [
-        "chromsome",
+        "chromosome",
         "position",
         "reference allele",
         "alternative allele",
