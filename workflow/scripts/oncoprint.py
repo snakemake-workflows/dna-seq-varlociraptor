@@ -36,10 +36,6 @@ def sort_by_recurrence(matrix, no_occurence_check_func):
     )
 
 
-def empty_matrix():
-    return pd.DataFrame({group: [] for group in snakemake.params.groups})
-
-
 def gene_oncoprint(calls):
     calls = calls[["group", "symbol", "vartype", "consequence"]]
     if not calls.empty:
@@ -58,7 +54,7 @@ def gene_oncoprint(calls):
             matrix = sort_by_recurrence(matrix, lambda matrix: matrix.isna())
         return matrix.reset_index()
     else:
-        return empty_matrix()
+        return calls
 
 
 def variant_oncoprint(gene_calls):
@@ -83,7 +79,6 @@ calls = pd.concat(
         for path, sample in zip(snakemake.input, snakemake.params.groups)
     ]
 )
-
 
 gene_oncoprint(calls).to_csv(snakemake.output.gene_oncoprint, sep="\t", index=False)
 

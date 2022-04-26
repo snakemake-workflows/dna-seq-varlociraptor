@@ -1,11 +1,13 @@
 # simple isolated per-sample calling
-{% set sample = samples.iloc[0].alias %}
+
+__definitions__:
+  - sample = params.samples.iloc[0].alias
 
 samples:
-  {{ sample }}:
+  ?sample:
     resolution: 0.01
     universe: "[0.0,1.0]"
 
 events:
-  present: "{{ sample }}:]0.05,1.0]"
-  ffpe_artifact: "{{ sample }}:]0.0,0.05]"
+  present: ?f"{sample}:]0.05,1.0]"
+  ffpe_artifact: ?f"{sample}:]0.0,0.05]"

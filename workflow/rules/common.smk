@@ -713,7 +713,7 @@ def get_vembrane_config(wildcards, input):
         scenario = yaml.load(scenario_file, Loader=yaml.SafeLoader)
     parts = ["CHROM, POS, REF, ALT[0], INFO['END'], INFO['EVENT'], ID"]
     header = [
-        "chromsome, position, reference allele, alternative allele, end position, event, id"
+        "chromosome, position, reference allele, alternative allele, end position, event, id"
     ]
     join_items = ", ".join
 

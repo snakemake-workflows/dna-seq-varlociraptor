@@ -5,13 +5,19 @@
 # to the sample definitions.
 # Note that sample names here must correspond to the alias column in the sample sheet.
 
+__definitions__:
+  - samples = params.samples.set_index("alias")
+  - |
+    def contamination():
+      return 1.0 - float(samples.loc["tumor", "purity"])
+
 samples:
   tumor:
     resolution: 0.01
     universe: "[0.0,1.0]"
     contamination:
       by: normal
-      fraction: {{ 1.0 - samples[samples["alias"] == "tumor"]["purity"][0] }}
+      fraction: ?contamination()
   normal:
     resolution: 0.1
     universe: "0.0 | 0.5 | 1.0 | ]0.0,0.5["
