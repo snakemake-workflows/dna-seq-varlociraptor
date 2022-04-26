@@ -106,6 +106,7 @@ views:
       dataset: gene-oncoprint
       render-table:
         symbol:
+          optional: true
           link-to-url: https://www.ensembl.org/Homo_sapiens/Gene/Summary?g={value}
         consequence:
           plot:
