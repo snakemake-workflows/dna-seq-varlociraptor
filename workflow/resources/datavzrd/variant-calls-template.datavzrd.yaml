@@ -71,6 +71,7 @@ datasets:
           ?group:
             column: hgvsp
             table-row: ?f"{group}-coding/hgvsp"
+            optional: true
 
   ?for group, path in zip(params.groups, params.coding_calls):
     ?f"{group}-coding":
