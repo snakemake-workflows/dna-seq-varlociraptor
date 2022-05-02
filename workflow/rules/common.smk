@@ -70,7 +70,7 @@ primer_panels = (
 )
 
 
-def get_final_output():
+def get_final_output(wildcards):
 
     final_output = expand(
         "results/qc/multiqc/{group}.html",
