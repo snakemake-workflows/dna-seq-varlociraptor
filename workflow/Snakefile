@@ -44,7 +44,7 @@ if is_activated("report/stratify"):
 
 rule all:
     input:
-        get_final_output(),
+        get_final_output,
 
 
 rule benchmark:
