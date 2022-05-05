@@ -42,11 +42,15 @@ rule render_datavzrd_config:
         template=workflow.source_path(
             "../resources/datavzrd/variant-calls-template.datavzrd.yaml"
         ),
-        variant_oncoprints="results/tables/oncoprints/{batch}.{event}/variant-oncoprints",
+        variant_oncoprints=lambda wc: "results/tables/oncoprints/{batch}.{event}/variant-oncoprints"
+        if len(get_report_batch(wc)) > 1
+        else [],
     output:
         "resources/datavzrd/{batch}.{event}.datavzrd.yaml",
     params:
-        gene_oncoprint="results/tables/oncoprints/{batch}.{event}/gene-oncoprint.tsv",
+        gene_oncoprint=lambda wc, input: "results/tables/oncoprints/{batch}.{event}/gene-oncoprint.tsv"
+        if input.variant_oncoprints
+        else [],
         variant_oncoprints=get_variant_oncoprint_tables,
         groups=get_report_batch,
         coding_calls=get_datavzrd_data(impact="coding"),
