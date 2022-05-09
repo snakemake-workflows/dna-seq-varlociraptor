@@ -191,12 +191,14 @@ views:
             ticks:
               scale: "linear"
               domain: [0.0, 1.0]
-              aux-domain-columns: "regex('.+: allele frequency')"
+              aux-domain-columns:
+                - "regex('.+: allele frequency')"
         "regex('.+: read depth')":
           plot: 
             ticks:
               scale: "linear"
-              aux-domain-columns: "regex('.+: read depth')"
+              aux-domain-columns:
+                - "regex('.+: read depth')"
         "regex('prob: .+')":
           plot:
             heatmap:
