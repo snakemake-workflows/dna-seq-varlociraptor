@@ -1,6 +1,6 @@
 name: ?f"Variant calls {wildcards.event}"
 
-default-view: ?overview if input.variant_oncoprints else f"{params.groups[0]}-coding"
+default-view: ?"overview" if input.variant_oncoprints else f"{params.groups[0]}-coding"
 
 __definitions__:
   - |

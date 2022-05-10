@@ -48,7 +48,7 @@ rule render_datavzrd_config:
     output:
         "resources/datavzrd/{batch}.{event}.datavzrd.yaml",
     params:
-        gene_oncoprint=lambda wc, input: "results/tables/oncoprints/{batch}.{event}/gene-oncoprint.tsv"
+        gene_oncoprint=lambda wc, input: f"results/tables/oncoprints/{wc.batch}.{wc.event}/gene-oncoprint.tsv"
         if input.variant_oncoprints
         else [],
         variant_oncoprints=get_variant_oncoprint_tables,
