@@ -42,11 +42,11 @@ rule render_datavzrd_config:
         template=workflow.source_path(
             "../resources/datavzrd/variant-calls-template.datavzrd.yaml"
         ),
-        variant_oncoprints=get_oncoprint,
+        variant_oncoprints=get_oncoprint("variant"),
     output:
         "resources/datavzrd/{batch}.{event}.datavzrd.yaml",
     params:
-        gene_oncoprint=lambda wc: get_oncoprint(wc, "gene"),
+        gene_oncoprint=lambda wc: get_oncoprint("gene"),
         variant_oncoprints=get_variant_oncoprint_tables,
         groups=get_report_batch,
         coding_calls=get_datavzrd_data(impact="coding"),
