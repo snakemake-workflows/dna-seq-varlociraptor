@@ -256,6 +256,7 @@ views:
             custom-plot:
               data: ?read_file(params.data_observations)
               spec: ?read_file(params.spec_observations)
+            display-mode: detail
 
     ?for group, plot_spec in zip(params.groups, params.plot_spec):
       ?for impact in ["coding", "noncoding"]:
