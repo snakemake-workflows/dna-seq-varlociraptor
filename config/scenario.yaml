@@ -1,4 +1,5 @@
-# This scenario is templated with Jinja2 and rendered for each group (see sample sheet).
+# This scenario is templated with YTE (https://yte-template-engine.github.io)
+# and rendered for each group (see sample sheet).
 # A variable `samples` is available, holding the dataframe of
 # the sample sheet, filtered to those samples contained in the group to be rendered.
 # For example, this can be used to pass arbitrary column values (like the purity below),
