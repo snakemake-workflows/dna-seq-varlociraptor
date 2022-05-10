@@ -900,14 +900,18 @@ def get_variant_oncoprints(wildcards):
         return []
 
 
-def get_oncoprint(wildcards, oncoprint_type=None):
-    if len(get_report_batch(wildcards)) > 1:
-        oncoprint_path = (
-            f"results/tables/oncoprints/{wildcards.batch}.{wildcards.event}"
-        )
-        if oncoprint_type == "gene":
-            return f"{oncoprint_path}/gene-oncoprint.tsv"
+def get_oncoprint(oncoprint_type):
+    def inner(wildcards):
+        if len(get_report_batch(wildcards)) > 1:
+            oncoprint_path = (
+                f"results/tables/oncoprints/{wildcards.batch}.{wildcards.event}"
+            )
+            if oncoprint_type == "gene":
+                return f"{oncoprint_path}/gene-oncoprint.tsv"
+            elif oncoprint_type == "variant":
+                return f"{oncoprint_path}/variant-oncoprints"
+            else:
+                raise ValueError(f"bug: unuspported oncoprint type {oncoprint_type}")
         else:
-            return f"{oncoprint_path}/variant-oncoprints"
-    else:
-        return []
+            return []
+    return inner
