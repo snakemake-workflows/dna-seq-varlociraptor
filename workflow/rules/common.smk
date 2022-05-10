@@ -891,3 +891,23 @@ def get_fastqc_results(wildcards):
 
     # samtools stats
     yield from expand("results/qc/{sample}.bam.stats", sample=group_samples)
+
+
+def get_variant_oncoprints(wildcards):
+    if len(get_report_batch(wildcards)) > 1:
+        return "results/tables/oncoprints/{wildcards.batch}.{wildcards.event}/variant-oncoprints"
+    else:
+        return []
+
+
+def get_oncoprint(wildcards, oncoprint_type=None):
+    if len(get_report_batch(wildcards)) > 1:
+        oncoprint_path = (
+            f"results/tables/oncoprints/{wildcards.batch}.{wildcards.event}"
+        )
+        if oncoprint_type == "gene":
+            return f"{oncoprint_path}/gene-oncoprint.tsv"
+        else:
+            return f"{oncoprint_path}/variant-oncoprints"
+    else:
+        return []
