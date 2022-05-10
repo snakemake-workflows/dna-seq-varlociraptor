@@ -119,7 +119,7 @@ views:
               heatmap:
                 scale: ordinal
                 color-scheme: paired
-                aux-domain-columns: ?params.groups
+                aux-domain-columns: ?list(params.groups)
     
     ?for gene, path in params.variant_oncoprints:
       ?f"overview-{gene}":
