@@ -46,7 +46,7 @@ rule render_datavzrd_config:
     output:
         "resources/datavzrd/{batch}.{event}.datavzrd.yaml",
     params:
-        gene_oncoprint=lambda wc: get_oncoprint("gene"),
+        gene_oncoprint=get_oncoprint("gene"),
         variant_oncoprints=get_variant_oncoprint_tables,
         groups=get_report_batch,
         coding_calls=get_datavzrd_data(impact="coding"),
