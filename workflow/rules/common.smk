@@ -914,4 +914,5 @@ def get_oncoprint(oncoprint_type):
                 raise ValueError(f"bug: unuspported oncoprint type {oncoprint_type}")
         else:
             return []
+
     return inner
