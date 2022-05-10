@@ -911,7 +911,7 @@ def get_oncoprint(oncoprint_type):
             elif oncoprint_type == "variant":
                 return f"{oncoprint_path}/variant-oncoprints"
             else:
-                raise ValueError(f"bug: unuspported oncoprint type {oncoprint_type}")
+                raise ValueError(f"bug: unsupported oncoprint type {oncoprint_type}")
         else:
             return []
 
