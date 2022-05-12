@@ -81,8 +81,8 @@ rule datavzrd_variants_calls:
             "../resources/datavzrd/data_observations.js"
         ),
         config="resources/datavzrd/{batch}.{event}.datavzrd.yaml",
-        gene_oncoprint="results/tables/oncoprints/{batch}.{event}/gene-oncoprint.tsv",
-        variant_oncoprints="results/tables/oncoprints/{batch}.{event}/variant-oncoprints",
+        gene_oncoprint=get_oncoprint("gene"),
+        variant_oncoprints=get_oncoprint("variant"),
     output:
         report(
             directory("results/datavzrd-report/{batch}.{event}.fdr-controlled"),
