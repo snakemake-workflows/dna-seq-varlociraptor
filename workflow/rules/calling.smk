@@ -25,7 +25,7 @@ rule varlociraptor_alignment_properties:
     input:
         ref="resources/genome.fasta",
         ref_idx="resources/genome.fasta.fai",
-        bam="results/recal/{sample}.sorted.bam",
+        bam="results/recal/{sample}.bam",
     output:
         "results/alignment-properties/{group}/{sample}.json",
     log:
@@ -41,8 +41,8 @@ rule varlociraptor_preprocess:
         ref="resources/genome.fasta",
         ref_idx="resources/genome.fasta.fai",
         candidates=get_candidate_calls(),
-        bam="results/recal/{sample}.sorted.bam",
-        bai="results/recal/{sample}.sorted.bai",
+        bam="results/recal/{sample}.bam",
+        bai="results/recal/{sample}.bai",
         alignment_props="results/alignment-properties/{group}/{sample}.json",
     output:
         "results/observations/{group}/{sample}.{caller}.{scatteritem}.bcf",
@@ -89,7 +89,7 @@ rule sort_calls:
     input:
         "results/calls/{group}.{caller}.{scatteritem}.bcf",
     output:
-        temp("results/calls/{group}.{caller}.{scatteritem}.sorted.bcf"),
+        temp("results/calls/{group}.{caller}.{scatteritem}.bcf"),
     log:
         "logs/bcf-sort/{group}.{caller}.{scatteritem}.log",
     conda:

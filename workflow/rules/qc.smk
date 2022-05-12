@@ -12,8 +12,8 @@ rule fastqc:
 
 rule samtools_idxstats:
     input:
-        bam="results/recal/{sample}.sorted.bam",
-        idx="results/recal/{sample}.sorted.bai",
+        bam="results/recal/{sample}.bam",
+        idx="results/recal/{sample}.bai",
     output:
         "results/qc/{sample}.bam.idxstats",
     log:
@@ -24,7 +24,7 @@ rule samtools_idxstats:
 
 rule samtools_stats:
     input:
-        "results/recal/{sample}.sorted.bam",
+        "results/recal/{sample}.bam",
     output:
         "results/qc/{sample}.bam.stats",
     log:

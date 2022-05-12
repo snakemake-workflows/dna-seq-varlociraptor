@@ -3,7 +3,7 @@ rule map_reads:
         reads=get_map_reads_input,
         idx=rules.bwa_index.output,
     output:
-        temp("results/mapped/{sample}.sorted.bam"),
+        temp("results/mapped/{sample}.bam"),
     log:
         "logs/bwa_mem/{sample}.log",
     params:
@@ -17,7 +17,7 @@ rule map_reads:
 
 rule annotate_umis:
     input:
-        bam="results/mapped/{sample}.sorted.bam",
+        bam="results/mapped/{sample}.bam",
         umi=lambda wc: units.loc[wc.sample]["umis"][0],
     output:
         temp("results/mapped/{sample}.annotated.bam"),
@@ -31,11 +31,11 @@ rule annotate_umis:
 
 rule mark_duplicates:
     input:
-        lambda wc: "results/mapped/{sample}.sorted.bam"
+        lambda wc: "results/mapped/{sample}.bam"
         if units.loc[wc.sample, "umis"].isnull().any()
         else "results/mapped/{sample}.annotated.bam",
     output:
-        bam=temp("results/dedup/{sample}.sorted.bam"),
+        bam=temp("results/dedup/{sample}.bam"),
         metrics="results/qc/dedup/{sample}.metrics.txt",
     log:
         "logs/picard/dedup/{sample}.log",
@@ -99,7 +99,7 @@ rule sort_consensus_reads:
     input:
         "results/consensus/{sample}.merged.bam",
     output:
-        temp("results/consensus/{sample}.sorted.bam"),
+        temp("results/consensus/{sample}.bam"),
     log:
         "logs/samtools_sort/{sample}.log",
     threads: 8
@@ -140,8 +140,8 @@ rule apply_bqsr:
         ref_fai="resources/genome.fasta.fai",
         recal_table="results/recal/{sample}.grp",
     output:
-        bam=protected("results/recal/{sample}.sorted.bam"),
-        bai="results/recal/{sample}.sorted.bai",
+        bam=protected("results/recal/{sample}.bam"),
+        bai="results/recal/{sample}.bai",
     log:
         "logs/gatk/gatk_applybqsr/{sample}.log",
     params:

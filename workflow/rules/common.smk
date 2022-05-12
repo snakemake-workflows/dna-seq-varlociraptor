@@ -143,15 +143,15 @@ def get_control_fdr_input(wildcards):
 def get_recalibrate_quality_input(wildcards, bai=False):
     ext = "bai" if bai else "bam"
     if is_activated("calc_consensus_reads"):
-        return "results/consensus/{}.sorted.{}".format(wildcards.sample, ext)
+        return "results/consensus/{}.{}".format(wildcards.sample, ext)
     elif is_activated("primers/trimming"):
         return "results/trimmed/{sample}.trimmed.{ext}".format(
             sample=wildcards.sample, ext=ext
         )
     elif is_activated("remove_duplicates"):
-        return "results/dedup/{}.sorted.{}".format(wildcards.sample, ext)
+        return "results/dedup/{}.{}".format(wildcards.sample, ext)
     else:
-        return "results/mapped/{}.sorted.{}".format(wildcards.sample, ext)
+        return "results/mapped/{}.{}".format(wildcards.sample, ext)
 
 
 def get_cutadapt_input(wildcards):
@@ -272,16 +272,16 @@ def get_consensus_input(wildcards):
     if is_activated("primers/trimming"):
         return "results/trimmed/{}.trimmed.bam".format(wildcards.sample)
     elif is_activated("remove_duplicates"):
-        return "results/dedup/{}.sorted.bam".format(wildcards.sample)
+        return "results/dedup/{}.bam".format(wildcards.sample)
     else:
-        return "results/mapped/{}.sorted.bam".format(wildcards.sample)
+        return "results/mapped/{}.bam".format(wildcards.sample)
 
 
 def get_trimming_input(wildcards):
     if is_activated("remove_duplicates"):
-        return "results/dedup/{}.sorted.bam".format(wildcards.sample)
+        return "results/dedup/{}.bam".format(wildcards.sample)
     else:
-        return "results/mapped/{}.sorted.bam".format(wildcards.sample)
+        return "results/mapped/{}.bam".format(wildcards.sample)
 
 
 def get_primer_bed(wc):
@@ -365,7 +365,7 @@ def get_group_bams(wildcards, bai=False):
     if is_activated("primers/trimming") and not group_is_paired_end(wildcards.group):
         WorkflowError("Primer trimming is only available for paired end data.")
     return expand(
-        "results/recal/{sample}.sorted.{ext}",
+        "results/recal/{sample}.{ext}",
         sample=get_group_samples(wildcards.group),
         ext=ext,
     )
@@ -373,7 +373,7 @@ def get_group_bams(wildcards, bai=False):
 
 def get_group_bams_report(group):
     return [
-        (sample, "results/recal/{}.sorted.bam".format(sample))
+        (sample, "results/recal/{}.bam".format(sample))
         for sample in get_group_samples(group)
     ]
 
@@ -467,7 +467,7 @@ def get_mutational_burden_events(wildcards):
 def get_scattered_calls(ext="bcf"):
     def inner(wildcards):
         return expand(
-            "results/calls/{{group}}.{caller}.{{scatteritem}}.sorted.{ext}",
+            "results/calls/{{group}}.{caller}.{{scatteritem}}.{ext}",
             caller=caller,
             ext=ext,
         )
