@@ -50,7 +50,7 @@ rule bowtie_build:
     output:
         directory("resources/bowtie_build/"),
     params:
-        prefix=f"resources/bowtie_build/{genome_name},
+        prefix=f"resources/bowtie_build/{genome_name}",
     log:
         "logs/bowtie/build.log",
     conda:
