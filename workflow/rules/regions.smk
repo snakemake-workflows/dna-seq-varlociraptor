@@ -35,7 +35,7 @@ rule filter_group_regions:
     input:
         regions="results/regions/{group}.target_regions.bed",
         predefined=config["targets_bed"] if "targets_bed" in config else [],
-        fai=genome + ".fai",
+        fai=genome_fai,
     output:
         "results/regions/{group}.target_regions.filtered.bed",
     params:
@@ -52,7 +52,7 @@ rule filter_group_regions:
 rule build_excluded_group_regions:
     input:
         target_regions="results/regions/{group}.target_regions.filtered.bed",
-        genome_index=genome + ".fai",
+        genome_index=genome_fai,
     output:
         "results/regions/{group}.excluded_regions.bed",
     params:

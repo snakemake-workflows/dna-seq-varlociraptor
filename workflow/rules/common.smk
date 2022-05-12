@@ -28,9 +28,11 @@ datatype = "dna"
 species = config["ref"]["species"]
 build = config["ref"]["build"]
 release = config["ref"]["release"]
-genome = f"resources/genome.{datatype}.{species}.{build}.{release}.fasta"
-genome_prefix = f"resources/genome.{datatype}.{species}.{build}.{release}"
-genome_name = f"genome.{datatype}.{species}.{build}.{release}.fasta"
+genome_name = f"genome.{datatype}.{species}.{build}.{release}"
+genome_prefix = f"resources/{genome_name}"
+genome = f"{genome_prefix}.fasta"
+genome_fai = f"{genome}.fai"
+genome_dict = f"{genome_prefix}.dict"
 
 # cram variables
 use_cram = config.get("use_cram", False)

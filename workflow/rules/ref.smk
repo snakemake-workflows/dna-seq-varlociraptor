@@ -18,7 +18,7 @@ rule genome_faidx:
     input:
         genome,
     output:
-        genome + ".fai",
+        genome_fai,
     log:
         "logs/genome-faidx.log",
     cache: True
@@ -30,7 +30,7 @@ rule genome_dict:
     input:
         genome,
     output:
-        genome_prefix + ".dict",
+        genome_dict,
     log:
         "logs/samtools/create_dict.log",
     conda:
@@ -43,7 +43,7 @@ rule genome_dict:
 rule get_known_variants:
     input:
         # use fai to annotate contig lengths for GATK BQSR
-        fai=genome + ".fai",
+        fai=genome_fai,
     output:
         vcf="resources/variation.vcf.gz",
     log:

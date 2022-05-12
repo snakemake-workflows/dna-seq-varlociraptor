@@ -24,7 +24,7 @@ rule render_scenario:
 rule varlociraptor_alignment_properties:
     input:
         ref=genome,
-        ref_idx=genome + ".fai",
+        ref_idx=genome_fai,
         bam="results/recal/{sample}.bam",
     output:
         "results/alignment-properties/{group}/{sample}.json",
@@ -39,7 +39,7 @@ rule varlociraptor_alignment_properties:
 rule varlociraptor_preprocess:
     input:
         ref=genome,
-        ref_idx=genome + ".fai",
+        ref_idx=genome_fai,
         candidates=get_candidate_calls(),
         bam="results/recal/{sample}.bam",
         bai="results/recal/{sample}.bai",
