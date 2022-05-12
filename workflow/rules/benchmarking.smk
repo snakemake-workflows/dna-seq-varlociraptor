@@ -69,9 +69,9 @@ rule chm_eval_kit:
 
 rule chromosome_map:
     input:
-        "resources/genome.fasta.fai",
+        genome + ".fai",
     output:
-        "resources/genome.chrmap.txt",
+        "resources/" + genome_name + ".chrmap.txt",
     log:
         "logs/benchmarking/chromosome-map.log",
     conda:
@@ -83,7 +83,7 @@ rule chromosome_map:
 rule rename_chromosomes:
     input:
         bcf="results/final-calls/chm.{query}.fdr-controlled.bcf",
-        map="resources/genome.chrmap.txt",
+        map="resources/" + genome_name + ".chrmap.txt",
     output:
         "benchmarking/{query}.chr-mapped.vcf",
     params:

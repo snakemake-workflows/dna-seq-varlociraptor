@@ -23,8 +23,8 @@ rule render_scenario:
 
 rule varlociraptor_alignment_properties:
     input:
-        ref="resources/genome.fasta",
-        ref_idx="resources/genome.fasta.fai",
+        ref=genome,
+        ref_idx=genome + ".fai",
         bam="results/recal/{sample}.bam",
     output:
         "results/alignment-properties/{group}/{sample}.json",
@@ -38,8 +38,8 @@ rule varlociraptor_alignment_properties:
 
 rule varlociraptor_preprocess:
     input:
-        ref="resources/genome.fasta",
-        ref_idx="resources/genome.fasta.fai",
+        ref=genome,
+        ref_idx=genome + ".fai",
         candidates=get_candidate_calls(),
         bam="results/recal/{sample}.bam",
         bai="results/recal/{sample}.bai",

@@ -46,11 +46,11 @@ rule trim_primers:
 
 rule bowtie_build:
     input:
-        "resources/genome.fasta",
+        genome,
     output:
         directory("resources/bowtie_build/"),
     params:
-        prefix="resources/bowtie_build/genome.fasta",
+        prefix="resources/bowtie_build/" + genome_name,
     log:
         "logs/bowtie/build.log",
     conda:
@@ -68,7 +68,7 @@ rule bowtie_map:
         "results/primers/{panel}_primers.bam",
     params:
         primers=lambda wc, input: format_bowtie_primers(wc, input.primers),
-        prefix="resources/bowtie_build/genome.fasta",
+        prefix="resources/bowtie_build/" + genome_name,
         insertsize=get_bowtie_insertsize(),
         primer_format=lambda wc, input: "-f" if input_is_fasta(input.primers) else "",
     log:

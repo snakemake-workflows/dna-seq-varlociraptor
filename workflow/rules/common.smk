@@ -23,6 +23,20 @@ samples = (
 if not "mutational_burden_events" in samples.columns:
     samples["mutational_burden_events"] = pd.NA
 
+# construct genome name
+datatype = "dna"
+species = config["ref"]["species"]
+build = config["ref"]["build"]
+release = config["ref"]["release"]
+genome = f"resources/genome.{datatype}.{species}.{build}.{release}.fasta"
+genome_prefix = f"resources/genome.{datatype}.{species}.{build}.{release}"
+genome_name = f"genome.{datatype}.{species}.{build}.{release}.fasta"
+
+# cram variables
+use_cram = config.get("use_cram", False)
+alignmend_ending = "cram" if use_cram else "bam"
+alignmend_index_ending = "crai" if use_cram else "bai"
+alignmend_ending_index_ending = "cram.crai" if use_cram else "bam.bai"
 
 def _group_or_sample(row):
     group = row.get("group", None)

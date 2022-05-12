@@ -111,9 +111,9 @@ rule recalibrate_base_qualities:
     input:
         bam=get_recalibrate_quality_input,
         bai=lambda w: get_recalibrate_quality_input(w, bai=True),
-        ref="resources/genome.fasta",
-        ref_dict="resources/genome.dict",
-        ref_fai="resources/genome.fasta.fai",
+        ref=genome,
+        ref_dict=genome_prefix + ".dict",
+        ref_fai=genome + ".fai",
         known="resources/variation.noiupac.vcf.gz",
         tbi="resources/variation.noiupac.vcf.gz.tbi",
     output:
@@ -135,9 +135,9 @@ rule apply_bqsr:
     input:
         bam=get_recalibrate_quality_input,
         bai=lambda w: get_recalibrate_quality_input(w, bai=True),
-        ref="resources/genome.fasta",
-        ref_dict="resources/genome.dict",
-        ref_fai="resources/genome.fasta.fai",
+        ref=genome,
+        ref_dict=genome + ".dict",
+        ref_fai=genome + ".fai",
         recal_table="results/recal/{sample}.grp",
     output:
         bam=protected("results/recal/{sample}.bam"),
