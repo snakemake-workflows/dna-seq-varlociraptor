@@ -199,8 +199,8 @@ views:
         hgvsg:
           display-mode: detail
 
-        ?for sample in ["normal", "tumor"]:
-          '?f"{sample}: observations"':
+        ?for alias in params.samples.loc[params.samples["group"] == group, "alias"]:
+          '?f"{alias}: observations"':
             custom-plot:
               data: ?read_file(params.data_observations)
               spec: ?read_file(params.spec_observations)
@@ -235,8 +235,8 @@ views:
                 - "#ec9b00"
                 - "#ecca00"
 
-        ?for sample in ["normal", "tumor"]:
-          '?f"{sample}: observations"':
+        ?for alias in params.samples.loc[params.samples["group"] == group, "alias"]:
+          '?f"{alias}: observations"':
             custom-plot:
               data: ?read_file(params.data_observations)
               spec: ?read_file(params.spec_observations)
