@@ -55,6 +55,7 @@ rule render_datavzrd_config:
             "../resources/datavzrd/data_observations.js"
         ),
         varsome_url=get_varsome_url(),
+        samples=samples,
     log:
         "logs/datavzrd_render/{batch}.{event}.log",
     template_engine:
