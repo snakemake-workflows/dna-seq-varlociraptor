@@ -89,6 +89,7 @@ rule determine_coding_regions:
         """
         ( zcat {input} | \\
           awk 'BEGIN {{ IFS = "\\t"}} {{ if ($3 == "exon") {{ print $0 }} }}' | \\
+          grep 'transcript_biotype "protein_coding"' | \\
           grep 'gene_biotype "protein_coding"' | \\
           awk 'BEGIN {{ IFS = "\\t"; OFS = "\\t"}}  {{ print $1,$4-1,$5 }}' | \\
           gzip > {output} \\
