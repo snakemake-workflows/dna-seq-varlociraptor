@@ -78,7 +78,7 @@ rule determine_coding_regions:
     input:
         "resources/annotation.gtf.gz",
     output:
-        "resources/coding_regions.bed.gz"    
+        "resources/coding_regions.bed.gz",
     log:
         "logs/determine_coding_regions.log",
     cache: True  # save space and time with between workflow caching (see docs)
