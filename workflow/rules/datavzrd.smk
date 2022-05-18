@@ -4,9 +4,6 @@ rule split_call_tables:
     output:
         coding="results/tables/{group}.{event}.coding.fdr-controlled.tsv",
         noncoding="results/tables/{group}.{event}.noncoding.fdr-controlled.tsv",
-        coding_plot_data="results/tables/{group}.{event}.plotdata.coding.fdr-controlled.tsv",
-        noncoding_plot_data="results/tables/{group}.{event}.plotdata.noncoding.fdr-controlled.tsv",
-        plot_spec="results/specs/{group}.{event}.varplot.json",
     params:
         sorting=lambda wc: config["calling"]["fdr-control"]["events"][wc.event].get(
             "sort", list()
@@ -42,18 +39,15 @@ rule render_datavzrd_config:
         template=workflow.source_path(
             "../resources/datavzrd/variant-calls-template.datavzrd.yaml"
         ),
-        variant_oncoprints="results/tables/oncoprints/{batch}.{event}/variant-oncoprints",
+        variant_oncoprints=get_oncoprint("variant"),
     output:
         "resources/datavzrd/{batch}.{event}.datavzrd.yaml",
     params:
-        gene_oncoprint="results/tables/oncoprints/{batch}.{event}/gene-oncoprint.tsv",
+        gene_oncoprint=get_oncoprint("gene"),
         variant_oncoprints=get_variant_oncoprint_tables,
         groups=get_report_batch,
         coding_calls=get_datavzrd_data(impact="coding"),
         noncoding_calls=get_datavzrd_data(impact="noncoding"),
-        coding_plotdata=get_datavzrd_data(impact="coding", kind="plotdata"),
-        noncoding_plotdata=get_datavzrd_data(impact="noncoding", kind="plotdata"),
-        plot_spec=get_datavzrd_data(kind="plotspec"),
         spec_observations=workflow.source_path(
             "../resources/datavzrd/spec_observations.json"
         ),
@@ -71,9 +65,6 @@ rule datavzrd_variants_calls:
     input:
         coding_calls=get_datavzrd_data(impact="coding"),
         noncoding_calls=get_datavzrd_data(impact="noncoding"),
-        coding_plotdata=get_datavzrd_data(impact="coding", kind="plotdata"),
-        noncoding_plotdata=get_datavzrd_data(impact="noncoding", kind="plotdata"),
-        plot_spec=get_datavzrd_data(kind="plotspec"),
         spec_observations=workflow.source_path(
             "../resources/datavzrd/spec_observations.json"
         ),
@@ -81,8 +72,8 @@ rule datavzrd_variants_calls:
             "../resources/datavzrd/data_observations.js"
         ),
         config="resources/datavzrd/{batch}.{event}.datavzrd.yaml",
-        gene_oncoprint="results/tables/oncoprints/{batch}.{event}/gene-oncoprint.tsv",
-        variant_oncoprints="results/tables/oncoprints/{batch}.{event}/variant-oncoprints",
+        gene_oncoprint=get_oncoprint("gene"),
+        variant_oncoprints=get_oncoprint("variant"),
     output:
         report(
             directory("results/datavzrd-report/{batch}.{event}.fdr-controlled"),

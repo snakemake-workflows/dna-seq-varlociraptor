@@ -34,10 +34,14 @@ def sort_by_recurrence(matrix, no_occurence_check_func):
     matrix = matrix.sort_values("nocalls", ascending=False).drop(
         labels=["nocalls"], axis="columns"
     )
+    return matrix
 
 
-def empty_matrix():
-    return pd.DataFrame({group: [] for group in snakemake.params.groups})
+def add_missing_groups(matrix, groups, index_mate):
+    for group in groups:
+        if (index_mate, group) not in matrix.columns:
+            matrix[(index_mate, group)] = 0
+    return matrix
 
 
 def gene_oncoprint(calls):
@@ -51,14 +55,14 @@ def gene_oncoprint(calls):
         matrix = grouped.set_index(["symbol", "consequence", "group"]).unstack(
             level="group"
         )
-
+        matrix = add_missing_groups(matrix, snakemake.params.groups, "vartype")
         matrix.columns = matrix.columns.droplevel(0)  # remove superfluous header
         if len(matrix.columns) > 1:
             # sort by recurrence
             matrix = sort_by_recurrence(matrix, lambda matrix: matrix.isna())
         return matrix.reset_index()
     else:
-        return empty_matrix()
+        return calls
 
 
 def variant_oncoprint(gene_calls):
@@ -69,6 +73,8 @@ def variant_oncoprint(gene_calls):
         .unstack(level="group")
         .fillna(0)
     )
+
+    matrix = add_missing_groups(matrix, snakemake.params.groups, "exists")
     matrix.columns = matrix.columns.droplevel(0)  # remove superfluous header
 
     if len(matrix.columns) > 1:
@@ -83,7 +89,6 @@ calls = pd.concat(
         for path, sample in zip(snakemake.input, snakemake.params.groups)
     ]
 )
-
 
 gene_oncoprint(calls).to_csv(snakemake.output.gene_oncoprint, sep="\t", index=False)
 

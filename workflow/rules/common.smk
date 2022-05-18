@@ -70,7 +70,7 @@ primer_panels = (
 )
 
 
-def get_final_output():
+def get_final_output(wildcards):
 
     final_output = expand(
         "results/qc/multiqc/{group}.html",
@@ -714,7 +714,7 @@ def get_vembrane_config(wildcards, input):
         scenario = yaml.load(scenario_file, Loader=yaml.SafeLoader)
     parts = ["CHROM, POS, REF, ALT[0], INFO['END'], INFO['EVENT'], ID"]
     header = [
-        "chromsome, position, reference allele, alternative allele, end position, event, id"
+        "chromosome, position, reference allele, alternative allele, end position, event, id"
     ]
     join_items = ", ".join
 
@@ -799,13 +799,8 @@ def format_bowtie_primers(wc, primers):
     return primers
 
 
-def get_datavzrd_data(impact="coding", kind="full"):
-    kindspec = ""
-    pattern = "results/tables/{group}.{event}{kindspec}.{impact}.fdr-controlled.tsv"
-    if kind == "plotdata":
-        kindspec = ".plotdata"
-    if kind == "plotspec":
-        pattern = "results/specs/{group}.{event}.varplot.json"
+def get_datavzrd_data(impact="coding"):
+    pattern = "results/tables/{group}.{event}.{impact}.fdr-controlled.tsv"
 
     def inner(wildcards):
         return expand(
@@ -813,7 +808,6 @@ def get_datavzrd_data(impact="coding", kind="full"):
             impact=impact,
             event=wildcards.event,
             group=get_report_batch(wildcards),
-            kindspec=kindspec,
         )
 
     return inner
@@ -837,12 +831,17 @@ def get_oncoprint_input(wildcards):
 
 
 def get_variant_oncoprint_tables(wildcards, input):
-    oncoprint_dir = input.variant_oncoprints
-    valid = re.compile(r"^[^/]+\.tsv$")
-    tables = [f for f in os.listdir(oncoprint_dir) if valid.match(f)]
-    assert all(table.endswith(".tsv") for table in tables)
-    genes = [gene_table[:-4] for gene_table in tables]
-    return list(zip(genes, expand(f"{oncoprint_dir}/{{oncoprint}}", oncoprint=tables)))
+    if input.variant_oncoprints:
+        oncoprint_dir = input.variant_oncoprints
+        valid = re.compile(r"^[^/]+\.tsv$")
+        tables = [f for f in os.listdir(oncoprint_dir) if valid.match(f)]
+        assert all(table.endswith(".tsv") for table in tables)
+        genes = [gene_table[:-4] for gene_table in tables]
+        return list(
+            zip(genes, expand(f"{oncoprint_dir}/{{oncoprint}}", oncoprint=tables))
+        )
+    else:
+        return []
 
 
 def get_datavzrd_report_labels(wildcards):
@@ -887,3 +886,28 @@ def get_fastqc_results(wildcards):
 
     # samtools stats
     yield from expand("results/qc/{sample}.bam.stats", sample=group_samples)
+
+
+def get_variant_oncoprints(wildcards):
+    if len(get_report_batch(wildcards)) > 1:
+        return "results/tables/oncoprints/{wildcards.batch}.{wildcards.event}/variant-oncoprints"
+    else:
+        return []
+
+
+def get_oncoprint(oncoprint_type):
+    def inner(wildcards):
+        if len(get_report_batch(wildcards)) > 1:
+            oncoprint_path = (
+                f"results/tables/oncoprints/{wildcards.batch}.{wildcards.event}"
+            )
+            if oncoprint_type == "gene":
+                return f"{oncoprint_path}/gene-oncoprint.tsv"
+            elif oncoprint_type == "variant":
+                return f"{oncoprint_path}/variant-oncoprints"
+            else:
+                raise ValueError(f"bug: unsupported oncoprint type {oncoprint_type}")
+        else:
+            return []
+
+    return inner

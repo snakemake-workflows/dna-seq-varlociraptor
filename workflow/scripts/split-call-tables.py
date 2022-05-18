@@ -86,17 +86,6 @@ def get_vartype(rec):
         return "breakend"
 
 
-def plot_data(df):
-    samples = get_samples(df)
-    vafcols = list(get_vaf_columns(df))
-    varcol = "hgvsp"
-    if pd.isna(df["hgvsp"]).all():
-        varcol = "hgvsg"
-    df = df[vafcols + [varcol]]
-    df.columns = [*samples, "variant"]
-    return df
-
-
 def order_impact(df):
     order_impact = ["MODIFIER", "LOW", "MODERATE", "HIGH"]
     df["impact"] = pd.Categorical(df["impact"], order_impact)
@@ -106,87 +95,26 @@ def sort_calls(df):
     df.sort_values(snakemake.params.sorting, ascending=False, inplace=True)
 
 
-def plot_spec(samples):
-    plot_spec = {
-        "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
-        "description": "Drag the sliders to highlight points.",
-        "transform": [{"fold": samples, "as": ["sample", "vaf"]}],
-        "mark": "rect",
-        "encoding": {
-            "x": {"field": "sample", "type": "ordinal"},
-            "color": {
-                "field": "vaf",
-                "type": "quantitative",
-                "scale": {"domain": [0, 1]},
-            },
-            "y": {"field": "variant"},
-            "href": {"field": "variant-link", "type": "nominal"},
-        },
-    }
-    return plot_spec
+def reorder_prob_cols(df):
+    prob_df = df.filter(regex="^prob: ")
+    if not prob_df.empty:
+        prob_sums = prob_df.sum().sort_values(ascending=False)
+        ordered_columns = prob_sums.keys()
+        indexes = [df.columns.get_loc(col) for col in ordered_columns]
+        start_index = min(indexes)
+        updated_columns = df.columns.drop(labels=ordered_columns)
+        for i, col in enumerate(ordered_columns):
+            updated_columns = updated_columns.insert(start_index + i, col)
+        df = df.reindex(columns=updated_columns)
+    return df
 
 
-def plot_spec_old(samples):
-    plots = [
-        {
-            "layer": [
-                {"mark": "line"},
-                {"mark": {"type": "point", "filled": True}},
-                {
-                    "mark": {"type": "text", "dx": 13, "align": "left"},
-                    "encoding": {"text": {"field": "variant", "type": "nominal"}},
-                    "transform": [{"filter": f"datum.sample == '{samples[-1]}'"}],
-                },
-            ],
-            "encoding": {
-                "x": {"field": "sample", "type": "ordinal", "sort": samples},
-                "y": {
-                    "field": "vaf",
-                    "type": "quantitative",
-                    "scale": {"domain": [0, 1.0]},
-                },
-                "color": {"field": "variant", "legend": None},
-                "href": {"field": "variant-link"},
-                "opacity": {
-                    "condition": {
-                        "test": {
-                            "and": [{"param": f"{sample}brush"} for sample in samples]
-                        },
-                        "value": 1.0,
-                    },
-                    "value": 0.2,
-                },
-            },
-        }
-    ]
-
-    for sample in samples:
-        plots.append(
-            {
-                "mark": "tick",
-                "encoding": {
-                    "x": {
-                        "field": sample,
-                        "type": "quantitative",
-                        "scale": {"domain": [0, 1.0]},
-                    }
-                },
-                "params": [
-                    {
-                        "name": f"{sample}brush",
-                        "select": {"type": "interval", "encodings": ["x"]},
-                    }
-                ],
-            }
-        )
-
-    plot_spec = {
-        "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
-        "description": "Drag the sliders to highlight points.",
-        "transform": [{"fold": samples, "as": ["sample", "vaf"]}],
-        "vconcat": plots,
-    }
-    return plot_spec
+def cleanup_dataframe(df):
+    df = drop_low_prob_cols(df)
+    df = drop_zero_vaf_cols(df)
+    df = reorder_prob_cols(df)
+    df = format_floats(df)
+    return df
 
 
 calls = pd.read_csv(snakemake.input[0], sep="\t")
@@ -205,9 +133,6 @@ if not calls.empty:
 else:
     calls["vartype"] = []
 
-calls = format_floats(calls)
-calls = drop_low_prob_cols(calls)
-calls = drop_zero_vaf_cols(calls)
 calls.set_index("gene", inplace=True, drop=False)
 samples = get_samples(calls)
 
@@ -216,10 +141,12 @@ coding = ~pd.isna(calls["hgvsp"])
 canonical = calls["canonical"]
 
 noncoding_calls = calls[~coding & canonical]
+noncoding_calls = cleanup_dataframe(noncoding_calls)
+write(noncoding_calls, snakemake.output.noncoding)
 
 coding_calls = calls[coding & canonical].drop(
     [
-        "chromsome",
+        "chromosome",
         "position",
         "reference allele",
         "alternative allele",
@@ -229,9 +156,7 @@ coding_calls = calls[coding & canonical].drop(
     ],
     axis="columns",
 )
-
-
-write(noncoding_calls, snakemake.output.noncoding)
+coding_calls = cleanup_dataframe(coding_calls)
 
 # coding variants
 # Here we have all variant info in hgvsp,
@@ -240,12 +165,5 @@ write(
     coding_calls,
     snakemake.output.coding,
 )
-
-
-write(plot_data(coding_calls), snakemake.output.coding_plot_data)
-write(plot_data(noncoding_calls), snakemake.output.noncoding_plot_data)
-
-with open(snakemake.output.plot_spec, "w") as out:
-    json.dump(plot_spec(samples), out)
 
 # TODO add possibility to also see non-canonical transcripts (low priority, once everything else works).

@@ -3,7 +3,7 @@ import io
 
 rule render_scenario:
     input:
-        local(config["calling"]["scenario"]),
+        template=local(config["calling"]["scenario"]),
     output:
         report(
             "results/scenarios/{group}.yaml",
@@ -14,11 +14,11 @@ rule render_scenario:
     log:
         "logs/render-scenario/{group}.log",
     params:
-        samples=samples,
+        samples=lambda wc: samples[samples["group"] == wc.group],
     conda:
         None
-    script:
-        "../scripts/render-scenario.py"
+    template_engine:
+        "yte"
 
 
 rule varlociraptor_alignment_properties:
