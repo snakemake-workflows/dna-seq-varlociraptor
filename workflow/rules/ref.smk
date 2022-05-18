@@ -59,6 +59,43 @@ rule get_known_variants:
         "v1.2.0/bio/reference/ensembl-variation"
 
 
+rule get_annotation_gz:
+    output:
+        "resources/annotation.gtf.gz",
+    params:
+        species=config["ref"]["species"],
+        release=config["ref"]["release"],
+        build=config["ref"]["build"],
+        flavor="",  # optional, e.g. chr_patch_hapl_scaff, see Ensembl FTP.
+    log:
+        "logs/get_annotation.log",
+    cache: True  # save space and time with between workflow caching (see docs)
+    wrapper:
+        "v1.5.0/bio/reference/ensembl-annotation"
+
+
+rule determine_coding_regions:
+    input:
+        "resources/annotation.gtf.gz",
+    output:
+        "resources/coding_regions.bed.gz"    
+    log:
+        "logs/determine_coding_regions.log",
+    cache: True  # save space and time with between workflow caching (see docs)
+    conda:
+        "../envs/awk.yaml"
+    shell:
+        # filter for `exon` entries, but unclear how to exclude pseudogene exons...
+        """
+        ( zcat {input} | \\
+          awk 'BEGIN {{ IFS = "\\t"}} {{ if ($3 == "exon") {{ print $0 }} }}' | \\
+          grep 'gene_biotype "protein_coding"' | \\
+          awk 'BEGIN {{ IFS = "\\t"; OFS = "\\t"}}  {{ print $1,$4-1,$5 }}' | \\
+          gzip > {output} \\
+        ) 2> {log}
+        """
+
+
 rule remove_iupac_codes:
     input:
         "resources/variation.vcf.gz",
