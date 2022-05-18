@@ -4,7 +4,6 @@ rule split_call_tables:
     output:
         coding="results/tables/{group}.{event}.coding.fdr-controlled.tsv",
         noncoding="results/tables/{group}.{event}.noncoding.fdr-controlled.tsv",
-        plot_spec="results/specs/{group}.{event}.varplot.json",
     params:
         sorting=lambda wc: config["calling"]["fdr-control"]["events"][wc.event].get(
             "sort", list()

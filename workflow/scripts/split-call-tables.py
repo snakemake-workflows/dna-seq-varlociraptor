@@ -186,8 +186,4 @@ write(
     snakemake.output.coding,
 )
 
-
-with open(snakemake.output.plot_spec, "w") as out:
-    json.dump(plot_spec(samples), out)
-
 # TODO add possibility to also see non-canonical transcripts (low priority, once everything else works).
