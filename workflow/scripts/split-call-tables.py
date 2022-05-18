@@ -117,26 +117,6 @@ def cleanup_dataframe(df):
     return df
 
 
-def plot_spec(samples):
-    plot_spec = {
-        "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
-        "description": "Drag the sliders to highlight points.",
-        "transform": [{"fold": samples, "as": ["sample", "vaf"]}],
-        "mark": "rect",
-        "encoding": {
-            "x": {"field": "sample", "type": "ordinal"},
-            "color": {
-                "field": "vaf",
-                "type": "quantitative",
-                "scale": {"domain": [0, 1]},
-            },
-            "y": {"field": "variant"},
-            "href": {"field": "variant-link", "type": "nominal"},
-        },
-    }
-    return plot_spec
-
-
 calls = pd.read_csv(snakemake.input[0], sep="\t")
 calls["clinical significance"] = (
     calls["clinical significance"]
