@@ -798,13 +798,8 @@ def format_bowtie_primers(wc, primers):
     return primers
 
 
-def get_datavzrd_data(impact="coding", kind="full"):
-    kindspec = ""
-    pattern = "results/tables/{group}.{event}{kindspec}.{impact}.fdr-controlled.tsv"
-    if kind == "plotdata":
-        kindspec = ".plotdata"
-    if kind == "plotspec":
-        pattern = "results/specs/{group}.{event}.varplot.json"
+def get_datavzrd_data(impact="coding"):
+    pattern = "results/tables/{group}.{event}.{impact}.fdr-controlled.tsv"
 
     def inner(wildcards):
         return expand(
@@ -812,7 +807,6 @@ def get_datavzrd_data(impact="coding", kind="full"):
             impact=impact,
             event=wildcards.event,
             group=get_report_batch(wildcards),
-            kindspec=kindspec,
         )
 
     return inner
