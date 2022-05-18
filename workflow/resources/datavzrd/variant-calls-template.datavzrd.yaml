@@ -82,22 +82,6 @@ datasets:
     ?f"{group}-noncoding":
       path: ?path
       separator: "\t"
-  ?for group, path in zip(params.groups, params.coding_plotdata):
-    ?f"{group}-coding-plotdata":
-      path: ?path
-      separator: "\t"
-      links:
-        variant-link:
-          column: variant
-          table-row: ?f"{group}-coding/hgvsp"
-  ?for group, path in zip(params.groups, params.noncoding_plotdata):
-    ?f"{group}-noncoding-plotdata":
-      path: ?path
-      separator: "\t"
-      links:
-        variant-link:
-          column: variant
-          table-row: ?f"{group}-noncoding/hgvsg"
 
 views:
   ?if params.gene_oncoprint:
@@ -257,10 +241,3 @@ views:
               data: ?read_file(params.data_observations)
               spec: ?read_file(params.spec_observations)
             display-mode: detail
-
-    ?for group, plot_spec in zip(params.groups, params.plot_spec):
-      ?for impact in ["coding", "noncoding"]:
-        ?f"{group}-{impact}-plot":
-          dataset: ?f"{group}-{impact}-plotdata"
-          render-plot:
-            spec-path: ?plot_spec

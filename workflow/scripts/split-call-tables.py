@@ -86,17 +86,6 @@ def get_vartype(rec):
         return "breakend"
 
 
-def plot_data(df):
-    samples = get_samples(df)
-    vafcols = list(get_vaf_columns(df))
-    varcol = "hgvsp"
-    if pd.isna(df["hgvsp"]).all():
-        varcol = "hgvsg"
-    df = df[vafcols + [varcol]]
-    df.columns = [*samples, "variant"]
-    return df
-
-
 def order_impact(df):
     order_impact = ["MODIFIER", "LOW", "MODERATE", "HIGH"]
     df["impact"] = pd.Categorical(df["impact"], order_impact)
@@ -104,6 +93,7 @@ def order_impact(df):
 
 def sort_calls(df):
     df.sort_values(snakemake.params.sorting, ascending=False, inplace=True)
+
 
 def reorder_prob_cols(df):
     prob_df = df.filter(regex="^prob: ")
@@ -114,9 +104,10 @@ def reorder_prob_cols(df):
         start_index = min(indexes)
         updated_columns = df.columns.drop(labels=ordered_columns)
         for i, col in enumerate(ordered_columns):
-            updated_columns = updated_columns.insert(start_index+i, col)
+            updated_columns = updated_columns.insert(start_index + i, col)
         df = df.reindex(columns=updated_columns)
     return df
+
 
 def cleanup_dataframe(df):
     df = drop_low_prob_cols(df)
@@ -124,6 +115,7 @@ def cleanup_dataframe(df):
     df = reorder_prob_cols(df)
     df = format_floats(df)
     return df
+
 
 def plot_spec(samples):
     plot_spec = {
@@ -194,9 +186,6 @@ write(
     snakemake.output.coding,
 )
 
-
-write(plot_data(coding_calls), snakemake.output.coding_plot_data)
-write(plot_data(noncoding_calls), snakemake.output.noncoding_plot_data)
 
 with open(snakemake.output.plot_spec, "w") as out:
     json.dump(plot_spec(samples), out)
