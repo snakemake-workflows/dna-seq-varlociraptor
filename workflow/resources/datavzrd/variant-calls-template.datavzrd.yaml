@@ -11,7 +11,7 @@ __definitions__:
     function(value, row) {{
       let hgvsp_regex = /^(.+?):(.+)$/;
       // discard protein id
-      let hgvsp = value.match(hgvsp_regex)[2];
+      let hgvsp = value.match(hgvsp_regex)[2].replace('%3D', '=');
 
       const url = "{params.varsome_url}";
       const regex = [
