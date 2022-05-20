@@ -142,7 +142,7 @@ views:
           hgvsp:
             custom: ?varsome_link
         vartype:
-          display-mode: detail
+          display-mode: hidden
         impact:
           plot:
             heatmap:
@@ -193,9 +193,9 @@ views:
                 - white
                 - "#1f77b4"
         gene:
-          display-mode: detail
+          display-mode: hidden
         feature:
-          display-mode: detail
+          display-mode: hidden
         hgvsg:
           display-mode: detail
 
@@ -219,7 +219,7 @@ views:
               color-scheme: category20
               scale: ordinal
         vartype:
-          display-mode: detail
+          display-mode: hidden
         impact:
           plot:
             heatmap:
