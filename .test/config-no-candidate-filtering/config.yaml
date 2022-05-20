@@ -24,10 +24,6 @@ primers:
 # Estimation of tumor mutational burden.
 mutational_burden:
   activate: false
-  # Size of the sequenced coding genome for TMB estimation
-  # Attention: when doing panel sequencing, set this to the
-  # CAPTURED coding genome, not the entire one!
-  coding_genome_size: 3.0e7
   events:
     - SOMATIC_TUMOR_LOW
     - SOMATIC_TUMOR_MEDIUM

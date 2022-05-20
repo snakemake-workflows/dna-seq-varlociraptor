@@ -1,0 +1,7 @@
+channels:
+  - conda-forge
+  - bioconda
+dependencies:
+  - bedtools =2.30
+  - gawk =5.1
+  - samtools =1.15

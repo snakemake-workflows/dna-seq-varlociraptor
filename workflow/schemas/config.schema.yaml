@@ -149,12 +149,8 @@ properties:
     properties:
       activate:
         type: boolean
-      coding_genome_size:
-        # TODO allow integer here!
-        type: string
     required:
       - activate
-      - coding_genome_size
 
 
   calling:
