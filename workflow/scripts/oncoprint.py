@@ -37,10 +37,10 @@ def sort_by_recurrence(matrix, no_occurence_check_func):
     return matrix
 
 
-def add_missing_groups(matrix, groups, index_mate, missing_value):
+def add_missing_groups(matrix, groups, index_mate):
     for group in groups:
         if (index_mate, group) not in matrix.columns:
-            matrix[(index_mate, group)] = missing_value
+            matrix[(index_mate, group)] = pd.NA
     return matrix
 
 
@@ -55,7 +55,7 @@ def gene_oncoprint(calls):
         matrix = grouped.set_index(["symbol", "consequence", "group"]).unstack(
             level="group"
         )
-        matrix = add_missing_groups(matrix, snakemake.params.groups, "vartype", "")
+        matrix = add_missing_groups(matrix, snakemake.params.groups, "vartype")
         matrix.columns = matrix.columns.droplevel(0)  # remove superfluous header
         if len(matrix.columns) > 1:
             # sort by recurrence
@@ -67,19 +67,18 @@ def gene_oncoprint(calls):
 
 def variant_oncoprint(gene_calls):
     gene_calls = gene_calls[["group", "hgvsp", "hgvsg", "consequence"]]
-    gene_calls.loc[:, "exists"] = 1
+    gene_calls.loc[:, "exists"] = "X"
     matrix = (
         gene_calls.set_index(["hgvsp", "hgvsg", "consequence", "group"])
         .unstack(level="group")
-        .fillna(0)
     )
 
-    matrix = add_missing_groups(matrix, snakemake.params.groups, "exists", 0)
+    matrix = add_missing_groups(matrix, snakemake.params.groups, "exists")
     matrix.columns = matrix.columns.droplevel(0)  # remove superfluous header
 
     if len(matrix.columns) > 1:
         # sort by recurrence
-        matrix = sort_by_recurrence(matrix, lambda matrix: matrix == 0)
+        matrix = sort_by_recurrence(matrix, lambda matrix: matrix.isna())
     return matrix.reset_index()
 
 

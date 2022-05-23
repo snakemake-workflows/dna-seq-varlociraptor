@@ -124,12 +124,8 @@ views:
               plot:
                 heatmap:
                   scale: ordinal
-                  domain:
-                    - 0
-                    - 1
-                  range:
-                    - white
-                    - "#a6cee3"
+                  color-scheme: paired
+                  aux-domain-columns: ?list(params.groups)
 
   ?for group in params.groups:
     ?f"{group}-coding":
