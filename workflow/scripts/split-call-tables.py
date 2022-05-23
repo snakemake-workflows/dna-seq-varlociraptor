@@ -15,7 +15,12 @@ PROB_EPSILON = 0.01  # columns with all probabilities below will be dropped
 def write(df, path):
     df = df.drop(["canonical"], axis="columns", errors="ignore")
     if not df.empty:
-        df = df.dropna(how="all", axis="columns")
+        remaining_columns = df.dropna(how="all", axis="columns").columns.tolist()
+        if path == snakemake.output.coding:
+            # ensure that these columns are kept, even if they contain only NAs in a coding setting
+            remaining_columns.extend(["hgvsp", "symbol"])
+            remaining_columns = [ col for col in df.columns if col in remaining_columns ]
+        df = df[remaining_columns]
     df.to_csv(path, index=False, sep="\t")
 
 
