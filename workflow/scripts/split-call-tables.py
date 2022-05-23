@@ -137,7 +137,7 @@ calls.set_index("gene", inplace=True, drop=False)
 samples = get_samples(calls)
 
 
-coding = ~pd.isna(calls["hgvsp"])
+coding = calls["biotype"] == "protein_coding"
 canonical = calls["canonical"]
 
 noncoding_calls = calls[~coding & canonical]
