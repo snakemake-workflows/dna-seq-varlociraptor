@@ -31,7 +31,7 @@ def load_calls(path, group):
 
 def sort_by_recurrence(matrix, no_occurence_check_func):
     matrix["nocalls"] = no_occurence_check_func(matrix).sum(axis="columns")
-    matrix = matrix.sort_values("nocalls", ascending=False).drop(
+    matrix = matrix.sort_values("nocalls", ascending=True).drop(
         labels=["nocalls"], axis="columns"
     )
     return matrix
