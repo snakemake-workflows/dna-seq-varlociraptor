@@ -733,6 +733,7 @@ def get_vembrane_config(wildcards, input):
         "HGVSg",
         "Consequence",
         "CANONICAL",
+        "BIOTYPE",
     ]
     annotation_fields.extend(
         [
