@@ -1,4 +1,5 @@
-Estimated mutational burden for sample {{ snakemake.wildcards.sample }}, 
+Estimated mutational burden for the {{ snakemake.wildcards.alias }}, 
+sample of the sample group {{ snakemake.wildcard.group }},
 using events {{ snakemake.params.events.split(" ")|join(", ") }}.
 
 The calculated plot shows the expected number of mutations (derived 

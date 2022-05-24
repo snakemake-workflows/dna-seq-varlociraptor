@@ -30,7 +30,7 @@ if config["mutational_burden"]["activate"]:
         log:
             "logs/estimate-mutational-burden/{group}.{alias}.{mode}.log",
         params:
-            events=config["mutational_burden"]["events"],
+            events=" ".join(config["mutational_burden"]["events"]),
         conda:
             "../envs/varlociraptor.yaml"
         shell:
