@@ -252,8 +252,13 @@ def get_map_reads_input(wildcards):
     return "results/merged/{sample}_single.fastq.gz"
 
 
-def get_group_aliases(wildcards):
-    return samples.loc[samples["group"] == wildcards.group]["alias"]
+def get_group_aliases(group):
+    return samples.loc[samples["group"] == group]["alias"]
+
+
+def get_group_tumor_aliases(group):
+    aliases = get_group_aliases(group)
+    return aliases[aliases.str.startswith("tumor")]
 
 
 def get_group_samples(group):
@@ -448,20 +453,18 @@ def get_read_group(wildcards):
 
 
 def get_mutational_burden_targets():
+    mutational_burden_targets = []
     if is_activated("mutational_burden"):
-        return expand(
-            "results/plots/mutational-burden/{sample.group}.{sample.sample_name}.{mode}.mutational-burden.svg",
+        for group in groups:
+            mutational_burden_targets.extend(
+                expand(
+                    "results/plots/mutational-burden/{group}.{alias}.{mode}.mutational-burden.svg",
+                    group=group,
             mode=config["mutational_burden"].get("mode", "curve"),
-            sample=samples[~pd.isna(samples["mutational_burden_events"])].itertuples(),
+                    alias=get_group_tumor_aliases(group)
         )
-    else:
-        return []
-
-
-def get_mutational_burden_events(wildcards):
-    events = samples.loc[wildcards.sample, "mutational_burden_events"]
-    events = map(str.strip, events.split(","))
-    return " ".join(events)
+            )
+    return mutational_burden_targets
 
 
 def get_scattered_calls(ext="bcf"):
