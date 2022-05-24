@@ -460,9 +460,9 @@ def get_mutational_burden_targets():
                 expand(
                     "results/plots/mutational-burden/{group}.{alias}.{mode}.mutational-burden.svg",
                     group=group,
-            mode=config["mutational_burden"].get("mode", "curve"),
+                    mode=config["mutational_burden"].get("mode", "curve"),
                     alias=get_group_tumor_aliases(group)
-        )
+                )
             )
     return mutational_burden_targets
 
@@ -715,7 +715,7 @@ def get_fastqs(wc):
 def get_vembrane_config(wildcards, input):
     with open(input.scenario, "r") as scenario_file:
         scenario = yaml.load(scenario_file, Loader=yaml.SafeLoader)
-    parts = ["CHROM, POS, REF, ALT[0], INFO['END'], INFO['EVENT'], ID"]
+    parts = ["CHROM, POS, REF, ALT, INFO['END'], INFO['EVENT'], ID"]
     header = [
         "chromosome, position, reference allele, alternative allele, end position, event, id"
     ]
