@@ -49,14 +49,6 @@ def drop_low_prob_cols(df):
     )
 
 
-def drop_zero_vaf_cols(df):
-    return drop_cols_by_predicate(
-        df,
-        df.columns[df.columns.str.endswith(": allele frequency")],
-        lambda vafs: vafs == 0.0,
-    )
-
-
 def get_vaf_columns(df):
     return df.columns[df.columns.str.endswith(": allele frequency")]
 
@@ -118,7 +110,6 @@ def reorder_prob_cols(df):
 
 def cleanup_dataframe(df):
     df = drop_low_prob_cols(df)
-    df = drop_zero_vaf_cols(df)
     df = reorder_prob_cols(df)
     df = format_floats(df)
     return df
