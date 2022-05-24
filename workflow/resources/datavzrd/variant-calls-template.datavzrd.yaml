@@ -231,12 +231,35 @@ views:
                 - "#ec5300"
                 - "#ec9b00"
                 - "#ecca00"
+        "regex('.+: allele frequency')":
+          plot: 
+            ticks:
+              scale: "linear"
+              domain: [0.0, 1.0]
+              aux-domain-columns:
+                - "regex('.+: allele frequency')"
+        "regex('.+: read depth')":
+          plot: 
+            ticks:
+              scale: "linear"
+              aux-domain-columns:
+                - "regex('.+: read depth')"
+        "regex('prob: .+')":
+          plot:
+            heatmap:
+              scale: linear
+              domain: [0.0, 1.0]
+              range:
+                - white
+                - "#1f77b4"
         id:
           display-mode: hidden
         gene:
           display-mode: hidden
         feature:
           display-mode: hidden
+        hgvsg:
+          display-mode: detail
 
         ?for alias in params.samples.loc[params.samples["group"] == group, "alias"]:
           '?f"{alias}: observations"':
