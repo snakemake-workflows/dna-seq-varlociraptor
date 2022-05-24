@@ -87,6 +87,8 @@ def get_vartype(rec):
         return "snv"
     elif len(alt_allele) == len(ref_allele):
         return "mnv"
+    elif len(alt_allele) > 1 and len(ref_allele) > 1:
+        return "replacement"
     else:
         return "breakend"
 
