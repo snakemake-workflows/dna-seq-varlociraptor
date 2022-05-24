@@ -18,7 +18,7 @@ def write(df, path):
         remaining_columns = df.dropna(how="all", axis="columns").columns.tolist()
         if path == snakemake.output.coding:
             # ensure that these columns are kept, even if they contain only NAs in a coding setting
-            remaining_columns.extend(["hgvsp", "symbol"])
+            remaining_columns.extend(["revel", "hgvsp", "symbol"])
             remaining_columns = [ col for col in df.columns if col in remaining_columns ]
         df = df[remaining_columns]
     df.to_csv(path, index=False, sep="\t")
@@ -123,6 +123,8 @@ calls["clinical significance"] = (
     .apply(", ".join)
     .replace("", np.nan)
 )
+
+
 if not calls.empty:
     # these below only work on non empty dataframes
     calls["vartype"] = calls.apply(get_vartype, axis="columns")
@@ -130,6 +132,7 @@ if not calls.empty:
     sort_calls(calls)
 else:
     calls["vartype"] = []
+
 
 calls.set_index("gene", inplace=True, drop=False)
 samples = get_samples(calls)
