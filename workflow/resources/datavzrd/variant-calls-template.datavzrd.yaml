@@ -231,6 +231,12 @@ views:
                 - "#ec5300"
                 - "#ec9b00"
                 - "#ecca00"
+        id:
+          display-mode: hidden
+        gene:
+          display-mode: hidden
+        feature:
+          display-mode: hidden
 
         ?for alias in params.samples.loc[params.samples["group"] == group, "alias"]:
           '?f"{alias}: observations"':
