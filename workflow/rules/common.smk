@@ -734,6 +734,10 @@ def get_vembrane_config(wildcards, input):
         "Consequence",
         "CANONICAL",
     ]
+    
+    if "REVEL" in config["annotations"]["vep"]["plugins"]:
+        annotation_fields.append("REVEL")
+
     annotation_fields.extend(
         [
             field
