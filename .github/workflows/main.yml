@@ -46,6 +46,7 @@ jobs:
         directory: .test
         snakefile: workflow/Snakefile
         args: "--configfile .test/config-simple/config.yaml --use-conda --show-failed-logs -j 10 --conda-cleanup-pkgs cache --conda-frontend mamba"
+        stagein: "conda config --get channel_priority --json"
 
     - name: Test report
       uses: snakemake/snakemake-github-action@v1
