@@ -27,8 +27,8 @@ Missing values can be specified by empty columns or by writing `NA`. Lines can b
 # Calling scenario
 
 Varlociraptor supports integrated uncertainty aware calling and filtering of variants for arbitrary scenarios. These are defined as so-called scenarios, via a [variant calling grammar](https://varlociraptor.github.io/docs/calling#generic-variant-calling).
-* For each group, a scenario is rendered via [Jinja](https://jinja.palletsprojects.com).
-* Therefore, edit the template scenario (`scenario.yaml`) according to your needs. The sample sheet is available for jinja rendering as a pandas data frame in the variable `samples`. This allows to customize the scenario according to the contents of the sample sheet. You can therefore add additional columns to the sample sheet (e.g. purity) and access them in the scenario template, in order to pass the information to Varlociraptor.
+* For each group, a scenario is rendered via [YTE](https://yte-template-engine.github.io).
+* Therefore, edit the template scenario (`scenario.yaml`) according to your needs. The sample sheet is available for YTE rendering as a pandas data frame in the variable `samples`. This allows to customize the scenario according to the contents of the sample sheet. You can therefore add additional columns to the sample sheet (e.g. purity) and access them in the scenario template, in order to pass the information to Varlociraptor.
 
 # Primer trimming
 
