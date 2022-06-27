@@ -1,6 +1,9 @@
 {
     "$schema": "https://vega.github.io/schema/vega-lite/v3.json",
     "vconcat": [{
+        "transform": [
+            {"calculate": "datum.info", "as": "vega_debugging_datum"}
+        ],
         "mark": "bar",
         "encoding": {
             "column": {
@@ -67,6 +70,11 @@
         "transform": [{"flatten": ["info"]}],
         "mark": "rect",
         "encoding": {
+            "column": {
+                "field": "quality",
+                "type": "ordinal",
+                "title": null
+            },
             "x": {
                 "field": "group",
                 "type": "nominal",
