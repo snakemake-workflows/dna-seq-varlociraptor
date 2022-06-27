@@ -1,49 +1,96 @@
 {
     "$schema": "https://vega.github.io/schema/vega-lite/v3.json",
-    "mark": "bar",
-    "encoding": {
-        "column": {
-            "field": "quality",
-            "type": "ordinal",
-            "title": null
-        },
-        "x": {
-            "field": "strand_orientation",
-            "type": "ordinal",
-            "title": "Strand"
-        },
-        "y": {
-            "field": "times",
-            "type": "quantitative",
-            "title": "Counts"
-        },
-        "color": {
-            "field": "effect",
-            "type": "nominal",
-            "title": "Evidence",
-            "sort": ["None", "Barely", "Positive", "Strong", "Very Strong"],
-            "scale": {
-                "domain": ["None", "Barely", "Positive", "Strong", "Very Strong"],
-                "range": ["#999999", "#2ba6cb", "#afdfee", "#ffa3a3", "#ff5555"]
+    "vconcat": [{
+        "mark": "bar",
+        "encoding": {
+            "column": {
+                "field": "quality",
+                "type": "ordinal",
+                "title": null
+            },
+            "x": {
+                "field": "group",
+                "type": "nominal",
+                "title": null
+            },
+            "y": {
+                "field": "times",
+                "type": "quantitative",
+                "title": "Counts"
+            },
+            "color": {
+                "field": "effect",
+                "type": "nominal",
+                "title": "Evidence",
+                "sort": ["None", "Barely", "Positive", "Strong", "Very Strong"],
+                "scale": {
+                    "domain": ["None", "Barely", "Positive", "Strong", "Very Strong"],
+                    "range": ["#999999", "#2ba6cb", "#afdfee", "#ffa3a3", "#ff5555"]
+                }
+            },
+            "tooltip": [ {
+                "field": "strand",
+                "type": "nominative",
+                "title": "Strand"
+            }, {
+                "field": "orientation",
+                "type": "nominal",
+                "title": "Orientation"
+            }, {
+                "field": "times",
+                "type": "quantitative",
+                "title": "Counts"
+            }, {
+                "field": "alignment",
+                "type": "nominative",
+                "title": "Alignment"
+            }, {
+                "field": "locus",
+                "type": "nominative",
+                "title": "Locus"
+            }, {
+                "field": "indel operations",
+                "type": "nominative",
+                "title": "Indel operations"
+            },{
+                "field": "softclip",
+                "type": "nominative",
+                "title": "Softclip"
+            },{
+                "field": "position",
+                "type": "nominative",
+                "title": "Read position"
             }
-        },
-        "tooltip": [ {
-            "field": "strand",
-            "type": "nominative",
-            "title": "Strand"
-        }, {
-            "field": "orientation",
-            "type": "nominal",
-            "title": "Orientation"
-        }, {
-            "field": "times",
-            "type": "quantitative",
-            "title": "Counts"
-        }]
-    },
-    "config": {
-        "axisX": {
-            "labelAngle": -45
+        ]
         }
+    }, {
+        "transform": [{"flatten": ["info"]}],
+        "mark": "rect",
+        "encoding": {
+            "x": {
+                "field": "group",
+                "type": "nominal",
+                "title": null
+            },
+            "y": {
+                "field": "info",
+                "type": "nominal",
+                "title": null
+            },
+            "color": {
+                "field": "count",
+                "type": "quantitative",
+                "legend": null
+            }
+        }
+    }],
+        "config": {
+            "axisX": {
+                "labels": false,
+                "ticks": false
+            },
+            "concat": {
+                "spacing": 0
+            }
     }
 }
