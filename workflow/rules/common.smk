@@ -461,7 +461,7 @@ def get_mutational_burden_targets():
                     "results/plots/mutational-burden/{group}.{alias}.{mode}.mutational-burden.svg",
                     group=group,
                     mode=config["mutational_burden"].get("mode", "curve"),
-                    alias=get_group_tumor_aliases(group)
+                    alias=get_group_tumor_aliases(group),
                 )
             )
     return mutational_burden_targets
@@ -738,7 +738,7 @@ def get_vembrane_config(wildcards, input):
         "Consequence",
         "CANONICAL",
     ]
-    
+
     if "REVEL" in config["annotations"]["vep"]["plugins"]:
         annotation_fields.append("REVEL")
 
