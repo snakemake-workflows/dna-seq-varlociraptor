@@ -21,17 +21,16 @@ if config["mutational_burden"]["activate"]:
             coverage_breadth="results/regions/{group}.covered_regions.filtered.coding.coverage_breadth.txt",
         output:
             report(
-                "results/plots/mutational-burden/{group}.{sample}.{mode}.mutational-burden.svg",
+                "results/plots/mutational-burden/{group}.{alias}.{mode}.mutational-burden.svg",
                 caption="../report/mutational_burden.rst",
                 category="Mutational Burden",
                 subcategory="{group}",
-                labels={"sample": "{sample}", "mode": "{mode}"},
+                labels={"alias": "{alias}", "mode": "{mode}"},
             ),
         log:
-            "logs/estimate-mutational-burden/{group}.{sample}.{mode}.log",
+            "logs/estimate-mutational-burden/{group}.{alias}.{mode}.log",
         params:
-            events=get_mutational_burden_events,
-            sample=get_sample_alias,
+            events=" ".join(config["mutational_burden"]["events"]),
         conda:
             "../envs/varlociraptor.yaml"
         shell:
@@ -39,5 +38,5 @@ if config["mutational_burden"]["activate"]:
             "--plot-mode {wildcards.mode} "
             "--coding-genome-size $( cat {input.coverage_breadth} ) "
             "--events {params.events} "
-            "--sample {params.sample} "
+            "--sample {wildcards.alias} "
             "< {input.calls} | vl2svg > {output}) 2> {log}"

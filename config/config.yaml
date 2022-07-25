@@ -42,6 +42,10 @@ mutational_burden:
   mode:
     - curve
     - hist
+  events:
+    - somatic_tumor_low
+    - somatic_tumor_medium
+    - somatic_tumor_high
 
 # printing of variants in interactive tables
 report:

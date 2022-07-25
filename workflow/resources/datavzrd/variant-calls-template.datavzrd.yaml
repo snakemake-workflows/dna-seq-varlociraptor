@@ -11,7 +11,7 @@ __definitions__:
     function(value, row) {{
       let hgvsp_regex = /^(.+?):(.+)$/;
       // discard protein id
-      let hgvsp = value.match(hgvsp_regex)[2];
+      let hgvsp = value.match(hgvsp_regex)[2].replace('%3D', '=');
 
       const url = "{params.varsome_url}";
       const regex = [
@@ -124,12 +124,8 @@ views:
               plot:
                 heatmap:
                   scale: ordinal
-                  domain:
-                    - 0
-                    - 1
-                  range:
-                    - white
-                    - "#a6cee3"
+                  color-scheme: paired
+                  aux-domain-columns: ?list(params.groups)
 
   ?for group in params.groups:
     ?f"{group}-coding":
@@ -199,8 +195,8 @@ views:
         hgvsg:
           display-mode: detail
 
-        ?for sample in ["normal", "tumor"]:
-          '?f"{sample}: observations"':
+        ?for alias in params.samples.loc[params.samples["group"] == group, "alias"]:
+          '?f"{alias}: observations"':
             custom-plot:
               data: ?read_file(params.data_observations)
               spec: ?read_file(params.spec_observations)
@@ -212,6 +208,7 @@ views:
       dataset: ?f"{group}-noncoding"
       render-table:
         symbol:
+          optional: true
           link-to-url: https://www.ensembl.org/Homo_sapiens/Transcript/Summary?t={feature}
         consequence:
           plot:
@@ -234,9 +231,38 @@ views:
                 - "#ec5300"
                 - "#ec9b00"
                 - "#ecca00"
+        "regex('.+: allele frequency')":
+          plot: 
+            ticks:
+              scale: "linear"
+              domain: [0.0, 1.0]
+              aux-domain-columns:
+                - "regex('.+: allele frequency')"
+        "regex('.+: read depth')":
+          plot: 
+            ticks:
+              scale: "linear"
+              aux-domain-columns:
+                - "regex('.+: read depth')"
+        "regex('prob: .+')":
+          plot:
+            heatmap:
+              scale: linear
+              domain: [0.0, 1.0]
+              range:
+                - white
+                - "#1f77b4"
+        id:
+          display-mode: hidden
+        gene:
+          display-mode: hidden
+        feature:
+          display-mode: hidden
+        hgvsg:
+          display-mode: detail
 
-        ?for sample in ["normal", "tumor"]:
-          '?f"{sample}: observations"':
+        ?for alias in params.samples.loc[params.samples["group"] == group, "alias"]:
+          '?f"{alias}: observations"':
             custom-plot:
               data: ?read_file(params.data_observations)
               spec: ?read_file(params.spec_observations)

@@ -31,7 +31,7 @@ def load_calls(path, group):
 
 def sort_by_recurrence(matrix, no_occurence_check_func):
     matrix["nocalls"] = no_occurence_check_func(matrix).sum(axis="columns")
-    matrix = matrix.sort_values("nocalls", ascending=False).drop(
+    matrix = matrix.sort_values("nocalls", ascending=True).drop(
         labels=["nocalls"], axis="columns"
     )
     return matrix
@@ -40,7 +40,7 @@ def sort_by_recurrence(matrix, no_occurence_check_func):
 def add_missing_groups(matrix, groups, index_mate):
     for group in groups:
         if (index_mate, group) not in matrix.columns:
-            matrix[(index_mate, group)] = 0
+            matrix[(index_mate, group)] = pd.NA
     return matrix
 
 
@@ -67,11 +67,10 @@ def gene_oncoprint(calls):
 
 def variant_oncoprint(gene_calls):
     gene_calls = gene_calls[["group", "hgvsp", "hgvsg", "consequence"]]
-    gene_calls.loc[:, "exists"] = 1
+    gene_calls.loc[:, "exists"] = "X"
     matrix = (
         gene_calls.set_index(["hgvsp", "hgvsg", "consequence", "group"])
         .unstack(level="group")
-        .fillna(0)
     )
 
     matrix = add_missing_groups(matrix, snakemake.params.groups, "exists")
@@ -79,7 +78,7 @@ def variant_oncoprint(gene_calls):
 
     if len(matrix.columns) > 1:
         # sort by recurrence
-        matrix = sort_by_recurrence(matrix, lambda matrix: matrix == 0)
+        matrix = sort_by_recurrence(matrix, lambda matrix: matrix.isna())
     return matrix.reset_index()
 
 

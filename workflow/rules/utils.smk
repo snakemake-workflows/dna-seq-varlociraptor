@@ -57,7 +57,7 @@ rule testcase:
         "logs/varlociraptor/testcase/{group}.{caller}.{locus}.log",
     params:
         obs=lambda w, input: [
-            "{}={}".format(s, f) for s, f in zip(get_group_aliases(w), input.obs)
+            "{}={}".format(s, f) for s, f in zip(get_group_aliases(w.group), input.obs)
         ],
         parent=lambda w, output: os.path.dirname(output[0]),
     threads: workflow.cores

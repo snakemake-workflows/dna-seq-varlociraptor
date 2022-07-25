@@ -70,7 +70,7 @@ rule varlociraptor_call:
         "logs/varlociraptor/call/{group}.{caller}.{scatteritem}.log",
     params:
         obs=lambda w, input: [
-            "{}={}".format(s, f) for s, f in zip(get_group_aliases(w), input.obs)
+            "{}={}".format(s, f) for s, f in zip(get_group_aliases(w.group), input.obs)
         ],
         extra=config["params"]["varlociraptor"]["call"],
         postprocess=">"
