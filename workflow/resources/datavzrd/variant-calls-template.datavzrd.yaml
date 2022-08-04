@@ -22,35 +22,55 @@ __definitions__:
         /(\d+):[gG]\.(\d+)_(\d+)ins([GCTAgcta]+)$/,
         /(\d+):[gG]\.(\d+)_(\d+)ins(\d+)_(\d+)inv$/,
       ];
-      for (let i = 0; i < regex.length; i++) {{
-        const match = row.hgvsg.match(regex[i]);
-        if ( match ) {{
-          switch (i) {{
-            // SNV
-            case 0:
-              descriptor = match.splice(1).join(":");
+      const hgvsgs = row.hgvsg.split(',')
+      const descriptors = []
+      for (let j = 0; j < hgvsgs.length; j++) {{
+        for (let i = 0; i < regex.length; i++) {{
+          const match = hgvsgs[j].match(regex[i]);
+          if ( match ) {{
+            switch (i) {{
+              // SNV
+              case 0:
+                descriptor = match.splice(1).join(":");
+                break;
+              // Deletion
+              case 3:
+                del_size = match[3]-match[2]+1;
+                descriptor = [match[1], match[2], del_size, ""].join(":");
+                break;
+              // Insertion
+              case 4:
+                descriptor = [match[1], match[3], "", match[4]].join(":");
+                break;
+              default:
+                descriptor = null;
+            }}
+            if (descriptor) {{
+              descriptors.push(descriptor)
+              //return `<a href="${{url}}${{descriptor}}" target="_blank">${{hgvsp}}</a>`;
+            }} else {{
+              // End for-loop
               break;
-            // Deletion
-            case 3:
-              del_size = match[3]-match[2]+1;
-              descriptor = [match[1], match[2], del_size, ""].join(":");
-              break;
-            // Insertion
-            case 4:
-              descriptor = [match[1], match[3], "", match[4]].join(":");
-              break;
-            default:
-              descriptor = null;
-          }}
-          if (descriptor) {{
-            return `<a href="${{url}}${{descriptor}}" target="_blank">${{hgvsp}}</a>`;
-          }} else {{
-            // End for-loop
-            break;
+            }}
           }}
         }}
       }}
-      return `${{hgvsp}}`;
+      if ( descriptors.length == 0) {{
+        return `${{hgvsp}}`;
+      }}
+      else if ( descriptors.length == 1) {{
+        return `<a href="${{url}}${{descriptors[0]}}" target="_blank">${{hgvsp}}</a>`;
+      }}
+      else {{
+        dropdown = `<div class="dropdown show">`
+        dropdown += `<a class="btn btn-secondary dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">${{hgvsp}}</a>`
+        dropdown += `<div class="dropdown-menu" aria-labelledby="dropdownMenuLink">`
+        for (let i = 0; i < descriptors.length; i++) {{
+          dropdown +=`<a class="dropdown-item" href="${{url}}${{descriptors[i]}}" target="_blank">${{hgvsp}} (${{descriptors[i]}})</a>`
+        }}
+        dropdown += `</div></div>`
+        return dropdown
+      }}
     }}
     """
 
@@ -126,6 +146,8 @@ views:
                   scale: ordinal
                   color-scheme: paired
                   aux-domain-columns: ?list(params.groups)
+          hgvsg:
+            display-mode: hidden
 
   ?for group in params.groups:
     ?f"{group}-coding":

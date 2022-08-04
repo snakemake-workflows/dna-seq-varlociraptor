@@ -8,6 +8,12 @@ from pathlib import Path
 import pandas as pd
 import numpy as np
 
+def join_group_hgvsgs(df):
+    hgvsgs = ",".join(
+        np.sort(pd.unique(df["hgvsg"].str.split(",").explode()))
+    )
+    df.loc[:, "hgvsg"] = hgvsgs
+    return df.drop_duplicates()
 
 def join_group_consequences(df):
     consequences = ",".join(
@@ -75,7 +81,12 @@ def gene_oncoprint(calls):
 def variant_oncoprint(gene_calls):
     gene_calls = gene_calls[["group", "hgvsp", "hgvsg", "consequence"]]
     gene_calls.loc[:, "exists"] = "X"
-    matrix = gene_calls.set_index(["hgvsp", "hgvsg", "consequence", "group"]).unstack(
+    grouped = (
+        gene_calls.drop_duplicates()
+        .groupby(["hgvsp"])
+        .apply(join_group_hgvsgs)
+    )
+    matrix = grouped.set_index(["hgvsp", "hgvsg", "consequence", "group"]).unstack(
         level="group"
     )
 
@@ -86,7 +97,6 @@ def variant_oncoprint(gene_calls):
         # sort by recurrence
         matrix = sort_by_recurrence(matrix, lambda matrix: matrix.isna())
     return matrix.reset_index()
-
 
 calls = pd.concat(
     [
