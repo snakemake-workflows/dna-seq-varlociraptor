@@ -8,15 +8,25 @@ from pathlib import Path
 import pandas as pd
 import numpy as np
 
+def join_group_hgvsgs(df):
+    hgvsgs = ",".join(
+        np.sort(pd.unique(df["hgvsg"].str.split(",").explode()))
+    )
+    df.loc[:, "hgvsg"] = hgvsgs
+    return df.drop_duplicates()
 
-def join_gene_variants(df):
-    vartypes = ",".join(pd.unique(df["vartype"]))
+def join_group_consequences(df):
     consequences = ",".join(
         np.sort(pd.unique(df["consequence"].str.split(",").explode()))
     )
+    df.loc[:, "consequence"] = consequences
+    return df
+
+
+def join_gene_vartypes(df):
+    vartypes = ",".join(pd.unique(df["vartype"]))
     df = df.iloc[:1]
     df.loc[:, "vartype"] = vartypes
-    df.loc[:, "consequence"] = consequences
     return df
 
 
@@ -48,9 +58,12 @@ def gene_oncoprint(calls):
     calls = calls[["group", "symbol", "vartype", "consequence"]]
     if not calls.empty:
         grouped = (
-            calls.drop_duplicates()
+            calls.drop_duplicates().groupby(["symbol"]).apply(join_group_consequences)
+        )
+        grouped = (
+            grouped.drop_duplicates()
             .groupby(["group", "symbol"])
-            .apply(join_gene_variants)
+            .apply(join_gene_vartypes)
         )
         matrix = grouped.set_index(["symbol", "consequence", "group"]).unstack(
             level="group"
@@ -68,9 +81,13 @@ def gene_oncoprint(calls):
 def variant_oncoprint(gene_calls):
     gene_calls = gene_calls[["group", "hgvsp", "hgvsg", "consequence"]]
     gene_calls.loc[:, "exists"] = "X"
-    matrix = (
-        gene_calls.set_index(["hgvsp", "hgvsg", "consequence", "group"])
-        .unstack(level="group")
+    grouped = (
+        gene_calls.drop_duplicates()
+        .groupby(["hgvsp"])
+        .apply(join_group_hgvsgs)
+    )
+    matrix = grouped.set_index(["hgvsp", "hgvsg", "consequence", "group"]).unstack(
+        level="group"
     )
 
     matrix = add_missing_groups(matrix, snakemake.params.groups, "exists")
@@ -80,7 +97,6 @@ def variant_oncoprint(gene_calls):
         # sort by recurrence
         matrix = sort_by_recurrence(matrix, lambda matrix: matrix.isna())
     return matrix.reset_index()
-
 
 calls = pd.concat(
     [
