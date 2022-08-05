@@ -24,6 +24,7 @@ __definitions__:
       ];
       const hgvsgs = row.hgvsg.split(',')
       const descriptors = []
+      const hgvsgs_matched = []
       for (let j = 0; j < hgvsgs.length; j++) {{
         for (let i = 0; i < regex.length; i++) {{
           const match = hgvsgs[j].match(regex[i]);
@@ -47,11 +48,10 @@ __definitions__:
             }}
             if (descriptor) {{
               descriptors.push(descriptor)
+              hgvsgs_matched.push(hgvsgs[j])
               //return `<a href="${{url}}${{descriptor}}" target="_blank">${{hgvsp}}</a>`;
-            }} else {{
-              // End for-loop
-              break;
             }}
+            break;
           }}
         }}
       }}
@@ -66,7 +66,7 @@ __definitions__:
         dropdown += `<a class="btn btn-secondary dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">${{hgvsp}}</a>`
         dropdown += `<div class="dropdown-menu" aria-labelledby="dropdownMenuLink">`
         for (let i = 0; i < descriptors.length; i++) {{
-          dropdown +=`<a class="dropdown-item" href="${{url}}${{descriptors[i]}}" target="_blank">${{hgvsp}} (${{descriptors[i]}})</a>`
+          dropdown +=`<a class="dropdown-item" href="${{url}}${{descriptors[i]}}" target="_blank">${{hgvsp}} (${{hgvsgs_matched[i]}})</a>`
         }}
         dropdown += `</div></div>`
         return dropdown
