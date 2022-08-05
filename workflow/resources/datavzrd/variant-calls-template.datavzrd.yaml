@@ -49,7 +49,6 @@ __definitions__:
             if (descriptor) {{
               descriptors.push(descriptor)
               hgvsgs_matched.push(hgvsgs[j])
-              //return `<a href="${{url}}${{descriptor}}" target="_blank">${{hgvsp}}</a>`;
             }}
             break;
           }}
