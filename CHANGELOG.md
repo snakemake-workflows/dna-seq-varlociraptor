@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.15.0](https://github.com/snakemake-workflows/dna-seq-varlociraptor/compare/v3.14.1...v3.15.0) (2022-08-05)
+
+
+### Features
+
+* enhance oncoprint report ([#156](https://github.com/snakemake-workflows/dna-seq-varlociraptor/issues/156)) ([c8357fe](https://github.com/snakemake-workflows/dna-seq-varlociraptor/commit/c8357fed4fb11ffb837652dd7187f8e6e3ee8f8c))
+
 ## [3.14.1](https://github.com/snakemake-workflows/dna-seq-varlociraptor/compare/v3.14.0...v3.14.1) (2022-07-25)
 
 
