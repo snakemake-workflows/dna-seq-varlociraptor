@@ -19,7 +19,7 @@ rule split_call_tables:
 rule prepare_oncoprint:
     input:
         calls=get_oncoprint_input,
-        group_annotation=config.get("group_annotation", []),
+        group_annotation=config.get("groups", []),
     output:
         gene_oncoprint="results/tables/oncoprints/{batch}.{event}/gene-oncoprint.tsv",
         variant_oncoprints=directory(

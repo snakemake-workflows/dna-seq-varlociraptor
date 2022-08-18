@@ -61,7 +61,7 @@ properties:
     type: string
   units:
     type: string
-  group_annotation:
+  groups:
     type: string
 
   target_regions:

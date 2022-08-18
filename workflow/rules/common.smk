@@ -37,9 +37,9 @@ validate(samples, schema="../schemas/samples.schema.yaml")
 
 groups = samples["group"].unique()
 
-if "group_annotation" in config:
+if "groups" in config:
     group_annotation = (
-        pd.read_csv(config["group_annotation"], sep="\t", dtype={"group": str})
+        pd.read_csv(config["groups"], sep="\t", dtype={"group": str})
         .set_index("group")
         .sort_index()
     )
