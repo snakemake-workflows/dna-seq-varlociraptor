@@ -18,7 +18,8 @@ rule split_call_tables:
 
 rule prepare_oncoprint:
     input:
-        get_oncoprint_input,
+        calls=get_oncoprint_input,
+        group_annotation=config.get("group_annotation", []),
     output:
         gene_oncoprint="results/tables/oncoprints/{batch}.{event}/gene-oncoprint.tsv",
         variant_oncoprints=directory(
@@ -56,6 +57,7 @@ rule render_datavzrd_config:
         ),
         varsome_url=get_varsome_url(),
         samples=samples,
+        n_group_annotations=len(group_annotation.columns),
     log:
         "logs/datavzrd_render/{batch}.{event}.log",
     template_engine:
