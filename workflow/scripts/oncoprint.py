@@ -132,7 +132,7 @@ def variant_oncoprint(gene_calls, group_annotation):
 calls = pd.concat(
     [
         load_calls(path, sample)
-        for path, sample in zip(snakemake.input, snakemake.params.groups)
+        for path, sample in zip(snakemake.input.calls, snakemake.params.groups)
     ]
 )
 
