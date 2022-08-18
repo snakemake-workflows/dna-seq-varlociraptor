@@ -45,7 +45,7 @@ if "group_annotation" in config:
     )
     group_annotation = group_annotation.loc[groups]
 else:
-    group_annotation = pd.DataFrame({"group": groups})
+    group_annotation = pd.DataFrame({"group": groups}).set_index("group")
 
 units = (
     pd.read_csv(
