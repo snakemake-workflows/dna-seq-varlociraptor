@@ -37,7 +37,7 @@ rule delly:
         extra=config["params"].get("delly", ""),
     threads: lambda _, input: len(input.samples)  # delly parallelizes over the number of samples
     wrapper:
-        "v1.1.0/bio/delly"
+        "v1.10.0/bio/delly"
 
 
 # Delly breakends lead to invalid BCFs after VEP annotation (invalid RLEN). Therefore we exclude them for now.

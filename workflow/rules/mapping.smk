@@ -78,7 +78,7 @@ rule map_consensus_reads:
         "logs/bwa_mem/{sample}.{read_type}.consensus.log",
     threads: 8
     wrapper:
-        "v1.2.0/bio/bwa/mem"
+        "v1.10.0/bio/bwa/mem"
 
 
 rule merge_consensus_reads:

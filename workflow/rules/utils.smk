@@ -19,7 +19,7 @@ rule bcf_to_vcf_gz:
     log:
         "logs/bcf-to-vcf/{prefix}.log",
     wrapper:
-        "v1.2.0/bio/bcftools/view"
+        "v1.10.0/bio/bcftools/view"
 
 
 rule bam_index:
@@ -44,7 +44,7 @@ rule tabix_known_variants:
         get_tabix_params,
     cache: True
     wrapper:
-        "v1.2.0/bio/tabix"
+        "v1.10.0/bio/tabix"
 
 
 rule testcase:
