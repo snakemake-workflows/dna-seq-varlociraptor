@@ -5,7 +5,7 @@ rule freebayes:
         regions="results/regions/{group}.target_regions.filtered.bed",
         # you can have a list of samples here
         samples=lambda w: get_group_bams(w),
-        index=lambda w: get_group_bams(w, bai=True),
+        indexes=lambda w: get_group_bams(w, bai=True),
     output:
         "results/candidate-calls/{group}.freebayes.bcf",
     log:
@@ -19,7 +19,7 @@ rule freebayes:
         ),
     threads: max(workflow.cores - 1, 1)  # use all available cores -1 (because of the pipe) for calling
     wrapper:
-        "v1.2.0/bio/freebayes"
+        "v1.10.0/bio/freebayes"
 
 
 rule delly:
