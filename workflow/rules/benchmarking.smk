@@ -36,7 +36,7 @@ rule chm_namesort:
         "logs/benchmarking/samtools-namesort.log",
     threads: workflow.cores - 1
     wrapper:
-        "v1.2.0/bio/samtools/sort"
+        "v1.10.0/bio/samtools/sort"
 
 
 rule chm_to_fastq:

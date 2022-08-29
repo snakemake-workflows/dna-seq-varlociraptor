@@ -23,7 +23,7 @@ rule genome_faidx:
         "logs/genome-faidx.log",
     cache: True
     wrapper:
-        "v1.2.0/bio/samtools/faidx"
+        "v1.10.0/bio/samtools/faidx"
 
 
 rule genome_dict:

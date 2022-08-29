@@ -92,7 +92,7 @@ rule merge_consensus_reads:
         "logs/samtools_merge/{sample}.log",
     threads: 8
     wrapper:
-        "v1.2.0/bio/samtools/merge"
+        "v1.10.0/bio/samtools/merge"
 
 
 rule sort_consensus_reads:
@@ -104,7 +104,7 @@ rule sort_consensus_reads:
         "logs/samtools_sort/{sample}.log",
     threads: 8
     wrapper:
-        "v1.2.0/bio/samtools/sort"
+        "v1.10.0/bio/samtools/sort"
 
 
 rule recalibrate_base_qualities:
