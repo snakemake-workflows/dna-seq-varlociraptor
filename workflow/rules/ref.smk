@@ -122,7 +122,7 @@ rule bwa_index:
         mem_mb=369000,
     cache: True
     wrapper:
-        "v1.2.0/bio/bwa/index"
+        "v1.10.0/bio/bwa/index"
 
 
 rule get_vep_cache:

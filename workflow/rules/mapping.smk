@@ -12,7 +12,7 @@ rule map_reads:
         sort_order="coordinate",
     threads: 8
     wrapper:
-        "v1.4.0/bio/bwa/mem"
+        "v1.10.0/bio/bwa/mem"
 
 
 rule annotate_umis:
