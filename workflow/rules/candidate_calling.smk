@@ -35,7 +35,7 @@ rule delly:
         "logs/delly/{group}.log",
     params:
         extra=config["params"].get("delly", ""),
-    threads: lambda _, input: len(input.samples)  # delly parallelizes over the number of samples
+    threads: lambda _, input: len(input.alns)  # delly parallelizes over the number of samples
     wrapper:
         "v1.10.0/bio/delly"
 
