@@ -135,7 +135,7 @@ rule get_vep_cache:
     log:
         "logs/vep/cache.log",
     wrapper:
-        "v1.10.0/bio/vep/cache"
+        "v1.12.0/bio/vep/cache"
 
 
 rule get_vep_plugins:
@@ -146,4 +146,4 @@ rule get_vep_plugins:
     log:
         "logs/vep/plugins.log",
     wrapper:
-        "v1.10.0/bio/vep/plugins"
+        "v1.12.0/bio/vep/plugins"
