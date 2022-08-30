@@ -24,7 +24,7 @@ rule samtools_idxstats:
 
 rule samtools_stats:
     input:
-        "results/recal/{sample}.sorted.bam",
+        bam="results/recal/{sample}.sorted.bam",
     output:
         "results/qc/{sample}.bam.stats",
     log:
