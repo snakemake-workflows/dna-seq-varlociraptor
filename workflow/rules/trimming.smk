@@ -32,7 +32,7 @@ rule cutadapt_pe:
     log:
         "logs/cutadapt/{sample}-{unit}.log",
     params:
-        others=config["params"]["cutadapt"],
+        extra=config["params"]["cutadapt"],
         adapters=get_cutadapt_adapters,
     threads: 8
     wrapper:
@@ -48,8 +48,8 @@ rule cutadapt_se:
     log:
         "logs/cutadapt/{sample}-{unit}.se.log",
     params:
-        others=config["params"]["cutadapt"],
-        adapters_r1=get_cutadapt_adapters,
+        extra=config["params"]["cutadapt"],
+        adapters=get_cutadapt_adapters,
     threads: 8
     wrapper:
         "v1.12.0/bio/cutadapt/se"
