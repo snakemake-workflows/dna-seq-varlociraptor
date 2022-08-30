@@ -26,7 +26,7 @@ rule delly:
     input:
         ref="resources/genome.fasta",
         ref_idx="resources/genome.fasta.fai",
-        samples=lambda w: get_group_bams(w),
+        alns=lambda w: get_group_bams(w),
         index=lambda w: get_group_bams(w, bai=True),
         exclude="results/regions/{group}.excluded_regions.bed",
     output:
