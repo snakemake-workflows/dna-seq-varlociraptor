@@ -44,7 +44,7 @@ rule tabix_known_variants:
         get_tabix_params,
     cache: True
     wrapper:
-        "v1.10.0/bio/tabix"
+        "v1.12.0/bio/tabix/index"
 
 
 rule testcase:
