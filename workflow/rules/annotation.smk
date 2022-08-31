@@ -14,7 +14,7 @@ rule annotate_candidate_variants:
     benchmark:
         "benchmarks/vep/{group}.{caller}.{scatteritem}.annotate_candidates.tsv"
     wrapper:
-        "v1.2.0/bio/vep/annotate"
+        "v1.12.0/bio/vep/annotate"
 
 
 rule annotate_variants:
@@ -38,7 +38,7 @@ rule annotate_variants:
         "logs/vep/{group}.{scatteritem}.annotate.log",
     threads: get_vep_threads()
     wrapper:
-        "v1.2.0/bio/vep/annotate"
+        "v1.12.0/bio/vep/annotate"
 
 
 # TODO What about multiple ID Fields?
@@ -88,4 +88,4 @@ rule gather_annotated_calls:
     params:
         extra="-a",
     wrapper:
-        "v1.2.0/bio/bcftools/concat"
+        "v1.10.0/bio/bcftools/concat"
