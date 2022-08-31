@@ -40,7 +40,7 @@ def load_calls(path, group):
 
 
 def load_group_annotation():
-    if "group_annotation" in snakemake.input.keys():
+    if snakemake.input.group_annotation:
         group_annotation = (
             pd.read_csv(
                 snakemake.input.group_annotation, sep="\t", dtype={"group": str}
