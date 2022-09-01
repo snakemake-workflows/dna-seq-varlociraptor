@@ -105,7 +105,7 @@ def gene_oncoprint(calls, group_annotation):
         matrix = attach_group_annotation(matrix, group_annotation)
         return matrix.reset_index()
     else:
-        cols = ["symbol", "consequence"] + snakemake.params.groups
+        cols = ["symbol", "consequence"] + list(snakemake.params.groups)
         return pd.DataFrame({col: [] for col in cols})
 
 
