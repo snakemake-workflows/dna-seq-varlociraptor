@@ -2,7 +2,7 @@ samples: config/samples.tsv
 
 units: config/units.tsv
 
-# Option group annotation table. Uncomment to use.
+# Optional group annotation table. Uncomment to use.
 # In the table, there has to be a column "group",
 # with one entry for each group occurring in the 
 # sample sheet above. Any additional columns may be
