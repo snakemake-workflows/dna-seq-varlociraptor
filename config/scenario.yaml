@@ -5,6 +5,8 @@
 # For example, this can be used to pass arbitrary column values (like the purity below),
 # to the sample definitions.
 # Note that sample names here must correspond to the alias column in the sample sheet.
+# In addition, a variable `group_annotation` is available, which holds the row of the group
+# from the group annotation table (if specified in the config) as a pandas Series.
 
 __definitions__:
   - samples = params.samples.set_index("alias")

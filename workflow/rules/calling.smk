@@ -15,6 +15,7 @@ rule render_scenario:
         "logs/render-scenario/{group}.log",
     params:
         samples=lambda wc: samples[samples["group"] == wc.group],
+        annotation=lambda wc: group_annotation.loc[wc.group],
     conda:
         None
     template_engine:

@@ -61,6 +61,8 @@ properties:
     type: string
   units:
     type: string
+  groups:
+    type: string
 
   target_regions:
     type: string
