@@ -4,7 +4,7 @@ rule get_target_regions:
     case of multiple BED files, these need to be merged.
     """
     input:
-        config["target_regions"]
+        config["target_regions"] if "target_regions" in config else [],
     output:
         "resources/target_regions/target_regions.bed",
     log:
