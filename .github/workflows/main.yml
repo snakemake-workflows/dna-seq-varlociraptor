@@ -65,7 +65,16 @@ jobs:
         stagein: |
           rm -rf .test/results
 
-    - name: Test workflow (local FASTQs, no candidate filtering)
+    - name: Test workflow (local FASTQs, multiple target regions BED files)
+      uses: snakemake/snakemake-github-action@v1
+      with:
+        directory: .test
+        snakefile: workflow/Snakefile
+        args: "--configfile .test/config-target-regions/config_multiple_beds.yaml --use-conda --show-failed-logs -j 10 --conda-cleanup-pkgs cache --conda-frontend mamba"
+        stagein: |
+          rm -rf .test/results
+
+     - name: Test workflow (local FASTQs, no candidate filtering)
       uses: snakemake/snakemake-github-action@v1
       with:
         directory: .test
