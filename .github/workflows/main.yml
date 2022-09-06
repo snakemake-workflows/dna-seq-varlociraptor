@@ -74,7 +74,7 @@ jobs:
         stagein: |
           rm -rf .test/results
 
-     - name: Test workflow (local FASTQs, no candidate filtering)
+    - name: Test workflow (local FASTQs, no candidate filtering)
       uses: snakemake/snakemake-github-action@v1
       with:
         directory: .test
