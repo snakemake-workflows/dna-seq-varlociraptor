@@ -86,7 +86,7 @@ rule filter_group_regions:
 
 rule build_excluded_group_regions:
     input:
-        target_regions="results/regions/{group}.target_regions.filtered.bed",
+        target_regions="results/regions/{group}.expanded_regions.filtered.bed",
         genome_index="resources/genome.fasta.fai",
     output:
         "results/regions/{group}.excluded_regions.bed",
