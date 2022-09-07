@@ -73,6 +73,8 @@ rule filter_group_regions:
         fai="resources/genome.fasta.fai",
     output:
         "results/regions/{group}.{regions_type}_regions.filtered.bed",
+    conda:
+        "../envs/awk_bedtools.yaml"
     params:
         chroms=config["ref"]["n_chromosomes"],
         filter_targets=get_filter_targets,
