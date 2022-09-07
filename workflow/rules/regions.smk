@@ -82,7 +82,7 @@ rule filter_group_regions:
         "logs/regions/{group}.{regions_type}_regions.filtered.log",
     shell:
         "cat {input.regions} {input.predefined} | grep -f <(head -n {params.chroms} {input.fai} | "
-        'awk \'{{print "^"$1"\\t"}}\') {params.filter_targets} '
+        'awk \'{{print "^"$1"\\t"}}\') {params.filter_targets} | sort -k1,1 -k2,2n '
         "> {output} 2> {log}"
 
 
