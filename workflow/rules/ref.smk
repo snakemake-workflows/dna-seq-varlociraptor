@@ -113,7 +113,7 @@ rule remove_iupac_codes:
 
 rule bwa_index:
     input:
-        genome
+        genome,
     output:
         idx=multiext(genome, ".amb", ".ann", ".bwt", ".pac", ".sa"),
     log:

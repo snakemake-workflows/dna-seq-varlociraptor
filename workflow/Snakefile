@@ -49,7 +49,7 @@ rule all:
 
 rule only_alignment:
     input:
-        expand("results/mapped/{sample}.cram", sample=samples["sample_name"])
+        expand("results/mapped/{sample}.cram", sample=samples["sample_name"]),
 
 
 rule benchmark:

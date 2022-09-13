@@ -40,6 +40,7 @@ alignmend_ending = "cram" if use_cram else "bam"
 alignmend_index_ending = "crai" if use_cram else "bai"
 alignmend_ending_index_ending = "cram.crai" if use_cram else "bam.bai"
 
+
 def _group_or_sample(row):
     group = row.get("group", None)
     if pd.isnull(group):
