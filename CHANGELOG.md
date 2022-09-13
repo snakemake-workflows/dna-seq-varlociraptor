@@ -1,5 +1,44 @@
 # Changelog
 
+## [3.16.0](https://github.com/snakemake-workflows/dna-seq-varlociraptor/compare/v3.15.0...v3.16.0) (2022-09-01)
+
+
+### Features
+
+* add group annotation capabilities and corresponding display thereof in oncoprint views ([#158](https://github.com/snakemake-workflows/dna-seq-varlociraptor/issues/158)) ([c8aa3f5](https://github.com/snakemake-workflows/dna-seq-varlociraptor/commit/c8aa3f502f011d25e72aa4e738e67820c85f0dfc))
+
+
+### Bug Fixes
+
+* update conda envs and wrappers (if necessary) to work properly with strict priorities ([#159](https://github.com/snakemake-workflows/dna-seq-varlociraptor/issues/159)) ([a5d7be3](https://github.com/snakemake-workflows/dna-seq-varlociraptor/commit/a5d7be315fff005f1b5f9fb50e7cbd20682d98ca))
+
+## [3.15.0](https://github.com/snakemake-workflows/dna-seq-varlociraptor/compare/v3.14.1...v3.15.0) (2022-08-05)
+
+
+### Features
+
+* enhance oncoprint report ([#156](https://github.com/snakemake-workflows/dna-seq-varlociraptor/issues/156)) ([c8357fe](https://github.com/snakemake-workflows/dna-seq-varlociraptor/commit/c8357fed4fb11ffb837652dd7187f8e6e3ee8f8c))
+
+## [3.14.1](https://github.com/snakemake-workflows/dna-seq-varlociraptor/compare/v3.14.0...v3.14.1) (2022-07-25)
+
+
+### Bug Fixes
+
+* datavzrd related issues ([#152](https://github.com/snakemake-workflows/dna-seq-varlociraptor/issues/152)) ([dfed4e0](https://github.com/snakemake-workflows/dna-seq-varlociraptor/commit/dfed4e03b80a91f9afa62c7f6f870b085762e6fd))
+
+## [3.14.0](https://github.com/snakemake-workflows/dna-seq-varlociraptor/compare/v3.13.1...v3.14.0) (2022-05-20)
+
+
+### Features
+
+* Hide columns in datavzrd report ([#151](https://github.com/snakemake-workflows/dna-seq-varlociraptor/issues/151)) ([7db7b35](https://github.com/snakemake-workflows/dna-seq-varlociraptor/commit/7db7b35efb2e12e7ac492066359e75cefad7aebf))
+* Remove plotdata from datavzrd template ([#149](https://github.com/snakemake-workflows/dna-seq-varlociraptor/issues/149)) ([7d184ff](https://github.com/snakemake-workflows/dna-seq-varlociraptor/commit/7d184ff125bdbe2c442b105332f48d3cc24f8158))
+
+
+### Bug Fixes
+
+* automatically calculate genomic sites covered for tumor mutational burden calculation ([#130](https://github.com/snakemake-workflows/dna-seq-varlociraptor/issues/130)) ([7a26dcc](https://github.com/snakemake-workflows/dna-seq-varlociraptor/commit/7a26dcc2b0324d5cac46d2d8521e67ead0f2211d))
+
 ### [3.13.1](https://github.com/snakemake-workflows/dna-seq-varlociraptor/compare/v3.13.0...v3.13.1) (2022-05-12)
 
 

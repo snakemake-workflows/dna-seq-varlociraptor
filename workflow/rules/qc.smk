@@ -19,18 +19,18 @@ rule samtools_idxstats:
     log:
         "logs/samtools/idxstats/{sample}.log",
     wrapper:
-        "v1.3.2/bio/samtools/idxstats"
+        "v1.10.0/bio/samtools/idxstats"
 
 
 rule samtools_stats:
     input:
-        "results/recal/{sample}.bam",
+        bam="results/recal/{sample}.bam",
     output:
         "results/qc/{sample}.bam.stats",
     log:
         "logs/samtools/stats/{sample}.log",
     wrapper:
-        "v1.3.2/bio/samtools/stats"
+        "v1.10.0/bio/samtools/stats"
 
 
 rule multiqc:

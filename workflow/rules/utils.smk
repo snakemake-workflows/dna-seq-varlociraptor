@@ -19,7 +19,7 @@ rule bcf_to_vcf_gz:
     log:
         "logs/bcf-to-vcf/{prefix}.log",
     wrapper:
-        "v1.2.0/bio/bcftools/view"
+        "v1.10.0/bio/bcftools/view"
 
 
 rule bam_index:
@@ -30,7 +30,7 @@ rule bam_index:
     log:
         "logs/bam-index/{prefix}.log",
     wrapper:
-        "v1.2.0/bio/samtools/index"
+        "v1.10.0/bio/samtools/index"
 
 
 rule tabix_known_variants:
@@ -44,7 +44,7 @@ rule tabix_known_variants:
         get_tabix_params,
     cache: True
     wrapper:
-        "v1.2.0/bio/tabix"
+        "v1.12.0/bio/tabix/index"
 
 
 rule testcase:
@@ -57,7 +57,7 @@ rule testcase:
         "logs/varlociraptor/testcase/{group}.{caller}.{locus}.log",
     params:
         obs=lambda w, input: [
-            "{}={}".format(s, f) for s, f in zip(get_group_aliases(w), input.obs)
+            "{}={}".format(s, f) for s, f in zip(get_group_aliases(w.group), input.obs)
         ],
         parent=lambda w, output: os.path.dirname(output[0]),
     threads: workflow.cores

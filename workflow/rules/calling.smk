@@ -15,6 +15,7 @@ rule render_scenario:
         "logs/render-scenario/{group}.log",
     params:
         samples=lambda wc: samples[samples["group"] == wc.group],
+        annotation=lambda wc: group_annotation.loc[wc.group],
     conda:
         None
     template_engine:
@@ -70,7 +71,7 @@ rule varlociraptor_call:
         "logs/varlociraptor/call/{group}.{caller}.{scatteritem}.log",
     params:
         obs=lambda w, input: [
-            "{}={}".format(s, f) for s, f in zip(get_group_aliases(w), input.obs)
+            "{}={}".format(s, f) for s, f in zip(get_group_aliases(w.group), input.obs)
         ],
         extra=config["params"]["varlociraptor"]["call"],
         postprocess=">"
@@ -112,4 +113,4 @@ rule bcftools_concat:
     params:
         extra="-a",  # TODO Check this
     wrapper:
-        "v1.2.0/bio/bcftools/concat"
+        "v1.10.0/bio/bcftools/concat"

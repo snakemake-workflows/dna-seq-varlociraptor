@@ -11,7 +11,7 @@ __definitions__:
     function(value, row) {{
       let hgvsp_regex = /^(.+?):(.+)$/;
       // discard protein id
-      let hgvsp = value.match(hgvsp_regex)[2];
+      let hgvsp = value.match(hgvsp_regex)[2].replace('%3D', '=');
 
       const url = "{params.varsome_url}";
       const regex = [
@@ -22,35 +22,54 @@ __definitions__:
         /(\d+):[gG]\.(\d+)_(\d+)ins([GCTAgcta]+)$/,
         /(\d+):[gG]\.(\d+)_(\d+)ins(\d+)_(\d+)inv$/,
       ];
-      for (let i = 0; i < regex.length; i++) {{
-        const match = row.hgvsg.match(regex[i]);
-        if ( match ) {{
-          switch (i) {{
-            // SNV
-            case 0:
-              descriptor = match.splice(1).join(":");
-              break;
-            // Deletion
-            case 3:
-              del_size = match[3]-match[2]+1;
-              descriptor = [match[1], match[2], del_size, ""].join(":");
-              break;
-            // Insertion
-            case 4:
-              descriptor = [match[1], match[3], "", match[4]].join(":");
-              break;
-            default:
-              descriptor = null;
-          }}
-          if (descriptor) {{
-            return `<a href="${{url}}${{descriptor}}" target="_blank">${{hgvsp}}</a>`;
-          }} else {{
-            // End for-loop
+      const hgvsgs = row.hgvsg.split(',')
+      const descriptors = []
+      const hgvsgs_matched = []
+      for (let j = 0; j < hgvsgs.length; j++) {{
+        for (let i = 0; i < regex.length; i++) {{
+          const match = hgvsgs[j].match(regex[i]);
+          if ( match ) {{
+            switch (i) {{
+              // SNV
+              case 0:
+                descriptor = match.splice(1).join(":");
+                break;
+              // Deletion
+              case 3:
+                del_size = match[3]-match[2]+1;
+                descriptor = [match[1], match[2], del_size, ""].join(":");
+                break;
+              // Insertion
+              case 4:
+                descriptor = [match[1], match[3], "", match[4]].join(":");
+                break;
+              default:
+                descriptor = null;
+            }}
+            if (descriptor) {{
+              descriptors.push(descriptor)
+              hgvsgs_matched.push(hgvsgs[j])
+            }}
             break;
           }}
         }}
       }}
-      return `${{hgvsp}}`;
+      if ( descriptors.length == 0) {{
+        return `${{hgvsp}}`;
+      }}
+      else if ( descriptors.length == 1) {{
+        return `<a href="${{url}}${{descriptors[0]}}" target="_blank">${{hgvsp}}</a>`;
+      }}
+      else {{
+        dropdown = `<div class="dropdown show">`
+        dropdown += `<a class="btn btn-secondary dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">${{hgvsp}}</a>`
+        dropdown += `<div class="dropdown-menu" aria-labelledby="dropdownMenuLink">`
+        for (let i = 0; i < descriptors.length; i++) {{
+          dropdown +=`<a class="dropdown-item" href="${{url}}${{descriptors[i]}}" target="_blank">${{hgvsp}} (${{hgvsgs_matched[i]}})</a>`
+        }}
+        dropdown += `</div></div>`
+        return dropdown
+      }}
     }}
     """
 
@@ -59,6 +78,7 @@ datasets:
     gene-oncoprint:
       path: ?params.gene_oncoprint
       separator: "\t"
+      header-rows: ?params.n_group_annotations + 1
       links:
         gene details:
           column: symbol
@@ -67,6 +87,7 @@ datasets:
       ?f"variant-oncoprint-{gene}":
         path: ?path
         separator: "\t"
+        header-rows: ?params.n_group_annotations + 1
         links:
           ?for group in params.groups:
             ?group:
@@ -82,22 +103,6 @@ datasets:
     ?f"{group}-noncoding":
       path: ?path
       separator: "\t"
-  ?for group, path in zip(params.groups, params.coding_plotdata):
-    ?f"{group}-coding-plotdata":
-      path: ?path
-      separator: "\t"
-      links:
-        variant-link:
-          column: variant
-          table-row: ?f"{group}-coding/hgvsp"
-  ?for group, path in zip(params.groups, params.noncoding_plotdata):
-    ?f"{group}-noncoding-plotdata":
-      path: ?path
-      separator: "\t"
-      links:
-        variant-link:
-          column: variant
-          table-row: ?f"{group}-noncoding/hgvsg"
 
 views:
   ?if params.gene_oncoprint:
@@ -140,12 +145,10 @@ views:
               plot:
                 heatmap:
                   scale: ordinal
-                  domain:
-                    - 0
-                    - 1
-                  range:
-                    - white
-                    - "#a6cee3"
+                  color-scheme: paired
+                  aux-domain-columns: ?list(params.groups)
+          hgvsg:
+            display-mode: hidden
 
   ?for group in params.groups:
     ?f"{group}-coding":
@@ -158,7 +161,7 @@ views:
           hgvsp:
             custom: ?varsome_link
         vartype:
-          display-mode: detail
+          display-mode: hidden
         impact:
           plot:
             heatmap:
@@ -209,14 +212,14 @@ views:
                 - white
                 - "#1f77b4"
         gene:
-          display-mode: detail
+          display-mode: hidden
         feature:
-          display-mode: detail
+          display-mode: hidden
         hgvsg:
           display-mode: detail
 
-        ?for sample in ["normal", "tumor"]:
-          '?f"{sample}: observations"':
+        ?for alias in params.samples.loc[params.samples["group"] == group, "alias"]:
+          '?f"{alias}: observations"':
             custom-plot:
               data: ?read_file(params.data_observations)
               spec: ?read_file(params.spec_observations)
@@ -228,6 +231,7 @@ views:
       dataset: ?f"{group}-noncoding"
       render-table:
         symbol:
+          optional: true
           link-to-url: https://www.ensembl.org/Homo_sapiens/Transcript/Summary?t={feature}
         consequence:
           plot:
@@ -235,7 +239,7 @@ views:
               color-scheme: category20
               scale: ordinal
         vartype:
-          display-mode: detail
+          display-mode: hidden
         impact:
           plot:
             heatmap:
@@ -250,17 +254,39 @@ views:
                 - "#ec5300"
                 - "#ec9b00"
                 - "#ecca00"
+        "regex('.+: allele frequency')":
+          plot: 
+            ticks:
+              scale: "linear"
+              domain: [0.0, 1.0]
+              aux-domain-columns:
+                - "regex('.+: allele frequency')"
+        "regex('.+: read depth')":
+          plot: 
+            ticks:
+              scale: "linear"
+              aux-domain-columns:
+                - "regex('.+: read depth')"
+        "regex('prob: .+')":
+          plot:
+            heatmap:
+              scale: linear
+              domain: [0.0, 1.0]
+              range:
+                - white
+                - "#1f77b4"
+        id:
+          display-mode: hidden
+        gene:
+          display-mode: hidden
+        feature:
+          display-mode: hidden
+        hgvsg:
+          display-mode: detail
 
-        ?for sample in ["normal", "tumor"]:
-          '?f"{sample}: observations"':
+        ?for alias in params.samples.loc[params.samples["group"] == group, "alias"]:
+          '?f"{alias}: observations"':
             custom-plot:
               data: ?read_file(params.data_observations)
               spec: ?read_file(params.spec_observations)
             display-mode: detail
-
-    ?for group, plot_spec in zip(params.groups, params.plot_spec):
-      ?for impact in ["coding", "noncoding"]:
-        ?f"{group}-{impact}-plot":
-          dataset: ?f"{group}-{impact}-plotdata"
-          render-plot:
-            spec-path: ?plot_spec

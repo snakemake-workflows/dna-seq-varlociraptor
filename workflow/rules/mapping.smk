@@ -12,7 +12,7 @@ rule map_reads:
         sort_order="coordinate",
     threads: 8
     wrapper:
-        "v1.4.0/bio/bwa/mem"
+        "v1.10.0/bio/bwa/mem"
 
 
 rule annotate_umis:
@@ -78,7 +78,7 @@ rule map_consensus_reads:
         "logs/bwa_mem/{sample}.{read_type}.consensus.log",
     threads: 8
     wrapper:
-        "v1.2.0/bio/bwa/mem"
+        "v1.10.0/bio/bwa/mem"
 
 
 rule merge_consensus_reads:
@@ -92,7 +92,7 @@ rule merge_consensus_reads:
         "logs/samtools_merge/{sample}.log",
     threads: 8
     wrapper:
-        "v1.2.0/bio/samtools/merge"
+        "v1.10.0/bio/samtools/merge"
 
 
 rule sort_consensus_reads:
@@ -104,7 +104,7 @@ rule sort_consensus_reads:
         "logs/samtools_sort/{sample}.log",
     threads: 8
     wrapper:
-        "v1.2.0/bio/samtools/sort"
+        "v1.10.0/bio/samtools/sort"
 
 
 rule recalibrate_base_qualities:

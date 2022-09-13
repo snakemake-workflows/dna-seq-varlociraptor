@@ -12,10 +12,10 @@ rule build_sample_regions:
         extra="--no-per-base",
         quantize="1:",
     wrapper:
-        "v1.2.0/bio/mosdepth"
+        "v1.12.0/bio/mosdepth"
 
 
-rule merge_group_regions:
+rule merge_target_group_regions:
     input:
         lambda wc: expand(
             "results/regions/{{group}}/{sample}.quantized.bed.gz",
@@ -31,18 +31,34 @@ rule merge_group_regions:
         "zcat {input} | sort -k1,1 -k2,2n - | mergeBed -i - -d 15000 > {output} 2> {log}"
 
 
+rule merge_covered_group_regions:
+    input:
+        lambda wc: expand(
+            "results/regions/{{group}}/{sample}.quantized.bed.gz",
+            sample=get_group_samples(wc.group),
+        ),
+    output:
+        "results/regions/{group}.covered_regions.bed",
+    log:
+        "logs/regions/{group}_covered_regions.log",
+    conda:
+        "../envs/bedtools.yaml"
+    shell:
+        "zcat {input} | sort -k1,1 -k2,2n - | mergeBed -i - > {output} 2> {log}"
+
+
 rule filter_group_regions:
     input:
-        regions="results/regions/{group}.target_regions.bed",
+        regions="results/regions/{group}.{regions_type}_regions.bed",
         predefined=config["targets_bed"] if "targets_bed" in config else [],
         fai=genome_fai,
     output:
-        "results/regions/{group}.target_regions.filtered.bed",
+        "results/regions/{group}.{regions_type}_regions.filtered.bed",
     params:
         chroms=config["ref"]["n_chromosomes"],
         filter_targets=get_filter_targets,
     log:
-        "logs/regions/{group}.target_regions.filtered.log",
+        "logs/regions/{group}.{regions_type}_regions.filtered.log",
     shell:
         "cat {input.regions} {input.predefined} | grep -f <(head -n {params.chroms} {input.fai} | "
         'awk \'{{print "^"$1"\\t"}}\') {params.filter_targets} '

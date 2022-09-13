@@ -23,7 +23,7 @@ rule genome_faidx:
         "logs/genome-faidx.log",
     cache: True
     wrapper:
-        "v1.2.0/bio/samtools/faidx"
+        "v1.10.0/bio/samtools/faidx"
 
 
 rule genome_dict:
@@ -56,7 +56,45 @@ rule get_known_variants:
         chromosome=config["ref"].get("chromosome"),
     cache: True
     wrapper:
-        "v1.2.0/bio/reference/ensembl-variation"
+        "v1.12.0/bio/reference/ensembl-variation"
+
+
+rule get_annotation_gz:
+    output:
+        "resources/annotation.gtf.gz",
+    params:
+        species=config["ref"]["species"],
+        release=config["ref"]["release"],
+        build=config["ref"]["build"],
+        flavor="",  # optional, e.g. chr_patch_hapl_scaff, see Ensembl FTP.
+    log:
+        "logs/get_annotation.log",
+    cache: True  # save space and time with between workflow caching (see docs)
+    wrapper:
+        "v1.5.0/bio/reference/ensembl-annotation"
+
+
+rule determine_coding_regions:
+    input:
+        "resources/annotation.gtf.gz",
+    output:
+        "resources/coding_regions.bed.gz",
+    log:
+        "logs/determine_coding_regions.log",
+    cache: True  # save space and time with between workflow caching (see docs)
+    conda:
+        "../envs/awk.yaml"
+    shell:
+        # filter for `exon` entries, but unclear how to exclude pseudogene exons...
+        """
+        ( zcat {input} | \\
+          awk 'BEGIN {{ IFS = "\\t"}} {{ if ($3 == "exon") {{ print $0 }} }}' | \\
+          grep 'transcript_biotype "protein_coding"' | \\
+          grep 'gene_biotype "protein_coding"' | \\
+          awk 'BEGIN {{ IFS = "\\t"; OFS = "\\t"}}  {{ print $1,$4-1,$5 }}' | \\
+          gzip > {output} \\
+        ) 2> {log}
+        """
 
 
 rule remove_iupac_codes:
@@ -84,7 +122,7 @@ rule bwa_index:
         mem_mb=369000,
     cache: True
     wrapper:
-        "v1.2.0/bio/bwa/index"
+        "v1.10.0/bio/bwa/index"
 
 
 rule get_vep_cache:
@@ -97,7 +135,7 @@ rule get_vep_cache:
     log:
         "logs/vep/cache.log",
     wrapper:
-        "v1.2.0/bio/vep/cache"
+        "v1.12.0/bio/vep/cache"
 
 
 rule get_vep_plugins:
@@ -108,4 +146,4 @@ rule get_vep_plugins:
     log:
         "logs/vep/plugins.log",
     wrapper:
-        "v1.2.0/bio/vep/plugins"
+        "v1.12.0/bio/vep/plugins"

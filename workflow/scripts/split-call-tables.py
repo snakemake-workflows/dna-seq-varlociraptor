@@ -15,7 +15,12 @@ PROB_EPSILON = 0.01  # columns with all probabilities below will be dropped
 def write(df, path):
     df = df.drop(["canonical"], axis="columns", errors="ignore")
     if not df.empty:
-        df = df.dropna(how="all", axis="columns")
+        remaining_columns = df.dropna(how="all", axis="columns").columns.tolist()
+        if path == snakemake.output.coding:
+            # ensure that these columns are kept, even if they contain only NAs in a coding setting
+            remaining_columns.extend(["revel", "hgvsp", "symbol"])
+            remaining_columns = [ col for col in df.columns if col in remaining_columns ]
+        df = df[remaining_columns]
     df.to_csv(path, index=False, sep="\t")
 
 
@@ -41,14 +46,6 @@ def drop_low_prob_cols(df):
         df,
         df.columns[df.columns.str.startswith("prob: ")],
         lambda probs: probs <= PROB_EPSILON,
-    )
-
-
-def drop_zero_vaf_cols(df):
-    return drop_cols_by_predicate(
-        df,
-        df.columns[df.columns.str.endswith(": allele frequency")],
-        lambda vafs: vafs == 0.0,
     )
 
 
@@ -82,19 +79,10 @@ def get_vartype(rec):
         return "snv"
     elif len(alt_allele) == len(ref_allele):
         return "mnv"
+    elif len(alt_allele) > 1 and len(ref_allele) > 1:
+        return "replacement"
     else:
         return "breakend"
-
-
-def plot_data(df):
-    samples = get_samples(df)
-    vafcols = list(get_vaf_columns(df))
-    varcol = "hgvsp"
-    if pd.isna(df["hgvsp"]).all():
-        varcol = "hgvsg"
-    df = df[vafcols + [varcol]]
-    df.columns = [*samples, "variant"]
-    return df
 
 
 def order_impact(df):
@@ -105,6 +93,7 @@ def order_impact(df):
 def sort_calls(df):
     df.sort_values(snakemake.params.sorting, ascending=False, inplace=True)
 
+
 def reorder_prob_cols(df):
     prob_df = df.filter(regex="^prob: ")
     if not prob_df.empty:
@@ -114,35 +103,16 @@ def reorder_prob_cols(df):
         start_index = min(indexes)
         updated_columns = df.columns.drop(labels=ordered_columns)
         for i, col in enumerate(ordered_columns):
-            updated_columns = updated_columns.insert(start_index+i, col)
+            updated_columns = updated_columns.insert(start_index + i, col)
         df = df.reindex(columns=updated_columns)
     return df
 
+
 def cleanup_dataframe(df):
     df = drop_low_prob_cols(df)
-    df = drop_zero_vaf_cols(df)
     df = reorder_prob_cols(df)
     df = format_floats(df)
     return df
-
-def plot_spec(samples):
-    plot_spec = {
-        "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
-        "description": "Drag the sliders to highlight points.",
-        "transform": [{"fold": samples, "as": ["sample", "vaf"]}],
-        "mark": "rect",
-        "encoding": {
-            "x": {"field": "sample", "type": "ordinal"},
-            "color": {
-                "field": "vaf",
-                "type": "quantitative",
-                "scale": {"domain": [0, 1]},
-            },
-            "y": {"field": "variant"},
-            "href": {"field": "variant-link", "type": "nominal"},
-        },
-    }
-    return plot_spec
 
 
 calls = pd.read_csv(snakemake.input[0], sep="\t")
@@ -153,6 +123,8 @@ calls["clinical significance"] = (
     .apply(", ".join)
     .replace("", np.nan)
 )
+
+
 if not calls.empty:
     # these below only work on non empty dataframes
     calls["vartype"] = calls.apply(get_vartype, axis="columns")
@@ -160,6 +132,7 @@ if not calls.empty:
     sort_calls(calls)
 else:
     calls["vartype"] = []
+
 
 calls.set_index("gene", inplace=True, drop=False)
 samples = get_samples(calls)
@@ -193,12 +166,5 @@ write(
     coding_calls,
     snakemake.output.coding,
 )
-
-
-write(plot_data(coding_calls), snakemake.output.coding_plot_data)
-write(plot_data(noncoding_calls), snakemake.output.noncoding_plot_data)
-
-with open(snakemake.output.plot_spec, "w") as out:
-    json.dump(plot_spec(samples), out)
 
 # TODO add possibility to also see non-canonical transcripts (low priority, once everything else works).
