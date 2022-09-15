@@ -1,7 +1,7 @@
 rule freebayes:
     input:
-        ref="resources/genome.fasta",
-        ref_idx="resources/genome.fasta.fai",
+        ref=genome,
+        ref_idx=genome_fai,
         regions="results/regions/{group}.target_regions.filtered.bed",
         # you can have a list of samples here
         samples=lambda w: get_group_bams(w),
@@ -24,8 +24,8 @@ rule freebayes:
 
 rule delly:
     input:
-        ref="resources/genome.fasta",
-        ref_idx="resources/genome.fasta.fai",
+        ref=genome,
+        ref_idx=genome_fai,
         alns=lambda w: get_group_bams(w),
         index=lambda w: get_group_bams(w, bai=True),
         exclude="results/regions/{group}.excluded_regions.bed",
