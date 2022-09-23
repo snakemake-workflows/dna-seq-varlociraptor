@@ -57,7 +57,7 @@ rule render_datavzrd_config:
         ),
         varsome_url=get_varsome_url(),
         samples=samples,
-        n_group_annotations=len(group_annotation.columns),
+        group_annotations=group_annotation,
     log:
         "logs/datavzrd_render/{batch}.{event}.log",
     template_engine:
