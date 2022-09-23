@@ -78,7 +78,7 @@ datasets:
     gene-oncoprint:
       path: ?params.gene_oncoprint
       separator: "\t"
-      header-rows: ?params.n_group_annotations + 1
+      headers: ?params.n_group_annotations + 1
       links:
         gene details:
           column: symbol
@@ -87,7 +87,7 @@ datasets:
       ?f"variant-oncoprint-{gene}":
         path: ?path
         separator: "\t"
-        header-rows: ?params.n_group_annotations + 1
+        headers: ?params.n_group_annotations + 1
         links:
           ?for group in params.groups:
             ?group:
