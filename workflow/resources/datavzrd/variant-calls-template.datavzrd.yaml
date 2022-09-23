@@ -78,7 +78,7 @@ datasets:
     gene-oncoprint:
       path: ?params.gene_oncoprint
       separator: "\t"
-      headers: ?params.n_group_annotations + 1
+      headers: ?len(params.group_annotations.columns) + 1
       links:
         gene details:
           column: symbol
