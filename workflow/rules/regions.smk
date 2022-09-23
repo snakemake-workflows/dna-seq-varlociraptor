@@ -1,3 +1,20 @@
+rule get_target_regions:
+    """
+    Targets can be defined in one or multiple BED files. In the
+    case of multiple BED files, these need to be merged.
+    """
+    input:
+        config.get("target_regions", []),
+    output:
+        "resources/target_regions/target_regions.bed",
+    log:
+        "logs/regions/target_regions.log",
+    conda:
+        "../envs/bedtools.yaml"
+    shell:
+        "cat {input} | sort -k1,1 -k2,2n - | mergeBed -i - > {output} 2> {log}"
+
+
 rule build_sample_regions:
     input:
         bam="results/recal/{sample}.bam",
@@ -15,16 +32,16 @@ rule build_sample_regions:
         "v1.12.0/bio/mosdepth"
 
 
-rule merge_target_group_regions:
+rule merge_expanded_group_regions:
     input:
         lambda wc: expand(
             "results/regions/{{group}}/{sample}.quantized.bed.gz",
             sample=get_group_samples(wc.group),
         ),
     output:
-        "results/regions/{group}.target_regions.bed",
+        "results/regions/{group}.expanded_regions.bed",
     log:
-        "logs/regions/{group}_target_regions.log",
+        "logs/regions/{group}_expanded_regions.log",
     conda:
         "../envs/bedtools.yaml"
     shell:
@@ -50,10 +67,14 @@ rule merge_covered_group_regions:
 rule filter_group_regions:
     input:
         regions="results/regions/{group}.{regions_type}_regions.bed",
-        predefined=config["targets_bed"] if "targets_bed" in config else [],
+        predefined="resources/target_regions/target_regions.bed"
+        if "target_regions" in config
+        else [],
         fai=genome_fai,
     output:
         "results/regions/{group}.{regions_type}_regions.filtered.bed",
+    conda:
+        "../envs/awk_bedtools.yaml"
     params:
         chroms=config["ref"]["n_chromosomes"],
         filter_targets=get_filter_targets,
@@ -61,13 +82,13 @@ rule filter_group_regions:
         "logs/regions/{group}.{regions_type}_regions.filtered.log",
     shell:
         "cat {input.regions} {input.predefined} | grep -f <(head -n {params.chroms} {input.fai} | "
-        'awk \'{{print "^"$1"\\t"}}\') {params.filter_targets} '
+        'awk \'{{print "^"$1"\\t"}}\') {params.filter_targets} | sort -k1,1 -k2,2n '
         "> {output} 2> {log}"
 
 
 rule build_excluded_group_regions:
     input:
-        target_regions="results/regions/{group}.target_regions.filtered.bed",
+        target_regions="results/regions/{group}.expanded_regions.filtered.bed",
         genome_index=genome_fai,
     output:
         "results/regions/{group}.excluded_regions.bed",

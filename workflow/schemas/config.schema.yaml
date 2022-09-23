@@ -65,7 +65,10 @@ properties:
     type: string
 
   target_regions:
-    type: string
+    anyOf:
+      - type: string
+      - type: "null"
+      - type: array
 
   ref:
     type: object
