@@ -113,7 +113,7 @@ views:
       dataset: gene-oncoprint
       render-table:
         headers:
-          ?for i, annotation in enumerate(group_annotations.columns.values):
+          ?for i, annotation in enumerate(params.group_annotations.columns.values):
             ?i + 1:
               label: ?annotation
               plot:
