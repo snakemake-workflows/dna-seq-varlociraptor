@@ -47,6 +47,11 @@ rule all:
         get_final_output,
 
 
+rule only_alignment:
+    input:
+        expand("results/mapped/{sample}.cram", sample=samples["sample_name"]),
+
+
 rule benchmark:
     input:
         expand(

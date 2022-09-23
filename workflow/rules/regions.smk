@@ -17,8 +17,8 @@ rule get_target_regions:
 
 rule build_sample_regions:
     input:
-        bam="results/recal/{sample}.sorted.bam",
-        bai="results/recal/{sample}.sorted.bai",
+        bam="results/recal/{sample}.bam",
+        bai="results/recal/{sample}.bai",
     output:
         "results/regions/{group}/{sample}.mosdepth.global.dist.txt",
         "results/regions/{group}/{sample}.quantized.bed.gz",
@@ -70,7 +70,7 @@ rule filter_group_regions:
         predefined="resources/target_regions/target_regions.bed"
         if "target_regions" in config
         else [],
-        fai="resources/genome.fasta.fai",
+        fai=genome_fai,
     output:
         "results/regions/{group}.{regions_type}_regions.filtered.bed",
     conda:
@@ -89,7 +89,7 @@ rule filter_group_regions:
 rule build_excluded_group_regions:
     input:
         target_regions="results/regions/{group}.expanded_regions.filtered.bed",
-        genome_index="resources/genome.fasta.fai",
+        genome_index=genome_fai,
     output:
         "results/regions/{group}.excluded_regions.bed",
     params:

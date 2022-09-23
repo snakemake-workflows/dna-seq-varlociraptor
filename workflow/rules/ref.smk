@@ -1,6 +1,6 @@
 rule get_genome:
     output:
-        "resources/genome.fasta",
+        genome,
     log:
         "logs/get-genome.log",
     params:
@@ -16,9 +16,9 @@ rule get_genome:
 
 rule genome_faidx:
     input:
-        "resources/genome.fasta",
+        genome,
     output:
-        "resources/genome.fasta.fai",
+        genome_fai,
     log:
         "logs/genome-faidx.log",
     cache: True
@@ -28,9 +28,9 @@ rule genome_faidx:
 
 rule genome_dict:
     input:
-        "resources/genome.fasta",
+        genome,
     output:
-        "resources/genome.dict",
+        genome_dict,
     log:
         "logs/samtools/create_dict.log",
     conda:
@@ -43,7 +43,7 @@ rule genome_dict:
 rule get_known_variants:
     input:
         # use fai to annotate contig lengths for GATK BQSR
-        fai="resources/genome.fasta.fai",
+        fai=genome_fai,
     output:
         vcf="resources/variation.vcf.gz",
     log:
@@ -113,9 +113,9 @@ rule remove_iupac_codes:
 
 rule bwa_index:
     input:
-        "resources/genome.fasta",
+        genome,
     output:
-        idx=multiext("resources/genome.fasta", ".amb", ".ann", ".bwt", ".pac", ".sa"),
+        idx=multiext(genome, ".amb", ".ann", ".bwt", ".pac", ".sa"),
     log:
         "logs/bwa_index.log",
     resources:
