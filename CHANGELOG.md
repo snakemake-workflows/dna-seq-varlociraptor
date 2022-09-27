@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.17.1](https://github.com/snakemake-workflows/dna-seq-varlociraptor/compare/v3.17.0...v3.17.1) (2022-09-27)
+
+
+### Bug Fixes
+
+* use latest bcftools concat wrapper which fixes a regression that caused it to just pass on the first given bcf. This was leading to missing a **lot** of calls! Make sure to rerun with the following: `-R merge_calls gather_annotated_calls gather_benchmark_calls bcftools_concat gather_calls` if those rules were executed with release 3.16 or 3.17. ([56be4e1](https://github.com/snakemake-workflows/dna-seq-varlociraptor/commit/56be4e12936fa231c37094b2e1daba52dc7780cd))
+
 ## [3.17.0](https://github.com/snakemake-workflows/dna-seq-varlociraptor/compare/v3.16.0...v3.17.0) (2022-09-23)
 
 
