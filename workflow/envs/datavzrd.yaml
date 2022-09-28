@@ -1,4 +1,4 @@
 channels:
   - conda-forge
 dependencies:
-  - datavzrd =2.1
+  - datavzrd =2.2
