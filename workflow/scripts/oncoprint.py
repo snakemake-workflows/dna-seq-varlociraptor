@@ -77,7 +77,7 @@ def attach_group_annotation(matrix, group_annotation):
     index_cols = matrix.index.names
     return pd.concat(
         [group_annotation.reset_index(drop=True), matrix.reset_index()]
-    ).set_index(index_cols)
+    ).set_index(index_cols).reset_index()
 
 
 def gene_oncoprint(calls, group_annotation):
@@ -100,11 +100,11 @@ def gene_oncoprint(calls, group_annotation):
             # sort by recurrence
             matrix = sort_by_recurrence(matrix, lambda matrix: matrix.isna())
 
-        matrix = attach_group_annotation(matrix, group_annotation)
-        return matrix.reset_index()
+        #matrix = attach_group_annotation(matrix, group_annotation)
+        return matrix
     else:
         cols = ["symbol", "consequence"] + list(snakemake.params.groups)
-        return pd.DataFrame({col: [] for col in cols})
+        return pd.DataFrame({col: [] for col in cols}).set_index(list(snakemake.params.groups))
 
 
 def variant_oncoprint(gene_calls, group_annotation):
@@ -124,7 +124,7 @@ def variant_oncoprint(gene_calls, group_annotation):
 
     matrix = attach_group_annotation(matrix, group_annotation)
 
-    return matrix.reset_index()
+    return matrix
 
 
 calls = pd.concat(
@@ -135,8 +135,10 @@ calls = pd.concat(
 )
 
 group_annotation = load_group_annotation()
-
-gene_oncoprint(calls, group_annotation).to_csv(
+gene_oncoprint = gene_oncoprint(calls, group_annotation)
+gene_oncoprint_main = attach_group_annotation(gene_oncoprint, group_annotation)
+print(gene_oncoprint_main)
+gene_oncoprint.to_csv(
     snakemake.output.gene_oncoprint, sep="\t", index=False
 )
 
