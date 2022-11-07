@@ -8,6 +8,9 @@ from pathlib import Path
 import pandas as pd
 import numpy as np
 
+from sklearn.feature_selection import chi2
+from statsmodels.stats.multitest import fdrcorrection
+
 
 def join_group_hgvsgs(df):
     hgvsgs = ",".join(np.sort(pd.unique(df["hgvsg"].str.split(",").explode())))
@@ -80,7 +83,7 @@ def attach_group_annotation(matrix, group_annotation):
     ).set_index(index_cols).reset_index()
 
 
-def gene_oncoprint(calls, group_annotation):
+def gene_oncoprint(calls):
     calls = calls[["group", "symbol", "vartype", "consequence"]]
     if not calls.empty:
         grouped = (
@@ -100,7 +103,6 @@ def gene_oncoprint(calls, group_annotation):
             # sort by recurrence
             matrix = sort_by_recurrence(matrix, lambda matrix: matrix.isna())
 
-        #matrix = attach_group_annotation(matrix, group_annotation)
         return matrix
     else:
         cols = ["symbol", "consequence"] + list(snakemake.params.groups)
@@ -126,6 +128,57 @@ def variant_oncoprint(gene_calls, group_annotation):
 
     return matrix
 
+def store(data, output, labels_df, label_idx=None):
+    _labels_df = labels_df
+    if label_idx is not None:
+        _labels_df = labels_df.iloc[[label_idx]]
+
+    # add labels
+    index_cols = data.index.names
+    cols = data.columns
+    data = pd.concat([_labels_df, data.reset_index()]).set_index(index_cols)
+    # restore column order
+    data = data[cols]
+
+    data.to_csv(output, sep="\t")
+
+def sort_oncoprint_labels(data):
+    labels_df = pd.read_csv(snakemake.input.group_annotation, index_col="group", sep="\t").T
+    labels=labels_df.index
+
+    for label_idx, label in enumerate(labels):
+        feature_matrix = data.reset_index(drop=True).T.copy()
+        feature_matrix[~pd.isna(feature_matrix)] = True
+        feature_matrix[pd.isna(feature_matrix)] = False
+
+
+        # target vector: label values, converted into factors
+        target_vector = labels_df.loc[label]
+        # ignore any NA in the target vector and correspondingly remove the rows in the feature matrix
+        not_na_target_vector = target_vector[~pd.isna(target_vector)]
+        feature_matrix = feature_matrix.loc[not_na_target_vector.index]
+
+        # calculate mutual information for 100 times and take the mean for each feature
+        _, pvals = chi2(feature_matrix, not_na_target_vector)
+        sorted_idx = np.argsort(pvals)
+
+        _, fdr = fdrcorrection(pvals)
+
+        # clone data
+        sorted_data = data.copy(deep=True)
+
+        # sort by label
+        sorted_target_vector = target_vector.sort_values()
+        sorted_data = sorted_data[sorted_target_vector.index]
+
+        # add mutual information
+        sorted_data.insert(0, "FDR dependency", np.around(fdr, 3))
+        sorted_data.insert(0, "p-value dependency", np.around(pvals, 3))
+
+        sorted_data = sorted_data.iloc[sorted_idx]
+
+        outpath = os.path.join(snakemake.output.gene_oncoprint_sortings, f"{label}.tsv")
+        store(sorted_data, outpath, labels_df, label_idx=label_idx)
 
 calls = pd.concat(
     [
@@ -134,13 +187,18 @@ calls = pd.concat(
     ]
 )
 
+
+gene_oncoprint = gene_oncoprint(calls)
+
 group_annotation = load_group_annotation()
-gene_oncoprint = gene_oncoprint(calls, group_annotation)
 gene_oncoprint_main = attach_group_annotation(gene_oncoprint, group_annotation)
-print(gene_oncoprint_main)
-gene_oncoprint.to_csv(
+gene_oncoprint_main.to_csv(
     snakemake.output.gene_oncoprint, sep="\t", index=False
 )
+
+os.makedirs(snakemake.output.gene_oncoprint_sortings)
+if not gene_oncoprint.empty:
+    sort_oncoprint_labels(gene_oncoprint)
 
 os.makedirs(snakemake.output.variant_oncoprints)
 for gene, gene_calls in calls.groupby("symbol"):

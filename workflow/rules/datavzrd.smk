@@ -15,13 +15,15 @@ rule split_call_tables:
     script:
         "../scripts/split-call-tables.py"
 
-
 rule prepare_oncoprint:
     input:
         calls=get_oncoprint_input,
         group_annotation=config.get("groups", []),
     output:
         gene_oncoprint="results/tables/oncoprints/{batch}.{event}/gene-oncoprint.tsv",
+        gene_oncoprint_sortings=directory(
+            "results/tables/oncoprints/{batch}.{event}/label_sortings/"
+        ),
         variant_oncoprints=directory(
             "results/tables/oncoprints/{batch}.{event}/variant-oncoprints"
         ),
@@ -30,7 +32,7 @@ rule prepare_oncoprint:
     params:
         groups=get_report_batch,
     conda:
-        "../envs/pandas.yaml"
+        "../envs/oncoprint.yaml"
     script:
         "../scripts/oncoprint.py"
 
