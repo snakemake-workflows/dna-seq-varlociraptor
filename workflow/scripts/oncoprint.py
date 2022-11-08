@@ -149,9 +149,7 @@ def store(data, output, labels_df, label_idx=None):
 
 
 def sort_oncoprint_labels(data):
-    labels_df = pd.read_csv(
-        snakemake.input.group_annotation, index_col="group", sep="\t"
-    ).T
+    labels_df = snakemake.params.labels
     labels = labels_df.index
 
     for label_idx, label in enumerate(labels):

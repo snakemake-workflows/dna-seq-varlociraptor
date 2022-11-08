@@ -84,7 +84,7 @@ datasets:
         gene details:
           column: symbol
           view: "overview-{value}"
-    ?for label in params.group_annotations.columns.values:
+    ?for label in params.labels.index.values:
       ?label:
         path: ?os.path.join(params.oncoprint_sorted_datasets, f"{label}.tsv")
         separator: "\t"
@@ -112,7 +112,9 @@ datasets:
 
 views:
   ?if params.gene_oncoprint:
-    ?for view in ["gene-oncoprint"] + list(params.group_annotations.columns.values):
+    ?for view in ["gene-oncoprint"] + list(params.labels.index.values):
+      __variables__:
+        labels: ?params.group_annotations.columns.values if view == "gene-oncoprint" else [view]
       ?"overview" if view == "gene-oncoprint" else f"by {view}":
         ?if view == "gene-oncoprint":
           desc: |
@@ -130,7 +132,7 @@ views:
         dataset: ?view
         render-table:
           headers:
-            ?for i, annotation in enumerate(params.group_annotations.columns.values):
+            ?for i, annotation in enumerate(labels):
               ?i + 1:
                 label: ?annotation
                 plot:
@@ -152,6 +154,16 @@ views:
                     scale: ordinal
                     color-scheme: paired
                     aux-domain-columns: ?list(params.groups)
+            p-value dependency:
+              plot:
+                ticks:
+                  scale: linear
+              optional: true
+            FDR dependency:
+              plot:
+                ticks:
+                  scale: linear
+              optional: true
     
     ?for gene, path in params.variant_oncoprints:
       ?f"overview-{gene}":
