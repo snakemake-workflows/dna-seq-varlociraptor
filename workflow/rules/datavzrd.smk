@@ -15,6 +15,7 @@ rule split_call_tables:
     script:
         "../scripts/split-call-tables.py"
 
+
 rule prepare_oncoprint:
     input:
         calls=get_oncoprint_input,
@@ -60,6 +61,7 @@ rule render_datavzrd_config:
         varsome_url=get_varsome_url(),
         samples=samples,
         group_annotations=group_annotation,
+        oncoprint_sorted_datasets="results/tables/oncoprints/{batch}.{event}/label_sortings/",
     log:
         "logs/datavzrd_render/{batch}.{event}.log",
     template_engine:
