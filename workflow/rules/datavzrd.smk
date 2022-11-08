@@ -32,7 +32,7 @@ rule prepare_oncoprint:
         "logs/prepare_oncoprint/{batch}.{event}.log",
     params:
         groups=get_report_batch,
-        labels=get_annotation_labels(),
+        labels=get_heterogeneous_labels(),
     conda:
         "../envs/oncoprint.yaml"
     script:
@@ -62,7 +62,7 @@ rule render_datavzrd_config:
         varsome_url=get_varsome_url(),
         samples=samples,
         group_annotations=group_annotation,
-        labels=get_annotation_labels(),
+        labels=get_heterogeneous_labels(),
         oncoprint_sorted_datasets="results/tables/oncoprints/{batch}.{event}/label_sortings/",
     log:
         "logs/datavzrd_render/{batch}.{event}.log",
