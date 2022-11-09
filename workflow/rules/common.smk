@@ -95,6 +95,7 @@ primer_panels = (
     else None
 )
 
+
 def get_heterogeneous_labels():
     nunique = group_annotation.nunique()
     cols_to_drop = nunique[nunique == 1].index
