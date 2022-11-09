@@ -153,10 +153,8 @@ def sort_oncoprint_labels(data):
     labels = labels_df.index
 
     for label_idx, label in enumerate(labels):
-        outpath = os.path.join(snakemake.output.gene_oncoprint_sortings, f"{label}.tsv")
-        if data.empty:
-            store(data, outpath, labels_df, label_idx=label_idx)
-        else:
+        outdata = data.copy(deep=True)
+        if not data.empty:
             feature_matrix = data.reset_index(drop=True).T.copy()
             feature_matrix[~pd.isna(feature_matrix)] = True
             feature_matrix[pd.isna(feature_matrix)] = False
@@ -184,9 +182,9 @@ def sort_oncoprint_labels(data):
             sorted_data.insert(0, "FDR dependency", np.around(fdr, 3))
             sorted_data.insert(0, "p-value dependency", np.around(pvals, 3))
 
-            sorted_data = sorted_data.iloc[sorted_idx]
-
-            store(sorted_data, outpath, labels_df, label_idx=label_idx)
+            outdata = sorted_data.iloc[sorted_idx]
+        outpath = os.path.join(snakemake.output.gene_oncoprint_sortings, f"{label}.tsv")
+        store(outdata, outpath, labels_df, label_idx=label_idx)
 
 
 calls = pd.concat(
