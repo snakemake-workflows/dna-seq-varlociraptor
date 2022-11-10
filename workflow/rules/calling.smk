@@ -26,7 +26,7 @@ rule varlociraptor_alignment_properties:
     input:
         ref=genome,
         ref_idx=genome_fai,
-        bam="results/recal/{sample}.bam",
+        bam="results/recal/{sample}.cram",
     output:
         "results/alignment-properties/{group}/{sample}.json",
     log:
@@ -34,7 +34,7 @@ rule varlociraptor_alignment_properties:
     conda:
         "../envs/varlociraptor.yaml"
     shell:
-        "varlociraptor estimate alignment-properties {input.ref} --bam {input.bam} > {output} 2> {log}"
+        "varlociraptor estimate alignment-properties {input.ref} --num-records 10000000 --bam {input.bam} > {output} 2> {log}"
 
 
 rule varlociraptor_preprocess:
@@ -42,8 +42,8 @@ rule varlociraptor_preprocess:
         ref=genome,
         ref_idx=genome_fai,
         candidates=get_candidate_calls(),
-        bam="results/recal/{sample}.bam",
-        bai="results/recal/{sample}.bai",
+        bam="results/recal/{sample}.cram",
+        bai="results/recal/{sample}.crai",
         alignment_props="results/alignment-properties/{group}/{sample}.json",
     output:
         "results/observations/{group}/{sample}.{caller}.{scatteritem}.bcf",
@@ -66,7 +66,7 @@ rule varlociraptor_call:
         obs=get_group_observations,
         scenario="results/scenarios/{group}.yaml",
     output:
-        temp("results/calls/{group}.{caller}.{scatteritem}.bcf"),
+        temp("results/calls/{group}.{caller}.{scatteritem}.call.bcf"),
     log:
         "logs/varlociraptor/call/{group}.{caller}.{scatteritem}.log",
     params:
@@ -88,7 +88,7 @@ rule varlociraptor_call:
 
 rule sort_calls:
     input:
-        "results/calls/{group}.{caller}.{scatteritem}.bcf",
+        "results/calls/{group}.{caller}.{scatteritem}.call.bcf",
     output:
         temp("results/calls/{group}.{caller}.{scatteritem}.bcf"),
     log:

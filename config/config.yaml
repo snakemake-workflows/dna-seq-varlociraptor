@@ -30,6 +30,10 @@ ref:
   # This is usually only relevant for testing.
   # chromosome: 21
 
+mapping:
+  mark_duplicates: "picard"
+  # can be picard or samblaster
+
 primers:
   trimming:
     activate: false

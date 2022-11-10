@@ -22,13 +22,15 @@ rule bcf_to_vcf_gz:
         "v1.10.0/bio/bcftools/view"
 
 
-rule bam_index:
+rule cram_index:
     input:
-        "{prefix}.bam",
+        "{prefix}.cram",
     output:
-        "{prefix}.bai",
+        "{prefix}.crai",
     log:
         "logs/bam-index/{prefix}.log",
+    threads:
+        8
     wrapper:
         "v1.10.0/bio/samtools/index"
 

@@ -1,48 +1,48 @@
+# mapping_mark_duplicates = config["mapping"].get("mark_duplicates", "picard")
+# if mapping_mark_duplicates == "picard":
+#     mapping_output = "results/mapped/{sample}.cram"
+# elif mapping_mark_duplicates == "samblaster":
+#     mapping_output = "results/dedup/{sample}.cram"
+# else:
+#     raise ValueError("Invalid value for duplication tool config: {}".format(mapping_mark_duplicates))
+
 rule map_reads:
     input:
         reads=get_map_reads_input,
-        idx=rules.bwa_index.output,
+        reference=genome,
+        idx=rules.bwa_index.output
     output:
-        temp("results/mapped/{sample}.bam"),
+         "results/dedup/{sample}.cram"
     log:
-        "logs/bwa_mem/{sample}.log",
+        "logs/bwa_meme/{sample}.log",
     params:
-        extra=get_read_group,
-        sorting="samtools",
-        sort_order="coordinate",
-    threads: 8
+        extra=lambda wc: get_read_group(wc) + " -M",
+        sort="samtools",  # Can be 'none' or 'samtools'.
+        sort_order="coordinate",  # Can be 'coordinate' (default) or 'queryname'.
+        sort_extra="",  # Extra args for samtools.
+        dedup="mark",  # Can be 'none' (default), 'mark' or 'remove'.
+        dedup_extra="-M",  # Extra args for samblaster.
+        exceed_thread_limit=True,  # Set threads als for samtools sort / view (total used CPU may exceed threads!)
+        embed_ref=True,  # Embed reference when writing cram.
+    threads: 88
     wrapper:
-        "v1.10.0/bio/bwa/mem"
+        "v1.14.0/bio/bwa-meme/mem"
 
+
+# ruleorder: map_reads > mark_duplicates
 
 rule annotate_umis:
     input:
-        bam="results/mapped/{sample}.bam",
+        bam="results/dedup/{sample}.cram",
         umi=lambda wc: units.loc[wc.sample]["umis"][0],
     output:
-        temp("results/mapped/{sample}.annotated.bam"),
+        temp("results/mapped/{sample}.annotated.cram"), # TODO: the reference is missing for the cram 
     resources:
         mem_gb="10",
     log:
         "logs/fgbio/annotate_bam/{sample}.log",
     wrapper:
         "v1.2.0/bio/fgbio/annotatebamwithumis"
-
-
-rule mark_duplicates:
-    input:
-        lambda wc: "results/mapped/{sample}.bam"
-        if units.loc[wc.sample, "umis"].isnull().any()
-        else "results/mapped/{sample}.annotated.bam",
-    output:
-        bam=temp("results/dedup/{sample}.bam"),
-        metrics="results/qc/dedup/{sample}.metrics.txt",
-    log:
-        "logs/picard/dedup/{sample}.log",
-    params:
-        extra=get_markduplicates_extra,
-    wrapper:
-        "v1.2.0/bio/picard/markduplicates"
 
 
 rule calc_consensus_reads:
@@ -95,16 +95,16 @@ rule merge_consensus_reads:
         "v1.10.0/bio/samtools/merge"
 
 
-rule sort_consensus_reads:
-    input:
-        "results/consensus/{sample}.merged.bam",
-    output:
-        temp("results/consensus/{sample}.bam"),
-    log:
-        "logs/samtools_sort/{sample}.log",
-    threads: 8
-    wrapper:
-        "v1.10.0/bio/samtools/sort"
+# rule sort_consensus_reads:
+#     input:
+#         "results/consensus/{sample}.merged.bam",
+#     output:
+#         temp("results/consensus/{sample}.bam"),
+#     log:
+#         "logs/samtools_sort/{sample}.log",
+#     threads: 8
+#     wrapper:
+#         "v1.10.0/bio/samtools/sort"
 
 
 rule recalibrate_base_qualities:
@@ -128,7 +128,7 @@ rule recalibrate_base_qualities:
         "v1.2.0/bio/gatk/baserecalibratorspark"
 
 
-ruleorder: apply_bqsr > bam_index
+ruleorder: apply_bqsr > cram_index
 
 
 rule apply_bqsr:
@@ -140,12 +140,17 @@ rule apply_bqsr:
         ref_fai=genome_fai,
         recal_table="results/recal/{sample}.grp",
     output:
-        bam=protected("results/recal/{sample}.bam"),
-        bai="results/recal/{sample}.bai",
+        bam="results/recal/{sample}.cram",
     log:
         "logs/gatk/gatk_applybqsr/{sample}.log",
     params:
-        extra=config["params"]["gatk"]["applyBQSR"],  # optional
-        java_opts="",  # optional
+        extra=config["params"]["gatk"]["applyBQSR"] + " --create-output-bam-index false",  # optional
+        spark_master="local[44]",  # optional
+        embed_ref=True,
+        exceed_thread_limit=True,
+    resources:
+        mem_mb=10000,
+    threads:
+        44
     wrapper:
-        "v1.2.0/bio/gatk/applybqsr"
+        "v1.16.0/bio/gatk/applybqsrspark"

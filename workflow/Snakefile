@@ -10,7 +10,7 @@ report: "report/workflow.rst"
 
 
 scattergather:
-    calling=16,
+    calling=88,
 
 
 # Allow users to fix the underlying OS via singularity.
@@ -47,9 +47,16 @@ rule all:
         get_final_output,
 
 
-rule only_alignment:
+rule only_mapping:
     input:
-        expand("results/mapped/{sample}.cram", sample=samples["sample_name"]),
+        # expand("results/calls/E18-0593.freebayes.{i}-of-16.bcf", i=range(1,17))
+        expand("results/recal/{sample}.cram", sample=samples["sample_name"])
+
+
+rule next_step:
+    input:
+        # expand("results/calls/E18-0593.freebayes.{i}-of-16.bcf", i=range(1,17))
+        expand("results/tables/{group}.interesting.fdr-controlled.tsv", group=groups)
 
 
 rule benchmark:

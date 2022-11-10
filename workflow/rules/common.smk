@@ -167,7 +167,7 @@ def get_control_fdr_input(wildcards):
 
 
 def get_recalibrate_quality_input(wildcards, bai=False):
-    ext = "bai" if bai else "bam"
+    ext = "crai" if bai else "cram"
     if is_activated("calc_consensus_reads"):
         return "results/consensus/{}.{}".format(wildcards.sample, ext)
     elif is_activated("primers/trimming"):
@@ -391,8 +391,8 @@ def get_markduplicates_extra(wc):
     return f"{c} {b} {d}"
 
 
-def get_group_bams(wildcards, bai=False):
-    ext = "bai" if bai else "bam"
+def get_group_crams(wildcards, bai=False):
+    ext = "crai" if bai else "cram"
     if is_activated("primers/trimming") and not group_is_paired_end(wildcards.group):
         WorkflowError("Primer trimming is only available for paired end data.")
     return expand(
@@ -404,7 +404,7 @@ def get_group_bams(wildcards, bai=False):
 
 def get_group_bams_report(group):
     return [
-        (sample, "results/recal/{}.bam".format(sample))
+        (sample, "results/recal/{}.cram".format(sample))
         for sample in get_group_samples(group)
     ]
 
@@ -712,7 +712,7 @@ def get_annotation_pipes(wildcards, input):
 
 def get_annotation_vcfs(idx=False):
     fmt = lambda f: f if not idx else "{}.tbi".format(f)
-    return [fmt(f) for _, f in annotations]
+    return [fmt(f["filename"]) for _, f in annotations]
 
 
 def get_tabix_params(wildcards):
@@ -789,6 +789,9 @@ def get_vembrane_config(wildcards, input):
     if config_output.get("event_prob", False):
         events = list(scenario["events"].keys())
         events += ["artifact", "absent"]
+        event_prob_list = ",".join(f"'PROB_{e.upper()}'" for e in events) 
+        append_items([f"max({event_prob_list}, key=lambda x:INFO[x])[5:].lower()"], lambda x: x, lambda x: "max prob")
+        append_items(events, lambda x: f"INFO['PROB_{x.upper()}']", "prob: {}".format)
         append_items(events, lambda x: f"INFO['PROB_{x.upper()}']", "prob: {}".format)
     append_format_field("AF", "allele frequency")
     append_format_field("DP", "read depth")

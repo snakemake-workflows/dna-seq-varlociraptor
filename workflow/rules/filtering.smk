@@ -1,6 +1,6 @@
 rule filter_candidates_by_annotation:
     input:
-        "results/candidate-calls/{group}.{caller}.{scatteritem}.annotated.bcf",
+        "results/candidate-calls/{group}.{caller}.{scatteritem}.annotated.db-annotated.bcf",
     output:
         "results/candidate-calls/{group}.{caller}.{scatteritem}.filtered.bcf",
     log:

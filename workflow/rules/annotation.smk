@@ -44,11 +44,12 @@ rule annotate_variants:
 # TODO What about multiple ID Fields?
 rule annotate_vcfs:
     input:
-        bcf="results/calls/{prefix}.bcf",
+        bcf="results/{prefix}.bcf",
         annotations=get_annotation_vcfs(),
         idx=get_annotation_vcfs(idx=True),
+        reference=genome,
     output:
-        "results/calls/{prefix}.db-annotated.bcf",
+        "results/{prefix}.db-annotated.bcf",
     log:
         "logs/annotate-vcfs/{prefix}.log",
     params:
@@ -57,7 +58,8 @@ rule annotate_vcfs:
         "../envs/snpsift.yaml"
     threads: 4
     shell:
-        "(bcftools view --threads {threads} {input.bcf} {params.pipes} | bcftools view --threads {threads} -Ob > {output}) 2> {log}"
+        "(bcftools norm --do-not-normalize --multiallelics -any --threads {threads} {input.bcf} | vcfallelicprimitives -k | vcfstreamsort | vt normalize -n -r {input.reference} - {params.pipes} | awk -F'\\t' '!_[$1,$2,$4,$5]++' | bcftools view --threads {threads} -Ob > {output}) 2> {log}"
+        # "(bcftools view --threads {threads} {input.bcf} {params.pipes} | bcftools view --threads {threads} -Ob > {output}) 2> {log}"
 
 
 rule annotate_dgidb:

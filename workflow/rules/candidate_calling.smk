@@ -2,12 +2,12 @@ rule freebayes:
     input:
         ref=genome,
         ref_idx=genome_fai,
-        regions="results/regions/{group}.target_regions.filtered.bed",
+        #regions="results/regions/{group}.target_regions.filtered.bed",
         # you can have a list of samples here
-        samples=lambda w: get_group_bams(w),
-        indexes=lambda w: get_group_bams(w, bai=True),
+        samples=lambda w: get_group_crams(w),
+        indexes=lambda w: get_group_crams(w, bai=True),
     output:
-        "results/candidate-calls/{group}.freebayes.bcf",
+        pipe("results/candidate-calls/{group}.freebayes.raw.bcf")
     log:
         "logs/freebayes/{group}.log",
     params:
@@ -17,17 +17,29 @@ rule freebayes:
             1 if is_activated("calc_consensus_reads") else 2,
             config["params"]["freebayes"].get("min_alternate_fraction", "0.05"),
         ),
+        chunksize=10000000,
     threads: max(workflow.cores - 1, 1)  # use all available cores -1 (because of the pipe) for calling
     wrapper:
         "v1.10.0/bio/freebayes"
+
+
+rule freebayes_quality_filter:
+    input:
+        "results/candidate-calls/{group}.freebayes.raw.bcf",
+    output:
+        "results/candidate-calls/{group}.freebayes.bcf",
+    conda:
+        "../envs/bcftools.yaml"
+    shell:
+        "bcftools view  -i'QUAL>1' {input} -Ob > {output}"
 
 
 rule delly:
     input:
         ref=genome,
         ref_idx=genome_fai,
-        alns=lambda w: get_group_bams(w),
-        index=lambda w: get_group_bams(w, bai=True),
+        alns=lambda w: get_group_crams(w),
+        index=lambda w: get_group_crams(w, bai=True),
         exclude="results/regions/{group}.excluded_regions.bed",
     output:
         "results/candidate-calls/{group}.delly.bcf",
