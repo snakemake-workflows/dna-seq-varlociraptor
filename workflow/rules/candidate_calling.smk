@@ -19,7 +19,7 @@ rule freebayes:
         ),
     threads: max(workflow.cores - 1, 1)  # use all available cores -1 (because of the pipe) for calling
     wrapper:
-        "v1.10.0/bio/freebayes"
+        "v1.19.0/bio/freebayes"
 
 
 rule delly:
