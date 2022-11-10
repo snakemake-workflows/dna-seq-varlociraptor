@@ -78,7 +78,7 @@ datasets:
     gene-oncoprint:
       path: ?params.gene_oncoprint
       separator: "\t"
-      header-rows: ?params.n_group_annotations + 1
+      headers: ?len(params.group_annotations.columns) + 1
       links:
         gene details:
           column: symbol
@@ -87,7 +87,7 @@ datasets:
       ?f"variant-oncoprint-{gene}":
         path: ?path
         separator: "\t"
-        header-rows: ?params.n_group_annotations + 1
+        headers: ?len(params.group_annotations.columns) + 1
         links:
           ?for group in params.groups:
             ?group:
@@ -112,29 +112,17 @@ views:
         button to jump to detail views for the respective genes.
       dataset: gene-oncoprint
       render-table:
-        symbol:
-          link-to-url: https://www.ensembl.org/Homo_sapiens/Gene/Summary?g={value}
-        consequence:
-          plot:
-            heatmap:
-              scale: ordinal
-              color-scheme: category20
-        ?for group in params.groups:
-          ?group:
-            plot:
-              heatmap:
-                scale: ordinal
-                color-scheme: paired
-                aux-domain-columns: ?list(params.groups)
-    
-    ?for gene, path in params.variant_oncoprints:
-      ?f"overview-{gene}":
-        desc: ?f"Variants found in gene {gene}."
-        dataset: ?f"variant-oncoprint-{gene}"
-        hidden: true
-        render-table:
-          hgvsp:
-            custom: ?varsome_link
+        headers:
+          ?for i, annotation in enumerate(params.group_annotations.columns.values):
+            ?i + 1:
+              label: ?annotation
+              plot:
+                heatmap:
+                  scale: ordinal
+                  color-scheme: category20
+        columns:
+          symbol:
+            link-to-url: https://www.ensembl.org/Homo_sapiens/Gene/Summary?g={value}
           consequence:
             plot:
               heatmap:
@@ -147,146 +135,178 @@ views:
                   scale: ordinal
                   color-scheme: paired
                   aux-domain-columns: ?list(params.groups)
-          hgvsg:
-            display-mode: hidden
+    
+    ?for gene, path in params.variant_oncoprints:
+      ?f"overview-{gene}":
+        desc: ?f"Variants found in gene {gene}."
+        dataset: ?f"variant-oncoprint-{gene}"
+        hidden: true
+        render-table:
+          headers:
+            ?for i, annotation in enumerate(params.group_annotations.columns.values):
+              ?i + 1:
+                label: ?annotation
+                plot:
+                  heatmap:
+                    scale: ordinal
+                    color-scheme: category20
+          columns:
+            hgvsp:
+              custom: ?varsome_link
+            consequence:
+              plot:
+                heatmap:
+                  scale: ordinal
+                  color-scheme: category20
+            ?for group in params.groups:
+              ?group:
+                plot:
+                  heatmap:
+                    scale: ordinal
+                    color-scheme: paired
+                    aux-domain-columns: ?list(params.groups)
+            hgvsg:
+              display-mode: hidden
 
   ?for group in params.groups:
     ?f"{group}-coding":
       desc: ?f"Variants in coding regions.\n{config['calling']['fdr-control']['events'][wildcards.event]['desc']}"
       dataset: ?f"{group}-coding"
       render-table:
-        symbol:
-          link-to-url: https://www.ensembl.org/Homo_sapiens/Transcript/Summary?t={feature}
-        ?if params.varsome_url:
-          hgvsp:
-            custom: ?varsome_link
-        vartype:
-          display-mode: hidden
-        impact:
-          plot:
-            heatmap:
-              scale: ordinal
-              domain:
-                - HIGH
-                - MODERATE
-                - LOW
-                - MODIFIER
-              range:
-                - "#ec0000"
-                - "#ec5300"
-                - "#ec9b00"
-                - "#ecca00"
-        consequence:
-          plot:
-            heatmap:
-              color-scheme: category20
-              scale: ordinal
-        revel:
-          optional: true
-          plot: 
-            heatmap:
-              scale: "linear"
-              domain: [0.0, 1.0]
-              range:
-                - white
-                - "#ff5555"
-        "regex('.+: allele frequency')":
-          plot: 
-            ticks:
-              scale: "linear"
-              domain: [0.0, 1.0]
-              aux-domain-columns:
-                - "regex('.+: allele frequency')"
-        "regex('.+: read depth')":
-          plot: 
-            ticks:
-              scale: "linear"
-              aux-domain-columns:
-                - "regex('.+: read depth')"
-        "regex('prob: .+')":
-          plot:
-            heatmap:
-              scale: linear
-              domain: [0.0, 1.0]
-              range:
-                - white
-                - "#1f77b4"
-        gene:
-          display-mode: hidden
-        feature:
-          display-mode: hidden
-        hgvsg:
-          display-mode: detail
-
-        ?for alias in params.samples.loc[params.samples["group"] == group, "alias"]:
-          '?f"{alias}: observations"':
-            custom-plot:
-              data: ?read_file(params.data_observations)
-              spec: ?read_file(params.spec_observations)
+        columns:
+          symbol:
+            link-to-url: https://www.ensembl.org/Homo_sapiens/Transcript/Summary?t={feature}
+          ?if params.varsome_url:
+            hgvsp:
+              custom: ?varsome_link
+          vartype:
+            display-mode: hidden
+          impact:
+            plot:
+              heatmap:
+                scale: ordinal
+                domain:
+                  - HIGH
+                  - MODERATE
+                  - LOW
+                  - MODIFIER
+                range:
+                  - "#ec0000"
+                  - "#ec5300"
+                  - "#ec9b00"
+                  - "#ecca00"
+          consequence:
+            plot:
+              heatmap:
+                color-scheme: category20
+                scale: ordinal
+          revel:
+            optional: true
+            plot: 
+              heatmap:
+                scale: "linear"
+                domain: [0.0, 1.0]
+                range:
+                  - white
+                  - "#ff5555"
+          "regex('.+: allele frequency')":
+            plot: 
+              ticks:
+                scale: "linear"
+                domain: [0.0, 1.0]
+                aux-domain-columns:
+                  - "regex('.+: allele frequency')"
+          "regex('.+: read depth')":
+            plot: 
+              ticks:
+                scale: "linear"
+                aux-domain-columns:
+                  - "regex('.+: read depth')"
+          "regex('prob: .+')":
+            plot:
+              heatmap:
+                scale: linear
+                domain: [0.0, 1.0]
+                range:
+                  - white
+                  - "#1f77b4"
+          gene:
+            display-mode: hidden
+          feature:
+            display-mode: hidden
+          hgvsg:
             display-mode: detail
+
+          ?for alias in params.samples.loc[params.samples["group"] == group, "alias"]:
+            '?f"{alias}: observations"':
+              custom-plot:
+                data: ?read_file(params.data_observations)
+                spec: ?read_file(params.spec_observations)
+              display-mode: detail
 
 
     ?f"{group}-noncoding":
       desc: ?f"Variants in non-coding regions.\n{config['calling']['fdr-control']['events'][wildcards.event]['desc']}"
       dataset: ?f"{group}-noncoding"
       render-table:
-        symbol:
-          optional: true
-          link-to-url: https://www.ensembl.org/Homo_sapiens/Transcript/Summary?t={feature}
-        consequence:
-          plot:
-            heatmap:
-              color-scheme: category20
-              scale: ordinal
-        vartype:
-          display-mode: hidden
-        impact:
-          plot:
-            heatmap:
-              scale: ordinal
-              domain:
-                - HIGH
-                - MODERATE
-                - LOW
-                - MODIFIER
-              range:
-                - "#ec0000"
-                - "#ec5300"
-                - "#ec9b00"
-                - "#ecca00"
-        "regex('.+: allele frequency')":
-          plot: 
-            ticks:
-              scale: "linear"
-              domain: [0.0, 1.0]
-              aux-domain-columns:
-                - "regex('.+: allele frequency')"
-        "regex('.+: read depth')":
-          plot: 
-            ticks:
-              scale: "linear"
-              aux-domain-columns:
-                - "regex('.+: read depth')"
-        "regex('prob: .+')":
-          plot:
-            heatmap:
-              scale: linear
-              domain: [0.0, 1.0]
-              range:
-                - white
-                - "#1f77b4"
-        id:
-          display-mode: hidden
-        gene:
-          display-mode: hidden
-        feature:
-          display-mode: hidden
-        hgvsg:
-          display-mode: detail
-
-        ?for alias in params.samples.loc[params.samples["group"] == group, "alias"]:
-          '?f"{alias}: observations"':
-            custom-plot:
-              data: ?read_file(params.data_observations)
-              spec: ?read_file(params.spec_observations)
+        columns:
+          symbol:
+            optional: true
+            link-to-url: https://www.ensembl.org/Homo_sapiens/Transcript/Summary?t={feature}
+          consequence:
+            plot:
+              heatmap:
+                color-scheme: category20
+                scale: ordinal
+          vartype:
+            display-mode: hidden
+          impact:
+            plot:
+              heatmap:
+                scale: ordinal
+                domain:
+                  - HIGH
+                  - MODERATE
+                  - LOW
+                  - MODIFIER
+                range:
+                  - "#ec0000"
+                  - "#ec5300"
+                  - "#ec9b00"
+                  - "#ecca00"
+          "regex('.+: allele frequency')":
+            plot: 
+              ticks:
+                scale: "linear"
+                domain: [0.0, 1.0]
+                aux-domain-columns:
+                  - "regex('.+: allele frequency')"
+          "regex('.+: read depth')":
+            plot: 
+              ticks:
+                scale: "linear"
+                aux-domain-columns:
+                  - "regex('.+: read depth')"
+          "regex('prob: .+')":
+            plot:
+              heatmap:
+                scale: linear
+                domain: [0.0, 1.0]
+                range:
+                  - white
+                  - "#1f77b4"
+          id:
+            display-mode: hidden
+          gene:
+            display-mode: hidden
+          feature:
+            display-mode: hidden
+          hgvsg:
             display-mode: detail
+
+          ?for alias in params.samples.loc[params.samples["group"] == group, "alias"]:
+            '?f"{alias}: observations"':
+              custom-plot:
+                data: ?read_file(params.data_observations)
+                spec: ?read_file(params.spec_observations)
+              display-mode: detail

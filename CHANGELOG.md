@@ -1,5 +1,41 @@
 # Changelog
 
+## [3.18.2](https://github.com/snakemake-workflows/dna-seq-varlociraptor/compare/v3.18.1...v3.18.2) (2022-10-13)
+
+
+### Bug Fixes
+
+* correctly filter target regions ([#166](https://github.com/snakemake-workflows/dna-seq-varlociraptor/issues/166)) ([29f64fc](https://github.com/snakemake-workflows/dna-seq-varlociraptor/commit/29f64fc8ac39a10be27d81d44c0a7bd5eac8ac1f))
+
+## [3.18.1](https://github.com/snakemake-workflows/dna-seq-varlociraptor/compare/v3.18.0...v3.18.1) (2022-09-28)
+
+
+### Bug Fixes
+
+* render group labels in oncoprint gene views as heatmaps ([6041058](https://github.com/snakemake-workflows/dna-seq-varlociraptor/commit/604105828bdce27b08ae76ef0a1ccb5f38d7f4f1))
+
+## [3.18.0](https://github.com/snakemake-workflows/dna-seq-varlociraptor/compare/v3.17.1...v3.18.0) (2022-09-28)
+
+
+### Features
+
+* update to datavzrd 2.2 ([b1c7963](https://github.com/snakemake-workflows/dna-seq-varlociraptor/commit/b1c79639dfeee529ed7c63065aa9ef4f3a9c8d14))
+
+## [3.17.1](https://github.com/snakemake-workflows/dna-seq-varlociraptor/compare/v3.17.0...v3.17.1) (2022-09-27)
+
+
+### Bug Fixes
+
+* use latest bcftools concat wrapper which fixes a regression that caused it to just pass on the first given bcf. This was leading to missing a **lot** of calls! Make sure to rerun with the following: `-R merge_calls gather_annotated_calls gather_benchmark_calls bcftools_concat gather_calls` if those rules were executed with release 3.16 or 3.17. ([56be4e1](https://github.com/snakemake-workflows/dna-seq-varlociraptor/commit/56be4e12936fa231c37094b2e1daba52dc7780cd))
+
+## [3.17.0](https://github.com/snakemake-workflows/dna-seq-varlociraptor/compare/v3.16.0...v3.17.0) (2022-09-23)
+
+
+### Features
+
+* allow multiple target_regions BED files defined in config.yaml, merging them into one ([#161](https://github.com/snakemake-workflows/dna-seq-varlociraptor/issues/161)) ([84064ef](https://github.com/snakemake-workflows/dna-seq-varlociraptor/commit/84064ef5255a6013b84d3702ba42c9ba0abc7bf1))
+* more informative file names ([#148](https://github.com/snakemake-workflows/dna-seq-varlociraptor/issues/148)) ([4b99df9](https://github.com/snakemake-workflows/dna-seq-varlociraptor/commit/4b99df99e3c3bb3397043a261ee04abc0f00bae6))
+
 ## [3.16.0](https://github.com/snakemake-workflows/dna-seq-varlociraptor/compare/v3.15.0...v3.16.0) (2022-09-01)
 
 

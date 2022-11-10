@@ -48,9 +48,7 @@ def load_group_annotation():
             .set_index("group")
             .sort_index()
         )
-        group_annotation.loc[
-            set(snakemake.params.groups) - set(group_annotation.index)
-        ] = [pd.NA] * len(group_annotation.columns)
+        group_annotation = group_annotation.loc[ snakemake.params.groups ]
     else:
         group_annotation = pd.DataFrame({"group": snakemake.params.groups}).set_index(
             "group"

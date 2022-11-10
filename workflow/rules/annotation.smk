@@ -90,4 +90,4 @@ rule gather_annotated_calls:
     params:
         extra="-a",
     wrapper:
-        "v1.10.0/bio/bcftools/concat"
+        "v1.14.1/bio/bcftools/concat"
