@@ -12,7 +12,7 @@ rule get_target_regions:
     conda:
         "../envs/awk_bedtools.yaml"
     shell:
-        "cat {input} | sort -k1,1 -k2,2n - | mergeBed -i - | awk '{{sub(\"^chr\",\"\", $0); print}}' > {output} 2> {log}"
+        'cat {input} | sort -k1,1 -k2,2n - | mergeBed -i - | awk \'{{sub("^chr","", $0); print}}\' > {output} 2> {log}'
 
 
 rule build_sample_regions:
