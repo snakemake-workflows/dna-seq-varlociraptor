@@ -1,4 +1,4 @@
-ruleorder: chm_eval_sample > map_reads
+ruleorder: chm_eval_sample > vg_giraffe
 
 
 rule gather_benchmark_calls:
