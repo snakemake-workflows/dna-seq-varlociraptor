@@ -1,5 +1,13 @@
 # Changelog
 
+## [3.18.4](https://github.com/snakemake-workflows/dna-seq-varlociraptor/compare/v3.18.3...v3.18.4) (2022-11-11)
+
+
+### Bug Fixes
+
+* Fix empty regions bed file ([#171](https://github.com/snakemake-workflows/dna-seq-varlociraptor/issues/171)) ([feac864](https://github.com/snakemake-workflows/dna-seq-varlociraptor/commit/feac864b0767a30c1fc4faf6e641bb4cd5517900))
+* omit software env for some rules when checking between workflow cache ([#168](https://github.com/snakemake-workflows/dna-seq-varlociraptor/issues/168)) ([d5899da](https://github.com/snakemake-workflows/dna-seq-varlociraptor/commit/d5899da4163211e90a5d799663f0ad35ae6e7026))
+
 ## [3.18.3](https://github.com/snakemake-workflows/dna-seq-varlociraptor/compare/v3.18.2...v3.18.3) (2022-11-11)
 
 
