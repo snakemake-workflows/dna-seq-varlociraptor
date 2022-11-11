@@ -42,7 +42,7 @@ rule tabix_known_variants:
         "logs/tabix/{prefix}.{format}.log",
     params:
         get_tabix_params,
-    cache: True
+    cache: "omit-software"
     wrapper:
         "v1.12.0/bio/tabix/index"
 

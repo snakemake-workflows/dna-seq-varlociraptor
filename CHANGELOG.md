@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.18.3](https://github.com/snakemake-workflows/dna-seq-varlociraptor/compare/v3.18.2...v3.18.3) (2022-11-11)
+
+
+### Bug Fixes
+
+* fix revel score download URL ([#172](https://github.com/snakemake-workflows/dna-seq-varlociraptor/issues/172)) ([37bc738](https://github.com/snakemake-workflows/dna-seq-varlociraptor/commit/37bc7381bb93df0ad76d926f13ad889e9a5fc528))
+
 ## [3.18.2](https://github.com/snakemake-workflows/dna-seq-varlociraptor/compare/v3.18.1...v3.18.2) (2022-10-13)
 
 

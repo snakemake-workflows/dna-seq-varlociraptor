@@ -9,7 +9,7 @@ rule get_genome:
         build=config["ref"]["build"],
         release=config["ref"]["release"],
         chromosome=config["ref"].get("chromosome"),
-    cache: True
+    cache: "omit-software"
     wrapper:
         "v1.2.0/bio/reference/ensembl-sequence"
 
@@ -21,7 +21,7 @@ rule genome_faidx:
         genome_fai,
     log:
         "logs/genome-faidx.log",
-    cache: True
+    cache: "omit-software"
     wrapper:
         "v1.10.0/bio/samtools/faidx"
 
@@ -35,7 +35,7 @@ rule genome_dict:
         "logs/samtools/create_dict.log",
     conda:
         "../envs/samtools.yaml"
-    cache: True
+    cache: "omit-software"
     shell:
         "samtools dict {input} > {output} 2> {log} "
 
@@ -54,7 +54,7 @@ rule get_known_variants:
         build=config["ref"]["build"],
         type="all",
         chromosome=config["ref"].get("chromosome"),
-    cache: True
+    cache: "omit-software"
     wrapper:
         "v1.12.0/bio/reference/ensembl-variation"
 
@@ -69,7 +69,7 @@ rule get_annotation_gz:
         flavor="",  # optional, e.g. chr_patch_hapl_scaff, see Ensembl FTP.
     log:
         "logs/get_annotation.log",
-    cache: True  # save space and time with between workflow caching (see docs)
+    cache: "omit-software"  # save space and time with between workflow caching (see docs)
     wrapper:
         "v1.5.0/bio/reference/ensembl-annotation"
 
@@ -81,7 +81,7 @@ rule determine_coding_regions:
         "resources/coding_regions.bed.gz",
     log:
         "logs/determine_coding_regions.log",
-    cache: True  # save space and time with between workflow caching (see docs)
+    cache: "omit-software"  # save space and time with between workflow caching (see docs)
     conda:
         "../envs/awk.yaml"
     shell:
@@ -106,7 +106,7 @@ rule remove_iupac_codes:
         "logs/fix-iupac-alleles.log",
     conda:
         "../envs/rbt.yaml"
-    cache: True
+    cache: "omit-software"
     shell:
         "(rbt vcf-fix-iupac-alleles < {input} | bcftools view -Oz > {output}) 2> {log}"
 
