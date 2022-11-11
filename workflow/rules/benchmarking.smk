@@ -20,7 +20,7 @@ rule chm_eval_sample:
         bam="resources/chm.bam",
     log:
         "logs/benchmarking/chm-eval-sample.log",
-    cache: True
+    cache: "omit-software"
     wrapper:
         "master/bio/benchmark/chm-eval-sample"
 
