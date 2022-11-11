@@ -4,7 +4,7 @@ rule download_revel:
     log:
         "logs/vep_plugins/download_revel.log",
     shell:
-        "curl https://rothsj06.u.hpc.mssm.edu/revel-v1.3_all_chromosomes.zip -o {output} &> {log}"
+        "curl https://rothsj06.dmz.hpc.mssm.edu/revel-v1.3_all_chromosomes.zip -o {output} &> {log}"
 
 
 rule process_revel_scores:
