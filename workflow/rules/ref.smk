@@ -125,6 +125,26 @@ rule bwa_index:
         "v1.10.0/bio/bwa/index"
 
 
+rule vg_index:
+    input:
+        genome=genome,
+        variants="resources/variation.vcf.gz",
+    output:
+        f"{genome}.gbz",
+    log:
+        "logs/vg/index.log",
+    params:
+        prefix=lambda w, input: os.path.splitext(input.genome)[0],
+    conda:
+        "../envs/vg.yaml"
+    cache: True
+    threads: workflow.cores
+    shell:
+        "vg autoindex -t {threads} --workflow giraffe "
+        "-r {input.genome} -v {input.variants} -p x "
+        "--prefix {params.prefix} 2> {log}"
+
+
 rule get_vep_cache:
     output:
         directory("resources/vep/cache"),

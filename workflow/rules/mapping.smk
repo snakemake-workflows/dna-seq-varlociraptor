@@ -1,18 +1,18 @@
-rule map_reads:
+rule vg_giraffe:
     input:
+        index=f"{genome}.gbz",
         reads=get_map_reads_input,
-        idx=rules.bwa_index.output,
     output:
         temp("results/mapped/{sample}.bam"),
     log:
-        "logs/bwa_mem/{sample}.log",
+        "logs/vg/giraffe/{sample}.log",
     params:
-        extra=get_read_group,
-        sorting="samtools",
-        sort_order="coordinate",
-    threads: 8
-    wrapper:
-        "v1.10.0/bio/bwa/mem"
+        rg=get_read_group,
+    threads: workflow.cores
+    shell:
+        "vg giraffe --threads {threads} --gbz-name {input.index} "
+        "--fastq-in {input.reads} --output-format BAM --read-group {params.rg} | "
+        "samblaster --ignoreUnmated | samtools sort -Ob > {output} 2> {log}"
 
 
 rule annotate_umis:
@@ -61,24 +61,18 @@ rule calc_consensus_reads:
         "rbt collapse-reads-to-fragments bam {input} {output} &> {log}"
 
 
-rule map_consensus_reads:
+use rule vg_giraffe as map_consensus_reads with:
     input:
+        index=f"{genome}.gbz",
         reads=get_processed_consensus_input,
-        idx=rules.bwa_index.output,
     output:
         temp("results/consensus/{sample}.consensus.{read_type}.mapped.bam"),
     params:
-        index=lambda w, input: os.path.splitext(input.idx[0])[0],
-        extra=lambda w: "-C {}".format(get_read_group(w)),
-        sort="samtools",
-        sort_order="coordinate",
-    wildcard_constraints:
-        read_type="pe|se",
+        rg=get_read_group,
     log:
         "logs/bwa_mem/{sample}.{read_type}.consensus.log",
-    threads: 8
-    wrapper:
-        "v1.10.0/bio/bwa/mem"
+    wildcard_constraints:
+        read_type="pe|se",
 
 
 rule merge_consensus_reads:
