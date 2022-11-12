@@ -59,6 +59,20 @@ rule get_known_variants:
         "v1.12.0/bio/reference/ensembl-variation"
 
 
+rule get_hprc_pangenome:
+    output:
+        "resources/hprc-pangenome.vcf.gz",
+    log:
+        "logs/get-hprc-pangenome.log",
+    conda:
+        "../envs/curl.yaml"
+    cache: "omit-software"
+    shell:
+        "curl -L "
+        "https://s3-us-west-2.amazonaws.com/human-pangenomics/pangenomes/freeze/freeze1/minigraph-cactus/hprc-v1.0-mc.grch38.vcfbub.a100k.wave.vcf.gz "
+        "> {output} 2> {log}"
+
+
 rule get_annotation_gz:
     output:
         "resources/annotation.gtf.gz",
@@ -111,24 +125,16 @@ rule remove_iupac_codes:
         "(rbt vcf-fix-iupac-alleles < {input} | bcftools view -Oz > {output}) 2> {log}"
 
 
-rule bwa_index:
-    input:
-        genome,
-    output:
-        idx=multiext(genome, ".amb", ".ann", ".bwt", ".pac", ".sa"),
-    log:
-        "logs/bwa_index.log",
-    resources:
-        mem_mb=369000,
-    cache: True
-    wrapper:
-        "v1.10.0/bio/bwa/index"
-
-
 rule vg_index:
     input:
         genome=genome,
-        variants="resources/variation.vcf.gz",
+        # Use the HPRC human pangenome if possible. Otherwise known variation from Ensembl.
+        # The latter has the disadvantage that it does not contain haplotypes.
+        # See https://github.com/vgteam/vg/issues/3776.
+        variants="resources/hprc-pangenome.vcf.gz"
+        if config["ref"]["species"] == "homo_sapiens"
+        and config["ref"]["build"] == "GRCh38"
+        else "resources/variation.vcf.gz",
     output:
         f"{genome}.gbz",
     log:
