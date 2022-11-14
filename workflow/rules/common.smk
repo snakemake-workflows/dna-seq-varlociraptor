@@ -184,7 +184,7 @@ def get_cutadapt_input(wildcards):
     unit = units.loc[wildcards.sample].loc[wildcards.unit]
 
     if pd.isna(unit["fq1"]):
-        return get_sra_reads(wildcards.sample, wildcards.unit, ["fq1", "fq2"])
+        return get_sra_reads(wildcards.sample, wildcards.unit, ["1", "2"])
 
     if unit["fq1"].endswith("gz"):
         ending = ".gz"
@@ -216,6 +216,8 @@ def get_sra_reads(sample, unit, fq):
 def get_raw_reads(sample, unit, fq):
     pattern = units.loc[sample].loc[unit, fq]
     if pd.isna(pattern):
+        assert fq.startswith("fq")
+        fq = fq[len("fq") :]
         return get_sra_reads(sample, unit, fq)
 
     if "*" in pattern:
