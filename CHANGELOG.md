@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.18.5](https://github.com/snakemake-workflows/dna-seq-varlociraptor/compare/v3.18.4...v3.18.5) (2022-11-14)
+
+
+### Bug Fixes
+
+* fixed output of get_sra rule ([#176](https://github.com/snakemake-workflows/dna-seq-varlociraptor/issues/176)) ([1cfda3a](https://github.com/snakemake-workflows/dna-seq-varlociraptor/commit/1cfda3afeb9c9ab6b31667c00fc0c83069f9e648))
+
 ## [3.18.4](https://github.com/snakemake-workflows/dna-seq-varlociraptor/compare/v3.18.3...v3.18.4) (2022-11-11)
 
 
