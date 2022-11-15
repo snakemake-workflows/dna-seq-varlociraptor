@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.18.6](https://github.com/snakemake-workflows/dna-seq-varlociraptor/compare/v3.18.5...v3.18.6) (2022-11-15)
+
+
+### Performance Improvements
+
+* update to varlociraptor 5.3.3 ([#178](https://github.com/snakemake-workflows/dna-seq-varlociraptor/issues/178)) ([41fe68a](https://github.com/snakemake-workflows/dna-seq-varlociraptor/commit/41fe68acc975985797cabb8eb9adead10370fc8b))
+
 ## [3.18.5](https://github.com/snakemake-workflows/dna-seq-varlociraptor/compare/v3.18.4...v3.18.5) (2022-11-14)
 
 
