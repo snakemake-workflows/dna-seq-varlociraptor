@@ -59,14 +59,14 @@ rule filter_offtarget_variants:
         calls=get_fixed_candidate_calls,
         regions="resources/target_regions/target_regions.bed",
     output:
-        "results/candidate-valls/{group}.{caller}.filtered.bcf",
+        "results/candidate-calls/{group}.{caller}.filtered.bcf",
     wrapper:
         "v1.19.1/bio/bcftools/filter"
 
 
 rule scatter_candidates:
     input:
-        "results/candidate-valls/{group}.{caller}.filtered.bcf"
+        "results/candidate-calls/{group}.{caller}.filtered.bcf"
         if config.get("target_regions", None)
         else get_fixed_candidate_calls,
     output:
