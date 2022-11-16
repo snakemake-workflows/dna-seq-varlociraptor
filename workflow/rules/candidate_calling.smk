@@ -61,9 +61,9 @@ rule filter_offtarget_variants:
     output:
         "results/candidate-calls/{group}.{caller}.filtered.bcf",
     params:
-        extra=""
+        extra="",
     log:
-        "logs/filter_offtarget_variants/{group}.{caller}.log"
+        "logs/filter_offtarget_variants/{group}.{caller}.log",
     wrapper:
         "v1.19.1/bio/bcftools/filter"
 
