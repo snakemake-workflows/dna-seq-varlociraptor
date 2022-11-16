@@ -60,6 +60,10 @@ rule filter_offtarget_variants:
         regions="resources/target_regions/target_regions.bed",
     output:
         "results/candidate-calls/{group}.{caller}.filtered.bcf",
+    params:
+        extra=""
+    log:
+        "logs/filter_offtarget_variants/{group}.{caller}.log"
     wrapper:
         "v1.19.1/bio/bcftools/filter"
 
