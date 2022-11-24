@@ -1,5 +1,19 @@
 # Changelog
 
+## [3.18.7](https://github.com/snakemake-workflows/dna-seq-varlociraptor/compare/v3.18.6...v3.18.7) (2022-11-24)
+
+
+### Bug Fixes
+
+* fail for empty target regions ([#181](https://github.com/snakemake-workflows/dna-seq-varlociraptor/issues/181)) ([7563aaa](https://github.com/snakemake-workflows/dna-seq-varlociraptor/commit/7563aaa9d4c5d0f099556525bec2b9633ef32fae))
+* Filter offtarget variants ([#180](https://github.com/snakemake-workflows/dna-seq-varlociraptor/issues/180)) ([3c87042](https://github.com/snakemake-workflows/dna-seq-varlociraptor/commit/3c87042ff06b493059213f2c8dddf005ea0d3cd8))
+* remove clinical significance duplicate ([#182](https://github.com/snakemake-workflows/dna-seq-varlociraptor/issues/182)) ([33c28c6](https://github.com/snakemake-workflows/dna-seq-varlociraptor/commit/33c28c6970b0976151181970363153ae5614551d))
+
+
+### Performance Improvements
+
+* update datavzrd to 2.9 ([#183](https://github.com/snakemake-workflows/dna-seq-varlociraptor/issues/183)) ([b3e96a2](https://github.com/snakemake-workflows/dna-seq-varlociraptor/commit/b3e96a2db09794c02234b3fe5115bf9e314e3672))
+
 ## [3.18.6](https://github.com/snakemake-workflows/dna-seq-varlociraptor/compare/v3.18.5...v3.18.6) (2022-11-15)
 
 
