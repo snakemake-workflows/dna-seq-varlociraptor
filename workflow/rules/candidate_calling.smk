@@ -54,9 +54,25 @@ rule fix_delly_calls:
         """bcftools view -e 'INFO/SVTYPE="BND"' {input} -Ob > {output} 2> {log}"""
 
 
+rule filter_offtarget_variants:
+    input:
+        calls=get_fixed_candidate_calls,
+        regions="resources/target_regions/target_regions.bed",
+    output:
+        "results/candidate-calls/{group}.{caller}.filtered.bcf",
+    params:
+        extra="",
+    log:
+        "logs/filter_offtarget_variants/{group}.{caller}.log",
+    wrapper:
+        "v1.19.1/bio/bcftools/filter"
+
+
 rule scatter_candidates:
     input:
-        get_fixed_candidate_calls,
+        "results/candidate-calls/{group}.{caller}.filtered.bcf"
+        if config.get("target_regions", None)
+        else get_fixed_candidate_calls,
     output:
         scatter.calling(
             "results/candidate-calls/{{group}}.{{caller}}.{scatteritem}.bcf"
