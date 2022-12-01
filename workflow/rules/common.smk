@@ -96,6 +96,12 @@ primer_panels = (
 )
 
 
+def get_heterogeneous_labels():
+    nunique = group_annotation.nunique()
+    cols_to_drop = nunique[nunique == 1].index
+    return group_annotation.drop(cols_to_drop, axis=1).T
+
+
 def get_final_output(wildcards):
 
     final_output = expand(
