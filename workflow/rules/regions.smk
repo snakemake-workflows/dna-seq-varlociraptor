@@ -1,14 +1,25 @@
+rule create_whole_genome_bed:
+    input:
+        genome_fai
+    output:
+        genome_prefix + ".bed"
+    shell:
+        """cat {input} | awk 'BEGIN{{FS="\\t"; OFS=FS}} {{print $1,0,$2}}' > {output}"""
+
+
 rule get_target_regions:
     """
     Targets can be defined in one or multiple BED files. In the
     case of multiple BED files, these need to be merged.
     """
     input:
-        config.get("target_regions", []),
+        get_group_region
+        # config.get("target_regions", []),
     output:
-        "resources/target_regions/target_regions.bed",
+        "results/target_regions/{group}.bed",
+        # "resources/target_regions/target_regions.bed",
     log:
-        "logs/regions/target_regions.log",
+        "logs/regions/target_regions/{group}.log",
     conda:
         "../envs/bedtools.yaml"
     shell:
@@ -19,6 +30,7 @@ rule build_sample_regions:
     input:
         bam="results/recal/{sample}.cram",
         bai="results/recal/{sample}.crai",
+        ref=genome,
     output:
         "results/regions/{group}/{sample}.mosdepth.global.dist.txt",
         "results/regions/{group}/{sample}.quantized.bed.gz",
@@ -26,7 +38,7 @@ rule build_sample_regions:
     log:
         "logs/mosdepth/regions/{group}_{sample}.log",
     params:
-        extra="--no-per-base",
+        extra=f"--no-per-base -f {genome}",
         quantize="1:",
     wrapper:
         "v1.12.0/bio/mosdepth"
@@ -67,8 +79,8 @@ rule merge_covered_group_regions:
 rule filter_group_regions:
     input:
         regions="results/regions/{group}.{regions_type}_regions.bed",
-        predefined="resources/target_regions/target_regions.bed"
-        if "target_regions" in config
+        predefined="results/target_regions/{group}.bed"
+        if get_group_region
         else [],
         fai=genome_fai,
     output:

@@ -1,16 +1,6 @@
 samples: config/samples.tsv
-
 units: config/units.tsv
-
-# Optional group annotation table. Uncomment to use.
-# In the table, there has to be a column "group",
-# with one entry for each group occurring in the 
-# sample sheet above. Any additional columns may be
-# added to provide metadata for groups (e.g. if each
-# group is a patient or individual).
-# The given data will be shown in the header of the reported
-# variant call overview tables.
-# groups: config/groups.tsv
+groups: config/groups.tsv
 
 # Optional BED file with target regions
 # target_regions: "path/to/taget-regions.bed"
@@ -30,10 +20,6 @@ ref:
   # This is usually only relevant for testing.
   # chromosome: 21
 
-mapping:
-  mark_duplicates: "picard"
-  # can be picard or samblaster
-
 primers:
   trimming:
     activate: false
@@ -48,18 +34,23 @@ primers:
     # If 0 or not set the bowtie default value of 250 will be used
     library_length: 0
 
+mapping:
+  # The method to align the reads. Choose from bwa_mem (default) and bwa_meme
+  method: bwa_meme
+  mark_duplicates: "samblaster"
+
 # Estimation of tumor mutational burden.
 mutational_burden:
   activate: false
+  # Size of the sequenced coding genome for mutational burden estimation
+  # Attention: when doing panel sequencing, set this to the
+  # CAPTURED coding genome, not the entire one!
+  coding_genome_size: 3e7
   # Plotting modes - hist (stratified histogram)
   # or curve (stratified curve)
   mode:
     - curve
     - hist
-  events:
-    - somatic_tumor_low
-    - somatic_tumor_medium
-    - somatic_tumor_high
 
 # printing of variants in interactive tables
 report:
@@ -76,18 +67,18 @@ calling:
   # Set to true to infer classical genotypes from Varlociraptor's VAF predictions
   infer_genotypes: false
   delly:
-    activate: true
+    activate: false
   freebayes:
     activate: true
   # See https://varlociraptor.github.io/docs/calling/#generic-variant-calling
-  scenario: config/scenario.yaml
+  scenario: config/trio_female_scenario.yaml
   filter:
     # Filter candidate variants (this filter helps to keep the number of evaluated candidates small).
     # It should ideally generate a superset of all other filters defined below.
     # Annotation of candidate variants tries to be as fast as possible, only using VEP
     # default parameters. Comment out or remove if not needed or intended.
     # See https://github.com/vembrane/vembrane
-    candidates: "ANN['IMPACT'] != 'LOW'"
+    candidates: "not INFO['gnomad_AF'] or float(INFO['gnomad_AF']) < 0.001"
     # Add any number of named filters here (replace myfilter with a reasonable name, 
     # and add more below). Filtering happens with the vembrane filter language
     # (see https://github.com/vembrane/vembrane), and you can refer to any fields that
@@ -96,15 +87,16 @@ calling:
     # Filters will be applied independenty, and can be referred in FDR control below
     # to generate calls for different events.
     # You can for example filter by ANN fields, ID or dbsnp annotations here.
-    impact_filter: "ANN['IMPACT'] == 'HIGH'"
+    # impact_filter: "ANN['IMPACT'] == 'HIGH'"
     # If you need to use vembrane command line options beyond the filter expression,
     # please use the filter sub-structure with 'expression:' for the filter expression
     # and "aux-files:" for additional files with IDs for filtering. This can for example 
     # be used for filtering by gene lists (with a file containing one gene name per line).
-    gene_list_filter:
-      aux-files:
-        super_interesting_genes: "config/super_interesting_genes.tsv"
-      expression: "ANN['GENE'] in AUX['super_interesting_genes']"
+    non_intergenic: "ANN['Consequence'] != 'intergenic_variant'"
+    # gene_list_filter:
+    #   aux-files:
+    #     super_interesting_genes: "config/super_interesting_genes.tsv"
+    #   expression: "ANN['GENE'] in AUX['super_interesting_genes']"
   fdr-control:
     threshold: 0.05
     # denote whether local or global FDR shall be controlled
@@ -114,30 +106,17 @@ calling:
       # The id of each event can be chosen freely, but needs to contain
       # only alphanumerics and underscores
       # ("somatic" below is just an example and can be modified as needed).
-      some_id:
-        # labels for the callset, displayed in the report. Will fall back to id if no labels specified
-        labels:
-          some-label: label text
-          other-label: label text
-        # optional subcategory for callset (e.g. "known variants", or "VUS"),
-        # comment out or remove to disable
-        subcategory: some subcategory
-        # Natural language description of the callset obtained here.
-        # This will occur in the report.
-        desc: |
-          Some description.
+      interesting:
         varlociraptor: 
           # Add varlociraptor events to aggregated over.
           # The probability for the union of these events is used for controlling
           # the FDR.
-          - somatic_tumor_high
-          - somatic_tumor_medium
-        filter: # myfilter
-          # Add any number of filters here.
-          # A single filter can be set as string.
-          # Multiple filters can be defined as list and will be concatenated by 'and'
-          - impact_filter
-          - gene_list_filter
+          - denovo
+          - rezessive_homozygous
+          - pos_ch_mother_strong
+          - pos_ch_father_strong
+        filter: non_intergenic
+        script: workflow/scripts/filter_compound_heterozygous.py
 
 # If calc_consensus_reads is activated duplicates will be merged
 remove_duplicates:
@@ -152,9 +131,12 @@ annotations:
   vcfs:
     activate: true
     # annotate with known variants from ensembl
-    known: resources/variation.vcf.gz
-    # add more external VCFs as needed
-    # cosmic: path/to/cosmic.vcf.gz
+    gnomad:
+      filename: resources/gnomad.genomes.r3.0.sites.allpop.nochr.vcf.gz
+      fields:
+        - AC
+        - AN
+        - AF
   dgidb:
     # annotate variants with drug interactions of affected genes
     activate: false
@@ -170,7 +152,7 @@ annotations:
       # Add any plugin from https://www.ensembl.org/info/docs/tools/vep/script/vep_plugins.html
       # Plugin args can be passed as well, e.g. "LoFtool,path/to/custom/scores.txt".
       - LoFtool
-      - REVEL
+      # - REVEL
 
 # printing of variants in a table format (might be deprecated soon)
 tables:

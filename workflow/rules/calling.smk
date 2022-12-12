@@ -3,7 +3,7 @@ import io
 
 rule render_scenario:
     input:
-        template=local(config["calling"]["scenario"]),
+        template=get_render_template,
     output:
         report(
             "results/scenarios/{group}.yaml",

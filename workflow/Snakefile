@@ -53,15 +53,22 @@ rule only_mapping:
         expand("results/recal/{sample}.cram", sample=samples["sample_name"])
 
 
-rule next_step:
-    input:
-        # expand("results/calls/E18-0593.freebayes.{i}-of-16.bcf", i=range(1,17))
-        expand("results/tables/{group}.interesting.fdr-controlled.tsv", group=groups)
-
-
 rule benchmark:
     input:
         expand(
             "benchmarking/{query}.summary",
             query=config["calling"]["fdr-control"]["events"],
         ),
+
+
+rule next_step:
+    input:
+        # expand("results/calls/E18-0593.freebayes.{i}-of-16.bcf", i=range(1,17))
+        # expand("results/tables/{group}.interesting.fdr-controlled.tsv", group=group_annotation[~group_annotation["region"].isnull()].index.values),
+        expand("results/tables/{group}.interesting.fdr-controlled.tsv", group=groups),
+
+rule next_step_group:
+    input:
+        # expand("results/calls/E18-0593.freebayes.{i}-of-16.bcf", i=range(1,17))
+        # expand("results/tables/{group}.interesting.fdr-controlled.tsv", group=group_annotation[~group_annotation["region"].isnull()].index.values),
+        expand("results/tables/{group}.interesting.fdr-controlled.tsv", group=["didier"]),

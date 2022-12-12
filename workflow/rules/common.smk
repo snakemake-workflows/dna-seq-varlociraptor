@@ -3,6 +3,7 @@ from os import path
 
 import yaml
 import pandas as pd
+import math
 from snakemake.remote import FTP
 from snakemake.utils import validate
 
@@ -741,9 +742,9 @@ def get_fastqs(wc):
 def get_vembrane_config(wildcards, input):
     with open(input.scenario, "r") as scenario_file:
         scenario = yaml.load(scenario_file, Loader=yaml.SafeLoader)
-    parts = ["CHROM, POS, REF, ALT, INFO['END'], INFO['EVENT'], ID"]
+    parts = ["CHROM, POS, REF, ALT, INFO['END'], INFO['EVENT'], ID, INFO['gnomad_AF']"]
     header = [
-        "chromosome, position, reference allele, alternative allele, end position, event, id"
+        "chromosome, position, reference allele, alternative allele, end position, event, id, gnomad_af"
     ]
     join_items = ", ".join
 
@@ -789,8 +790,12 @@ def get_vembrane_config(wildcards, input):
     if config_output.get("event_prob", False):
         events = list(scenario["events"].keys())
         events += ["artifact", "absent"]
-        event_prob_list = ",".join(f"'PROB_{e.upper()}'" for e in events) 
-        append_items([f"max({event_prob_list}, key=lambda x:INFO[x])[5:].lower()"], lambda x: x, lambda x: "max prob")
+        event_prob_list = ",".join(f"'PROB_{e.upper()}'" for e in events)
+        append_items(
+            [f"max({event_prob_list}, key=lambda x:INFO[x])[5:].lower()"],
+            lambda x: x,
+            lambda x: "max prob",
+        )
         append_items(events, lambda x: f"INFO['PROB_{x.upper()}']", "prob: {}".format)
         append_items(events, lambda x: f"INFO['PROB_{x.upper()}']", "prob: {}".format)
     append_format_field("AF", "allele frequency")
@@ -918,10 +923,10 @@ def get_fastqc_results(wildcards):
     )
 
     # samtools idxstats
-    yield from expand("results/qc/{sample}.bam.idxstats", sample=group_samples)
+    yield from expand("results/qc/{sample}.cram.idxstats", sample=group_samples)
 
     # samtools stats
-    yield from expand("results/qc/{sample}.bam.stats", sample=group_samples)
+    yield from expand("results/qc/{sample}.cram.stats", sample=group_samples)
 
 
 def get_variant_oncoprints(wildcards):
@@ -947,3 +952,18 @@ def get_oncoprint(oncoprint_type):
             return []
 
     return inner
+
+
+def get_render_template(wildcards):
+    print(wildcards.group)
+    if "template" in group_annotation:
+        return group_annotation.loc[wildcards.group, "template"]
+    return local(config["calling"]["scenario"])
+
+
+def get_group_region(wildcards):
+    if "region" in group_annotation:
+        annotation = group_annotation.loc[wildcards.group, "region"]
+        if not math.isnan(annotation):
+            return [annotation]
+    return config.get("target_regions", [genome_prefix + ".bed"])

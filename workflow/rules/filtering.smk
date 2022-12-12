@@ -92,9 +92,18 @@ rule merge_calls:
         "v1.14.1/bio/bcftools/concat"
 
 
-rule convert_phred_scores:
+rule filter_compound_het:
     input:
         "results/final-calls/{group}.{event}.fdr-controlled.bcf",
+    output:
+        "results/final-calls/{group}.{event}.fdr-controlled.filter_comp_het.bcf",
+    script:
+        "../scripts/filter_compound_heterozygous.py"
+
+
+rule convert_phred_scores:
+    input:
+        "results/final-calls/{group}.{event}.fdr-controlled.filter_comp_het.bcf",
     output:
         "results/final-calls/{group}.{event}.fdr-controlled.normal-probs.bcf",
     log:
@@ -103,3 +112,4 @@ rule convert_phred_scores:
         "../envs/varlociraptor.yaml"
     shell:
         "varlociraptor decode-phred < {input} > {output} 2> {log}"
+
