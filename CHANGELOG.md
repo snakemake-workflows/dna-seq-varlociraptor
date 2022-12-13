@@ -1,5 +1,17 @@
 # Changelog
 
+## [3.19.0](https://github.com/snakemake-workflows/dna-seq-varlociraptor/compare/v3.18.7...v3.19.0) (2022-12-13)
+
+
+### Features
+
+* Ordering gene oncoprint rows based on annotation label ([#170](https://github.com/snakemake-workflows/dna-seq-varlociraptor/issues/170)) ([b832e5b](https://github.com/snakemake-workflows/dna-seq-varlociraptor/commit/b832e5bf0a2f37f024f515446ea3771a18c7a771))
+
+
+### Bug Fixes
+
+* update to varlociraptor 5.4.1 ([#186](https://github.com/snakemake-workflows/dna-seq-varlociraptor/issues/186)) ([1445902](https://github.com/snakemake-workflows/dna-seq-varlociraptor/commit/1445902b3d7ab44f2dfd69108e3a844b914c9ce5))
+
 ## [3.18.7](https://github.com/snakemake-workflows/dna-seq-varlociraptor/compare/v3.18.6...v3.18.7) (2022-11-24)
 
 
