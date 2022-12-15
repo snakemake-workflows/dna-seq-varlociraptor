@@ -286,6 +286,18 @@ def get_map_reads_input(wildcards):
     return "results/merged/{sample}_single.fastq.gz"
 
 
+def get_star_reads_input(wildcards, r2=False):
+    match (bool(is_paired_end(wildcards.sample)), r2):
+        case (True, False):
+            return "results/merged/{sample}_R1.fastq.gz"
+        case (True, True):
+            return "results/merged/{sample}_R2.fastq.gz"
+        case (False, False):
+            return "results/merged/{sample}_single.fastq.gz"
+        case (False, True):
+            return []
+
+
 def get_group_aliases(group):
     return samples.loc[samples["group"] == group]["alias"]
 
@@ -397,6 +409,13 @@ def get_markduplicates_extra(wc):
         d = ""
 
     return f"{c} {b} {d}"
+
+
+def get_arriba_group_bam(wildcards):
+    sample = get_group_samples(wildcards.group)
+    if len(sample) != 1:
+        WorkflowError("Fusion calling only supports one sample per group.")
+    return "results/mapped_arriba/{sample}.bam".format(sample=sample[0])
 
 
 def get_group_bams(wildcards, bai=False):
@@ -681,7 +700,7 @@ def get_annotation_filter_aux_files(wildcards):
 wildcard_constraints:
     group="|".join(groups),
     sample="|".join(samples["sample_name"]),
-    caller="|".join(["freebayes", "delly"]),
+    caller="|".join(["freebayes", "delly", "arriba"]),
     filter="|".join(config["calling"]["filter"]),
     event="|".join(config["calling"]["fdr-control"]["events"].keys()),
     regions_type="|".join(["expanded", "covered"]),
@@ -691,8 +710,13 @@ caller = list(
     filter(
         None,
         [
-            "freebayes" if is_activated("calling/freebayes") else None,
-            "delly" if is_activated("calling/delly") else None,
+            "freebayes"
+            if is_activated("calling/freebayes") and config["datatype"] == "dna"
+            else None,
+            "delly"
+            if is_activated("calling/delly") and config["datatype"] == "dna"
+            else None,
+            "arriba" if config["datatype"] == "rna" else None,
         ],
     )
 )

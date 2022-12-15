@@ -26,7 +26,9 @@ rule varlociraptor_alignment_properties:
     input:
         ref=genome,
         ref_idx=genome_fai,
-        bam="results/recal/{sample}.bam",
+        bam="results/recal/{sample}.bam"
+        if config["datatype"] == "dna"
+        else "results/mapped_arriba/{sample}.bam",
     output:
         "results/alignment-properties/{group}/{sample}.json",
     log:
@@ -42,8 +44,12 @@ rule varlociraptor_preprocess:
         ref=genome,
         ref_idx=genome_fai,
         candidates=get_candidate_calls(),
-        bam="results/recal/{sample}.bam",
-        bai="results/recal/{sample}.bai",
+        bam="results/recal/{sample}.bam"
+        if config["datatype"] == "dna"
+        else "results/mapped_arriba/{sample}.bam",
+        bai="results/recal/{sample}.bai"
+        if config["datatype"] == "dna"
+        else "results/mapped_arriba/{sample}.bai",
         alignment_props="results/alignment-properties/{group}/{sample}.json",
     output:
         "results/observations/{group}/{sample}.{caller}.{scatteritem}.bcf",
@@ -66,7 +72,7 @@ rule varlociraptor_call:
         obs=get_group_observations,
         scenario="results/scenarios/{group}.yaml",
     output:
-        temp("results/calls/{group}.{caller}.{scatteritem}.bcf"),
+        temp("results/calls/{group}.{caller}.{scatteritem}.unsorted.bcf"),
     log:
         "logs/varlociraptor/call/{group}.{caller}.{scatteritem}.log",
     params:
@@ -88,18 +94,20 @@ rule varlociraptor_call:
 
 rule sort_calls:
     input:
-        "results/calls/{group}.{caller}.{scatteritem}.bcf",
+        "results/calls/{group}.{caller}.{scatteritem}.unsorted.bcf",
     output:
         temp("results/calls/{group}.{caller}.{scatteritem}.bcf"),
+    params:
+        # Set to True, in case you want uncompressed BCF output
+        uncompressed_bcf=False,
+        # Extra arguments
+        extras="",
     log:
         "logs/bcf-sort/{group}.{caller}.{scatteritem}.log",
-    conda:
-        "../envs/bcftools.yaml"
     resources:
         mem_mb=8000,
-    shell:
-        "bcftools sort --max-mem {resources.mem_mb}M --temp-dir `mktemp -d` "
-        "-Ob {input} > {output} 2> {log}"
+    wrapper:
+        "v1.21.0/bio/bcftools/sort"
 
 
 rule bcftools_concat:
@@ -113,4 +121,4 @@ rule bcftools_concat:
     params:
         extra="-a",  # TODO Check this
     wrapper:
-        "v1.14.1/bio/bcftools/concat"
+        "v1.21.0/bio/bcftools/concat"
