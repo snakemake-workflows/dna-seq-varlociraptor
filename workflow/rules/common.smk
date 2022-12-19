@@ -410,14 +410,6 @@ def get_markduplicates_extra(wc):
 
     return f"{c} {b} {d}"
 
-
-def get_arriba_group_bam(wildcards):
-    sample = get_group_samples(wildcards.group)
-    if len(sample) != 1:
-        WorkflowError("Fusion calling only supports one sample per group.")
-    return "results/mapped_arriba/{sample}.bam".format(sample=sample[0])
-
-
 def get_group_bams(wildcards, bai=False):
     ext = "bai" if bai else "bam"
     if is_activated("primers/trimming") and not group_is_paired_end(wildcards.group):
@@ -426,6 +418,14 @@ def get_group_bams(wildcards, bai=False):
         "results/recal/{sample}.{ext}",
         sample=get_group_samples(wildcards.group),
         ext=ext,
+    )
+
+def get_arriba_group_candidates(wildcards, csi=False):
+    ext = ".csi" if csi else ""
+    return expand(
+        "results/candidate-calls/{sample}.arriba.bcf{ext}",
+        sample=get_group_samples(wildcards.group),
+        ext=ext
     )
 
 

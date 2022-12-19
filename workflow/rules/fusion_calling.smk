@@ -23,30 +23,31 @@ use rule star_align from fusion_calling with:
     output:
         aln="results/mapped_arriba/{sample}.bam",
         reads_per_gene="results/mapped_arriba/{sample}_ReadsPerGene.out.tab",
+    params:
+        # specific parameters to work well with arriba
+        extra=lambda wc, input: f"--quantMode GeneCounts --sjdbGTFfile {input.annotation}"
+        " --outSAMtype BAM SortedByCoordinate --chimSegmentMin 10 --chimOutType WithinBAM SoftClip"
+        " --chimJunctionOverhangMin 10 --chimScoreMin 1 --chimScoreDropMax 30 --chimScoreJunctionNonGTAG 0"
+        " --chimScoreSeparation 1 --alignSJstitchMismatchNmax 5 -1 5 5 --chimSegmentReadGapMax 3",
 
 
 use rule arriba from fusion_calling with:
     input:
-        bam=get_arriba_group_bam,
+        bam="results/mapped_arriba/{sample}.bam",
         genome=rules.get_genome.output,
         annotation=rules.get_annotation.output,
-    output:
-        fusions="results/arriba/{group}.fusions.tsv",
-        discarded="results/arriba/{group}.fusions.discarded.tsv",
-    log:
-        "logs/arriba/{group}.log",
 
 
 rule convert_fusions:
     input:
         fasta=rules.get_genome.output,
-        fusions="results/arriba/{group}.fusions.tsv",
+        fusions="results/arriba/{sample}.fusions.tsv",
     output:
-        temp("results/candidate-calls/{group}.arriba.vcf"),
+        temp("results/candidate-calls/{sample}.arriba.vcf"),
     conda:
         "../envs/arriba.yaml"
     log:
-        "logs/convert_fusions/{group}.log",
+        "logs/convert_fusions/{sample}.log",
     shell:
         """
         convert_fusions_to_vcf.sh {input.fasta} {input.fusions} {output} &> {log}
@@ -55,15 +56,51 @@ rule convert_fusions:
 
 rule bcftools_reheader:
     input:
-        vcf="results/candidate-calls/{group}.arriba.vcf",
+        vcf="results/candidate-calls/{sample}.arriba.vcf",
         fai=genome_fai,
     output:
-        "results/candidate-calls/{group}.arriba.bcf",
+        "results/candidate-calls/{sample}.arriba.unsorted.bcf",
     conda:
         "../envs/bcftools.yaml"
     log:
-        "logs/reheader/{group}.log",
+        "logs/reheader/{sample}.log",
     shell:
         """
         bcftools reheader --fai {input.fai} {input.vcf} | bcftools view -Ob > {output}
         """
+
+
+#TODO Replace by sorting rule in calling.smk
+rule sort_calls_arriba:
+    input:
+        "results/candidate-calls/{sample}.arriba.unsorted.bcf",
+    output:
+        temp("results/candidate-calls/{sample}.arriba.bcf"),
+    params:
+        # Set to True, in case you want uncompressed BCF output
+        uncompressed_bcf=False,
+        # Extra arguments
+        extras="",
+    log:
+        "logs/bcf-sort/{sample}.log",
+    resources:
+        mem_mb=8000,
+    wrapper:
+        "v1.21.0/bio/bcftools/sort"
+
+rule bcftools_concat_candidates:
+    input:
+        calls=get_arriba_group_candidates,
+        idx=lambda wc: get_arriba_group_candidates(wc, csi=True),
+    output:
+        "results/candidate-calls/{group}.arriba.bcf"
+    log:
+        "logs/concat_candidates/{group}.log",
+    params:
+        uncompressed_bcf=False,
+        extra="-d exact -a",
+    threads: 4
+    resources:
+        mem_mb=10,
+    wrapper:
+        "v1.21.0/bio/bcftools/concat"
