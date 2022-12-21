@@ -92,9 +92,7 @@ rule datavzrd_variants_calls:
             labels=get_datavzrd_report_labels,
             subcategory=get_datavzrd_report_subcategory,
         ),
-    conda:
-        "../envs/datavzrd.yaml"
     log:
         "logs/datavzrd_report/{batch}.{event}.log",
     shell:
-        "datavzrd {input.config} --output {output} &> {log}"
+        "v1.21.1/utils/datavzrd"
