@@ -1,5 +1,13 @@
 # Changelog
 
+## [3.19.1](https://github.com/snakemake-workflows/dna-seq-varlociraptor/compare/v3.19.0...v3.19.1) (2022-12-21)
+
+
+### Bug Fixes
+
+* typo in datavzrd rule ([19481c2](https://github.com/snakemake-workflows/dna-seq-varlociraptor/commit/19481c23fdaa24f98ee02060deda13bb9c746fa6))
+* update to datavzrd 2.11.1 ([a98a80f](https://github.com/snakemake-workflows/dna-seq-varlociraptor/commit/a98a80f558b40d1f2e6b5307ebcf52741b3f49a8))
+
 ## [3.19.0](https://github.com/snakemake-workflows/dna-seq-varlociraptor/compare/v3.18.7...v3.19.0) (2022-12-13)
 
 
