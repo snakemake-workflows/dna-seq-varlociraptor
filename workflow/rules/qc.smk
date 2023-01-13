@@ -48,4 +48,4 @@ rule multiqc:
     log:
         "logs/multiqc/{group}.log",
     wrapper:
-        "v1.3.2/bio/multiqc"
+        "v1.21.2/bio/multiqc"

@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.19.2](https://github.com/snakemake-workflows/dna-seq-varlociraptor/compare/v3.19.1...v3.19.2) (2023-01-13)
+
+
+### Bug Fixes
+
+* reimplement ability to generate testcase; fix environment for tsv_to_excel rule ([#190](https://github.com/snakemake-workflows/dna-seq-varlociraptor/issues/190)) ([fb2e692](https://github.com/snakemake-workflows/dna-seq-varlociraptor/commit/fb2e6929af0befb44b4d47fcd8f7b80aa0809d28))
+
 ## [3.19.1](https://github.com/snakemake-workflows/dna-seq-varlociraptor/compare/v3.19.0...v3.19.1) (2022-12-21)
 
 
