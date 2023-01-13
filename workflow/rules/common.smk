@@ -689,7 +689,8 @@ def get_annotation_filter_aux_files(wildcards):
 
 def get_varlociraptor_obs_args(wildcards, input):
     return [
-        "{}={}".format(s, f) for s, f in zip(get_group_aliases(wildcards.group), input.obs)
+        "{}={}".format(s, f)
+        for s, f in zip(get_group_aliases(wildcards.group), input.obs)
     ]
 
 

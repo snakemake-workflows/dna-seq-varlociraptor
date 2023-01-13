@@ -1,6 +1,8 @@
 rule gather_observations:
     input:
-        calls=gather.calling("results/observations/{{group}}/{{sample}}.{{caller}}.{scatteritem}.bcf"),
+        calls=gather.calling(
+            "results/observations/{{group}}/{{sample}}.{{caller}}.{scatteritem}.bcf"
+        ),
     output:
         "results/observations/{group}/{sample}.{caller}.all.bcf",
     log:
