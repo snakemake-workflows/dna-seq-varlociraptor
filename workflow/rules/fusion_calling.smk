@@ -53,7 +53,7 @@ rule convert_fusions:
         convert_fusions_to_vcf.sh {input.fasta} {input.fusions} {output} &> {log}
         """
 
-
+#Can be removed as soon as new version of arriba is available (updated convert fusions script)
 rule bcftools_reheader:
     input:
         vcf="results/candidate-calls/{sample}.arriba.vcf",

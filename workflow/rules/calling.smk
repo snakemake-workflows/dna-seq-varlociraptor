@@ -26,9 +26,7 @@ rule varlociraptor_alignment_properties:
     input:
         ref=genome,
         ref_idx=genome_fai,
-        bam="results/recal/{sample}.bam"
-        if config["datatype"] == "dna"
-        else "results/mapped_arriba/{sample}.bam",
+        bam=get_sample_bam,
     output:
         "results/alignment-properties/{group}/{sample}.json",
     log:
@@ -44,12 +42,8 @@ rule varlociraptor_preprocess:
         ref=genome,
         ref_idx=genome_fai,
         candidates=get_candidate_calls(),
-        bam="results/recal/{sample}.bam"
-        if config["datatype"] == "dna"
-        else "results/mapped_arriba/{sample}.bam",
-        bai="results/recal/{sample}.bai"
-        if config["datatype"] == "dna"
-        else "results/mapped_arriba/{sample}.bai",
+        bam=get_sample_bam,
+        bai=lambda wc: get_sample_bam(wc, bai=True),
         alignment_props="results/alignment-properties/{group}/{sample}.json",
     output:
         "results/observations/{group}/{sample}.{caller}.{scatteritem}.bcf",
