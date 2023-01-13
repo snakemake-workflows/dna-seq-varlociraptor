@@ -472,6 +472,15 @@ def get_group_observations(wildcards):
     )
 
 
+def get_all_group_observations(wildcards):
+    return expand(
+        "results/observations/{group}/{sample}.{caller}.all.bcf",
+        caller=wildcards.caller,
+        group=wildcards.group,
+        sample=get_group_samples(wildcards.group),
+    )
+
+
 def is_activated(xpath):
     c = config
     for entry in xpath.split("/"):
@@ -675,6 +684,12 @@ def get_annotation_filter_aux_files(wildcards):
         path
         for filter in get_annotation_filter_names(wildcards)
         for name, path in get_filter_aux_entries(filter).items()
+    ]
+
+
+def get_varlociraptor_obs_args(wildcards, input):
+    return [
+        "{}={}".format(s, f) for s, f in zip(get_group_aliases(wildcards.group), input.obs)
     ]
 
 
