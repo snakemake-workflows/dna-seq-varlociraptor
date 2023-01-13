@@ -22,7 +22,7 @@ rule testcase:
         obs=get_all_group_observations,
         scenario="results/scenarios/{group}.yaml",
     output:
-        directory("results/testcases/{group}.{caller}/{locus}"),
+        directory("results/testcases/{group}/{caller}/{locus}"),
     log:
         "logs/varlociraptor/testcase/{group}/{caller}/{locus}.log",
     params:
