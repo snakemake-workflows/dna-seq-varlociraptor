@@ -1,5 +1,11 @@
 # Changelog
 
+## [3.19.4](https://github.com/snakemake-workflows/dna-seq-varlociraptor/compare/v3.19.3...v3.19.4) (2023-01-23)
+
+### Fixes
+
+* update to Varlociraptor 5.6.2
+
 ## [3.19.3](https://github.com/snakemake-workflows/dna-seq-varlociraptor/compare/v3.19.2...v3.19.3) (2023-01-15)
 
 
