@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.19.5](https://github.com/snakemake-workflows/dna-seq-varlociraptor/compare/v3.19.4...v3.19.5) (2023-01-30)
+
+
+### Bug Fixes
+
+* resource download fixes (proxy support for get_vep_cache, curl deployment for download_revel) ([#195](https://github.com/snakemake-workflows/dna-seq-varlociraptor/issues/195)) ([9e250c6](https://github.com/snakemake-workflows/dna-seq-varlociraptor/commit/9e250c65eca3f9637fbaf0eda401c80e084ac7db))
+
 ## [3.19.4](https://github.com/snakemake-workflows/dna-seq-varlociraptor/compare/v3.19.3...v3.19.4) (2023-01-23)
 
 ### Fixes
