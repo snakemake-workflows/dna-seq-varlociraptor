@@ -3,6 +3,8 @@ rule download_revel:
         temp("resources/revel_scores.zip"),
     log:
         "logs/vep_plugins/download_revel.log",
+    conda:
+        "../envs/curl.yaml"
     shell:
         "curl https://rothsj06.dmz.hpc.mssm.edu/revel-v1.3_all_chromosomes.zip -o {output} &> {log}"
 
