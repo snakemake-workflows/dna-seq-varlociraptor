@@ -1,5 +1,13 @@
 # Changelog
 
+## [3.19.6](https://github.com/snakemake-workflows/dna-seq-varlociraptor/compare/v3.19.5...v3.19.6) (2023-02-01)
+
+
+### Bug Fixes
+
+* provide fasta to vep wrapper, update to latest vep wrapper ([814eee3](https://github.com/snakemake-workflows/dna-seq-varlociraptor/commit/814eee38146d3702666afd1ffb951e00dcf967fa))
+* update to latest vep cache wrapper in order to avoid another proxy problem ([8f9d1a2](https://github.com/snakemake-workflows/dna-seq-varlociraptor/commit/8f9d1a2cfa676760db7dbf7271c964a65c2833a2))
+
 ## [3.19.5](https://github.com/snakemake-workflows/dna-seq-varlociraptor/compare/v3.19.4...v3.19.5) (2023-01-30)
 
 
