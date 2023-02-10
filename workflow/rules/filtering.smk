@@ -1,17 +1,19 @@
 rule filter_candidates_by_annotation:
     input:
-        "results/candidate-calls/{group}.{caller}.{scatteritem}.annotated.bcf",
+        bcf="results/candidate-calls/{group}.{caller}.{scatteritem}.annotated.bcf",
+        aux=get_candidate_filter_aux_files(),
     output:
         "results/candidate-calls/{group}.{caller}.{scatteritem}.filtered.bcf",
     log:
         "logs/filter-calls/annotation/{group}.{caller}.{scatteritem}.log",
     params:
         filter=lambda w: config["calling"]["filter"]["candidates"].replace('"', '\\"'),
+        aux=get_candidate_filter_aux,
     conda:
         "../envs/vembrane.yaml"
     shell:
         "(bcftools norm -Ou --do-not-normalize --multiallelics -any {input} | "
-        'vembrane filter "{params.filter}" --output-fmt bcf --output {output}) &> {log}'
+        'vembrane filter {params.aux} "{params.filter}" --output-fmt bcf --output {output}) &> {log}'
 
 
 rule filter_by_annotation:
