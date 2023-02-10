@@ -1,5 +1,17 @@
 # Changelog
 
+## [3.20.0](https://github.com/snakemake-workflows/dna-seq-varlociraptor/compare/v3.19.6...v3.20.0) (2023-02-10)
+
+
+### Features
+
+* add ability to use aux-files for candidate filtering ([80f0ba9](https://github.com/snakemake-workflows/dna-seq-varlociraptor/commit/80f0ba9677a37963d0c6365d6d366a3c12c658fd))
+
+
+### Performance Improvements
+
+* update to varlociraptor 5.8.0 ([b15cd85](https://github.com/snakemake-workflows/dna-seq-varlociraptor/commit/b15cd85c49542daf146aeac4afaab3254729a166))
+
 ## [3.19.6](https://github.com/snakemake-workflows/dna-seq-varlociraptor/compare/v3.19.5...v3.19.6) (2023-02-01)
 
 
