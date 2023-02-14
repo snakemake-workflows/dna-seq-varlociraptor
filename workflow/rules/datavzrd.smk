@@ -56,8 +56,14 @@ rule render_datavzrd_config:
         spec_observations=workflow.source_path(
             "../resources/datavzrd/spec_observations.json"
         ),
+        spec_short_observations=workflow.source_path(
+            "../resources/datavzrd/spec_short_observations.json"
+        ),
         data_observations=workflow.source_path(
             "../resources/datavzrd/data_observations.js"
+        ),
+        data_short_observations=workflow.source_path(
+            "../resources/datavzrd/data_short_observations.js"
         ),
         varsome_url=get_varsome_url(),
         samples=samples,
@@ -95,4 +101,4 @@ rule datavzrd_variants_calls:
     log:
         "logs/datavzrd_report/{batch}.{event}.log",
     wrapper:
-        "v1.21.1/utils/datavzrd"
+        "v1.23.3/utils/datavzrd"
