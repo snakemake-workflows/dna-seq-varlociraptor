@@ -40,6 +40,23 @@ alignmend_ending = "cram" if use_cram else "bam"
 alignmend_index_ending = "crai" if use_cram else "bai"
 alignmend_ending_index_ending = "cram.crai" if use_cram else "bam.bai"
 
+delly_excluded_regions = {
+    ("homo_sapiens", "GRCh38"): "human.hg38",
+    ("homo_sapiens", "GRCh37"): "human.hg19",
+}
+
+
+def get_delly_excluded_regions():
+    custom_excluded_regions = config["calling"]["delly"].get("exclude_regions", "")
+    if custom_excluded_regions:
+        return custom_excluded_regions
+    elif delly_excluded_regions.get((species, build), False):
+        return "results/regions/{species_build}.delly_excluded.bed".format(
+            delly_excluded_regions[(species, build)]
+        )
+    else:
+        return ""
+
 
 def _group_or_sample(row):
     group = row.get("group", None)
@@ -103,7 +120,6 @@ def get_heterogeneous_labels():
 
 
 def get_final_output(wildcards):
-
     final_output = expand(
         "results/qc/multiqc/{group}.html",
         group=groups,

@@ -28,7 +28,7 @@ rule delly:
         ref_idx=genome_fai,
         alns=lambda w: get_group_bams(w),
         index=lambda w: get_group_bams(w, bai=True),
-        exclude="results/regions/{group}.excluded_regions.bed",
+        exclude=get_delly_excluded_regions(),
     output:
         "results/candidate-calls/{group}.delly.bcf",
     log:
