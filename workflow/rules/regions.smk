@@ -95,6 +95,6 @@ rule download_delly_excluded_regions:
     params:
         url="https://raw.githubusercontent.com/dellytools/delly/main/excludeTemplates/{species}.{build}.excl.tsv",
     log:
-        "logs/download_delly_regions/{spiecies}_{build}.log",
+        "logs/download_delly_regions/{species}_{build}.log",
     shell:
         "curl {params.url} -o {output} &> {log}"
