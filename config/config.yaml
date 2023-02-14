@@ -73,6 +73,9 @@ calling:
   infer_genotypes: false
   delly:
     activate: true
+    # Set custom excluded regions for delly calling. If commented out predefined templates will be downloaded
+    # from https://github.com/dellytools/delly/tree/main/excludeTemplates
+    # exclude_regions:
   freebayes:
     activate: true
   # See https://varlociraptor.github.io/docs/calling/#generic-variant-calling
