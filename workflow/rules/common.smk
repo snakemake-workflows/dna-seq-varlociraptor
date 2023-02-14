@@ -52,7 +52,7 @@ def get_delly_excluded_regions():
         return custom_excluded_regions
     elif delly_excluded_regions.get((species, build), False):
         return "results/regions/{species_build}.delly_excluded.bed".format(
-            delly_excluded_regions[(species, build)]
+            species_build=delly_excluded_regions[(species, build)]
         )
     else:
         return ""
