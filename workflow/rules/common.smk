@@ -46,18 +46,6 @@ delly_excluded_regions = {
 }
 
 
-def get_delly_excluded_regions():
-    custom_excluded_regions = config["calling"]["delly"].get("exclude_regions", "")
-    if custom_excluded_regions:
-        return custom_excluded_regions
-    elif delly_excluded_regions.get((species, build), False):
-        return "results/regions/{species_build}.delly_excluded.bed".format(
-            species_build=delly_excluded_regions[(species, build)]
-        )
-    else:
-        return ""
-
-
 def _group_or_sample(row):
     group = row.get("group", None)
     if pd.isnull(group):
@@ -1001,3 +989,15 @@ def get_oncoprint(oncoprint_type):
             return []
 
     return inner
+
+
+def get_delly_excluded_regions():
+    custom_excluded_regions = config["calling"]["delly"].get("exclude_regions", "")
+    if custom_excluded_regions:
+        return custom_excluded_regions
+    elif delly_excluded_regions.get((species, build), False):
+        return "results/regions/{species_build}.delly_excluded.bed".format(
+            species_build=delly_excluded_regions[(species, build)]
+        )
+    else:
+        return []
