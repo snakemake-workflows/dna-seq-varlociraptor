@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.20.1](https://github.com/snakemake-workflows/dna-seq-varlociraptor/compare/v3.20.0...v3.20.1) (2023-02-14)
+
+
+### Bug Fixes
+
+* properly handle missing candidate filter ([#199](https://github.com/snakemake-workflows/dna-seq-varlociraptor/issues/199)) ([bdec1a0](https://github.com/snakemake-workflows/dna-seq-varlociraptor/commit/bdec1a0340de290e7ff05ac79162160f6bc39ff8))
+
 ## [3.20.0](https://github.com/snakemake-workflows/dna-seq-varlociraptor/compare/v3.19.6...v3.20.0) (2023-02-10)
 
 
