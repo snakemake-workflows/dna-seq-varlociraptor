@@ -687,14 +687,20 @@ def get_annotation_filter_aux_files(wildcards):
 
 
 def get_candidate_filter_aux_files():
-    return [path for name, path in get_filter_aux_entries("candidates").items()]
+    if "candidates" not in config["calling"]["filter"]:
+        return []
+    else:
+        return [path for name, path in get_filter_aux_entries("candidates").items()]
 
 
 def get_candidate_filter_aux():
-    return [
-        f"--aux {name} {path}"
-        for name, path in get_filter_aux_entries("candidates").items()
-    ]
+    if "candidates" not in config["calling"]["filter"]:
+        return ""
+    else:
+        return [
+            f"--aux {name} {path}"
+            for name, path in get_filter_aux_entries("candidates").items()
+        ]
 
 
 def get_varlociraptor_obs_args(wildcards, input):
