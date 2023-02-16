@@ -8,17 +8,12 @@
       ],
     "mark": "bar",
     "encoding": {
-        "column": {
+        "y": {
             "field": "quality",
             "type": "ordinal",
-            "title": null
+            "title": "Quality"
         },
         "x": {
-            "field": "strand_orientation",
-            "type": "ordinal",
-            "title": "Strand"
-        },
-        "y": {
             "field": "times",
             "type": "quantitative",
             "title": "Counts"
@@ -35,22 +30,9 @@
             }
         },
         "tooltip": [ {
-            "field": "strand",
-            "type": "nominative",
-            "title": "Strand"
-        }, {
-            "field": "orientation",
-            "type": "nominal",
-            "title": "Orientation"
-        }, {
             "field": "times",
             "type": "quantitative",
             "title": "Counts"
-        }]
-    },
-    "config": {
-        "axisX": {
-            "labelAngle": -45
-        }
+        } ]
     }
 }
