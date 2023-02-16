@@ -691,6 +691,15 @@ def get_annotation_filter_aux_files(wildcards):
     ]
 
 
+def get_candidate_filter_expression(wildcards):
+    f = config["calling"]["filter"]["candidates"]
+    if isinstance(f, dict):
+        expression = f["expression"]
+    else:
+        expression = f
+    return f.replace('"', '\\"')
+
+
 def get_candidate_filter_aux_files():
     if "candidates" not in config["calling"]["filter"]:
         return []
