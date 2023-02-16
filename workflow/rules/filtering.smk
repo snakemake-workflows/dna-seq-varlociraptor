@@ -7,7 +7,7 @@ rule filter_candidates_by_annotation:
     log:
         "logs/filter-calls/annotation/{group}.{caller}.{scatteritem}.log",
     params:
-        filter=lambda w: config["calling"]["filter"]["candidates"].replace('"', '\\"'),
+        filter=get_candidate_filter_expression,
         aux=get_candidate_filter_aux(),
     conda:
         "../envs/vembrane.yaml"
