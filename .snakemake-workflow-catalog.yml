@@ -1,4 +1,7 @@
 usage:
+  mandatory-flags:
+    flags: "--directory .test --configfile .test/config-simple/config.yaml"
+    desc: Use the `.test` directory and the sample configuration
   software-stack-deployment:
     conda: true
   report: true
