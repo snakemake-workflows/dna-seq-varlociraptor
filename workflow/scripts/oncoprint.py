@@ -90,7 +90,7 @@ def gene_oncoprint(calls):
     if not calls.empty:
         grouped = (
             calls.drop_duplicates().groupby(["symbol"]).apply(join_group_consequences)
-        )
+        ).reset_index(drop=True)
         grouped = (
             grouped.drop_duplicates()
             .groupby(["group", "symbol"])
