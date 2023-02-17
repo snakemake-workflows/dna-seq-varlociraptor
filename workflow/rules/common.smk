@@ -697,7 +697,7 @@ def get_candidate_filter_expression(wildcards):
         expression = f["expression"]
     else:
         expression = f
-    return f.replace('"', '\\"')
+    return expression.replace('"', '\\"')
 
 
 def get_candidate_filter_aux_files():
