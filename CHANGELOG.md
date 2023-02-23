@@ -1,5 +1,38 @@
 # Changelog
 
+## [3.21.1](https://github.com/snakemake-workflows/dna-seq-varlociraptor/compare/v3.21.0...v3.21.1) (2023-02-17)
+
+
+### Bug Fixes
+
+* fix typo when retrieving candidate filter expression ([dd1e661](https://github.com/snakemake-workflows/dna-seq-varlociraptor/commit/dd1e66185994b1b79dc0bc3bfa26a5acca636a8a))
+
+## [3.21.0](https://github.com/snakemake-workflows/dna-seq-varlociraptor/compare/v3.20.1...v3.21.0) (2023-02-17)
+
+
+### Features
+
+* Plot simple observations ([#201](https://github.com/snakemake-workflows/dna-seq-varlociraptor/issues/201)) ([c940ec5](https://github.com/snakemake-workflows/dna-seq-varlociraptor/commit/c940ec5ef8f9d37d076e2c5422f44a6ce5d171ab))
+* Set excluded regions for delly ([#203](https://github.com/snakemake-workflows/dna-seq-varlociraptor/issues/203)) ([3688ea8](https://github.com/snakemake-workflows/dna-seq-varlociraptor/commit/3688ea895f660993e4566f681146caee95e7d38f))
+
+
+### Bug Fixes
+
+* properly handle complex candidate filter expressions including aux files ([#205](https://github.com/snakemake-workflows/dna-seq-varlociraptor/issues/205)) ([6e353f7](https://github.com/snakemake-workflows/dna-seq-varlociraptor/commit/6e353f788fd755ec4719d01346a864627bebf734))
+
+
+### Performance Improvements
+
+* update to varlociraptor 5.10.0 ([#207](https://github.com/snakemake-workflows/dna-seq-varlociraptor/issues/207)) ([076cf4e](https://github.com/snakemake-workflows/dna-seq-varlociraptor/commit/076cf4e6806da5c5c9c35f39176edd90be306da0))
+* update to varlociraptor 5.9 ([#200](https://github.com/snakemake-workflows/dna-seq-varlociraptor/issues/200)) ([38135f2](https://github.com/snakemake-workflows/dna-seq-varlociraptor/commit/38135f2a39b09c807b1ba8313a62d9be4d8f5899))
+
+## [3.20.1](https://github.com/snakemake-workflows/dna-seq-varlociraptor/compare/v3.20.0...v3.20.1) (2023-02-14)
+
+
+### Bug Fixes
+
+* properly handle missing candidate filter ([#199](https://github.com/snakemake-workflows/dna-seq-varlociraptor/issues/199)) ([bdec1a0](https://github.com/snakemake-workflows/dna-seq-varlociraptor/commit/bdec1a0340de290e7ff05ac79162160f6bc39ff8))
+
 ## [3.20.0](https://github.com/snakemake-workflows/dna-seq-varlociraptor/compare/v3.19.6...v3.20.0) (2023-02-10)
 
 

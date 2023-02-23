@@ -40,6 +40,11 @@ alignmend_ending = "cram" if use_cram else "bam"
 alignmend_index_ending = "crai" if use_cram else "bai"
 alignmend_ending_index_ending = "cram.crai" if use_cram else "bam.bai"
 
+delly_excluded_regions = {
+    ("homo_sapiens", "GRCh38"): "human.hg38",
+    ("homo_sapiens", "GRCh37"): "human.hg19",
+}
+
 
 def _group_or_sample(row):
     group = row.get("group", None)
@@ -686,15 +691,30 @@ def get_annotation_filter_aux_files(wildcards):
     ]
 
 
+def get_candidate_filter_expression(wildcards):
+    f = config["calling"]["filter"]["candidates"]
+    if isinstance(f, dict):
+        expression = f["expression"]
+    else:
+        expression = f
+    return expression.replace('"', '\\"')
+
+
 def get_candidate_filter_aux_files():
-    return [path for name, path in get_filter_aux_entries("candidates").items()]
+    if "candidates" not in config["calling"]["filter"]:
+        return []
+    else:
+        return [path for name, path in get_filter_aux_entries("candidates").items()]
 
 
 def get_candidate_filter_aux():
-    return [
-        f"--aux {name} {path}"
-        for name, path in get_filter_aux_entries("candidates").items()
-    ]
+    if "candidates" not in config["calling"]["filter"]:
+        return ""
+    else:
+        return [
+            f"--aux {name} {path}"
+            for name, path in get_filter_aux_entries("candidates").items()
+        ]
 
 
 def get_varlociraptor_obs_args(wildcards, input):
@@ -979,3 +999,15 @@ def get_oncoprint(oncoprint_type):
             return []
 
     return inner
+
+
+def get_delly_excluded_regions():
+    custom_excluded_regions = config["calling"]["delly"].get("exclude_regions", "")
+    if custom_excluded_regions:
+        return custom_excluded_regions
+    elif delly_excluded_regions.get((species, build), False):
+        return "results/regions/{species_build}.delly_excluded.bed".format(
+            species_build=delly_excluded_regions[(species, build)]
+        )
+    else:
+        return []
