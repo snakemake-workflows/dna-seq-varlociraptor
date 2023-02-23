@@ -147,10 +147,6 @@ write(noncoding_calls, snakemake.output.noncoding)
 
 coding_calls = calls[coding & canonical].drop(
     [
-        "chromosome",
-        "position",
-        "reference allele",
-        "alternative allele",
         "end position",
         "event",
         "id",
