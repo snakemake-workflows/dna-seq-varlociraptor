@@ -615,14 +615,12 @@ def get_fdr_control_params(wildcards):
         "threshold", config["calling"]["fdr-control"].get("threshold", 0.05)
     )
     events = query["varlociraptor"]
-    local = (
-        "--local"
-        if query.get("local", config["calling"]["fdr-control"].get("local", False))
-        else ""
-    )
+    local = query.get("local", config["calling"]["fdr-control"].get("local", False))
+    mode = "--mode local-smart" if local else "--mode global-smart"
     return {
         "threshold": threshold,
         "events": events,
+        "mode": mode,
         "local": local,
         "filter": query.get("filter"),
     }
