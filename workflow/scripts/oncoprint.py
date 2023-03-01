@@ -162,7 +162,7 @@ def sort_oncoprint_labels(data):
             # target vector: label values, converted into factors
             target_vector = labels_df.loc[label]
             # ignore any NA in the target vector and correspondingly remove the rows in the feature matrix
-            not_na_target_vector = target_vector[~pd.isna(target_vector)]
+            not_na_target_vector = target_vector[~pd.isna(target_vector)].astype("category")
             feature_matrix = feature_matrix.loc[not_na_target_vector.index]
 
             # calculate mutual information for 100 times and take the mean for each feature
