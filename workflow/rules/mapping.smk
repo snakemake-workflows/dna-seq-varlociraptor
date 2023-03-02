@@ -15,24 +15,39 @@ rule map_reads:
         "v1.10.0/bio/bwa/mem"
 
 
+rule merge_untrimmed_fastqs:
+    input:
+        get_untrimmed_fastqs,
+    output:
+        temp("results/untrimmed/{sample}_{read}.fastq.gz"),
+    log:
+        "logs/merge-fastqs/untrimemd/{sample}_{read}.log",
+    wildcard_constraints:
+        read="fq1|fq2",
+    shell:
+        "cat {input} > {output} 2> {log}"
+
+
 rule annotate_umis:
     input:
         bam="results/mapped/{sample}.bam",
-        umi=lambda wc: units.loc[wc.sample]["umis"][0],
+        umi=get_umi_fastq,
     output:
         temp("results/mapped/{sample}.annotated.bam"),
+    params:
+        extra=get_umi_read_structure,
     resources:
         mem_gb="10",
     log:
         "logs/fgbio/annotate_bam/{sample}.log",
     wrapper:
-        "v1.2.0/bio/fgbio/annotatebamwithumis"
+        "v1.23.4/bio/fgbio/annotatebamwithumis"
 
 
 rule mark_duplicates:
     input:
         lambda wc: "results/mapped/{sample}.bam"
-        if units.loc[wc.sample, "umis"].isnull().any()
+        if pd.isna(samples.loc[wc.sample, "umi_read"])
         else "results/mapped/{sample}.annotated.bam",
     output:
         bam=temp("results/dedup/{sample}.bam"),

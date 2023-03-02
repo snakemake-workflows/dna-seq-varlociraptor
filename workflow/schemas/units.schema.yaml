@@ -23,9 +23,6 @@ properties:
   adapters:
     type: string
     description: cutadapt adapter trimming settings to use (see https://cutadapt.readthedocs.io)
-  umis:
-    type: string
-    description: path to FASTQ file containing read names and corresponding molecular barcodes (leave emtpy if not exising)
 
 required:
   - sample_name
