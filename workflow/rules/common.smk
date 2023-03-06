@@ -829,9 +829,6 @@ def get_vembrane_config(wildcards, input):
         "CANONICAL",
     ]
 
-    if "REVEL" in config["annotations"]["vep"]["plugins"]:
-        annotation_fields.append("REVEL")
-
     annotation_fields.extend(
         [
             field
@@ -839,6 +836,9 @@ def get_vembrane_config(wildcards, input):
             if field not in annotation_fields
         ]
     )
+
+    if "REVEL" in config["annotations"]["vep"]["plugins"]:
+        annotation_fields.append("REVEL")
 
     append_items(annotation_fields, "ANN['{}']".format, str.lower)
     append_items(["CLIN_SIG"], "ANN['{}']".format, lambda x: "clinical significance")

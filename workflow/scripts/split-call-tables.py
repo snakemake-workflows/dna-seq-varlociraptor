@@ -107,10 +107,19 @@ def reorder_prob_cols(df):
         df = df.reindex(columns=updated_columns)
     return df
 
+def reorder_vaf_cols(df):
+    split_index = df.columns.get_loc("consequence")
+    left_columns = df.iloc[:, 0:split_index].columns
+    vaf_columns = df.filter(regex=": allele frequency$").columns
+    right_columns = df.iloc[:, split_index:].columns.drop(vaf_columns)
+    reordered_columns =  left_columns.append([vaf_columns, right_columns])
+    return df[reordered_columns]
+
 
 def cleanup_dataframe(df):
     df = drop_low_prob_cols(df)
     df = reorder_prob_cols(df)
+    df = reorder_vaf_cols(df)
     df = format_floats(df)
     return df
 
@@ -123,6 +132,24 @@ calls["clinical significance"] = (
     .apply(", ".join)
     .replace("", np.nan)
 )
+
+if "exon" in calls.columns:
+    calls["exon"] = (
+        calls["exon"]
+        .str
+        .strip("number / total: ")
+        .str
+        .replace(" ", "")
+    )
+
+if "amino_acids" in calls.columns:
+    calls["amino_acids"] = (
+        calls["amino_acids"]
+        .apply(eval)
+        .apply("/".join)
+        .replace("", np.nan)
+    )
+    calls.rename(columns={"amino_acids": "AA alteration"}, inplace=True)
 
 
 if not calls.empty:
