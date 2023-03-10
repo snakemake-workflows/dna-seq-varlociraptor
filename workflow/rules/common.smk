@@ -391,7 +391,7 @@ def get_primer_regions(wc):
 def get_markduplicates_extra(wc):
     c = config["params"]["picard"]["MarkDuplicates"]
 
-    if pd.isna(samples.loc[wc.sample]["umi_read"]):
+    if sample_has_umis(wc.sample):
         b = ""
     else:
         b = "--BARCODE_TAG RX"
@@ -865,6 +865,10 @@ def get_umi_fastq(wildcards):
     return "results/untrimmed/{S}_{R}.fastq.gz".format(
         S=wildcards.sample, R=samples.loc[wildcards.sample, "umi_read"]
     )
+
+
+def sample_has_umis(sample):
+    return pd.isna(samples.loc[sample, "umi_read"])
 
 
 def get_umi_read_structure(wildcards):
