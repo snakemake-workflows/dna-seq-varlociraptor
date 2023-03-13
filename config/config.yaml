@@ -201,8 +201,10 @@ params:
     # position, strand etc. (--omit-strand-bias, --omit-read-position-bias,
     # --omit-softclip-bias, --omit-read-orientation-bias).
     call: ""
-    # Add extra arguments for varlociraptor preprocess. By default, we limit the depth to 200.
-    # Increase this value for panel sequencing!
+    # Add extra arguments for varlociraptor preprocess. By default, we limit the evaluated depth to 200.
+    # This means that pileups with more reads will be downsampled to this number (it will not lead to discarding any locus).
+    # Nevertheless, you should increase this value e.g. for panel sequencing, where you usually have few 
+    # loci with very high coverage and do not want to waste all these observations.
     preprocess: "--max-depth 200"
   freebayes:
     min_alternate_fraction: 0.05 # Reduce for calling variants with lower VAFs
