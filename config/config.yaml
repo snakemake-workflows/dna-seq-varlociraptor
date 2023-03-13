@@ -138,6 +138,8 @@ calling:
           # Add any number of filters here.
           # A single filter can be set as string.
           # Multiple filters can be defined as list and will be concatenated by 'and'
+          # If an empty list is given or the filter key is removed entirely, no filtering
+          # except FDR control will be performed.
           - impact_filter
           - gene_list_filter
 
