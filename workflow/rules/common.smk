@@ -660,7 +660,7 @@ def get_filter_aux_entries(filter_name):
 
 
 def get_annotation_filter_names(wildcards):
-    entry = config["calling"]["fdr-control"]["events"][wildcards.event]["filter"]
+    entry = config["calling"]["fdr-control"]["events"][wildcards.event].get("filter", [])
     filter_names = [entry] if isinstance(entry, str) else entry
     return filter_names
 
@@ -670,7 +670,11 @@ def get_annotation_filter_expression(wildcards):
         get_filter_expression(filter)
         for filter in get_annotation_filter_names(wildcards)
     ]
-    return " and ".join(map("({})".format, filters)).replace('"', '\\"')
+    if not filters:
+        # no filtering intended, pass for every record
+        return "True"
+    else:
+        return " and ".join(map("({})".format, filters)).replace('"', '\\"')
 
 
 def get_annotation_filter_aux(wildcards):
