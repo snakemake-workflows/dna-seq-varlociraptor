@@ -54,6 +54,10 @@ def _group_or_sample(row):
 
 
 samples["group"] = [_group_or_sample(row) for _, row in samples.iterrows()]
+
+if "umi_read" not in samples.columns:
+    samples["umi_read"] = pd.NA
+
 validate(samples, schema="../schemas/samples.schema.yaml")
 
 
@@ -79,9 +83,6 @@ units = (
     .set_index(["sample_name", "unit_name"], drop=False)
     .sort_index()
 )
-
-if "umis" not in units.columns:
-    units["umis"] = pd.NA
 
 validate(units, schema="../schemas/units.schema.yaml")
 
@@ -390,7 +391,7 @@ def get_primer_regions(wc):
 def get_markduplicates_extra(wc):
     c = config["params"]["picard"]["MarkDuplicates"]
 
-    if units.loc[wc.sample]["umis"].isnull().any():
+    if sample_has_umis(wc.sample):
         b = ""
     else:
         b = "--BARCODE_TAG RX"
@@ -790,13 +791,22 @@ def get_tabix_revel_params():
     return f"-f -s 1 -b {column} -e {column}"
 
 
-def get_fastqs(wc):
+def get_untrimmed_fastqs(wc):
+    return units.loc[wc.sample, wc.read]
+
+
+def get_trimmed_fastqs(wc):
     return expand(
         "results/trimmed/{sample}/{unit}_{read}.fastq.gz",
         unit=units.loc[wc.sample, "unit_name"],
         sample=wc.sample,
         read=wc.read,
     )
+
+
+def get_umi_fastq(wc):
+    read = samples.loc[wc.sample, "umi_read"]
+    return "results/untrimmed/{{sample}}_{R}.fastq.gz".format(R=read)
 
 
 def get_vembrane_config(wildcards, input):
@@ -858,6 +868,23 @@ def get_vembrane_config(wildcards, input):
     if config_output.get("observations", False):
         append_format_field("OBS", "observations")
     return {"expr": join_items(parts), "header": join_items(header)}
+
+
+def get_umi_fastq(wildcards):
+    if samples.loc[wildcards.sample, "umi_read"] in ["fq1", "fq2"]:
+        return "results/untrimmed/{S}_{R}.fastq.gz".format(
+            S=wildcards.sample, R=samples.loc[wildcards.sample, "umi_read"]
+        )
+    else:
+        return samples.loc[wildcards.sample, "umi_read"]
+
+
+def sample_has_umis(sample):
+    return pd.isna(samples.loc[sample, "umi_read"])
+
+
+def get_umi_read_structure(wildcards):
+    return "-r {}".format(samples.loc[wildcards.sample, "umi_read_structure"])
 
 
 def get_sample_alias(wildcards):

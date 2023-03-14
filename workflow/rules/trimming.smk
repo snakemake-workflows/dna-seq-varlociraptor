@@ -55,13 +55,13 @@ rule cutadapt_se:
         "v1.12.0/bio/cutadapt/se"
 
 
-rule merge_fastqs:
+rule merge_trimmed_fastqs:
     input:
-        get_fastqs,
+        get_trimmed_fastqs,
     output:
         "results/merged/{sample}_{read}.fastq.gz",
     log:
-        "logs/merge-fastqs/{sample}_{read}.log",
+        "logs/merge-fastqs/trimmed/{sample}_{read}.log",
     wildcard_constraints:
         read="single|R1|R2",
     shell:
