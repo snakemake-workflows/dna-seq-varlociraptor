@@ -31,7 +31,7 @@ rule annotate_umis:
 
 rule mark_duplicates:
     input:
-        lambda wc: "results/mapped/{sample}.bam"
+        bams=lambda wc: "results/mapped/{sample}.bam"
         if units.loc[wc.sample, "umis"].isnull().any()
         else "results/mapped/{sample}.annotated.bam",
     output:
