@@ -56,7 +56,8 @@ rule fix_delly_calls:
 
 rule filter_offtarget_variants:
     input:
-        calls=get_fixed_candidate_calls,
+        calls=get_fixed_candidate_calls("bcf"),
+        index=get_fixed_candidate_calls("bcf.csi"),
         regions="resources/target_regions/target_regions.bed",
     output:
         "results/candidate-calls/{group}.{caller}.filtered.bcf",
@@ -72,7 +73,7 @@ rule scatter_candidates:
     input:
         "results/candidate-calls/{group}.{caller}.filtered.bcf"
         if config.get("target_regions", None)
-        else get_fixed_candidate_calls,
+        else get_fixed_candidate_calls("bcf"),
     output:
         scatter.calling(
             "results/candidate-calls/{{group}}.{{caller}}.{scatteritem}.bcf"
