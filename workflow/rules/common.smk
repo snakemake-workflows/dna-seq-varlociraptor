@@ -862,9 +862,12 @@ def get_vembrane_config(wildcards, input):
 
 
 def get_umi_fastq(wildcards):
-    return "results/untrimmed/{S}_{R}.fastq.gz".format(
-        S=wildcards.sample, R=samples.loc[wildcards.sample, "umi_read"]
-    )
+    if samples.loc[wildcards.sample, "umi_read"] in ["fq1", "fq2"]:
+        return "results/untrimmed/{S}_{R}.fastq.gz".format(
+            S=wildcards.sample, R=samples.loc[wildcards.sample, "umi_read"]
+        )
+    else:
+        return samples.loc[wildcards.sample, "umi_read"]
 
 
 def sample_has_umis(sample):
