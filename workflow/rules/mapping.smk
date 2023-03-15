@@ -46,8 +46,8 @@ rule annotate_umis:
 
 rule mark_duplicates:
     input:
-        lambda wc: "results/mapped/{sample}.bam"
-        if pd.isna(samples.loc[wc.sample, "umi_read"])
+        bams=lambda wc: "results/mapped/{sample}.bam"
+        if sample_has_umis(wc.sample)
         else "results/mapped/{sample}.annotated.bam",
     output:
         bam=temp("results/dedup/{sample}.bam"),

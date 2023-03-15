@@ -391,7 +391,7 @@ def get_primer_regions(wc):
 def get_markduplicates_extra(wc):
     c = config["params"]["picard"]["MarkDuplicates"]
 
-    if pd.isna(samples.loc[wc.sample]["umi_read"]):
+    if sample_has_umis(wc.sample):
         b = ""
     else:
         b = "--BARCODE_TAG RX"
@@ -627,11 +627,20 @@ def get_fdr_control_params(wildcards):
     }
 
 
-def get_fixed_candidate_calls(wildcards):
-    if wildcards.caller == "delly":
-        return "results/candidate-calls/{group}.delly.no_bnds.bcf"
-    else:
-        return "results/candidate-calls/{group}.{caller}.bcf"
+def get_fixed_candidate_calls(ext="bcf"):
+    def inner(wildcards):
+        if wildcards.caller == "delly":
+            return expand(
+                "results/candidate-calls/{{group}}.delly.no_bnds.{ext}",
+                ext=ext,
+            )
+        else:
+            return expand(
+                "results/candidate-calls/{{group}}.{{caller}}.{ext}",
+                ext=ext,
+            )
+
+    return inner
 
 
 def get_filter_targets(wildcards, input):
@@ -671,7 +680,7 @@ def get_annotation_filter_expression(wildcards):
         get_filter_expression(filter)
         for filter in get_annotation_filter_names(wildcards)
     ]
-    return " and ".join(filters).replace('"', '\\"')
+    return " and ".join(map("({})".format, filters)).replace('"', '\\"')
 
 
 def get_annotation_filter_aux(wildcards):
@@ -862,9 +871,16 @@ def get_vembrane_config(wildcards, input):
 
 
 def get_umi_fastq(wildcards):
-    return "results/untrimmed/{S}_{R}.fastq.gz".format(
-        S=wildcards.sample, R=samples.loc[wildcards.sample, "umi_read"]
-    )
+    if samples.loc[wildcards.sample, "umi_read"] in ["fq1", "fq2"]:
+        return "results/untrimmed/{S}_{R}.fastq.gz".format(
+            S=wildcards.sample, R=samples.loc[wildcards.sample, "umi_read"]
+        )
+    else:
+        return samples.loc[wildcards.sample, "umi_read"]
+
+
+def sample_has_umis(sample):
+    return pd.isna(samples.loc[sample, "umi_read"])
 
 
 def get_umi_read_structure(wildcards):
