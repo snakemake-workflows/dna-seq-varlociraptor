@@ -1,1 +1,1 @@
-sample_name	alias	group	platform	purity	panel
+sample_name	alias	group	platform	purity	panel	umi_read	umi_read_structure

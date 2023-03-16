@@ -40,6 +40,11 @@ alignmend_ending = "cram" if use_cram else "bam"
 alignmend_index_ending = "crai" if use_cram else "bai"
 alignmend_ending_index_ending = "cram.crai" if use_cram else "bam.bai"
 
+delly_excluded_regions = {
+    ("homo_sapiens", "GRCh38"): "human.hg38",
+    ("homo_sapiens", "GRCh37"): "human.hg19",
+}
+
 
 def _group_or_sample(row):
     group = row.get("group", None)
@@ -49,6 +54,10 @@ def _group_or_sample(row):
 
 
 samples["group"] = [_group_or_sample(row) for _, row in samples.iterrows()]
+
+if "umi_read" not in samples.columns:
+    samples["umi_read"] = pd.NA
+
 validate(samples, schema="../schemas/samples.schema.yaml")
 
 
@@ -75,9 +84,6 @@ units = (
     .sort_index()
 )
 
-if "umis" not in units.columns:
-    units["umis"] = pd.NA
-
 validate(units, schema="../schemas/units.schema.yaml")
 
 primer_panels = (
@@ -103,7 +109,6 @@ def get_heterogeneous_labels():
 
 
 def get_final_output(wildcards):
-
     final_output = expand(
         "results/qc/multiqc/{group}.html",
         group=groups,
@@ -398,7 +403,7 @@ def get_primer_regions(wc):
 def get_markduplicates_extra(wc):
     c = config["params"]["picard"]["MarkDuplicates"]
 
-    if units.loc[wc.sample]["umis"].isnull().any():
+    if sample_has_umis(wc.sample):
         b = ""
     else:
         b = "--BARCODE_TAG RX"
@@ -498,6 +503,15 @@ def get_group_observations(wildcards):
         caller=wildcards.caller,
         group=wildcards.group,
         scatteritem=wildcards.scatteritem,
+        sample=get_group_samples(wildcards.group),
+    )
+
+
+def get_all_group_observations(wildcards):
+    return expand(
+        "results/observations/{group}/{sample}.{caller}.all.bcf",
+        caller=wildcards.caller,
+        group=wildcards.group,
         sample=get_group_samples(wildcards.group),
     )
 
@@ -631,24 +645,31 @@ def get_fdr_control_params(wildcards):
         "threshold", config["calling"]["fdr-control"].get("threshold", 0.05)
     )
     events = query["varlociraptor"]
-    local = (
-        "--local"
-        if query.get("local", config["calling"]["fdr-control"].get("local", False))
-        else ""
-    )
+    local = query.get("local", config["calling"]["fdr-control"].get("local", False))
+    mode = "--mode local-smart" if local else "--mode global-smart"
     return {
         "threshold": threshold,
         "events": events,
+        "mode": mode,
         "local": local,
         "filter": query.get("filter"),
     }
 
 
-def get_fixed_candidate_calls(wildcards):
-    if wildcards.caller == "delly":
-        return "results/candidate-calls/{group}.delly.no_bnds.bcf"
-    else:
-        return "results/candidate-calls/{group}.{caller}.bcf"
+def get_fixed_candidate_calls(ext="bcf"):
+    def inner(wildcards):
+        if wildcards.caller == "delly":
+            return expand(
+                "results/candidate-calls/{{group}}.delly.no_bnds.{ext}",
+                ext=ext,
+            )
+        else:
+            return expand(
+                "results/candidate-calls/{{group}}.{{caller}}.{ext}",
+                ext=ext,
+            )
+
+    return inner
 
 
 def get_filter_targets(wildcards, input):
@@ -688,7 +709,7 @@ def get_annotation_filter_expression(wildcards):
         get_filter_expression(filter)
         for filter in get_annotation_filter_names(wildcards)
     ]
-    return " and ".join(filters).replace('"', '\\"')
+    return " and ".join(map("({})".format, filters)).replace('"', '\\"')
 
 
 def get_annotation_filter_aux(wildcards):
@@ -704,6 +725,39 @@ def get_annotation_filter_aux_files(wildcards):
         path
         for filter in get_annotation_filter_names(wildcards)
         for name, path in get_filter_aux_entries(filter).items()
+    ]
+
+
+def get_candidate_filter_expression(wildcards):
+    f = config["calling"]["filter"]["candidates"]
+    if isinstance(f, dict):
+        expression = f["expression"]
+    else:
+        expression = f
+    return expression.replace('"', '\\"')
+
+
+def get_candidate_filter_aux_files():
+    if "candidates" not in config["calling"]["filter"]:
+        return []
+    else:
+        return [path for name, path in get_filter_aux_entries("candidates").items()]
+
+
+def get_candidate_filter_aux():
+    if "candidates" not in config["calling"]["filter"]:
+        return ""
+    else:
+        return [
+            f"--aux {name} {path}"
+            for name, path in get_filter_aux_entries("candidates").items()
+        ]
+
+
+def get_varlociraptor_obs_args(wildcards, input):
+    return [
+        "{}={}".format(s, f)
+        for s, f in zip(get_group_aliases(wildcards.group), input.obs)
     ]
 
 
@@ -770,13 +824,22 @@ def get_tabix_revel_params():
     return f"-f -s 1 -b {column} -e {column}"
 
 
-def get_fastqs(wc):
+def get_untrimmed_fastqs(wc):
+    return units.loc[wc.sample, wc.read]
+
+
+def get_trimmed_fastqs(wc):
     return expand(
         "results/trimmed/{sample}/{unit}_{read}.fastq.gz",
         unit=units.loc[wc.sample, "unit_name"],
         sample=wc.sample,
         read=wc.read,
     )
+
+
+def get_umi_fastq(wc):
+    read = samples.loc[wc.sample, "umi_read"]
+    return "results/untrimmed/{{sample}}_{R}.fastq.gz".format(R=read)
 
 
 def get_vembrane_config(wildcards, input):
@@ -833,10 +896,28 @@ def get_vembrane_config(wildcards, input):
         append_items(events, lambda x: f"INFO['PROB_{x.upper()}']", "prob: {}".format)
     append_format_field("AF", "allele frequency")
     append_format_field("DP", "read depth")
-
+    if config_output.get("short_observations", False):
+        append_format_field("SOBS", "short observations")
     if config_output.get("observations", False):
         append_format_field("OBS", "observations")
     return {"expr": join_items(parts), "header": join_items(header)}
+
+
+def get_umi_fastq(wildcards):
+    if samples.loc[wildcards.sample, "umi_read"] in ["fq1", "fq2"]:
+        return "results/untrimmed/{S}_{R}.fastq.gz".format(
+            S=wildcards.sample, R=samples.loc[wildcards.sample, "umi_read"]
+        )
+    else:
+        return samples.loc[wildcards.sample, "umi_read"]
+
+
+def sample_has_umis(sample):
+    return pd.isna(samples.loc[sample, "umi_read"])
+
+
+def get_umi_read_structure(wildcards):
+    return "-r {}".format(samples.loc[wildcards.sample, "umi_read_structure"])
 
 
 def get_sample_alias(wildcards):
@@ -985,3 +1066,15 @@ def get_oncoprint(oncoprint_type):
             return []
 
     return inner
+
+
+def get_delly_excluded_regions():
+    custom_excluded_regions = config["calling"]["delly"].get("exclude_regions", "")
+    if custom_excluded_regions:
+        return custom_excluded_regions
+    elif delly_excluded_regions.get((species, build), False):
+        return "results/regions/{species_build}.delly_excluded.bed".format(
+            species_build=delly_excluded_regions[(species, build)]
+        )
+    else:
+        return []

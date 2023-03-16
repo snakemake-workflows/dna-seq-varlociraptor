@@ -70,9 +70,7 @@ rule varlociraptor_call:
     log:
         "logs/varlociraptor/call/{group}.{caller}.{scatteritem}.log",
     params:
-        obs=lambda w, input: [
-            "{}={}".format(s, f) for s, f in zip(get_group_aliases(w.group), input.obs)
-        ],
+        obs=get_varlociraptor_obs_args,
         extra=config["params"]["varlociraptor"]["call"],
         postprocess=">"
         if not config["calling"].get("infer_genotypes")

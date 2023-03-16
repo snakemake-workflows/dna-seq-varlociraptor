@@ -40,3 +40,11 @@ In case of different panels, primers have to be set panel-wise in a seperate tsv
 For each panel the following columns need to be set: `panel`, `fa1` and `fa2` (optional).
 Additionally, for each sample the corresponding panel must be defined in `samples.tsv` (column `panel`).
 For single primer trimming only, the first entry in the config (respective in the tsv file) needs to be defined.
+
+# Annotating UMIS
+
+For annotating UMIs two additional columns in `sample.tsv` must be set:
+* umi_read: This can be either `fq1` or `fq2` if the UMIs are part of one of the two. Alternatively, the path to an additional fastq file containing just the UMI of each fragment in fq1 and fq2 (with the same read names) can be set.
+* umi_read_structure: A read structure defining the UMI position in each UMI record (see https://github.com/fulcrumgenomics/fgbio/wiki/Read-Structures). In case a separate fastq file only containg UMI sequences is set the read structure needs to be `+M`.
+Read names of UMI records must match the corresponding records of the sample fastqs.
+

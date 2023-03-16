@@ -265,13 +265,27 @@ views:
             display-mode: hidden
           hgvsg:
             display-mode: detail
+          chromosome:
+            display-mode: detail
+          position:
+             display-mode: detail
+          reference allele:
+            display-mode: detail
+          alternative allele:
+            display-mode: detail
 
           ?for alias in params.samples.loc[params.samples["group"] == group, "alias"]:
+            '?f"{alias}: short observations"':
+              custom-plot:
+                data: ?read_file(params.data_short_observations)
+                spec: ?read_file(params.spec_short_observations)
+              display-mode: detail
             '?f"{alias}: observations"':
               custom-plot:
                 data: ?read_file(params.data_observations)
                 spec: ?read_file(params.spec_observations)
               display-mode: detail
+
 
 
     ?f"{group}-noncoding":
@@ -331,6 +345,14 @@ views:
           feature:
             display-mode: hidden
           hgvsg:
+            display-mode: detail
+          chromosome:
+            display-mode: detail
+          position:
+             display-mode: detail
+          reference allele:
+            display-mode: detail
+          alternative allele:
             display-mode: detail
 
           ?for alias in params.samples.loc[params.samples["group"] == group, "alias"]:

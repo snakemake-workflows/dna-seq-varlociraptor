@@ -1,5 +1,118 @@
 # Changelog
 
+## [3.22.0](https://github.com/snakemake-workflows/dna-seq-varlociraptor/compare/v3.21.1...v3.22.0) (2023-03-01)
+
+
+### Features
+
+* Add datavzrd fields ([#209](https://github.com/snakemake-workflows/dna-seq-varlociraptor/issues/209)) ([142ead7](https://github.com/snakemake-workflows/dna-seq-varlociraptor/commit/142ead7b5a987fe48bfdef1239f8e038cb14a36b))
+
+
+### Bug Fixes
+
+* explicitly use categorical type for chi2 testing ([#210](https://github.com/snakemake-workflows/dna-seq-varlociraptor/issues/210)) ([079c756](https://github.com/snakemake-workflows/dna-seq-varlociraptor/commit/079c75627556cc37a0c8c8a4df870170791d033f))
+* use varlociraptor 6.0 with its new smart FDR control. This leads to improved filtration results with less false negatives ([#212](https://github.com/snakemake-workflows/dna-seq-varlociraptor/issues/212)) ([cb00c33](https://github.com/snakemake-workflows/dna-seq-varlociraptor/commit/cb00c33eb9bb7659c878f9255d7a4915a520686e))
+
+## [3.21.1](https://github.com/snakemake-workflows/dna-seq-varlociraptor/compare/v3.21.0...v3.21.1) (2023-02-17)
+
+
+### Bug Fixes
+
+* fix typo when retrieving candidate filter expression ([dd1e661](https://github.com/snakemake-workflows/dna-seq-varlociraptor/commit/dd1e66185994b1b79dc0bc3bfa26a5acca636a8a))
+
+## [3.21.0](https://github.com/snakemake-workflows/dna-seq-varlociraptor/compare/v3.20.1...v3.21.0) (2023-02-17)
+
+
+### Features
+
+* Plot simple observations ([#201](https://github.com/snakemake-workflows/dna-seq-varlociraptor/issues/201)) ([c940ec5](https://github.com/snakemake-workflows/dna-seq-varlociraptor/commit/c940ec5ef8f9d37d076e2c5422f44a6ce5d171ab))
+* Set excluded regions for delly ([#203](https://github.com/snakemake-workflows/dna-seq-varlociraptor/issues/203)) ([3688ea8](https://github.com/snakemake-workflows/dna-seq-varlociraptor/commit/3688ea895f660993e4566f681146caee95e7d38f))
+
+
+### Bug Fixes
+
+* properly handle complex candidate filter expressions including aux files ([#205](https://github.com/snakemake-workflows/dna-seq-varlociraptor/issues/205)) ([6e353f7](https://github.com/snakemake-workflows/dna-seq-varlociraptor/commit/6e353f788fd755ec4719d01346a864627bebf734))
+
+
+### Performance Improvements
+
+* update to varlociraptor 5.10.0 ([#207](https://github.com/snakemake-workflows/dna-seq-varlociraptor/issues/207)) ([076cf4e](https://github.com/snakemake-workflows/dna-seq-varlociraptor/commit/076cf4e6806da5c5c9c35f39176edd90be306da0))
+* update to varlociraptor 5.9 ([#200](https://github.com/snakemake-workflows/dna-seq-varlociraptor/issues/200)) ([38135f2](https://github.com/snakemake-workflows/dna-seq-varlociraptor/commit/38135f2a39b09c807b1ba8313a62d9be4d8f5899))
+
+## [3.20.1](https://github.com/snakemake-workflows/dna-seq-varlociraptor/compare/v3.20.0...v3.20.1) (2023-02-14)
+
+
+### Bug Fixes
+
+* properly handle missing candidate filter ([#199](https://github.com/snakemake-workflows/dna-seq-varlociraptor/issues/199)) ([bdec1a0](https://github.com/snakemake-workflows/dna-seq-varlociraptor/commit/bdec1a0340de290e7ff05ac79162160f6bc39ff8))
+
+## [3.20.0](https://github.com/snakemake-workflows/dna-seq-varlociraptor/compare/v3.19.6...v3.20.0) (2023-02-10)
+
+
+### Features
+
+* add ability to use aux-files for candidate filtering ([80f0ba9](https://github.com/snakemake-workflows/dna-seq-varlociraptor/commit/80f0ba9677a37963d0c6365d6d366a3c12c658fd))
+
+
+### Performance Improvements
+
+* update to varlociraptor 5.8.0 ([b15cd85](https://github.com/snakemake-workflows/dna-seq-varlociraptor/commit/b15cd85c49542daf146aeac4afaab3254729a166))
+
+## [3.19.6](https://github.com/snakemake-workflows/dna-seq-varlociraptor/compare/v3.19.5...v3.19.6) (2023-02-01)
+
+
+### Bug Fixes
+
+* provide fasta to vep wrapper, update to latest vep wrapper ([814eee3](https://github.com/snakemake-workflows/dna-seq-varlociraptor/commit/814eee38146d3702666afd1ffb951e00dcf967fa))
+* update to latest vep cache wrapper in order to avoid another proxy problem ([8f9d1a2](https://github.com/snakemake-workflows/dna-seq-varlociraptor/commit/8f9d1a2cfa676760db7dbf7271c964a65c2833a2))
+
+## [3.19.5](https://github.com/snakemake-workflows/dna-seq-varlociraptor/compare/v3.19.4...v3.19.5) (2023-01-30)
+
+
+### Bug Fixes
+
+* resource download fixes (proxy support for get_vep_cache, curl deployment for download_revel) ([#195](https://github.com/snakemake-workflows/dna-seq-varlociraptor/issues/195)) ([9e250c6](https://github.com/snakemake-workflows/dna-seq-varlociraptor/commit/9e250c65eca3f9637fbaf0eda401c80e084ac7db))
+
+## [3.19.4](https://github.com/snakemake-workflows/dna-seq-varlociraptor/compare/v3.19.3...v3.19.4) (2023-01-23)
+
+### Fixes
+
+* update to Varlociraptor 5.6.2
+
+## [3.19.3](https://github.com/snakemake-workflows/dna-seq-varlociraptor/compare/v3.19.2...v3.19.3) (2023-01-15)
+
+
+### Performance Improvements
+
+* update to varlociraptor 5.6.1 ([#189](https://github.com/snakemake-workflows/dna-seq-varlociraptor/issues/189)) ([4c34c84](https://github.com/snakemake-workflows/dna-seq-varlociraptor/commit/4c34c84ebe8d3abd590fce23f833f2a617709a39))
+
+## [3.19.2](https://github.com/snakemake-workflows/dna-seq-varlociraptor/compare/v3.19.1...v3.19.2) (2023-01-13)
+
+
+### Bug Fixes
+
+* reimplement ability to generate testcase; fix environment for tsv_to_excel rule ([#190](https://github.com/snakemake-workflows/dna-seq-varlociraptor/issues/190)) ([fb2e692](https://github.com/snakemake-workflows/dna-seq-varlociraptor/commit/fb2e6929af0befb44b4d47fcd8f7b80aa0809d28))
+
+## [3.19.1](https://github.com/snakemake-workflows/dna-seq-varlociraptor/compare/v3.19.0...v3.19.1) (2022-12-21)
+
+
+### Bug Fixes
+
+* typo in datavzrd rule ([19481c2](https://github.com/snakemake-workflows/dna-seq-varlociraptor/commit/19481c23fdaa24f98ee02060deda13bb9c746fa6))
+* update to datavzrd 2.11.1 ([a98a80f](https://github.com/snakemake-workflows/dna-seq-varlociraptor/commit/a98a80f558b40d1f2e6b5307ebcf52741b3f49a8))
+
+## [3.19.0](https://github.com/snakemake-workflows/dna-seq-varlociraptor/compare/v3.18.7...v3.19.0) (2022-12-13)
+
+
+### Features
+
+* Ordering gene oncoprint rows based on annotation label ([#170](https://github.com/snakemake-workflows/dna-seq-varlociraptor/issues/170)) ([b832e5b](https://github.com/snakemake-workflows/dna-seq-varlociraptor/commit/b832e5bf0a2f37f024f515446ea3771a18c7a771))
+
+
+### Bug Fixes
+
+* update to varlociraptor 5.4.1 ([#186](https://github.com/snakemake-workflows/dna-seq-varlociraptor/issues/186)) ([1445902](https://github.com/snakemake-workflows/dna-seq-varlociraptor/commit/1445902b3d7ab44f2dfd69108e3a844b914c9ce5))
+
 ## [3.18.7](https://github.com/snakemake-workflows/dna-seq-varlociraptor/compare/v3.18.6...v3.18.7) (2022-11-24)
 
 

@@ -89,19 +89,12 @@ rule filter_group_regions:
         "> {output} 2> {log}"
 
 
-rule build_excluded_group_regions:
-    input:
-        target_regions="results/regions/{group}.expanded_regions.filtered.bed",
-        genome_index=genome_fai,
+rule download_delly_excluded_regions:
     output:
-        "results/regions/{group}.excluded_regions.bed",
+        "results/regions/{species}.{build}.delly_excluded.bed",
     params:
-        chroms=config["ref"]["n_chromosomes"],
+        url="https://raw.githubusercontent.com/dellytools/delly/main/excludeTemplates/{species}.{build}.excl.tsv",
     log:
-        "logs/regions/{group}_excluded_regions.log",
-    conda:
-        "../envs/bedtools.yaml"
+        "logs/download_delly_regions/{species}_{build}.log",
     shell:
-        "(complementBed -i {input.target_regions} -g <(head "
-        "-n {params.chroms} {input.genome_index} | cut "
-        "-f 1,2 | sort -k1,1 -k 2,2n) > {output}) 2> {log}"
+        "curl {params.url} -o {output} &> {log}"

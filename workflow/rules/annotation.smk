@@ -3,6 +3,8 @@ rule annotate_candidate_variants:
         calls="results/candidate-calls/{group}.{caller}.{scatteritem}.bcf",
         cache="resources/vep/cache",
         plugins="resources/vep/plugins",
+        fasta=genome,
+        fai=genome_fai,
     output:
         calls="results/candidate-calls/{group}.{caller}.{scatteritem}.annotated.bcf",
         stats="results/candidate-calls/{group}.{caller}.{scatteritem}.stats.html",
@@ -13,8 +15,9 @@ rule annotate_candidate_variants:
         "logs/vep/{group}.{caller}.{scatteritem}.annotate_candidates.log",
     benchmark:
         "benchmarks/vep/{group}.{caller}.{scatteritem}.annotate_candidates.tsv"
+    threads: get_vep_threads()
     wrapper:
-        "v1.12.0/bio/vep/annotate"
+        "v1.22.0/bio/vep/annotate"
 
 
 rule annotate_variants:
@@ -24,6 +27,8 @@ rule annotate_variants:
         plugins="resources/vep/plugins",
         revel=lambda wc: get_plugin_aux("REVEL"),
         revel_tbi=lambda wc: get_plugin_aux("REVEL", True),
+        fasta=genome,
+        fai=genome_fai,
     output:
         calls="results/calls/{group}.{scatteritem}.annotated.bcf",
         stats="results/calls/{group}.{scatteritem}.stats.html",
@@ -38,7 +43,7 @@ rule annotate_variants:
         "logs/vep/{group}.{scatteritem}.annotate.log",
     threads: get_vep_threads()
     wrapper:
-        "v1.12.0/bio/vep/annotate"
+        "v1.22.0/bio/vep/annotate"
 
 
 # TODO What about multiple ID Fields?
