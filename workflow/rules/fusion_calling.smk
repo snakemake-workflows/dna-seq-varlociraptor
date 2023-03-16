@@ -50,28 +50,11 @@ rule convert_fusions:
         "logs/convert_fusions/{sample}.log",
     shell:
         """
-        convert_fusions_to_vcf.sh {input.fasta} {input.fusions} {output} &> {log}
-        """
-
-#Can be removed as soon as new version of arriba is available (updated convert fusions script)
-rule bcftools_reheader:
-    input:
-        vcf="results/candidate-calls/{sample}.arriba.vcf",
-        fai=genome_fai,
-    output:
-        "results/candidate-calls/{sample}.arriba.unsorted.bcf",
-    conda:
-        "../envs/bcftools.yaml"
-    log:
-        "logs/reheader/{sample}.log",
-    shell:
-        """
-        bcftools reheader --fai {input.fai} {input.vcf} | bcftools view -Ob > {output}
+        convert_fusions_to_vcf.sh {input.fasta} {input.fusions} {output} 2> {log}
         """
 
 
-#TODO Replace by sorting rule in calling.smk
-rule sort_calls_arriba:
+rule sort_arriba_calls:
     input:
         "results/candidate-calls/{sample}.arriba.unsorted.bcf",
     output:
@@ -88,12 +71,13 @@ rule sort_calls_arriba:
     wrapper:
         "v1.21.0/bio/bcftools/sort"
 
+
 rule bcftools_concat_candidates:
     input:
         calls=get_arriba_group_candidates,
         idx=lambda wc: get_arriba_group_candidates(wc, csi=True),
     output:
-        "results/candidate-calls/{group}.arriba.bcf"
+        "results/candidate-calls/{group}.arriba.bcf",
     log:
         "logs/concat_candidates/{group}.log",
     params:

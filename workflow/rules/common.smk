@@ -415,11 +415,14 @@ def get_markduplicates_extra(wc):
 
     return f"{c} {b} {d}"
 
+
 def get_sample_bam(wildcards, bai=False):
     ext = "bai" if bai else "bam"
     datatype = samples.loc[samples["sample_name"] == wildcards.sample]["datatype"][0]
     if datatype == "rna":
-        return "results/mapped_arriba/{sample}.{ext}".format(sample=wildcards.sample, ext=ext)
+        return "results/mapped_arriba/{sample}.{ext}".format(
+            sample=wildcards.sample, ext=ext
+        )
     elif datatype == "dna":
         return "results/recal/{sample}.{ext}".format(sample=wildcards.sample, ext=ext)
     else:
@@ -436,12 +439,13 @@ def get_group_bams(wildcards, bai=False):
         ext=ext,
     )
 
+
 def get_arriba_group_candidates(wildcards, csi=False):
     ext = ".csi" if csi else ""
     return expand(
         "results/candidate-calls/{sample}.arriba.bcf{ext}",
         sample=get_group_samples(wildcards.group),
-        ext=ext
+        ext=ext,
     )
 
 
@@ -552,6 +556,7 @@ def get_scattered_calls(ext="bcf"):
             caller=caller,
             ext=ext,
         )
+
     return inner
 
 
@@ -769,15 +774,18 @@ wildcard_constraints:
     event="|".join(config["calling"]["fdr-control"]["events"].keys()),
     regions_type="|".join(["expanded", "covered"]),
 
+
 caller = list(
     filter(
         None,
         [
             "freebayes"
-            if is_activated("calling/freebayes") and samples["datatype"].str.contains("dna").any()
+            if is_activated("calling/freebayes")
+            and samples["datatype"].str.contains("dna").any()
             else None,
             "delly"
-            if is_activated("calling/delly") and samples["datatype"].str.contains("dna").any()
+            if is_activated("calling/delly")
+            and samples["datatype"].str.contains("dna").any()
             else None,
             "arriba" if samples["datatype"].str.contains("rna").any() else None,
         ],
