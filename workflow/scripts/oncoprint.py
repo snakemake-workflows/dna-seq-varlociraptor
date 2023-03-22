@@ -35,7 +35,7 @@ def join_gene_vartypes(df):
 
 def load_calls(path, group):
     calls = pd.read_csv(
-        path, sep="\t", usecols=["Symbol", "vartype", "hgvsp", "HGVSg", "Consequence"]
+        path, sep="\t", usecols=["Symbol", "vartype", "HGVSp", "HGVSg", "Consequence"]
     )
     calls["group"] = group
     calls.loc[:, "Consequence"] = calls["Consequence"].str.replace("&", ",")
@@ -114,10 +114,10 @@ def gene_oncoprint(calls):
 
 
 def variant_oncoprint(gene_calls, group_annotation):
-    gene_calls = gene_calls[["group", "hgvsp", "HGVSg", "Consequence"]]
+    gene_calls = gene_calls[["group", "HGVSp", "HGVSg", "Consequence"]]
     gene_calls.loc[:, "exists"] = "X"
-    grouped = gene_calls.drop_duplicates().groupby(["hgvsp"]).apply(join_group_hgvsgs)
-    matrix = grouped.set_index(["hgvsp", "HGVSg", "Consequence", "group"]).unstack(
+    grouped = gene_calls.drop_duplicates().groupby(["HGVSp"]).apply(join_group_hgvsgs)
+    matrix = grouped.set_index(["HGVSp", "HGVSg", "Consequence", "group"]).unstack(
         level="group"
     )
 
