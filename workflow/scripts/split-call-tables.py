@@ -13,12 +13,12 @@ PROB_EPSILON = 0.01  # columns with all probabilities below will be dropped
 
 
 def write(df, path):
-    df = df.drop(["canonical"], axis="columns", errors="ignore")
+    df = df.drop(["Canonical"], axis="columns", errors="ignore")
     if not df.empty:
         remaining_columns = df.dropna(how="all", axis="columns").columns.tolist()
         if path == snakemake.output.coding:
             # ensure that these columns are kept, even if they contain only NAs in a coding setting
-            remaining_columns.extend(["revel", "hgvsp", "symbol"])
+            remaining_columns.extend(["REVEL", "HGVSp", "Symbol"])
             remaining_columns = [ col for col in df.columns if col in remaining_columns ]
         df = df[remaining_columns]
     df.to_csv(path, index=False, sep="\t")
@@ -87,7 +87,7 @@ def get_vartype(rec):
 
 def order_impact(df):
     order_impact = ["MODIFIER", "LOW", "MODERATE", "HIGH"]
-    df["impact"] = pd.Categorical(df["impact"], order_impact)
+    df["Impact"] = pd.Categorical(df["Impact"], order_impact)
 
 
 def sort_calls(df):
@@ -108,7 +108,7 @@ def reorder_prob_cols(df):
     return df
 
 def reorder_vaf_cols(df):
-    split_index = df.columns.get_loc("consequence")
+    split_index = df.columns.get_loc("Consequence")
     left_columns = df.iloc[:, 0:split_index].columns
     vaf_columns = df.filter(regex=": allele frequency$").columns
     right_columns = df.iloc[:, split_index:].columns.drop(vaf_columns)
@@ -124,33 +124,42 @@ def cleanup_dataframe(df):
     return df
 
 
+
 calls = pd.read_csv(snakemake.input[0], sep="\t")
-calls["clinical significance"] = (
-    calls["clinical significance"]
+calls["Clinical significance"] = (
+    calls["Clinical significance"]
     .apply(eval)
     .apply(sorted)
     .apply(", ".join)
     .replace("", np.nan)
 )
 
-if "exon" in calls.columns:
-    calls["exon"] = (
-        calls["exon"]
-        .str
-        .strip("number / total: ")
-        .str
-        .replace(" ", "")
+def format_exon_range(exon):
+    if len(exon) == 1:
+        return exon.start
+    else:
+        return "{}-{}".format(exon.start, exon.stop-1)
+
+if "Exon (number)" in calls.columns:
+    calls["Exon (number)"] = (
+        calls["Exon (number)"]
+        .apply(eval)
+        .apply(format_exon_range)
     )
 
-if "amino_acids" in calls.columns:
-    calls["amino_acids"] = (
-        calls["amino_acids"]
-        .apply(eval)
-        .apply("/".join)
+def format_protein_alt(row):
+    amino_acids = eval(row["Protein alteration"])
+    position = row["Protein position"]
+    return str(position).join(amino_acids)
+
+""" if "Protein alteration" in calls.columns and "Protein position" in calls.columns:
+    calls["Protein alteration"] = (
+        calls
+        .apply(format_protein_alt, axis=1)
         .replace("", np.nan)
     )
-    calls.rename(columns={"amino_acids": "AA alteration"}, inplace=True)
-
+    calls.drop(["Protein position"], axis="columns", inplace=True)
+ """
 
 if not calls.empty:
     # these below only work on non empty dataframes
@@ -161,12 +170,12 @@ else:
     calls["vartype"] = []
 
 
-calls.set_index("gene", inplace=True, drop=False)
+calls.set_index("Gene", inplace=True, drop=False)
 samples = get_samples(calls)
 
 
-coding = ~pd.isna(calls["hgvsp"])
-canonical = calls["canonical"]
+coding = ~pd.isna(calls["HGVSp"])
+canonical = calls["Canonical"]
 
 noncoding_calls = calls[~coding & canonical]
 noncoding_calls = cleanup_dataframe(noncoding_calls)
