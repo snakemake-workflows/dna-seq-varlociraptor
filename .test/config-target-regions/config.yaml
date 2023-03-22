@@ -52,7 +52,7 @@ calling:
         desc: Variants with moderate impact
         # Optional column names for sorting
         sort:
-          - impact
+          - Impact
 
 annotations:
   vcfs:
