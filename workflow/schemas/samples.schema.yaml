@@ -37,7 +37,7 @@ properties:
     description: ID of primer panel
   umi_read:
     type: string
-    enum: ["fq1", "fq2"]
+    pattern: "(^fq[1,2]$)|(.(fq|fastq)(.gz)?)$"
     description: fq1 or fq2 for read containing umis
   umi_read_structure:
     type: string
