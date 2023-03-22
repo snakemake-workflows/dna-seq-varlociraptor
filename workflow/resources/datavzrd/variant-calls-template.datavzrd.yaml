@@ -97,8 +97,8 @@ datasets:
         links:
           ?for group in params.groups:
             ?group:
-              column: hgvsp
-              table-row: ?f"{group}-coding/hgvsp"
+              column: HGVSp
+              table-row: ?f"{group}-coding/HGVSp"
               optional: true
 
   ?for group, path in zip(params.groups, params.coding_calls):
