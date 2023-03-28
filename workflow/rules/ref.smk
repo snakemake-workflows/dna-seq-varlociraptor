@@ -134,6 +134,7 @@ rule get_vep_cache:
         release=config["ref"]["release"],
     log:
         "logs/vep/cache.log",
+    cache: True
     wrapper:
         "v1.22.0/bio/vep/cache"
 

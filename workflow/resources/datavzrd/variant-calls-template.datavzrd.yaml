@@ -141,7 +141,9 @@ views:
                     color-scheme: category20
           columns:
             Symbol:
-              link-to-url: https://www.ensembl.org/Homo_sapiens/Gene/Summary?g={value}
+              link-to-url:
+                ensembl:
+                  url: https://www.ensembl.org/Homo_sapiens/Gene/Summary?g={value}
             Consequence:
               plot:
                 heatmap:
@@ -204,7 +206,9 @@ views:
       render-table:
         columns:
           Symbol:
-            link-to-url: https://www.ensembl.org/Homo_sapiens/Transcript/Summary?t={feature}
+            link-to-url:
+              ensembl:
+                url: https://www.ensembl.org/Homo_sapiens/Transcript/Summary?t={Feature}
           ?if params.varsome_url:
             HGVSp:
               custom: ?varsome_link
@@ -295,7 +299,9 @@ views:
         columns:
           Symbol:
             optional: true
-            link-to-url: https://www.ensembl.org/Homo_sapiens/Transcript/Summary?t={feature}
+            link-to-url:
+              ensembl:
+                url: https://www.ensembl.org/Homo_sapiens/Transcript/Summary?t={Feature}
           Consequence:
             plot:
               heatmap:
