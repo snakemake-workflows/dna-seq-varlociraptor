@@ -134,33 +134,6 @@ calls["Clinical significance"] = (
     .replace("", np.nan)
 )
 
-def format_exon_range(exon):
-    if len(exon) == 1:
-        return exon.start
-    else:
-        return "{}-{}".format(exon.start, exon.stop-1)
-
-if "Exon (number)" in calls.columns:
-    calls["Exon (number)"] = (
-        calls["Exon (number)"]
-        .apply(eval)
-        .apply(format_exon_range)
-    )
-
-def format_protein_alt(row):
-    amino_acids = eval(row["Protein alteration"])
-    position = row["Protein position"]
-    return str(position).join(amino_acids)
-
-""" if "Protein alteration" in calls.columns and "Protein position" in calls.columns:
-    calls["Protein alteration"] = (
-        calls
-        .apply(format_protein_alt, axis=1)
-        .replace("", np.nan)
-    )
-    calls.drop(["Protein position"], axis="columns", inplace=True)
- """
-
 if not calls.empty:
     # these below only work on non empty dataframes
     calls["vartype"] = calls.apply(get_vartype, axis="columns")
