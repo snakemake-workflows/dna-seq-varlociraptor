@@ -55,6 +55,7 @@ rule bowtie_build:
         "logs/bowtie/build.log",
     conda:
         "../envs/bowtie.yaml"
+    cache: True
     shell:
         "mkdir {output} & "
         "bowtie-build {input} {params.prefix} &> {log}"

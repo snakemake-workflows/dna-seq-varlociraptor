@@ -820,24 +820,28 @@ def get_vembrane_config(wildcards, input):
 
     config_output = config["tables"].get("output", {})
 
-    def append_items(items, field_func, header_func):
+    def append_items(items, field_func, header_func=None):
         for item in items:
-            parts.append(field_func(item))
-            header.append(header_func(item))
+            if type(item) is dict:
+                parts_field = item["expr"]
+                header_name = item["name"]
+            else:
+                parts_field = field_func(item)
+                header_name = header_func(item) if header_func else item
+            parts.append(parts_field)
+            header.append(header_name)
 
     annotation_fields = [
-        "SYMBOL",
+        {"name": "Symbol", "expr": "ANN['SYMBOL']"},
         "Gene",
         "Feature",
-        "IMPACT",
+        {"name": "Impact", "expr": "ANN['IMPACT']"},
         "HGVSp",
         "HGVSg",
         "Consequence",
-        "CANONICAL",
+        {"name": "Canonical", "expr": "ANN['CANONICAL']"},
+        {"name": "Clinical significance", "expr": "ANN['CLIN_SIG']"},
     ]
-
-    if "REVEL" in config["annotations"]["vep"]["plugins"]:
-        annotation_fields.append("REVEL")
 
     annotation_fields.extend(
         [
@@ -847,8 +851,10 @@ def get_vembrane_config(wildcards, input):
         ]
     )
 
-    append_items(annotation_fields, "ANN['{}']".format, str.lower)
-    append_items(["CLIN_SIG"], "ANN['{}']".format, lambda x: "clinical significance")
+    if "REVEL" in config["annotations"]["vep"]["plugins"]:
+        annotation_fields.append("REVEL")
+
+    append_items(annotation_fields, "ANN['{}']".format)
 
     samples = get_group_sample_aliases(wildcards)
 

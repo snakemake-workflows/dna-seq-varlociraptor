@@ -23,7 +23,7 @@ __definitions__:
         /(\d+):[gG]\.(\d+)_(\d+)ins([GCTAgcta]+)$/,
         /(\d+):[gG]\.(\d+)_(\d+)ins(\d+)_(\d+)inv$/,
       ];
-      const hgvsgs = row.hgvsg.split(',')
+      const hgvsgs = row.HGVSg.split(',')
       const descriptors = []
       const hgvsgs_matched = []
       for (let j = 0; j < hgvsgs.length; j++) {{
@@ -82,7 +82,7 @@ datasets:
       headers: ?len(params.group_annotations.columns) + 1
       links:
         gene details:
-          column: symbol
+          column: Symbol
           view: "overview-{value}"
     ?for label in params.labels.index.values:
       ?label:
@@ -97,8 +97,8 @@ datasets:
         links:
           ?for group in params.groups:
             ?group:
-              column: hgvsp
-              table-row: ?f"{group}-coding/hgvsp"
+              column: HGVSp
+              table-row: ?f"{group}-coding/HGVSp"
               optional: true
 
   ?for group, path in zip(params.groups, params.coding_calls):
@@ -140,9 +140,11 @@ views:
                     scale: ordinal
                     color-scheme: category20
           columns:
-            symbol:
-              link-to-url: https://www.ensembl.org/Homo_sapiens/Gene/Summary?g={value}
-            consequence:
+            Symbol:
+              link-to-url:
+                ensembl:
+                  url: https://www.ensembl.org/Homo_sapiens/Gene/Summary?g={value}
+            Consequence:
               plot:
                 heatmap:
                   scale: ordinal
@@ -180,9 +182,9 @@ views:
                     scale: ordinal
                     color-scheme: category20
           columns:
-            hgvsp:
+            HGVSp:
               custom: ?varsome_link
-            consequence:
+            Consequence:
               plot:
                 heatmap:
                   scale: ordinal
@@ -194,7 +196,7 @@ views:
                     scale: ordinal
                     color-scheme: paired
                     aux-domain-columns: ?list(params.groups)
-            hgvsg:
+            HGVSg:
               display-mode: hidden
 
   ?for group in params.groups:
@@ -203,14 +205,16 @@ views:
       dataset: ?f"{group}-coding"
       render-table:
         columns:
-          symbol:
-            link-to-url: https://www.ensembl.org/Homo_sapiens/Transcript/Summary?t={feature}
+          Symbol:
+            link-to-url:
+              ensembl:
+                url: https://www.ensembl.org/Homo_sapiens/Transcript/Summary?t={Feature}
           ?if params.varsome_url:
-            hgvsp:
+            HGVSp:
               custom: ?varsome_link
           vartype:
             display-mode: hidden
-          impact:
+          Impact:
             plot:
               heatmap:
                 scale: ordinal
@@ -224,12 +228,12 @@ views:
                   - "#ec5300"
                   - "#ec9b00"
                   - "#ecca00"
-          consequence:
+          Consequence:
             plot:
               heatmap:
                 color-scheme: category20
                 scale: ordinal
-          revel:
+          REVEL:
             optional: true
             plot: 
               heatmap:
@@ -259,11 +263,11 @@ views:
                 range:
                   - white
                   - "#1f77b4"
-          gene:
+          Gene:
             display-mode: hidden
-          feature:
+          Feature:
             display-mode: hidden
-          hgvsg:
+          HGVSg:
             display-mode: detail
           chromosome:
             display-mode: detail
@@ -293,17 +297,19 @@ views:
       dataset: ?f"{group}-noncoding"
       render-table:
         columns:
-          symbol:
+          Symbol:
             optional: true
-            link-to-url: https://www.ensembl.org/Homo_sapiens/Transcript/Summary?t={feature}
-          consequence:
+            link-to-url:
+              ensembl:
+                url: https://www.ensembl.org/Homo_sapiens/Transcript/Summary?t={Feature}
+          Consequence:
             plot:
               heatmap:
                 color-scheme: category20
                 scale: ordinal
           vartype:
             display-mode: hidden
-          impact:
+          Impact:
             plot:
               heatmap:
                 scale: ordinal
@@ -340,11 +346,11 @@ views:
                   - "#1f77b4"
           id:
             display-mode: hidden
-          gene:
+          Gene:
             display-mode: hidden
-          feature:
+          Feature:
             display-mode: hidden
-          hgvsg:
+          HGVSg:
             display-mode: detail
           chromosome:
             display-mode: detail
