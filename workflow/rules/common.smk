@@ -685,7 +685,7 @@ def get_annotation_filter_expression(wildcards):
 
 def get_annotation_filter_aux(wildcards):
     return [
-        f"--aux {name} {path}"
+        f"--aux {name}={path}"
         for filter in get_annotation_filter_names(wildcards)
         for name, path in get_filter_aux_entries(filter).items()
     ]
@@ -720,7 +720,7 @@ def get_candidate_filter_aux():
         return ""
     else:
         return [
-            f"--aux {name} {path}"
+            f"--aux {name}={path}"
             for name, path in get_filter_aux_entries("candidates").items()
         ]
 
