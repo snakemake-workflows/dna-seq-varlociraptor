@@ -125,37 +125,16 @@ def cleanup_dataframe(df):
     return df
 
 
-def modify_observations(value, modifier):
-    regex = re.compile("([0-9]+)(E|B|P|S|V|e|b|p|s|v)")
-    observations = ""
-    m = re.findall(regex, value)
-    for count, score in m:
-        if score != "E":
-            observations += count + modifier + score
-        else:
-            observations += count + score
-    return observations
-
-
-def modify_observations(value, modifier):
-    regex = re.compile("([0-9]+)(E|B|P|S|V|e|b|p|s|v)")
-    observations = ""
-    m = re.findall(regex, value)
-    for count, score in m:
-        if score != "E":
-            observations += count + modifier + score
-        else:
-            observations += count + score
-    return observations
-
-
 def join_short_obs(df, samples):
     for sample in samples:
-        df[f"{sample}: short observations"] = ""
-        for allele, abbrev in [("ref", "R"), ("alt", "A")]:
-            df[f"{sample}: short observations"] += df[
-                f"{sample}: short {allele} observations"
-            ].apply(modify_observations, args=(abbrev))
+        sobs_loc = df.columns.get_loc(f"{sample}: observations")
+        df.insert(
+            sobs_loc,
+            f"{sample}: short observations",
+            df[f"{sample}: short ref observations"]
+            + ","
+            + df[f"{sample}: short alt observations"],
+        )
     df = df.drop(
         df.columns[
             df.columns.str.endswith(": short ref observations")
