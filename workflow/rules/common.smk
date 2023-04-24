@@ -870,7 +870,9 @@ def get_vembrane_config(wildcards, input):
     append_format_field("AF", "allele frequency")
     append_format_field("DP", "read depth")
     if config_output.get("short_observations", False):
-        append_format_field("SOBS", "short observations")
+        append_format_field("SROBS", "short ref observations")
+        append_format_field("SAOBS", "short alt observations")
+
     if config_output.get("observations", False):
         append_format_field("OBS", "observations")
     return {"expr": join_items(parts), "header": join_items(header)}

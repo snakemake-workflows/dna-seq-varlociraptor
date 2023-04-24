@@ -54,6 +54,10 @@
             "field": "times",
             "type": "quantitative",
             "title": "Counts"
+        }, {
+            "field": "edit distance",
+            "type": "nominative",
+            "title": "Edit distance"
         }]
     },
     "config": {
