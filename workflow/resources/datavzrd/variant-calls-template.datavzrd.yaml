@@ -283,13 +283,11 @@ views:
               custom-plot:
                 data: ?read_file(params.data_short_observations)
                 spec: ?read_file(params.spec_short_observations)
-                vega-controls: true
               display-mode: detail
             '?f"{alias}: observations"':
               custom-plot:
                 data: ?read_file(params.data_observations)
                 spec: ?read_file(params.spec_observations)
-                vega-controls: true
               display-mode: detail
 
 
