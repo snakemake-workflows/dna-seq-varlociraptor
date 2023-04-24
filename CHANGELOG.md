@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.24.0](https://github.com/snakemake-workflows/dna-seq-varlociraptor/compare/v3.23.1...v3.24.0) (2023-04-24)
+
+
+### Features
+
+* Support new varlociraptor 8.0 observations ([#225](https://github.com/snakemake-workflows/dna-seq-varlociraptor/issues/225)) ([925f736](https://github.com/snakemake-workflows/dna-seq-varlociraptor/commit/925f73602cd3658d46f76469257ee5aefc99de2d))
+
 ## [3.23.1](https://github.com/snakemake-workflows/dna-seq-varlociraptor/compare/v3.23.0...v3.23.1) (2023-04-17)
 
 
