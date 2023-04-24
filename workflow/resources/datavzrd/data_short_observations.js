@@ -13,7 +13,7 @@ function(value) {
     if (i === 0) {
       allele = "Reference"
     } else {
-      allele = "Alt"
+      allele = "Alternative"
     }
     while ((result = regex.exec(obs[i])) != null) {
       effect = effects[result[2].toUpperCase()]
