@@ -19,7 +19,7 @@ def write(df, path):
         if path == snakemake.output.coding:
             # ensure that these columns are kept, even if they contain only NAs in a coding setting
             remaining_columns.extend(["REVEL", "HGVSp", "Symbol"])
-            remaining_columns = [ col for col in df.columns if col in remaining_columns ]
+            remaining_columns = [col for col in df.columns if col in remaining_columns]
         df = df[remaining_columns]
     df.to_csv(path, index=False, sep="\t")
 
@@ -107,12 +107,13 @@ def reorder_prob_cols(df):
         df = df.reindex(columns=updated_columns)
     return df
 
+
 def reorder_vaf_cols(df):
     split_index = df.columns.get_loc("Consequence")
     left_columns = df.iloc[:, 0:split_index].columns
     vaf_columns = df.filter(regex=": allele frequency$").columns
     right_columns = df.iloc[:, split_index:].columns.drop(vaf_columns)
-    reordered_columns =  left_columns.append([vaf_columns, right_columns])
+    reordered_columns = left_columns.append([vaf_columns, right_columns])
     return df[reordered_columns]
 
 
@@ -124,6 +125,25 @@ def cleanup_dataframe(df):
     return df
 
 
+def join_short_obs(df, samples):
+    for sample in samples:
+        sobs_loc = df.columns.get_loc(f"{sample}: observations")
+        df.insert(
+            sobs_loc,
+            f"{sample}: short observations",
+            df[f"{sample}: short ref observations"]
+            + ","
+            + df[f"{sample}: short alt observations"],
+        )
+    df = df.drop(
+        df.columns[
+            df.columns.str.endswith(": short ref observations")
+            | df.columns.str.endswith(": short alt observations")
+        ],
+        axis=1,
+    )
+    return df
+
 
 calls = pd.read_csv(snakemake.input[0], sep="\t")
 calls["Clinical significance"] = (
@@ -133,6 +153,7 @@ calls["Clinical significance"] = (
     .apply(", ".join)
     .replace("", np.nan)
 )
+
 
 if not calls.empty:
     # these below only work on non empty dataframes
@@ -146,6 +167,8 @@ else:
 calls.set_index("Gene", inplace=True, drop=False)
 samples = get_samples(calls)
 
+if calls.columns.str.endswith(": short ref observations").any():
+    calls = join_short_obs(calls, samples)
 
 coding = ~pd.isna(calls["HGVSp"])
 canonical = calls["Canonical"]
@@ -171,5 +194,4 @@ write(
     coding_calls,
     snakemake.output.coding,
 )
-
 # TODO add possibility to also see non-canonical transcripts (low priority, once everything else works).

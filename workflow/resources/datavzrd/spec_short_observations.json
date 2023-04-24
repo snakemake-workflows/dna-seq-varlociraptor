@@ -2,8 +2,8 @@
     "$schema": "https://vega.github.io/schema/vega-lite/v3.json",
     "transform": [
         {
-          "calculate": "indexof(['Very Strong', 'Strong', 'Positive', 'Barely', 'Equal', 'None'], datum.effect)",
-          "as": "order"
+            "calculate": "indexof(['Very Strong (Alternative)', 'Strong (Alternative)', 'Positive (Alternative)', 'Barely (Alternative)', 'Equal', 'Barely (Reference)', 'Positive (Reference)', 'Strong (Reference)', 'Very Strong (Reference)'], datum.effect)",
+            "as": "order"
         }
       ],
     "mark": "bar",
@@ -18,18 +18,22 @@
             "type": "quantitative",
             "title": "Counts"
         },
-        "order": {"field": "order", "type": "ordinal"},
+        "order": {"field": "order", "type": "ordinal", "sort": "descending"},
         "color": {
             "field": "effect",
             "type": "nominal",
             "title": "Evidence",
-            "sort": ["None", "Equal", "Barely", "Positive", "Strong", "Very Strong"],
+            "sort": {"field": "order", "order": "descending"},
             "scale": {
-                "domain": ["None", "Equal", "Barely", "Positive", "Strong", "Very Strong"],
-                "range": ["#999999", "#d3d3d3", "#2ba6cb", "#afdfee", "#ffa3a3", "#ff5555"]
+                "domain": ["Very Strong (Alternative)", "Strong (Alternative)", "Positive (Alternative)", "Barely (Alternative)", "Equal", "Barely (Reference)", "Positive (Reference)", "Strong (Reference)", "Very Strong (Reference)"],
+                "range": ["#ff5555", "#ff6666", "#ff9999", "#ffcccc", "#999999", "#eaf7fb", "#afdfee", "#6cc5e0", "#2dacd2"]
             }
         },
         "tooltip": [ {
+            "field": "effect",
+            "type": "nominative",
+            "title": "Evidence"
+        }, {
             "field": "times",
             "type": "quantitative",
             "title": "Counts"
