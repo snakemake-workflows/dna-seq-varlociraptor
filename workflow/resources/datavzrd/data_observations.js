@@ -2,10 +2,10 @@ function(value) {
   var regex = /([0-9]+)([A|a|R|r]?[E|B|P|S|V|e|b|p|s|v])(\.|[0-9]+)(s|p)(\#|\*|\.)(\+|\-|\*)(\>|\<|\*|\!)(\^|\*)(\$|\.)(\*|\.)/g;
   var effects = {
       "E": "Equal",
-      "AB": "Barely (Alt)",
-      "AP": "Positive (Alt)",
-      "AS": "Strong (Alt)",
-      "AV": "Very Strong (Alt)",
+      "AB": "Barely (Alternative)",
+      "AP": "Positive (Alternative)",
+      "AS": "Strong (Alternative)",
+      "AV": "Very Strong (Alternative)",
       "RE": "Equal (Reference)",
       "RB": "Barely (Reference)",
       "RP": "Positive (Reference)",
