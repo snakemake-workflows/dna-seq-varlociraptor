@@ -837,6 +837,8 @@ def get_vembrane_config(wildcards, input):
         "Feature",
         {"name": "Impact", "expr": "ANN['IMPACT']"},
         "HGVSp",
+        {"name": "Protein position", "expr": "ANN['Protein_position'].raw"},
+        {"name": "Protein alteration (short)", "expr": "'/'.join(ANN['Amino_acids'])"},
         "HGVSg",
         "Consequence",
         {"name": "Canonical", "expr": "ANN['CANONICAL']"},
