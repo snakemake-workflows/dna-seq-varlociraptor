@@ -154,6 +154,13 @@ calls["Clinical significance"] = (
     .replace("", np.nan)
 )
 
+calls["Protein alteration (short)"] = (
+    calls["Protein alteration (short)"]
+    .apply(eval)
+    .apply("/".join)
+    .replace("", np.nan)
+)
+
 
 if not calls.empty:
     # these below only work on non empty dataframes

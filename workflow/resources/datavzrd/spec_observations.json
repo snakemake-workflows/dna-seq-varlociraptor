@@ -11,7 +11,11 @@
         "column": {
             "field": "quality",
             "type": "ordinal",
-            "title": null
+            "title": null,
+            "header": {
+                "labelAngle": 45,
+                "labelPadding": "-70"
+            }
         },
         "x": {
             "field": "strand_orientation",
