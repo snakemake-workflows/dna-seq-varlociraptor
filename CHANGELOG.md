@@ -5,7 +5,7 @@
 
 ### Bug Fixes
 
-* preserve lost variants ([#232](https://github.com/snakemake-workflows/dna-seq-varlociraptor/issues/232)) ([5586986](https://github.com/snakemake-workflows/dna-seq-varlociraptor/commit/558698614e1970630157587411143e2c30b0a4d4))
+* update to latest snpsift, which fixes a bug that before led to loosing some variants ([#232](https://github.com/snakemake-workflows/dna-seq-varlociraptor/issues/232)) ([5586986](https://github.com/snakemake-workflows/dna-seq-varlociraptor/commit/558698614e1970630157587411143e2c30b0a4d4))
 
 ## [3.24.1](https://github.com/snakemake-workflows/dna-seq-varlociraptor/compare/v3.24.0...v3.24.1) (2023-04-28)
 
