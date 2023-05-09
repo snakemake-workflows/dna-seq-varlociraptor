@@ -174,7 +174,7 @@ def get_control_fdr_input(wildcards):
         by = "ann" if query["local"] else "odds"
         return "results/calls/{{group}}.{{event}}.filtered_{by}.bcf".format(by=by)
     else:
-        return "results/calls/{group}.bcf"
+        return "results/final-calls/{group}.annotated.bcf"
 
 
 def get_recalibrate_quality_input(wildcards, bai=False):
