@@ -13,7 +13,7 @@ PROB_EPSILON = 0.01  # columns with all probabilities below will be dropped
 
 
 def write(df, path):
-    df = df.drop(["Canonical"], axis="columns", errors="ignore")
+    df = df.drop(["MANE+clinical"], axis="columns", errors="ignore")
     if not df.empty:
         remaining_columns = df.dropna(how="all", axis="columns").columns.tolist()
         if path == snakemake.output.coding:
@@ -178,13 +178,13 @@ if calls.columns.str.endswith(": short ref observations").any():
     calls = join_short_obs(calls, samples)
 
 coding = ~pd.isna(calls["HGVSp"])
-canonical = calls["Canonical"]
+mane_plus_clinical = calls["MANE+clinical"]
 
-noncoding_calls = calls[~coding & canonical]
+noncoding_calls = calls[~coding & mane_plus_clinical]
 noncoding_calls = cleanup_dataframe(noncoding_calls)
 write(noncoding_calls, snakemake.output.noncoding)
 
-coding_calls = calls[coding & canonical].drop(
+coding_calls = calls[coding & mane_plus_clinical].drop(
     [
         "end position",
         "event",
@@ -201,4 +201,4 @@ write(
     coding_calls,
     snakemake.output.coding,
 )
-# TODO add possibility to also see non-canonical transcripts (low priority, once everything else works).
+# TODO add possibility to also see non-mane+clinical transcripts (low priority, once everything else works).
