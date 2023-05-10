@@ -174,7 +174,7 @@ def get_control_fdr_input(wildcards):
         by = "ann" if query["local"] else "odds"
         return "results/calls/{{group}}.{{event}}.filtered_{by}.bcf".format(by=by)
     else:
-        return "results/calls/{group}.bcf"
+        return "results/final-calls/{group}.annotated.bcf"
 
 
 def get_recalibrate_quality_input(wildcards, bai=False):
@@ -719,7 +719,7 @@ def get_annotation_filter_expression(wildcards):
 
 def get_annotation_filter_aux(wildcards):
     return [
-        f"--aux {name} {path}"
+        f"--aux {name}={path}"
         for filter in get_annotation_filter_names(wildcards)
         for name, path in get_filter_aux_entries(filter).items()
     ]
@@ -754,7 +754,7 @@ def get_candidate_filter_aux():
         return ""
     else:
         return [
-            f"--aux {name} {path}"
+            f"--aux {name}={path}"
             for name, path in get_filter_aux_entries("candidates").items()
         ]
 
@@ -861,24 +861,30 @@ def get_vembrane_config(wildcards, input):
 
     config_output = config["tables"].get("output", {})
 
-    def append_items(items, field_func, header_func):
+    def append_items(items, field_func, header_func=None):
         for item in items:
-            parts.append(field_func(item))
-            header.append(header_func(item))
+            if type(item) is dict:
+                parts_field = item["expr"]
+                header_name = item["name"]
+            else:
+                parts_field = field_func(item)
+                header_name = header_func(item) if header_func else item
+            parts.append(parts_field)
+            header.append(header_name)
 
     annotation_fields = [
-        "SYMBOL",
+        {"name": "Symbol", "expr": "ANN['SYMBOL']"},
         "Gene",
         "Feature",
-        "IMPACT",
+        {"name": "Impact", "expr": "ANN['IMPACT']"},
         "HGVSp",
+        {"name": "Protein position", "expr": "ANN['Protein_position'].raw"},
+        {"name": "Protein alteration (short)", "expr": "ANN['Amino_acids']"},
         "HGVSg",
         "Consequence",
-        "CANONICAL",
+        {"name": "Canonical", "expr": "ANN['CANONICAL']"},
+        {"name": "Clinical significance", "expr": "ANN['CLIN_SIG']"},
     ]
-
-    if "REVEL" in config["annotations"]["vep"]["plugins"]:
-        annotation_fields.append("REVEL")
 
     annotation_fields.extend(
         [
@@ -888,8 +894,10 @@ def get_vembrane_config(wildcards, input):
         ]
     )
 
-    append_items(annotation_fields, "ANN['{}']".format, str.lower)
-    append_items(["CLIN_SIG"], "ANN['{}']".format, lambda x: "clinical significance")
+    if "REVEL" in config["annotations"]["vep"]["plugins"]:
+        annotation_fields.append("REVEL")
+
+    append_items(annotation_fields, "ANN['{}']".format)
 
     samples = get_group_sample_aliases(wildcards)
 
@@ -905,7 +913,9 @@ def get_vembrane_config(wildcards, input):
     append_format_field("AF", "allele frequency")
     append_format_field("DP", "read depth")
     if config_output.get("short_observations", False):
-        append_format_field("SOBS", "short observations")
+        append_format_field("SROBS", "short ref observations")
+        append_format_field("SAOBS", "short alt observations")
+
     if config_output.get("observations", False):
         append_format_field("OBS", "observations")
     return {"expr": join_items(parts), "header": join_items(header)}
