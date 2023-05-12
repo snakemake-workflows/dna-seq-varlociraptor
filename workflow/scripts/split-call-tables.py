@@ -149,7 +149,7 @@ def process_variant_calls(calls):
     else:
         calls["vartype"] = []
 
-    calls.set_index("gene", inplace=True, drop=False)
+    calls.set_index("Gene", inplace=True, drop=False)
     samples = get_samples(calls)
 
     if calls.columns.str.endswith(": short ref observations").any():
