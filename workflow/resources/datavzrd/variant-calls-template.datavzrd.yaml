@@ -109,6 +109,10 @@ datasets:
     ?f"{group}-noncoding":
       path: ?path
       separator: "\t"
+  ?for group, path in zip(params.groups, params.fusion_calls):
+    ?f"{group}-fusions":
+      path: ?path
+      separator: "\t"
 
 views:
   ?if params.gene_oncoprint:
@@ -361,3 +365,7 @@ views:
                 data: ?read_file(params.data_observations)
                 spec: ?read_file(params.spec_observations)
               display-mode: detail
+
+    ?f"{group}-fusions":
+          desc: ?f"Fusion calls.\n{config['calling']['fdr-control']['events'][wildcards.event]['desc']}"
+          dataset: ?f"{group}-fusions"

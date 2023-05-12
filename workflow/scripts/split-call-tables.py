@@ -19,7 +19,7 @@ def write(df, path):
         if path == snakemake.output.coding:
             # ensure that these columns are kept, even if they contain only NAs in a coding setting
             remaining_columns.extend(["revel", "hgvsp", "symbol"])
-            remaining_columns = [ col for col in df.columns if col in remaining_columns ]
+            remaining_columns = [col for col in df.columns if col in remaining_columns]
         df = df[remaining_columns]
     df.to_csv(path, index=False, sep="\t")
 
@@ -115,52 +115,74 @@ def cleanup_dataframe(df):
     return df
 
 
-calls = pd.read_csv(snakemake.input[0], sep="\t")
-calls["clinical significance"] = (
-    calls["clinical significance"]
-    .apply(eval)
-    .apply(sorted)
-    .apply(", ".join)
-    .replace("", np.nan)
-)
+def process_variant_calls(calls):
+    calls["clinical significance"] = (
+        calls["clinical significance"]
+        .apply(eval)
+        .apply(sorted)
+        .apply(", ".join)
+        .replace("", np.nan)
+    )
 
+    if not calls.empty:
+        # these below only work on non empty dataframes
+        calls["vartype"] = calls.apply(get_vartype, axis="columns")
+        order_impact(calls)
+        sort_calls(calls)
+    else:
+        calls["vartype"] = []
 
-if not calls.empty:
-    # these below only work on non empty dataframes
-    calls["vartype"] = calls.apply(get_vartype, axis="columns")
-    order_impact(calls)
-    sort_calls(calls)
-else:
-    calls["vartype"] = []
+    calls.set_index("gene", inplace=True, drop=False)
+    samples = get_samples(calls)
 
+    coding = ~pd.isna(calls["hgvsp"])
+    canonical = calls["canonical"]
 
-calls.set_index("gene", inplace=True, drop=False)
-samples = get_samples(calls)
+    noncoding_calls = calls[~coding & canonical]
+    noncoding_calls = cleanup_dataframe(noncoding_calls)
+    write(noncoding_calls, snakemake.output.noncoding)
 
+    coding_calls = calls[coding & canonical].drop(
+        [
+            "end position",
+            "event",
+            "id",
+        ],
+        axis="columns",
+    )
+    coding_calls = cleanup_dataframe(coding_calls)
 
-coding = ~pd.isna(calls["hgvsp"])
-canonical = calls["canonical"]
+    # coding variants
+    # Here we have all variant info in hgvsp,
+    # hence we can drop the other variant specific columns.
+    write(
+        coding_calls,
+        snakemake.output.coding,
+    )
 
-noncoding_calls = calls[~coding & canonical]
-noncoding_calls = cleanup_dataframe(noncoding_calls)
-write(noncoding_calls, snakemake.output.noncoding)
-
-coding_calls = calls[coding & canonical].drop(
-    [
-        "end position",
-        "event",
-        "id",
-    ],
-    axis="columns",
-)
-coding_calls = cleanup_dataframe(coding_calls)
-
-# coding variants
-# Here we have all variant info in hgvsp,
-# hence we can drop the other variant specific columns.
-write(
-    coding_calls,
-    snakemake.output.coding,
-)
 
 # TODO add possibility to also see non-canonical transcripts (low priority, once everything else works).
+
+
+def process_fusion_calls(calls):
+    calls = calls[["chromosome", "position", "id", "mateid", "symbol"]]
+    calls = calls.dropna(how="any", axis="rows")
+    calls = calls.drop_duplicates()
+    first_fusions = calls["id"].str.contains("a$")
+    first_calls = calls[first_fusions]
+    second_calls = calls[~first_fusions]
+    paired_fusions = first_calls.merge(
+        second_calls, left_on="mateid", right_on="id", suffixes=(" partner1", " partner2")
+    )
+    paired_fusions = paired_fusions.filter(regex='^(?!mateid|id)')
+
+    write(paired_fusions, snakemake.output.fusions)
+
+
+calls = pd.read_csv(snakemake.input[0], sep="\t")
+
+fusions = calls["event"].str.contains("^[0-9]+a-[0-9]+b$")
+
+process_variant_calls(calls[~fusions])
+
+process_fusion_calls(calls[fusions])

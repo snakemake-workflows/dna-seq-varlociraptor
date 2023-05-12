@@ -853,9 +853,9 @@ def get_umi_fastq(wc):
 def get_vembrane_config(wildcards, input):
     with open(input.scenario, "r") as scenario_file:
         scenario = yaml.load(scenario_file, Loader=yaml.SafeLoader)
-    parts = ["CHROM, POS, REF, ALT, INFO['END'], INFO['EVENT'], ID"]
+    parts = ["CHROM, POS, REF, ALT, INFO['END'], INFO['EVENT'], ID, INFO['MATEID'][0]"]
     header = [
-        "chromosome, position, reference allele, alternative allele, end position, event, id"
+        "chromosome, position, reference allele, alternative allele, end position, event, id, mateid"
     ]
     join_items = ", ".join
 

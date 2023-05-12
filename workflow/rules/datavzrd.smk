@@ -4,6 +4,7 @@ rule split_call_tables:
     output:
         coding="results/tables/{group}.{event}.coding.fdr-controlled.tsv",
         noncoding="results/tables/{group}.{event}.noncoding.fdr-controlled.tsv",
+        fusions="results/tables/{group}.{event}.fusions.fdr-controlled.tsv",
     params:
         sorting=lambda wc: config["calling"]["fdr-control"]["events"][wc.event].get(
             "sort", list()
@@ -53,6 +54,7 @@ rule render_datavzrd_config:
         groups=get_report_batch,
         coding_calls=get_datavzrd_data(impact="coding"),
         noncoding_calls=get_datavzrd_data(impact="noncoding"),
+        fusion_calls=get_datavzrd_data(impact="fusions"),
         spec_observations=workflow.source_path(
             "../resources/datavzrd/spec_observations.json"
         ),

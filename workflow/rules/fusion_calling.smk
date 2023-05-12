@@ -1,6 +1,6 @@
 module fusion_calling:
     meta_wrapper:
-        "v1.21.0/meta/bio/star_arriba"
+        "v1.25.0/meta/bio/star_arriba"
     config:
         config
 
@@ -38,10 +38,27 @@ use rule arriba from fusion_calling with:
         annotation=rules.get_annotation.output,
 
 
+rule annotate_exons:
+    input:
+        fusions="results/arriba/{sample}.fusions.tsv",
+        annotation=rules.get_annotation.output,
+    output:
+        "results/arriba/{sample}.fusions.annotated.tsv",
+    conda:
+        "../envs/arriba.yaml"
+    log:
+        "logs/annotate_fusions/{sample}.log",
+    shell:
+        """
+        annotate_exon_numbers.sh {input.fusions} {input.annotation} {output} 2> {log}
+        """
+
+
 rule convert_fusions:
     input:
         fasta=rules.get_genome.output,
-        fusions="results/arriba/{sample}.fusions.tsv",
+        fai=genome_fai,
+        fusions="results/arriba/{sample}.fusions.annotated.tsv",
     output:
         temp("results/candidate-calls/{sample}.arriba.vcf"),
     conda:
@@ -50,13 +67,13 @@ rule convert_fusions:
         "logs/convert_fusions/{sample}.log",
     shell:
         """
-        convert_fusions_to_vcf.sh {input.fasta} {input.fusions} {output} 2> {log}
+        /home/moelder/workspace/arriba/scripts/convert_fusions_to_vcf.sh {input.fasta} {input.fusions} {output} 2> {log}
         """
 
 
 rule sort_arriba_calls:
     input:
-        "results/candidate-calls/{sample}.arriba.unsorted.bcf",
+        "results/candidate-calls/{sample}.arriba.vcf",
     output:
         temp("results/candidate-calls/{sample}.arriba.bcf"),
     params:
