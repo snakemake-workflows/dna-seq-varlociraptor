@@ -14,62 +14,19 @@ __definitions__:
       // discard protein id
       let hgvsp = value.match(hgvsp_regex)[2].replace('%3D', '=');
 
+      let chr = row.chromosome;
+      let pos = row.position;
+      let ref = row["reference allele"];
+      let alt = row["alternative allele"];
+
       const url = "{params.varsome_url}";
-      const regex = [
-        /(\d+):[gG]\.(\d+)([GCTAgcta])?>([GCTAgcta])$/,
-        /(\d+):[gG]\.(\d+)([gctaGCTA])?=$/,
-        /(\d+):[gG]\.(\d+)(?:_(\d+))?([GCTAgcta]+)?delins([GCTAgcta]+)$/,
-        /(\d+):[gG]\.(\d+)(?:_(\d+))?del([GCTAgcta]+)?$/,
-        /(\d+):[gG]\.(\d+)_(\d+)ins([GCTAgcta]+)$/,
-        /(\d+):[gG]\.(\d+)_(\d+)ins(\d+)_(\d+)inv$/,
-      ];
-      const hgvsgs = row.hgvsg.split(',')
-      const descriptors = []
-      const hgvsgs_matched = []
-      for (let j = 0; j < hgvsgs.length; j++) {{
-        for (let i = 0; i < regex.length; i++) {{
-          const match = hgvsgs[j].match(regex[i]);
-          if ( match ) {{
-            switch (i) {{
-              // SNV
-              case 0:
-                descriptor = match.splice(1).join(":");
-                break;
-              // Deletion
-              case 3:
-                del_size = match[3]-match[2]+1;
-                descriptor = [match[1], match[2], del_size, ""].join(":");
-                break;
-              // Insertion
-              case 4:
-                descriptor = [match[1], match[3], "", match[4]].join(":");
-                break;
-              default:
-                descriptor = null;
-            }}
-            if (descriptor) {{
-              descriptors.push(descriptor)
-              hgvsgs_matched.push(hgvsgs[j])
-            }}
-            break;
-          }}
-        }}
-      }}
-      if ( descriptors.length == 0) {{
-        return `${{hgvsp}}`;
-      }}
-      else if ( descriptors.length == 1) {{
-        return `<a href="${{url}}${{descriptors[0]}}" target="_blank">${{hgvsp}}</a>`;
+      let aa_regex = /^[ACGTacgt]+$/;
+      if ( ref.match(aa_regex) && alt.match(aa_regex)) {{
+        let descriptor = `${{chr}}:${{pos}}:${{ref}}:${{alt}}`
+        return `<a href="${{url}}${{descriptor}}" target="_blank">${{hgvsp}}</a>`;
       }}
       else {{
-        dropdown = `<div class="dropdown show">`
-        dropdown += `<a class="btn btn-secondary dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">${{hgvsp}}</a>`
-        dropdown += `<div class="dropdown-menu" aria-labelledby="dropdownMenuLink">`
-        for (let i = 0; i < descriptors.length; i++) {{
-          dropdown +=`<a class="dropdown-item" href="${{url}}${{descriptors[i]}}" target="_blank">${{hgvsp}} (${{hgvsgs_matched[i]}})</a>`
-        }}
-        dropdown += `</div></div>`
-        return dropdown
+        return `${{hgvsp}}`;
       }}
     }}
     """
@@ -82,7 +39,7 @@ datasets:
       headers: ?len(params.group_annotations.columns) + 1
       links:
         gene details:
-          column: symbol
+          column: Symbol
           view: "overview-{value}"
     ?for label in params.labels.index.values:
       ?label:
@@ -97,8 +54,8 @@ datasets:
         links:
           ?for group in params.groups:
             ?group:
-              column: hgvsp
-              table-row: ?f"{group}-coding/hgvsp"
+              column: HGVSp
+              table-row: ?f"{group}-coding/HGVSp"
               optional: true
 
   ?for group, path in zip(params.groups, params.coding_calls):
@@ -144,9 +101,11 @@ views:
                     scale: ordinal
                     color-scheme: category20
           columns:
-            symbol:
-              link-to-url: https://www.ensembl.org/Homo_sapiens/Gene/Summary?g={value}
-            consequence:
+            Symbol:
+              link-to-url:
+                ensembl:
+                  url: https://www.ensembl.org/Homo_sapiens/Gene/Summary?g={value}
+            Consequence:
               plot:
                 heatmap:
                   scale: ordinal
@@ -184,9 +143,9 @@ views:
                     scale: ordinal
                     color-scheme: category20
           columns:
-            hgvsp:
+            HGVSp:
               custom: ?varsome_link
-            consequence:
+            Consequence:
               plot:
                 heatmap:
                   scale: ordinal
@@ -198,7 +157,7 @@ views:
                     scale: ordinal
                     color-scheme: paired
                     aux-domain-columns: ?list(params.groups)
-            hgvsg:
+            HGVSg:
               display-mode: hidden
 
   ?for group in params.groups:
@@ -207,14 +166,16 @@ views:
       dataset: ?f"{group}-coding"
       render-table:
         columns:
-          symbol:
-            link-to-url: https://www.ensembl.org/Homo_sapiens/Transcript/Summary?t={feature}
+          Symbol:
+            link-to-url:
+              ensembl:
+                url: https://www.ensembl.org/Homo_sapiens/Transcript/Summary?t={Feature}
           ?if params.varsome_url:
-            hgvsp:
+            HGVSp:
               custom: ?varsome_link
           vartype:
             display-mode: hidden
-          impact:
+          Impact:
             plot:
               heatmap:
                 scale: ordinal
@@ -228,12 +189,12 @@ views:
                   - "#ec5300"
                   - "#ec9b00"
                   - "#ecca00"
-          consequence:
+          Consequence:
             plot:
               heatmap:
                 color-scheme: category20
                 scale: ordinal
-          revel:
+          REVEL:
             optional: true
             plot: 
               heatmap:
@@ -263,11 +224,11 @@ views:
                 range:
                   - white
                   - "#1f77b4"
-          gene:
+          Gene:
             display-mode: hidden
-          feature:
+          Feature:
             display-mode: hidden
-          hgvsg:
+          HGVSg:
             display-mode: detail
           chromosome:
             display-mode: detail
@@ -277,7 +238,10 @@ views:
             display-mode: detail
           alternative allele:
             display-mode: detail
-
+          Protein position:
+            display-mode: detail
+          Protein alteration (short):
+            display-mode: detail
           ?for alias in params.samples.loc[params.samples["group"] == group, "alias"]:
             '?f"{alias}: short observations"':
               custom-plot:
@@ -292,22 +256,25 @@ views:
 
 
 
+
     ?f"{group}-noncoding":
       desc: ?f"Variants in non-coding regions.\n{config['calling']['fdr-control']['events'][wildcards.event]['desc']}"
       dataset: ?f"{group}-noncoding"
       render-table:
         columns:
-          symbol:
+          Symbol:
             optional: true
-            link-to-url: https://www.ensembl.org/Homo_sapiens/Transcript/Summary?t={feature}
-          consequence:
+            link-to-url:
+              ensembl:
+                url: https://www.ensembl.org/Homo_sapiens/Transcript/Summary?t={Feature}
+          Consequence:
             plot:
               heatmap:
                 color-scheme: category20
                 scale: ordinal
           vartype:
             display-mode: hidden
-          impact:
+          Impact:
             plot:
               heatmap:
                 scale: ordinal
@@ -344,11 +311,11 @@ views:
                   - "#1f77b4"
           id:
             display-mode: hidden
-          gene:
+          Gene:
             display-mode: hidden
-          feature:
+          Feature:
             display-mode: hidden
-          hgvsg:
+          HGVSg:
             display-mode: detail
           chromosome:
             display-mode: detail

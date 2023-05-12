@@ -142,8 +142,15 @@ properties:
             type: boolean
           annotation_fields:
             type: array
-            items:
-              type: string
+            items: 
+               anyOf:
+                - type: string
+                - type: object
+                  properties:
+                    name:
+                      type: string
+                    expr:
+                      type: string
     generate_excel:
       type: boolean
     required:
