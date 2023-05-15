@@ -28,11 +28,13 @@ rule prepare_oncoprint:
         variant_oncoprints=directory(
             "results/tables/oncoprints/{batch}.{event}/variant-oncoprints"
         ),
+        group_by_variant_oncoprint="results/tables/oncoprints/{batch}.{event}/group-by-variant-oncoprint.tsv",
     log:
         "logs/prepare_oncoprint/{batch}.{event}.log",
     params:
         groups=get_report_batch,
         labels=get_heterogeneous_labels(),
+        group_by_variant_oncoprint_header_labels=get_group_by_variant_oncoprint_header_labels(),
     conda:
         "../envs/oncoprint.yaml"
     script:
@@ -49,6 +51,7 @@ rule render_datavzrd_config:
         "resources/datavzrd/{batch}.{event}.datavzrd.yaml",
     params:
         gene_oncoprint=get_oncoprint("gene"),
+        group_by_variant_oncoprint=get_oncoprint("group-by-variant"),
         variant_oncoprints=get_variant_oncoprint_tables,
         groups=get_report_batch,
         coding_calls=get_datavzrd_data(impact="coding"),
@@ -70,6 +73,7 @@ rule render_datavzrd_config:
         group_annotations=group_annotation,
         labels=get_heterogeneous_labels(),
         oncoprint_sorted_datasets="results/tables/oncoprints/{batch}.{event}/label_sortings/",
+        group_by_variant_oncoprint_header_labels=get_group_by_variant_oncoprint_header_labels(),
     log:
         "logs/datavzrd_render/{batch}.{event}.log",
     template_engine:
@@ -88,6 +92,7 @@ rule datavzrd_variants_calls:
         ),
         config="resources/datavzrd/{batch}.{event}.datavzrd.yaml",
         gene_oncoprint=get_oncoprint("gene"),
+        group_by_variant_oncoprint=get_oncoprint("group-by-variant"),
         variant_oncoprints=get_oncoprint("variant"),
     output:
         report(

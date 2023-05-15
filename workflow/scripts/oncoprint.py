@@ -4,6 +4,7 @@ sys.stderr = open(snakemake.log[0], "w")
 
 import os
 from pathlib import Path
+import json
 
 import pandas as pd
 import numpy as np
@@ -34,12 +35,15 @@ def join_gene_vartypes(df):
 
 
 def load_calls(path, group):
-    calls = pd.read_csv(
-        path, sep="\t", usecols=["Symbol", "vartype", "HGVSp", "HGVSg", "Consequence"]
-    )
+    calls = pd.read_csv(path, sep="\t")
+    calls = calls[["Symbol", "vartype", "HGVSp", "HGVSg", "Consequence"] + get_allelefreq_columns(calls)]
     calls["group"] = group
     calls.loc[:, "Consequence"] = calls["Consequence"].str.replace("&", ",")
     return calls.drop_duplicates()
+
+
+def get_allelefreq_columns(calls):
+    return list(calls.columns[calls.columns.str.endswith("allele frequency")].values)
 
 
 def load_group_annotation():
@@ -85,7 +89,7 @@ def attach_group_annotation(matrix, group_annotation):
     )
 
 
-def gene_oncoprint(calls):
+def gene_by_sample_oncoprint(calls):
     calls = calls[["group", "Symbol", "vartype", "Consequence"]]
     if not calls.empty:
         grouped = (
@@ -111,6 +115,29 @@ def gene_oncoprint(calls):
         return pd.DataFrame({col: [] for col in cols}).set_index(
             list(snakemake.params.groups)
         )
+
+
+def group_by_variant_oncoprint(calls, group_annotation):
+    allelefreq_cols = get_allelefreq_columns(calls)
+    calls = calls[["group"] + snakemake.params.group_by_variant_oncoprint_header_labels + allelefreq_cols]
+
+    def join_allele_freqs(row):
+        return " + ".join(colname.split(":")[0].strip() for colname, vaf in row[allelefreq_cols].iteritems() if vaf > 0.0)
+
+    calls["status"] = calls.apply(join_allele_freqs, axis="columns")
+    calls.drop(columns=allelefreq_cols, inplace=True)
+    # unstack and drop the status column (with label level_0 after reset_index)
+    calls = calls.set_index(["group"] + snakemake.params.group_by_variant_oncoprint_header_labels).unstack(level="group").T.reset_index().drop(columns=["level_0"]).set_index("group")
+    # backup column index as it will be destroyed by the pd.concat below
+    colindex = calls.columns
+    # add group annotation and set as index
+    calls = pd.concat([group_annotation.T, calls]).set_index(group_annotation.columns.tolist(), append=True)
+    # restore column index
+    calls.columns = colindex
+    # reset index so that table has the right format (no column labels)
+    calls.reset_index()
+    return calls
+
 
 
 def variant_oncoprint(gene_calls, group_annotation):
@@ -194,12 +221,14 @@ calls = pd.concat(
     ]
 )
 
-
-gene_oncoprint = gene_oncoprint(calls)
+gene_oncoprint = gene_by_sample_oncoprint(calls)
 
 group_annotation = load_group_annotation()
 gene_oncoprint_main = attach_group_annotation(gene_oncoprint, group_annotation)
 gene_oncoprint_main.to_csv(snakemake.output.gene_oncoprint, sep="\t", index=False)
+
+group_by_variant_oncoprint = group_by_variant_oncoprint(calls, group_annotation)
+group_by_variant_oncoprint.to_csv(snakemake.output.group_by_variant_oncoprint, sep="\t", index=False)
 
 os.makedirs(snakemake.output.gene_oncoprint_sortings)
 

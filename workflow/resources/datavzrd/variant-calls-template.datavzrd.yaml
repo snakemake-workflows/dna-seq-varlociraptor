@@ -41,6 +41,17 @@ datasets:
         gene details:
           column: Symbol
           view: "overview-{value}"
+    group-by-variant-oncoprint:
+      path: ?params.group_by_variant_oncoprint
+      separator: "\t"
+      headers: ?len(params.group_by_variant_oncoprint_header_labels)
+      links:
+        group coding variants:
+          column: group
+          view: ?f"{group}-coding"
+        group noncoding variants:
+          column: group
+          view: ?f"{group}-noncoding"
     ?for label in params.labels.index.values:
       ?label:
         path: ?os.path.join(params.oncoprint_sorted_datasets, f"{label}.tsv")
@@ -124,6 +135,28 @@ views:
                   scale: linear
               optional: true
     
+    group-by-variant-oncoprint:
+      desc: "Group by variant matrix"
+      dataset: group-by-variant-oncoprint
+      render-table:
+        headers:
+          ?for i, annotation in enumerate(params.group_by_variant_oncoprint_header_labels[1:]):
+            ?i:
+              label: ?annotation
+              ?if annotation == "Consequence":
+                plot:
+                  heatmap:
+                    scale: ordinal
+                    color-scheme: category20
+        columns:
+          ?for group in params.groups:
+            ?group:
+              plot:
+                heatmap:
+                  scale: ordinal
+                  color-scheme: category10
+                  aux-domain-columns: ?list(params.groups)
+
     ?for gene, path in params.variant_oncoprints:
       ?f"overview-{gene}":
         desc: ?f"Variants found in gene {gene}."
