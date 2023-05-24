@@ -47,6 +47,7 @@ rule render_datavzrd_config:
             "../resources/datavzrd/variant-calls-template.datavzrd.yaml"
         ),
         variant_oncoprints=get_oncoprint("variant"),
+        group_by_variant_oncoprint="results/tables/oncoprints/{batch}.{event}/group-by-variant-oncoprint.tsv",
     output:
         "resources/datavzrd/{batch}.{event}.datavzrd.yaml",
     params:

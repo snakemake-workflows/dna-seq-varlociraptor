@@ -118,6 +118,8 @@ def gene_by_sample_oncoprint(calls):
 
 
 def group_by_variant_oncoprint(calls, group_annotation):
+    # make a copy since we modify the dataframe below
+    calls = calls.copy(deep=True)
     allelefreq_cols = get_allelefreq_columns(calls)
     calls = calls[["group"] + snakemake.params.group_by_variant_oncoprint_header_labels + allelefreq_cols]
 
@@ -131,11 +133,11 @@ def group_by_variant_oncoprint(calls, group_annotation):
     # backup column index as it will be destroyed by the pd.concat below
     colindex = calls.columns
     # add group annotation and set as index
-    calls = pd.concat([group_annotation.T, calls]).set_index(group_annotation.columns.tolist(), append=True)
+    calls = pd.concat([group_annotation.T, calls]).set_index(group_annotation.T.columns.tolist(), append=True)
     # restore column index
     calls.columns = colindex
     # reset index so that table has the right format (no column labels)
-    calls.reset_index()
+    calls = calls.reset_index()
     return calls
 
 

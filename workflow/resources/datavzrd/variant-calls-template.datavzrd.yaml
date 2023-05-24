@@ -4,6 +4,7 @@ default-view: ?"overview" if input.variant_oncoprints else f"{params.groups[0]}-
 
 __definitions__:
   - import os
+  - import pandas as pd
   - |
     def read_file(path):
         return open(path, 'r').read()
@@ -30,6 +31,8 @@ __definitions__:
       }}
     }}
     """
+  - |
+    group_by_variant_oncoprint_data_cols = pd.read_csv(input.group_by_variant_oncoprint, sep="\t", nrows=1).columns.tolist()[params.group_annotations.shape[1] + 1:]
 
 datasets:
   ?if input.variant_oncoprints:
@@ -48,10 +51,10 @@ datasets:
       links:
         group coding variants:
           column: group
-          view: ?f"{group}-coding"
+          view: "{value}-coding"
         group noncoding variants:
           column: group
-          view: ?f"{group}-noncoding"
+          view: "{value}-noncoding"
     ?for label in params.labels.index.values:
       ?label:
         path: ?os.path.join(params.oncoprint_sorted_datasets, f"{label}.tsv")
@@ -141,7 +144,7 @@ views:
       render-table:
         headers:
           ?for i, annotation in enumerate(params.group_by_variant_oncoprint_header_labels[1:]):
-            ?i:
+            ?i + 1:
               label: ?annotation
               ?if annotation == "Consequence":
                 plot:
@@ -149,13 +152,13 @@ views:
                     scale: ordinal
                     color-scheme: category20
         columns:
-          ?for group in params.groups:
-            ?group:
+          ?for gene in group_by_variant_oncoprint_data_cols:
+            ?gene:
               plot:
                 heatmap:
                   scale: ordinal
-                  color-scheme: category10
-                  aux-domain-columns: ?list(params.groups)
+                  color-scheme: category20
+                  aux-domain-columns: ?group_by_variant_oncoprint_data_cols
 
     ?for gene, path in params.variant_oncoprints:
       ?f"overview-{gene}":
