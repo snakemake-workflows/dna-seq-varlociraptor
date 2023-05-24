@@ -174,8 +174,7 @@ else:
 calls.set_index("Gene", inplace=True, drop=False)
 samples = get_samples(calls)
 
-if calls.columns.str.endswith(": short ref observations").any():
-    calls = join_short_obs(calls, samples)
+calls = join_short_obs(calls, samples)
 
 coding = ~pd.isna(calls["HGVSp"])
 canonical = calls["Canonical"]

@@ -865,18 +865,15 @@ def get_vembrane_config(wildcards, input):
             samples, f"FORMAT['{field}']['{{}}']".format, f"{{}}: {name}".format
         )
 
-    if config_output.get("event_prob", False):
-        events = list(scenario["events"].keys())
-        events += ["artifact", "absent"]
-        append_items(events, lambda x: f"INFO['PROB_{x.upper()}']", "prob: {}".format)
+    events = list(scenario["events"].keys())
+    events += ["artifact", "absent"]
+    append_items(events, lambda x: f"INFO['PROB_{x.upper()}']", "prob: {}".format)
     append_format_field("AF", "allele frequency")
     append_format_field("DP", "read depth")
-    if config_output.get("short_observations", False):
-        append_format_field("SROBS", "short ref observations")
-        append_format_field("SAOBS", "short alt observations")
+    append_format_field("SROBS", "short ref observations")
+    append_format_field("SAOBS", "short alt observations")
 
-    if config_output.get("observations", False):
-        append_format_field("OBS", "observations")
+    append_format_field("OBS", "observations")
     return {"expr": join_items(parts), "header": join_items(header)}
 
 
