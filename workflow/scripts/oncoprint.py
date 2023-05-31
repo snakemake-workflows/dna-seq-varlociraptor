@@ -13,16 +13,16 @@ from statsmodels.stats.multitest import fdrcorrection
 
 
 def join_group_hgvsgs(df):
-    hgvsgs = ",".join(np.sort(pd.unique(df["HGVSg"].str.split(",").explode())))
-    df.loc[:, "HGVSg"] = hgvsgs
+    hgvsgs = ",".join(np.sort(pd.unique(df["hgvsg"].str.split(",").explode())))
+    df.loc[:, "hgvsg"] = hgvsgs
     return df.drop_duplicates()
 
 
 def join_group_consequences(df):
     consequences = ",".join(
-        np.sort(pd.unique(df["Consequence"].str.split(",").explode()))
+        np.sort(pd.unique(df["consequence"].str.split(",").explode()))
     )
-    df.loc[:, "Consequence"] = consequences
+    df.loc[:, "consequence"] = consequences
     return df
 
 
@@ -35,10 +35,10 @@ def join_gene_vartypes(df):
 
 def load_calls(path, group):
     calls = pd.read_csv(
-        path, sep="\t", usecols=["Symbol", "vartype", "HGVSp", "HGVSg", "Consequence"]
+        path, sep="\t", usecols=["symbol", "vartype", "hgvsp", "hgvsg", "consequence"]
     )
     calls["group"] = group
-    calls.loc[:, "Consequence"] = calls["Consequence"].str.replace("&", ",")
+    calls.loc[:, "consequence"] = calls["consequence"].str.replace("&", ",")
     return calls.drop_duplicates()
 
 
@@ -86,17 +86,17 @@ def attach_group_annotation(matrix, group_annotation):
 
 
 def gene_oncoprint(calls):
-    calls = calls[["group", "Symbol", "vartype", "Consequence"]]
+    calls = calls[["group", "symbol", "vartype", "consequence"]]
     if not calls.empty:
         grouped = (
-            calls.drop_duplicates().groupby(["Symbol"]).apply(join_group_consequences)
+            calls.drop_duplicates().groupby(["symbol"]).apply(join_group_consequences)
         ).reset_index(drop=True)
         grouped = (
             grouped.drop_duplicates()
-            .groupby(["group", "Symbol"])
+            .groupby(["group", "symbol"])
             .apply(join_gene_vartypes)
         )
-        matrix = grouped.set_index(["Symbol", "Consequence", "group"]).unstack(
+        matrix = grouped.set_index(["symbol", "consequence", "group"]).unstack(
             level="group"
         )
         matrix = add_missing_groups(matrix, snakemake.params.groups, "vartype")
@@ -107,17 +107,17 @@ def gene_oncoprint(calls):
 
         return matrix
     else:
-        cols = ["Symbol", "Consequence"] + list(snakemake.params.groups)
+        cols = ["symbol", "consequence"] + list(snakemake.params.groups)
         return pd.DataFrame({col: [] for col in cols}).set_index(
             list(snakemake.params.groups)
         )
 
 
 def variant_oncoprint(gene_calls, group_annotation):
-    gene_calls = gene_calls[["group", "HGVSp", "HGVSg", "Consequence"]]
+    gene_calls = gene_calls[["group", "hgvsp", "hgvsg", "consequence"]]
     gene_calls.loc[:, "exists"] = "X"
-    grouped = gene_calls.drop_duplicates().groupby(["HGVSp"]).apply(join_group_hgvsgs)
-    matrix = grouped.set_index(["HGVSp", "HGVSg", "Consequence", "group"]).unstack(
+    grouped = gene_calls.drop_duplicates().groupby(["hgvsp"]).apply(join_group_hgvsgs)
+    matrix = grouped.set_index(["hgvsp", "hgvsg", "consequence", "group"]).unstack(
         level="group"
     )
 
@@ -207,7 +207,7 @@ sort_oncoprint_labels(gene_oncoprint)
 
 
 os.makedirs(snakemake.output.variant_oncoprints)
-for gene, gene_calls in calls.groupby("Symbol"):
+for gene, gene_calls in calls.groupby("symbol"):
     variant_oncoprint(gene_calls, group_annotation).to_csv(
         Path(snakemake.output.variant_oncoprints) / f"{gene}.tsv", sep="\t", index=False
     )
