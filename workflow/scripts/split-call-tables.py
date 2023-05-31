@@ -13,12 +13,12 @@ PROB_EPSILON = 0.01  # columns with all probabilities below will be dropped
 
 
 def write(df, path):
-    df = df.drop(["Canonical"], axis="columns", errors="ignore")
+    df = df.drop(["canonical"], axis="columns", errors="ignore")
     if not df.empty:
         remaining_columns = df.dropna(how="all", axis="columns").columns.tolist()
         if path == snakemake.output.coding:
             # ensure that these columns are kept, even if they contain only NAs in a coding setting
-            remaining_columns.extend(["REVEL", "HGVSp", "Symbol"])
+            remaining_columns.extend(["revel", "hgvsp", "symbol"])
             remaining_columns = [col for col in df.columns if col in remaining_columns]
         df = df[remaining_columns]
     df.to_csv(path, index=False, sep="\t")
@@ -87,7 +87,7 @@ def get_vartype(rec):
 
 def order_impact(df):
     order_impact = ["MODIFIER", "LOW", "MODERATE", "HIGH"]
-    df["Impact"] = pd.Categorical(df["Impact"], order_impact)
+    df["impact"] = pd.Categorical(df["impact"], order_impact)
 
 
 def sort_calls(df):
@@ -109,7 +109,7 @@ def reorder_prob_cols(df):
 
 
 def reorder_vaf_cols(df):
-    split_index = df.columns.get_loc("Consequence")
+    split_index = df.columns.get_loc("consequence")
     left_columns = df.iloc[:, 0:split_index].columns
     vaf_columns = df.filter(regex=": allele frequency$").columns
     right_columns = df.iloc[:, split_index:].columns.drop(vaf_columns)
@@ -146,16 +146,16 @@ def join_short_obs(df, samples):
 
 
 calls = pd.read_csv(snakemake.input[0], sep="\t")
-calls["Clinical significance"] = (
-    calls["Clinical significance"]
+calls["clinical significance"] = (
+    calls["clinical significance"]
     .apply(eval)
     .apply(sorted)
     .apply(", ".join)
     .replace("", np.nan)
 )
 
-calls["Protein alteration (short)"] = (
-    calls["Protein alteration (short)"]
+calls["protein alteration (short)"] = (
+    calls["protein alteration (short)"]
     .apply(eval)
     .apply("/".join)
     .replace("", np.nan)
@@ -171,14 +171,14 @@ else:
     calls["vartype"] = []
 
 
-calls.set_index("Gene", inplace=True, drop=False)
+calls.set_index("gene", inplace=True, drop=False)
 samples = get_samples(calls)
 
 if calls.columns.str.endswith(": short ref observations").any():
     calls = join_short_obs(calls, samples)
 
-coding = ~pd.isna(calls["HGVSp"])
-canonical = calls["Canonical"]
+coding = ~pd.isna(calls["hgvsp"])
+canonical = calls["canonical"]
 
 noncoding_calls = calls[~coding & canonical]
 noncoding_calls = cleanup_dataframe(noncoding_calls)
