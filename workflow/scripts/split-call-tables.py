@@ -89,6 +89,10 @@ def order_impact(df):
     order_impact = ["MODIFIER", "LOW", "MODERATE", "HIGH"]
     df["impact"] = pd.Categorical(df["impact"], order_impact)
 
+def order_vaf(df):
+    order_vaf = ["low", "medium", "high"]
+    df["tumor: binned vaf"] = pd.Categorical(df["tumor: binned vaf"], order_vaf)
+
 
 def sort_calls(df):
     df.sort_values(snakemake.params.sorting, ascending=False, inplace=True)
@@ -144,6 +148,11 @@ def join_short_obs(df, samples):
     )
     return df
 
+def bin_vaf(df, samples):
+    for sample in samples:
+        df[f"{sample}: binned vaf"] = pd.cut(df[f"{sample}: allele frequency"], [0, 0.33, 0.66, 1.], labels=["low", "medium", "high"])
+    return df
+
 
 calls = pd.read_csv(snakemake.input[0], sep="\t")
 calls["clinical significance"] = (
@@ -161,21 +170,27 @@ calls["protein alteration (short)"] = (
     .replace("", np.nan)
 )
 
+samples = get_samples(calls)
+
+if calls.columns.str.endswith(": allele frequency").any():
+    calls = bin_vaf(calls, samples)
 
 if not calls.empty:
     # these below only work on non empty dataframes
     calls["vartype"] = calls.apply(get_vartype, axis="columns")
     order_impact(calls)
+    order_vaf(calls)
     sort_calls(calls)
 else:
     calls["vartype"] = []
 
 
 calls.set_index("gene", inplace=True, drop=False)
-samples = get_samples(calls)
 
 if calls.columns.str.endswith(": short ref observations").any():
     calls = join_short_obs(calls, samples)
+
+
 
 coding = ~pd.isna(calls["hgvsp"])
 canonical = calls["canonical"]
