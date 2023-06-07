@@ -2,15 +2,15 @@ function(value) {
   var regex = /([0-9]+)([A|a|R|r]?[E|B|P|S|V|e|b|p|s|v])(\.|[0-9]+)(s|p)(\#|\*|\.)(\+|\-|\*)(\>|\<|\*|\!)(\^|\*)(\$|\.)(\*|\.)/g;
   var effects = {
       "E": "Equal",
-      "AB": "Barely (Alternative)",
-      "AP": "Positive (Alternative)",
-      "AS": "Strong (Alternative)",
-      "AV": "Very Strong (Alternative)",
-      "RE": "Equal (Reference)",
-      "RB": "Barely (Reference)",
-      "RP": "Positive (Reference)",
-      "RS": "Strong (Reference)",
-      "RV": "Very Strong (Reference)"
+      "AB": "Barely (Alt)",
+      "AP": "Positive (Alt)",
+      "AS": "Strong (Alt)",
+      "AV": "Very Strong (Alt)",
+      "RE": "Equal (Ref)",
+      "RB": "Barely (Ref)",
+      "RP": "Positive (Ref)",
+      "RS": "Strong (Ref)",
+      "RV": "Very Strong (Ref)"
   }
   var observations = [];
   var orientation = {
