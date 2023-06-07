@@ -22,7 +22,7 @@ function(value) {
 
   while ((result = regex.exec(value)) != null) {
     strand = result[6].replace("*", "±")
-    edit_distance = result[3].replace(".", "None")
+    edit_distance = result[3].replace(".", "0")
     effect = effects[result[2].toUpperCase()]
     var quality = "high";
     if (result[2] == result[2].toUpperCase()) {
