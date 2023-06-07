@@ -30,7 +30,6 @@ function(value) {
     }
     observations.push({
         "strand": strand,
-        "strand_orientation": strand + ' ' + orientation[result[7]],
         "effect": effect,
         "times": parseFloat(result[1]),
         "quality": quality,
