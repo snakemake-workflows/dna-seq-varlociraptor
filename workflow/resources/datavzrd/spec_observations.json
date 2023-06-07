@@ -6,22 +6,22 @@
       "bind": {"input": "checkbox"}
     },
     {
+      "name": "mapping_quality",
+      "bind": {"input": "checkbox"}
+    },
+    {
       "name": "strand",
       "value": "true",
       "bind": {"input": "checkbox"}
     },
     {
-      "name": "mapping_quality",
-      "bind": {"input": "checkbox"}
-    },
-        {
       "name": "edit_distance",
       "bind": {"input": "checkbox"}
     }
   ],
   "transform": [
     {
-      "calculate": "[if(orientation, datum.orientation, null), if(strand, datum.strand, null), if(mapping_quality, datum.quality, null), if(edit_distance, datum['edit distance'], null)]",
+      "calculate": "[if(orientation, datum.orientation, null), if(mapping_quality, datum.quality, null), if(strand, datum.strand, null), if(edit_distance, datum['edit distance'], null)]",
       "as": "split_array"
     },
     {
@@ -115,6 +115,7 @@
       {"field": "strand", "type": "nominal", "title": "Strand"},
       {"field": "orientation", "type": "nominal", "title": "Orientation"},
       {"field": "times", "type": "quantitative", "title": "Counts"},
+      {"field": "quality", "type": "nominal", "title": "Mapping quality"},
       {"field": "edit distance", "type": "ordinal", "title": "Edit distance"}
     ]
   },
