@@ -18,7 +18,7 @@ def write(df, path):
         remaining_columns = df.dropna(how="all", axis="columns").columns.tolist()
         if path == snakemake.output.coding:
             # ensure that these columns are kept, even if they contain only NAs in a coding setting
-            remaining_columns.extend(["REVEL", "HGVSp", "Symbol"])
+            remaining_columns.extend(["revel", "hgvsp", "symbol"])
             remaining_columns = [col for col in df.columns if col in remaining_columns]
         df = df[remaining_columns]
     df.to_csv(path, index=False, sep="\t")
@@ -178,13 +178,15 @@ if calls.columns.str.endswith(": short ref observations").any():
     calls = join_short_obs(calls, samples)
 
 coding = ~pd.isna(calls["HGVSp"])
-mane_plus_clinical = calls["MANE+clinical"]
+canonical = calls["Canonical"].notnull()
+mane_plus_clinical = calls["MANE+clinical"].notnull()
+canonical_mane = canonical | mane_plus_clinical
 
-noncoding_calls = calls[~coding & mane_plus_clinical]
+noncoding_calls = calls[~coding & canonical_mane]
 noncoding_calls = cleanup_dataframe(noncoding_calls)
 write(noncoding_calls, snakemake.output.noncoding)
 
-coding_calls = calls[coding & mane_plus_clinical].drop(
+coding_calls = calls[coding & canonical_mane].drop(
     [
         "end position",
         "event",
@@ -201,4 +203,4 @@ write(
     coding_calls,
     snakemake.output.coding,
 )
-# TODO add possibility to also see non-mane+clinical transcripts (low priority, once everything else works).
+# TODO add possibility to also see non-canoncical or non-mane+clinical transcripts (low priority, once everything else works).

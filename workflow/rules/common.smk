@@ -841,6 +841,7 @@ def get_vembrane_config(wildcards, input):
         {"name": "Protein alteration (short)", "expr": "ANN['Amino_acids']"},
         "HGVSg",
         "Consequence",
+        {"name": "Canonical", "expr": "ANN['CANONICAL']"},
         {"name": "MANE+clinical", "expr": "ANN['MANE_PLUS_CLINICAL']"},
         {"name": "Clinical significance", "expr": "ANN['CLIN_SIG']"},
     ]
