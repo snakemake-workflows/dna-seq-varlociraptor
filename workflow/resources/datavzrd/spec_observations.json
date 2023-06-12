@@ -92,10 +92,10 @@
           "Positive (Alt)",
           "Barely (Alt)",
           "Equal",
-          "Barely (Reference)",
-          "Positive (Reference)",
-          "Strong (Reference)",
-          "Very Strong (Reference)"
+          "Barely (Ref)",
+          "Positive (Ref)",
+          "Strong (Ref)",
+          "Very Strong (Ref)"
         ],
         "range": [
           "#ff5555",
