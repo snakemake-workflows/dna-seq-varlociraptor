@@ -13,7 +13,8 @@ PROB_EPSILON = 0.01  # columns with all probabilities below will be dropped
 
 
 def write(df, path):
-    df = df.drop(["MANE+clinical"], axis="columns", errors="ignore")
+    df = df.drop(["mane_plus_clinical"], axis="columns", errors="ignore")
+    df = df.drop(["canonical"], axis="columns", errors="ignore")
     if not df.empty:
         remaining_columns = df.dropna(how="all", axis="columns").columns.tolist()
         if path == snakemake.output.coding:
@@ -87,7 +88,7 @@ def get_vartype(rec):
 
 def order_impact(df):
     order_impact = ["MODIFIER", "LOW", "MODERATE", "HIGH"]
-    df["Impact"] = pd.Categorical(df["Impact"], order_impact)
+    df["impact"] = pd.Categorical(df["impact"], order_impact)
 
 
 def sort_calls(df):
@@ -109,7 +110,7 @@ def reorder_prob_cols(df):
 
 
 def reorder_vaf_cols(df):
-    split_index = df.columns.get_loc("Consequence")
+    split_index = df.columns.get_loc("consequence")
     left_columns = df.iloc[:, 0:split_index].columns
     vaf_columns = df.filter(regex=": allele frequency$").columns
     right_columns = df.iloc[:, split_index:].columns.drop(vaf_columns)
@@ -146,16 +147,16 @@ def join_short_obs(df, samples):
 
 
 calls = pd.read_csv(snakemake.input[0], sep="\t")
-calls["Clinical significance"] = (
-    calls["Clinical significance"]
+calls["clinical significance"] = (
+    calls["clinical significance"]
     .apply(eval)
     .apply(sorted)
     .apply(", ".join)
     .replace("", np.nan)
 )
 
-calls["Protein alteration (short)"] = (
-    calls["Protein alteration (short)"]
+calls["protein alteration (short)"] = (
+    calls["protein alteration (short)"]
     .apply(eval)
     .apply("/".join)
     .replace("", np.nan)
@@ -171,15 +172,15 @@ else:
     calls["vartype"] = []
 
 
-calls.set_index("Gene", inplace=True, drop=False)
+calls.set_index("gene", inplace=True, drop=False)
 samples = get_samples(calls)
 
 if calls.columns.str.endswith(": short ref observations").any():
     calls = join_short_obs(calls, samples)
 
-coding = ~pd.isna(calls["HGVSp"])
-canonical = calls["Canonical"].notnull()
-mane_plus_clinical = calls["MANE+clinical"].notnull()
+coding = ~pd.isna(calls["hgvsp"])
+canonical = calls["canonical"].notnull()
+mane_plus_clinical = calls["mane_plus_clinical"].notnull()
 canonical_mane = canonical | mane_plus_clinical
 
 noncoding_calls = calls[~coding & canonical_mane]
