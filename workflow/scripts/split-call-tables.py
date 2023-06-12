@@ -147,8 +147,8 @@ def join_short_obs(df, samples):
 def bin_max_vaf(df, samples):
     af_columns = [f"{sample}: allele frequency" for sample in samples]
     max_vaf = df[af_columns].apply("max", axis=1)
-    df["binned_max_vaf"] = pd.cut(max_vaf, [0, 0.33, 0.66, 1.], labels=["low", "medium", "high"])
-    df["binned_max_vaf"] = pd.Categorical(df["binned_max_vaf"], ["low", "medium", "high"])
+    df["binned max vaf"] = pd.cut(max_vaf, [0, 0.33, 0.66, 1.], labels=["low", "medium", "high"])
+    df["binned max vaf"] = pd.Categorical(df["binned max vaf"], ["low", "medium", "high"])
     return df
 
 
