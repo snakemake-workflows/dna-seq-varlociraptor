@@ -9,7 +9,7 @@ ref:
   # Ensembl species name
   species: homo_sapiens
   # Ensembl release
-  release: 104
+  release: 109
   # Genome build
   build: GRCh38
   chromosome: 1
