@@ -1,72 +1,123 @@
 {
-    "$schema": "https://vega.github.io/schema/vega-lite/v3.json",
-    "transform": [
+  "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+  "params": [
+    {
+      "name": "orientation",
+      "bind": {"input": "checkbox"}
+    },
+    {
+      "name": "mapping_quality",
+      "bind": {"input": "checkbox"}
+    },
+    {
+      "name": "strand",
+      "value": "true",
+      "bind": {"input": "checkbox"}
+    },
+    {
+      "name": "edit_distance",
+      "bind": {"input": "checkbox"}
+    }
+  ],
+  "transform": [
+    {
+      "calculate": "[if(orientation, datum.orientation, null), if(mapping_quality, datum.quality, null), if(strand, datum.strand, null), if(edit_distance, datum['edit distance'], null)]",
+      "as": "split_array"
+    },
+    {
+      "calculate": "join(datum.split_array, '  ')",
+      "as": "categories"
+    },
+    {
+      "calculate": "indexof(['Very Strong (Alt)', 'Strong (Alt)', 'Positive (Alt)', 'Barely (Alt)', 'Equal', 'Barely (Ref)', 'Positive (Ref)', 'Strong (Ref)', 'Very Strong (Ref)'], datum.effect)",
+      "as": "order"
+    },
+    {
+      "calculate": "if(datum.effect === 'Very Strong (Ref)' || datum.effect === 'Strong (Ref)' || datum.effect === 'Positive (Ref)' || datum.effect === 'Barely (Ref)', datum.times, 0) + if(datum.effect === 'Equal', datum.times / 2, 0)",
+      "as": "offset"
+    },
+    {
+      "stack": "times",
+      "as": ["bar_start", "bar_end"],
+      "groupby": ["categories"],
+      "sort": [{ 
+        "field": "order",
+        "order": "descending"
+    }]
+    },
+    {
+      "joinaggregate": [
         {
-          "calculate": "indexof(['Very Strong (Alternative)', 'Strong (Alternative)', 'Positive (Alternative)', 'Barely (Alternative)', 'Equal', 'Barely (Reference)', 'Positive (Reference)', 'Strong (Reference)', 'Very Strong (Reference)'], datum.effect)",
-          "as": "order"
+          "field": "offset",
+          "op": "sum",
+          "as": "aggregated_offset"
         }
       ],
-    "mark": "bar",
-    "encoding": {
-        "column": {
-            "field": "quality",
-            "type": "ordinal",
-            "title": null,
-            "header": {
-                "labelAngle": 45,
-                "labelPadding": "-70"
-            }
-        },
-        "x": {
-            "field": "strand_orientation",
-            "type": "ordinal",
-            "title": "Strand"
-        },
-        "y": {
-            "field": "times",
-            "type": "quantitative",
-            "title": "Counts"
-        },
-        "order": {"field": "order", "type": "ordinal", "sort": "descending"},
-        "color": {
-            "field": "effect",
-            "type": "nominal",
-            "title": "Evidence",
-            "sort": {"field": "order", "order": "descending"},
-            "scale": {
-                "domain": ["Very Strong (Alternative)", "Strong (Alternative)", "Positive (Alternative)", "Barely (Alternative)", "Equal", "Barely (Reference)", "Positive (Reference)", "Strong (Reference)", "Very Strong (Reference)"],
-                "range": ["#ff5555", "#ff6666", "#ff9999", "#ffcccc", "#999999", "#eaf7fb", "#afdfee", "#6cc5e0", "#2dacd2"]
-            }
-        },
-        "tooltip": [ {
-            "field": "effect",
-            "type": "nominative",
-            "title": "Evidence"
-        }, {
-            "field": "strand",
-            "type": "nominative",
-            "title": "Strand"
-        }, {
-            "field": "orientation",
-            "type": "nominal",
-            "title": "Orientation"
-        }, {
-            "field": "times",
-            "type": "quantitative",
-            "title": "Counts"
-        }, {
-            "field": "times",
-            "type": "quantitative",
-            "title": "Counts"
-        }, {
-            "field": "edit distance",
-            "type": "nominative",
-            "title": "Edit distance"
-        }]
+      "groupby": [ "categories" ]
     },
-    "config": {
-        "axisX": {
-            "labelAngle": -45
-        }
-    }
+    {"calculate": "datum.bar_start - datum.aggregated_offset", "as": "bar_start_offset"},
+    {"calculate": "datum.bar_end - datum.aggregated_offset", "as": "bar_end_offset"}
+  ],
+  "mark": "bar",
+  "encoding": {
+    "x": {
+      "field": "bar_start_offset",
+      "type": "quantitative",
+      "title": "Counts",
+      "axis": {
+        "labelExpr": "replace(datum.label, '−', '')"
+      }
+    },
+    "x2": {
+      "field": "bar_end_offset"
+    },
+    "y": {
+      "field": "categories",
+      "type": "nominal",
+      "title": "selected categories",
+      "axis": {
+        "ticks": false
+      }
+    },
+    "order": {"field": "order", "type": "quantitative", "sort": "descending"},
+    "color": {
+      "field": "effect",
+      "type": "ordinal",
+      "title": "Evidence",
+      "sort": {"field": "order", "order": "ascending"},
+      "scale": {
+        "domain": [
+          "Very Strong (Alt)",
+          "Strong (Alt)",
+          "Positive (Alt)",
+          "Barely (Alt)",
+          "Equal",
+          "Barely (Reference)",
+          "Positive (Reference)",
+          "Strong (Reference)",
+          "Very Strong (Reference)"
+        ],
+        "range": [
+          "#ff5555",
+          "#ff6666",
+          "#ff9999",
+          "#ffcccc",
+          "#999999",
+          "#eaf7fb",
+          "#afdfee",
+          "#6cc5e0",
+          "#2dacd2"
+        ]
+      }
+    },
+    "tooltip": [
+      {"field": "effect", "type": "nominal", "title": "Evidence"},
+      {"field": "strand", "type": "nominal", "title": "Strand"},
+      {"field": "orientation", "type": "nominal", "title": "Orientation"},
+      {"field": "times", "type": "quantitative", "title": "Counts"},
+      {"field": "quality", "type": "nominal", "title": "Mapping quality"},
+      {"field": "edit distance", "type": "ordinal", "title": "Edit distance"}
+    ]
+  },
+  "config": {"axisX": {"labelAngle": -30}}
 }
