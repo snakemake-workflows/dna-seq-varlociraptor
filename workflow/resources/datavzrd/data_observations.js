@@ -24,9 +24,9 @@ function(value) {
     strand = result[6].replace("*", "±")
     edit_distance = result[3].replace(".", "0")
     effect = effects[result[2].toUpperCase()]
-    var quality = "high";
+    var quality = "low";
     if (result[2] == result[2].toUpperCase()) {
-        quality = "low ";
+        quality = "high";
     }
     observations.push({
         "strand": strand,
