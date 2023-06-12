@@ -134,7 +134,7 @@ rule get_vep_cache:
         release=config["ref"]["release"],
     log:
         "logs/vep/cache.log",
-    cache: True
+    cache: "omit-software"
     wrapper:
         "v1.31.1/bio/vep/cache"
 
