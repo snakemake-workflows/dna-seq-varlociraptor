@@ -842,6 +842,7 @@ def get_vembrane_config(wildcards, input):
         "HGVSg",
         "Consequence",
         "CANONICAL",
+        "MANE_PLUS_CLINICAL",
         {"name": "clinical significance", "expr": "ANN['CLIN_SIG']"},
     ]
 
