@@ -145,6 +145,13 @@ def join_short_obs(df, samples):
     )
     return df
 
+def bin_max_vaf(df, samples):
+    af_columns = [f"{sample}: allele frequency" for sample in samples]
+    max_vaf = df[af_columns].apply("max", axis=1)
+    df["binned max vaf"] = pd.cut(max_vaf, [0, 0.33, 0.66, 1.], labels=["low", "medium", "high"])
+    df["binned max vaf"] = pd.Categorical(df["binned max vaf"], ["low", "medium", "high"])
+    return df
+
 
 calls = pd.read_csv(snakemake.input[0], sep="\t")
 calls["clinical significance"] = (
@@ -162,6 +169,10 @@ calls["protein alteration (short)"] = (
     .replace("", np.nan)
 )
 
+samples = get_samples(calls)
+
+if calls.columns.str.endswith(": allele frequency").any():
+    calls = bin_max_vaf(calls, samples)
 
 if not calls.empty:
     # these below only work on non empty dataframes
@@ -173,7 +184,6 @@ else:
 
 
 calls.set_index("gene", inplace=True, drop=False)
-samples = get_samples(calls)
 
 if calls.columns.str.endswith(": short ref observations").any():
     calls = join_short_obs(calls, samples)
