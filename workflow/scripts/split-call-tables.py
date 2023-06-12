@@ -144,11 +144,11 @@ def join_short_obs(df, samples):
     )
     return df
 
-def bin_vaf(df, samples):
-    order_vaf = ["low", "medium", "high"]
-    for sample in samples:
-        df[f"{sample}: binned vaf"] = pd.cut(df[f"{sample}: allele frequency"], [0, 0.33, 0.66, 1.], labels=["low", "medium", "high"])
-        df[f"{sample}: binned vaf"] = pd.Categorical(df[f"{sample}: binned vaf"], order_vaf)
+def bin_max_vaf(df, samples):
+    af_columns = [f"{sample}: allele frequency" for sample in samples]
+    max_vaf = df[af_columns].apply("max", axis=1)
+    df["binned_max_vaf"] = pd.cut(max_vaf, [0, 0.33, 0.66, 1.], labels=["low", "medium", "high"])
+    df["binned_max_vaf"] = pd.Categorical(df["binned_max_vaf"], ["low", "medium", "high"])
     return df
 
 
@@ -171,7 +171,7 @@ calls["protein alteration (short)"] = (
 samples = get_samples(calls)
 
 if calls.columns.str.endswith(": allele frequency").any():
-    calls = bin_vaf(calls, samples)
+    calls = bin_max_vaf(calls, samples)
 
 if not calls.empty:
     # these below only work on non empty dataframes
