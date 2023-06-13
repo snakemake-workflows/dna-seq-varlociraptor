@@ -95,7 +95,8 @@ def sort_calls(df):
     sorting = snakemake.params.sorting
     if "revel" not in df.columns:
         sorting.remove("revel")
-    df.sort_values(snakemake.params.sorting, ascending=False, inplace=True)
+    print(sorting)
+    df.sort_values(sorting, ascending=False, inplace=True)
 
 
 def reorder_prob_cols(df):
