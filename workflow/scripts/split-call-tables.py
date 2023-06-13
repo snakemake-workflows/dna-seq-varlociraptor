@@ -93,7 +93,7 @@ def order_impact(df):
 
 def sort_calls(df):
     sorting = snakemake.params.sorting
-    if "revel" not in df.columns:
+    if "revel" in sorting and "revel" not in df.columns:
         sorting.remove("revel")
     df.sort_values(sorting, ascending=False, inplace=True)
 
