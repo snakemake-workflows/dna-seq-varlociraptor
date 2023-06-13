@@ -92,6 +92,9 @@ def order_impact(df):
 
 
 def sort_calls(df):
+    sorting = snakemake.params.sorting
+    if "revel" not in df.columns:
+        sorting.remove("revel")
     df.sort_values(snakemake.params.sorting, ascending=False, inplace=True)
 
 
@@ -145,11 +148,16 @@ def join_short_obs(df, samples):
     )
     return df
 
+
 def bin_max_vaf(df, samples):
     af_columns = [f"{sample}: allele frequency" for sample in samples]
     max_vaf = df[af_columns].apply("max", axis=1)
-    df["binned max vaf"] = pd.cut(max_vaf, [0, 0.33, 0.66, 1.], labels=["low", "medium", "high"])
-    df["binned max vaf"] = pd.Categorical(df["binned max vaf"], ["low", "medium", "high"])
+    df["binned max vaf"] = pd.cut(
+        max_vaf, [0, 0.33, 0.66, 1.0], labels=["low", "medium", "high"]
+    )
+    df["binned max vaf"] = pd.Categorical(
+        df["binned max vaf"], ["low", "medium", "high"]
+    )
     return df
 
 
@@ -163,10 +171,7 @@ calls["clinical significance"] = (
 )
 
 calls["protein alteration (short)"] = (
-    calls["protein alteration (short)"]
-    .apply(eval)
-    .apply("/".join)
-    .replace("", np.nan)
+    calls["protein alteration (short)"].apply(eval).apply("/".join).replace("", np.nan)
 )
 
 samples = get_samples(calls)
