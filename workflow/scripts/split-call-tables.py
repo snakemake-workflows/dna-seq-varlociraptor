@@ -92,10 +92,7 @@ def order_impact(df):
 
 
 def sort_calls(df):
-    sorting = snakemake.params.sorting
-    if "revel" in sorting and "revel" not in df.columns:
-        sorting.remove("revel")
-    df.sort_values(sorting, ascending=False, inplace=True)
+    df.sort_values(snakemake.params.sorting, ascending=False, inplace=True)
 
 
 def reorder_prob_cols(df):
