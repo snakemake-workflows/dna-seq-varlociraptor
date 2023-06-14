@@ -71,7 +71,7 @@ rule get_annotation_gz:
         "logs/get_annotation.log",
     cache: "omit-software"  # save space and time with between workflow caching (see docs)
     wrapper:
-        "v1.5.0/bio/reference/ensembl-annotation"
+        "v1.31.1/bio/reference/ensembl-annotation"
 
 
 rule determine_coding_regions:
@@ -134,9 +134,9 @@ rule get_vep_cache:
         release=config["ref"]["release"],
     log:
         "logs/vep/cache.log",
-    cache: True
+    cache: "omit-software"
     wrapper:
-        "v1.22.0/bio/vep/cache"
+        "v1.31.1/bio/vep/cache"
 
 
 rule get_vep_plugins:
@@ -147,4 +147,4 @@ rule get_vep_plugins:
     log:
         "logs/vep/plugins.log",
     wrapper:
-        "v1.12.0/bio/vep/plugins"
+        "v1.31.1/bio/vep/plugins"
