@@ -42,7 +42,7 @@ datasets:
       headers: ?len(params.group_annotations.columns) + 1
       links:
         gene details:
-          column: Symbol
+          column: symbol
           view: "overview-{value}"
     group-by-variant-oncoprint:
       path: ?params.group_by_variant_oncoprint
@@ -68,8 +68,8 @@ datasets:
         links:
           ?for group in params.groups:
             ?group:
-              column: HGVSp
-              table-row: ?f"{group}-coding/HGVSp"
+              column: hgvsp
+              table-row: ?f"{group}-coding/hgvsp"
               optional: true
 
   ?for group, path in zip(params.groups, params.coding_calls):
@@ -102,20 +102,21 @@ views:
             """
         dataset: ?view
         render-table:
-          headers:
-            ?for i, annotation in enumerate(labels):
-              ?i + 1:
-                label: ?annotation
-                plot:
-                  heatmap:
-                    scale: ordinal
-                    color-scheme: category20
+          ?if labels:
+            headers:
+              ?for i, annotation in enumerate(labels):
+                ?i + 1:
+                  label: ?annotation
+                  plot:
+                    heatmap:
+                      scale: ordinal
+                      color-scheme: category20
           columns:
-            Symbol:
+            symbol:
               link-to-url:
                 ensembl:
                   url: https://www.ensembl.org/Homo_sapiens/Gene/Summary?g={value}
-            Consequence:
+            consequence:
               plot:
                 heatmap:
                   scale: ordinal
@@ -166,18 +167,19 @@ views:
         dataset: ?f"variant-oncoprint-{gene}"
         hidden: true
         render-table:
-          headers:
-            ?for i, annotation in enumerate(params.group_annotations.columns.values):
-              ?i + 1:
-                label: ?annotation
-                plot:
-                  heatmap:
-                    scale: ordinal
-                    color-scheme: category20
+          ?if params.group_annotations.columns.values:
+            headers:
+              ?for i, annotation in enumerate(params.group_annotations.columns.values):
+                ?i + 1:
+                  label: ?annotation
+                  plot:
+                    heatmap:
+                      scale: ordinal
+                      color-scheme: category20
           columns:
-            HGVSp:
+            hgvsp:
               custom: ?varsome_link
-            Consequence:
+            consequence:
               plot:
                 heatmap:
                   scale: ordinal
@@ -189,7 +191,7 @@ views:
                     scale: ordinal
                     color-scheme: paired
                     aux-domain-columns: ?list(params.groups)
-            HGVSg:
+            hgvsg:
               display-mode: hidden
 
   ?for group in params.groups:
@@ -198,16 +200,16 @@ views:
       dataset: ?f"{group}-coding"
       render-table:
         columns:
-          Symbol:
+          symbol:
             link-to-url:
               ensembl:
-                url: https://www.ensembl.org/Homo_sapiens/Transcript/Summary?t={Feature}
+                url: https://www.ensembl.org/Homo_sapiens/Transcript/Summary?t={feature}
           ?if params.varsome_url:
-            HGVSp:
+            hgvsp:
               custom: ?varsome_link
           vartype:
             display-mode: hidden
-          Impact:
+          impact:
             plot:
               heatmap:
                 scale: ordinal
@@ -221,12 +223,12 @@ views:
                   - "#ec5300"
                   - "#ec9b00"
                   - "#ecca00"
-          Consequence:
+          consequence:
             plot:
               heatmap:
                 color-scheme: category20
                 scale: ordinal
-          REVEL:
+          revel:
             optional: true
             plot: 
               heatmap:
@@ -256,11 +258,11 @@ views:
                 range:
                   - white
                   - "#1f77b4"
-          Gene:
+          gene:
             display-mode: hidden
-          Feature:
+          feature:
             display-mode: hidden
-          HGVSg:
+          hgvsg:
             display-mode: detail
           chromosome:
             display-mode: detail
@@ -270,17 +272,19 @@ views:
             display-mode: detail
           alternative allele:
             display-mode: detail
-          Protein position:
+          protein position:
             display-mode: detail
-          Protein alteration (short):
+          protein alteration (short):
             display-mode: detail
           ?for alias in params.samples.loc[params.samples["group"] == group, "alias"]:
             '?f"{alias}: short observations"':
+              optional: true
               custom-plot:
                 data: ?read_file(params.data_short_observations)
                 spec: ?read_file(params.spec_short_observations)
               display-mode: detail
             '?f"{alias}: observations"':
+              optional: true
               custom-plot:
                 data: ?read_file(params.data_observations)
                 spec: ?read_file(params.spec_observations)
@@ -294,19 +298,19 @@ views:
       dataset: ?f"{group}-noncoding"
       render-table:
         columns:
-          Symbol:
+          symbol:
             optional: true
             link-to-url:
               ensembl:
-                url: https://www.ensembl.org/Homo_sapiens/Transcript/Summary?t={Feature}
-          Consequence:
+                url: https://www.ensembl.org/Homo_sapiens/Transcript/Summary?t={feature}
+          consequence:
             plot:
               heatmap:
                 color-scheme: category20
                 scale: ordinal
           vartype:
             display-mode: hidden
-          Impact:
+          impact:
             plot:
               heatmap:
                 scale: ordinal
@@ -343,11 +347,11 @@ views:
                   - "#1f77b4"
           id:
             display-mode: hidden
-          Gene:
+          gene:
             display-mode: hidden
-          Feature:
+          feature:
             display-mode: hidden
-          HGVSg:
+          hgvsg:
             display-mode: detail
           chromosome:
             display-mode: detail
@@ -360,6 +364,7 @@ views:
 
           ?for alias in params.samples.loc[params.samples["group"] == group, "alias"]:
             '?f"{alias}: observations"':
+              optional: true
               custom-plot:
                 data: ?read_file(params.data_observations)
                 spec: ?read_file(params.spec_observations)

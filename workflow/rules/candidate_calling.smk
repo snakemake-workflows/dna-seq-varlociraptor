@@ -66,7 +66,7 @@ rule filter_offtarget_variants:
     log:
         "logs/filter_offtarget_variants/{group}.{caller}.log",
     wrapper:
-        "v1.19.1/bio/bcftools/filter"
+        "v1.32.0/bio/bcftools/filter"
 
 
 rule scatter_candidates:
