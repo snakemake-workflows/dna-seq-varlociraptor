@@ -3,5 +3,5 @@ channels:
   - bioconda
   - nodefaults
 dependencies:
-  - varlociraptor =8.1
+  - varlociraptor =8.2
   - vega-lite-cli =3.4
