@@ -126,7 +126,7 @@ def group_by_variant_oncoprint(calls, group_annotation):
     def join_allele_freqs(row):
         return " + ".join(colname.split(":")[0].strip() for colname, vaf in row[allelefreq_cols].iteritems() if vaf > 0.0)
 
-    calls["status"] = calls.apply(join_allele_freqs, axis="columns")
+    calls["status"] = calls.apply(join_allele_freqs, axis="columns") if not calls.empty else []
     calls.drop(columns=allelefreq_cols, inplace=True)
     # unstack and drop the status column (with label level_0 after reset_index)
     calls = calls.set_index(["group"] + snakemake.params.group_by_variant_oncoprint_header_labels).unstack(level="group").T.reset_index().drop(columns=["level_0"]).set_index("group")
