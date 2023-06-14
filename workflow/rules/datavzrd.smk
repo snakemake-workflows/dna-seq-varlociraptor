@@ -101,4 +101,4 @@ rule datavzrd_variants_calls:
     log:
         "logs/datavzrd_report/{batch}.{event}.log",
     wrapper:
-        "v1.28.0/utils/datavzrd"
+        "v2.0.0/utils/datavzrd"
