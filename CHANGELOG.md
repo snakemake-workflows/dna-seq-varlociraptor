@@ -1,5 +1,17 @@
 # Changelog
 
+## [4.0.1](https://github.com/snakemake-workflows/dna-seq-varlociraptor/compare/v4.0.0...v4.0.1) (2023-06-14)
+
+
+### Bug Fixes
+
+* update varlociraptor ([#244](https://github.com/snakemake-workflows/dna-seq-varlociraptor/issues/244)) ([361c9ee](https://github.com/snakemake-workflows/dna-seq-varlociraptor/commit/361c9ee879a8ba5af06f6de57dd0b548ca667331))
+
+
+### Performance Improvements
+
+* update to latest datavzrd ([#245](https://github.com/snakemake-workflows/dna-seq-varlociraptor/issues/245)) ([d4ee98a](https://github.com/snakemake-workflows/dna-seq-varlociraptor/commit/d4ee98ae724e4ff6cb5144b66612c0a97a2c6ff1))
+
 ## [4.0.0](https://github.com/snakemake-workflows/dna-seq-varlociraptor/compare/v3.24.3...v4.0.0) (2023-06-12)
 
 
