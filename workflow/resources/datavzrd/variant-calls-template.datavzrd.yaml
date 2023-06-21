@@ -317,6 +317,7 @@ views:
           feature:
             display-mode: hidden
           hgvsg:
+            optional: true
             display-mode: detail
           chromosome:
             display-mode: detail
