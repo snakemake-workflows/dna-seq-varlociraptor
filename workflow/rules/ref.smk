@@ -59,6 +59,20 @@ rule get_known_variants:
         "v1.12.0/bio/reference/ensembl-variation"
 
 
+rule get_hprc_pangenome:
+    output:
+        "resources/hprc-pangenome.vcf.gz",
+    log:
+        "logs/get-hprc-pangenome.log",
+    conda:
+        "../envs/curl.yaml"
+    cache: "omit-software"
+    shell:
+        "curl -L "
+        "https://s3-us-west-2.amazonaws.com/human-pangenomics/pangenomes/freeze/freeze1/minigraph-cactus/hprc-v1.0-mc.grch38.vcfbub.a100k.wave.vcf.gz "
+        "> {output} 2> {log}"
+
+
 rule get_annotation_gz:
     output:
         "resources/annotation.gtf.gz",
@@ -111,18 +125,30 @@ rule remove_iupac_codes:
         "(rbt vcf-fix-iupac-alleles < {input} | bcftools view -Oz > {output}) 2> {log}"
 
 
-rule bwa_index:
+rule vg_index:
     input:
-        genome,
+        genome=genome,
+        # Use the HPRC human pangenome if possible. Otherwise known variation from Ensembl.
+        # The latter has the disadvantage that it does not contain haplotypes.
+        # See https://github.com/vgteam/vg/issues/3776.
+        variants="resources/hprc-pangenome.vcf.gz"
+        if config["ref"]["species"] == "homo_sapiens"
+        and config["ref"]["build"] == "GRCh38"
+        else "resources/variation.vcf.gz",
     output:
-        idx=multiext(genome, ".amb", ".ann", ".bwt", ".pac", ".sa"),
+        f"{genome}.gbz",
     log:
-        "logs/bwa_index.log",
-    resources:
-        mem_mb=369000,
+        "logs/vg/index.log",
+    params:
+        prefix=lambda w, input: os.path.splitext(input.genome)[0],
+    conda:
+        "../envs/vg.yaml"
     cache: True
-    wrapper:
-        "v1.10.0/bio/bwa/index"
+    threads: workflow.cores
+    shell:
+        "vg autoindex -t {threads} --workflow giraffe "
+        "-r {input.genome} -v {input.variants} -p x "
+        "--prefix {params.prefix} 2> {log}"
 
 
 rule get_vep_cache:
