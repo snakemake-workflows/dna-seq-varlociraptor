@@ -1,6 +1,7 @@
 import glob
 from os import path
 
+import json
 import yaml
 import pandas as pd
 from snakemake.remote import FTP
