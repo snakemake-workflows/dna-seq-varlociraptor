@@ -1058,5 +1058,10 @@ def get_delly_excluded_regions():
 
 
 def get_group_by_variant_oncoprint_header_labels():
-    with open(workflow.source_path("../resources/datavzrd/group_by_variant_oncoprint_header_labels.json"), "r") as f:
+    with open(
+        workflow.source_path(
+            "../resources/datavzrd/group_by_variant_oncoprint_header_labels.json"
+        ),
+        "r",
+    ) as f:
         return json.load(f)
