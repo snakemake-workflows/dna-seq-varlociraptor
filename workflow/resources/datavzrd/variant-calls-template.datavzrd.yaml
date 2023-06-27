@@ -310,12 +310,14 @@ views:
                   - white
                   - "#1f77b4"
           id:
+            optional: true
             display-mode: hidden
           gene:
             display-mode: hidden
           feature:
             display-mode: hidden
           hgvsg:
+            optional: true
             display-mode: detail
           chromosome:
             display-mode: detail
