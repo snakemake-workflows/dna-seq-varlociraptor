@@ -85,7 +85,7 @@ views:
   ?if params.gene_oncoprint:
     ?for view in ["gene-oncoprint"] + list(params.labels.index.values):
       __variables__:
-        labels: ?params.group_annotations.columns.values if view == "gene-oncoprint" else [view]
+        labels: ?list(params.group_annotations.columns.values) if view == "gene-oncoprint" else [view]
       ?"overview" if view == "gene-oncoprint" else f"by {view}":
         ?if view == "gene-oncoprint":
           desc: |
@@ -147,7 +147,7 @@ views:
           ?for i, annotation in enumerate(params.group_by_variant_oncoprint_header_labels[1:]):
             ?i + 1:
               label: ?annotation
-              ?if annotation == "Consequence":
+              ?if annotation == "consequence":
                 plot:
                   heatmap:
                     scale: ordinal
@@ -167,7 +167,7 @@ views:
         dataset: ?f"variant-oncoprint-{gene}"
         hidden: true
         render-table:
-          ?if params.group_annotations.columns.values:
+          ?if list(params.group_annotations.columns.values):
             headers:
               ?for i, annotation in enumerate(params.group_annotations.columns.values):
                 ?i + 1:
