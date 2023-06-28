@@ -63,6 +63,9 @@ rule render_datavzrd_config:
         spec_short_observations=workflow.source_path(
             "../resources/datavzrd/spec_short_observations.json"
         ),
+        spec_group_by_variant_oncoprint=workflow.source_path(
+            "../resources/datavzrd/spec_group_by_variant_oncoprint.json"
+        ),
         data_observations=workflow.source_path(
             "../resources/datavzrd/data_observations.js"
         ),
