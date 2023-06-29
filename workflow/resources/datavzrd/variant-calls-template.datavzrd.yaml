@@ -226,6 +226,8 @@ views:
             display-mode: hidden
           feature:
             display-mode: hidden
+          binned max vaf:
+            display-mode: hidden
           hgvsg:
             display-mode: detail
           chromosome:
@@ -316,6 +318,8 @@ views:
             display-mode: hidden
           feature:
             display-mode: hidden
+          binned max vaf:
+            display-mode: hidden
           hgvsg:
             optional: true
             display-mode: detail
@@ -327,7 +331,6 @@ views:
             display-mode: detail
           alternative allele:
             display-mode: detail
-
           ?for alias in params.samples.loc[params.samples["group"] == group, "alias"]:
             '?f"{alias}: observations"':
               optional: true
