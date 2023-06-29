@@ -141,8 +141,6 @@ views:
                       scale: ordinal
                       color-scheme: category20
           columns:
-            hgvsp:
-              custom: ?varsome_link
             consequence:
               plot:
                 heatmap:
