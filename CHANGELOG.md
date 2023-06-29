@@ -1,5 +1,18 @@
 # Changelog
 
+## [4.0.2](https://github.com/snakemake-workflows/dna-seq-varlociraptor/compare/v4.0.1...v4.0.2) (2023-06-29)
+
+
+### Bug Fixes
+
+* hide binned vaf ([#250](https://github.com/snakemake-workflows/dna-seq-varlociraptor/issues/250)) ([fedd817](https://github.com/snakemake-workflows/dna-seq-varlociraptor/commit/fedd817e081cfe2522a86ed01f338838a9923b4d))
+* set id optional ([#247](https://github.com/snakemake-workflows/dna-seq-varlociraptor/issues/247)) ([b91e3a5](https://github.com/snakemake-workflows/dna-seq-varlociraptor/commit/b91e3a5e1843a3126cbd5fdc3541829ec0714a89))
+
+
+### Performance Improvements
+
+* update to varlociraptor 8.3 ([#249](https://github.com/snakemake-workflows/dna-seq-varlociraptor/issues/249)) ([c81c440](https://github.com/snakemake-workflows/dna-seq-varlociraptor/commit/c81c4403487c855ad66805c67ae24e083279ff5d))
+
 ## [4.0.1](https://github.com/snakemake-workflows/dna-seq-varlociraptor/compare/v4.0.0...v4.0.1) (2023-06-14)
 
 
