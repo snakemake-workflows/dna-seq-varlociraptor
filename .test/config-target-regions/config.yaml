@@ -65,7 +65,7 @@ annotations:
   vep:
     candidate_calls:
       params:
-      plugins:
+      plugins: []
     final_calls:
       params: --everything
       plugins:

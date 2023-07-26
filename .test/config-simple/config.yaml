@@ -60,7 +60,7 @@ annotations:
   vep:
     candidate_calls:
       params: --af_gnomade
-      plugins: 
+      plugins: []
     final_calls:
       params: --everything
       plugins:
