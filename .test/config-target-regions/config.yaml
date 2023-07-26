@@ -64,7 +64,7 @@ annotations:
       - DrugBank
   vep:
     candidate_calls:
-      params:
+      params: ""
       plugins: []
     final_calls:
       params: --everything

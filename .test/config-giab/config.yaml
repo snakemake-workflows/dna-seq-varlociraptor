@@ -119,7 +119,7 @@ annotations:
       - DrugBank
   vep:
     candidate_calls:
-      params:
+      params: ""
       plugins: []
     final_calls:
       # Consider removing --everything if VEP is slow for you (e.g. for WGS), 
