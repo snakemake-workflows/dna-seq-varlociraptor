@@ -241,6 +241,9 @@ properties:
                 type: array
                 items:
                   type: string
+            required:
+              - params
+              - plugins
           final_calls:
             properties:
               params:
@@ -249,9 +252,9 @@ properties:
                 type: array
                 items:
                   type: string
-        required:
-          - params
-          - plugins
+            required:
+              - params
+              - plugins
     required:
       - vep
       - vcfs
