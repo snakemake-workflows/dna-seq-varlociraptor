@@ -64,7 +64,6 @@ annotations:
       params: --everything
       plugins: []
 
-
 params:
   cutadapt: ""
   picard:
