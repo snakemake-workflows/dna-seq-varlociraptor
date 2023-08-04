@@ -43,7 +43,7 @@ rule annotate_variants:
         "logs/vep/{group}.{scatteritem}.annotate.log",
     threads: get_vep_threads()
     wrapper:
-        "v1.31.1/bio/vep/annotate"
+        "v2.2.1/bio/vep/annotate"
 
 
 # TODO What about multiple ID Fields?

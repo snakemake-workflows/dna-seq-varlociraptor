@@ -796,12 +796,16 @@ def get_untrimmed_fastqs(wc):
 
 
 def get_trimmed_fastqs(wc):
-    return expand(
-        "results/trimmed/{sample}/{unit}_{read}.fastq.gz",
-        unit=units.loc[wc.sample, "unit_name"],
-        sample=wc.sample,
-        read=wc.read,
-    )
+    if units.loc[wc.sample, "adapters"].notna().all():
+        return expand(
+            "results/trimmed/{sample}/{unit}_{read}.fastq.gz",
+            unit=units.loc[wc.sample, "unit_name"],
+            sample=wc.sample,
+            read=wc.read,
+        )
+    else:
+        fq = "fq1" if wc.read == "R1" or wc.read == "single" else "fq2"
+        return units.loc[wc.sample, fq]
 
 
 def get_umi_fastq(wc):
@@ -844,6 +848,7 @@ def get_vembrane_config(wildcards, input):
         "CANONICAL",
         "MANE_PLUS_CLINICAL",
         {"name": "clinical significance", "expr": "ANN['CLIN_SIG']"},
+        {"name": "gnomad genome af", "expr": "ANN['gnomADg_AF']"},
     ]
 
     annotation_fields.extend(
@@ -1006,13 +1011,14 @@ def get_fastqc_results(wildcards):
     )
 
     # cutadapt
-    pattern = "results/trimmed/{unit.sample_name}/{unit.unit_name}.{mode}.qc.txt"
-    yield from expand(
-        pattern, unit=sample_units[paired_end_units].itertuples(), mode="paired"
-    )
-    yield from expand(
-        pattern, unit=sample_units[~paired_end_units].itertuples(), mode="single"
-    )
+    if sample_units["adapters"].notna().all():
+        pattern = "results/trimmed/{unit.sample_name}/{unit.unit_name}.{mode}.qc.txt"
+        yield from expand(
+            pattern, unit=sample_units[paired_end_units].itertuples(), mode="paired"
+        )
+        yield from expand(
+            pattern, unit=sample_units[~paired_end_units].itertuples(), mode="single"
+        )
 
     # samtools idxstats
     yield from expand("results/qc/{sample}.bam.idxstats", sample=group_samples)

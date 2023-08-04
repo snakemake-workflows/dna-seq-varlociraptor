@@ -4,8 +4,8 @@ rule freebayes:
         ref_idx=genome_fai,
         regions="results/regions/{group}.expanded_regions.filtered.bed",
         # you can have a list of samples here
-        samples=lambda w: get_group_bams(w),
-        indexes=lambda w: get_group_bams(w, bai=True),
+        alns=lambda w: get_group_bams(w),
+        idxs=lambda w: get_group_bams(w, bai=True),
     output:
         "results/candidate-calls/{group}.freebayes.bcf",
     log:
@@ -19,7 +19,7 @@ rule freebayes:
         ),
     threads: max(workflow.cores - 1, 1)  # use all available cores -1 (because of the pipe) for calling
     wrapper:
-        "v1.19.0/bio/freebayes"
+        "v2.3.0/bio/freebayes"
 
 
 rule delly:
