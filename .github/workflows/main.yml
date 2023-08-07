@@ -53,14 +53,14 @@ jobs:
         show-disk-usage-on-error: true
 
     - name: Test testcase generation
-      uses: snakemake/snakemake-github-action@v1
+      uses: snakemake/snakemake-github-action@feat/disk_space_on_error
       with:
         directory: .test
         snakefile: workflow/Snakefile
         args: "results/testcases/a/freebayes/IX:314200 --configfile .test/config-simple/config.yaml --use-conda --show-failed-logs -j 10 --conda-cleanup-pkgs cache"
 
     - name: Test report
-      uses: snakemake/snakemake-github-action@v1
+      uses: snakemake/snakemake-github-action@feat/disk_space_on_error
       with:
         directory: .test
         snakefile: workflow/Snakefile
@@ -68,7 +68,7 @@ jobs:
 
 
     - name: Test workflow (local FASTQs, target regions)
-      uses: snakemake/snakemake-github-action@v1
+      uses: snakemake/snakemake-github-action@feat/disk_space_on_error
       with:
         directory: .test
         snakefile: workflow/Snakefile
@@ -77,7 +77,7 @@ jobs:
           rm -rf .test/results
 
     - name: Test workflow (local FASTQs, multiple target regions BED files)
-      uses: snakemake/snakemake-github-action@v1
+      uses: snakemake/snakemake-github-action@feat/disk_space_on_error
       with:
         directory: .test
         snakefile: workflow/Snakefile
@@ -86,7 +86,7 @@ jobs:
           rm -rf .test/results
 
     - name: Test workflow (local FASTQs, no candidate filtering)
-      uses: snakemake/snakemake-github-action@v1
+      uses: snakemake/snakemake-github-action@feat/disk_space_on_error
       with:
         directory: .test
         snakefile: workflow/Snakefile
@@ -95,7 +95,7 @@ jobs:
           rm -rf .test/results
 
     - name: Test workflow (local FASTQs primer)
-      uses: snakemake/snakemake-github-action@v1
+      uses: snakemake/snakemake-github-action@feat/disk_space_on_error
       with:
         directory: .test
         snakefile: workflow/Snakefile
@@ -104,7 +104,7 @@ jobs:
           rm -rf .test/results
 
     - name: Test workflow (SRA FASTQs)
-      uses: snakemake/snakemake-github-action@v1
+      uses: snakemake/snakemake-github-action@feat/disk_space_on_error
       with:
         directory: .test
         snakefile: workflow/Snakefile
