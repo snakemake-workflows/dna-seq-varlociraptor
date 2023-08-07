@@ -29,7 +29,7 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - name: Lint workflow
-      uses: snakemake/snakemake-github-action@v1.24.0
+      uses: snakemake/snakemake-github-action@v1.25.0
       with:
         directory: .
         snakefile: workflow/Snakefile
@@ -50,6 +50,7 @@ jobs:
         directory: .test
         snakefile: workflow/Snakefile
         args: "--configfile .test/config-simple/config.yaml --use-conda --show-failed-logs -j 10 --conda-cleanup-pkgs cache"
+        show-disk-usage-on-error: true
 
     - name: Test testcase generation
       uses: snakemake/snakemake-github-action@v1
@@ -57,6 +58,7 @@ jobs:
         directory: .test
         snakefile: workflow/Snakefile
         args: "results/testcases/a/freebayes/IX:314200 --configfile .test/config-simple/config.yaml --use-conda --show-failed-logs -j 10 --conda-cleanup-pkgs cache"
+        show-disk-usage-on-error: true
 
     - name: Test report
       uses: snakemake/snakemake-github-action@v1
@@ -64,7 +66,7 @@ jobs:
         directory: .test
         snakefile: workflow/Snakefile
         args: "--configfile .test/config-simple/config.yaml --report report.zip"
-
+        show-disk-usage-on-error: true
 
     - name: Test workflow (local FASTQs, target regions)
       uses: snakemake/snakemake-github-action@v1
@@ -74,6 +76,7 @@ jobs:
         args: "--configfile .test/config-target-regions/config.yaml --use-conda --show-failed-logs -j 10 --conda-cleanup-pkgs cache"
         stagein: |
           rm -rf .test/results
+        show-disk-usage-on-error: true
 
     - name: Test workflow (local FASTQs, multiple target regions BED files)
       uses: snakemake/snakemake-github-action@v1
@@ -83,6 +86,7 @@ jobs:
         args: "--configfile .test/config-target-regions/config_multiple_beds.yaml --use-conda --show-failed-logs -j 10 --conda-cleanup-pkgs cache"
         stagein: |
           rm -rf .test/results
+        show-disk-usage-on-error: true
 
     - name: Test workflow (local FASTQs, no candidate filtering)
       uses: snakemake/snakemake-github-action@v1
@@ -92,6 +96,7 @@ jobs:
         args: "--configfile .test/config-no-candidate-filtering/config.yaml --dryrun --use-conda --show-failed-logs -j 10 --conda-cleanup-pkgs cache"
         stagein: |
           rm -rf .test/results
+        show-disk-usage-on-error: true
 
     - name: Test workflow (local FASTQs primer)
       uses: snakemake/snakemake-github-action@v1
@@ -101,6 +106,7 @@ jobs:
         args: "--configfile .test/config_primers/config.yaml --use-conda --show-failed-logs -j 10 --conda-cleanup-pkgs cache"
         stagein: |
           rm -rf .test/results
+        show-disk-usage-on-error: true
 
     - name: Test workflow (SRA FASTQs)
       uses: snakemake/snakemake-github-action@v1
@@ -110,3 +116,4 @@ jobs:
         args: "--configfile .test/config-sra/config.yaml --show-failed-logs --use-conda -n -j 10 --conda-cleanup-pkgs cache"
         stagein: |
           rm -rf .test/results
+        show-disk-usage-on-error: true
