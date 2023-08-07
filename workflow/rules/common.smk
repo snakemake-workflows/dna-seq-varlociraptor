@@ -808,11 +808,6 @@ def get_trimmed_fastqs(wc):
         return units.loc[units.sample_name == wc.sample, fq]
 
 
-def get_umi_fastq(wc):
-    read = samples.loc[wc.sample, "umi_read"]
-    return "results/untrimmed/{{sample}}_{R}.fastq.gz".format(R=read)
-
-
 def get_vembrane_config(wildcards, input):
     with open(input.scenario, "r") as scenario_file:
         scenario = yaml.load(scenario_file, Loader=yaml.SafeLoader)
