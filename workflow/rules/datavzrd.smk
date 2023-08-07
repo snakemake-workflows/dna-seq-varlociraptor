@@ -29,6 +29,7 @@ rule prepare_oncoprint:
             "results/tables/oncoprints/{batch}.{event}/variant-oncoprints"
         ),
         compact_oncoprint="results/tables/oncoprints/{batch}.{event}/compact-oncoprint.tsv",
+        group_sortings="results/tables/oncoprints/{batch}.{event}/group_sortings.json",
     log:
         "logs/prepare_oncoprint/{batch}.{event}.log",
     params:
@@ -44,10 +45,12 @@ rule prepare_oncoprint:
 rule render_compact_oncoprint_spec:
     input:
         workflow.source_path("../resources/datavzrd/spec_compact_oncoprint.json.j2"),
+        group_sortings="results/tables/oncoprints/{batch}.{event}/group_sortings.json",
     output:
-        "resources/datavzrd/spec_compact_oncoprint.json",
+        "resources/datavzrd/spec_compact_oncoprint.sort_by_{sort_label}.json",
     params:
-        annotation_labels=get_compact_oncoprint_header_labels(),
+        annotation_labels=get_compact_oncoprint_annotation_labels,
+        group_sorting=lambda w, input: json.load(open(input.group_sortings))[w.sort_label],
     template_engine:
         "jinja2"
 
@@ -59,7 +62,10 @@ rule render_datavzrd_config:
         ),
         variant_oncoprints=get_oncoprint("variant"),
         compact_oncoprint="results/tables/oncoprints/{batch}.{event}/compact-oncoprint.tsv",
-        spec_compact_oncoprint="resources/datavzrd/spec_compact_oncoprint.json",
+        specs_compact_oncoprint=expand(
+            "resources/datavzrd/spec_compact_oncoprint.sort_by_{sort_label}.json",
+            sort_label=get_heterogeneous_labels().index
+        ),
     output:
         "resources/datavzrd/{batch}.{event}.datavzrd.yaml",
     params:
@@ -86,7 +92,6 @@ rule render_datavzrd_config:
         group_annotations=group_annotation,
         labels=get_heterogeneous_labels(),
         oncoprint_sorted_datasets="results/tables/oncoprints/{batch}.{event}/label_sortings/",
-        compact_oncoprint_header_labels=get_compact_oncoprint_header_labels(),
     log:
         "logs/datavzrd_render/{batch}.{event}.log",
     template_engine:

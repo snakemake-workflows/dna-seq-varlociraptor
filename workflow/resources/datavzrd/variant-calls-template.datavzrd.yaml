@@ -129,11 +129,12 @@ views:
                   scale: linear
               optional: true
 
-    compact-oncoprint:
-      desc: "Group by variant matrix"
-      dataset: compact-oncoprint
-      render-plot:
-        spec-path: ?input.spec_compact_oncoprint
+    ? for sort_label, spec_path in zip(params.labels.index, input.specs_compact_oncoprint):
+      ?f"compact-oncoprint-by-{sort_label}":
+        desc: ?f"Compact oncoprint sorted by {sort_label}"
+        dataset: compact-oncoprint
+        render-plot:
+          spec-path: ?spec_path
 
     ?for gene, path in params.variant_oncoprints:
       ?f"overview-{gene}":

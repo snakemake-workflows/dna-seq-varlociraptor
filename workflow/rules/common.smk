@@ -1066,3 +1066,9 @@ def get_compact_oncoprint_header_labels():
         "r",
     ) as f:
         return json.load(f)
+
+
+def get_compact_oncoprint_annotation_labels(wildcards):
+    # get annotation labels such that the sort_label comes first
+    labels = get_heterogeneous_labels().index
+    return labels.sort_values(key=lambda x: x == wildcards.sort_label, ascending=False)

@@ -159,6 +159,16 @@ def variant_oncoprint(gene_calls, group_annotation):
     return matrix
 
 
+def group_sortings(group_annotation):
+    labels = group_annotation.index.tolist()
+    sortings = dict()
+    for i in range(len(labels)):
+        # move to front for highest sort priority
+        primary = labels[i]
+        order = [primary] + [label for label in labels if label != primary]
+        sortings[primary] = group_annotation.sort_values(by=order, axis="columns").columns.tolist()
+    return sortings
+
 def store(data, output, labels_df, label_idx=None):
     _labels_df = labels_df
     if label_idx is not None:
@@ -233,6 +243,9 @@ os.makedirs(snakemake.output.gene_oncoprint_sortings)
 
 sort_oncoprint_labels(gene_oncoprint)
 
+group_sortings = group_sortings(group_annotation)
+with open(snakemake.output.group_sortings, "w") as outfile:
+    json.dump(group_sortings, outfile)
 
 os.makedirs(snakemake.output.variant_oncoprints)
 for gene, gene_calls in calls.groupby("symbol"):

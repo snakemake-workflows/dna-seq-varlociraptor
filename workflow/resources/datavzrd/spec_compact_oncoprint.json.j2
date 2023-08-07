@@ -12,11 +12,11 @@
         }
     },
     "vconcat": [
-        {% for annotation_label in annotation_labels %}
+        {% for annotation_label in params.annotation_labels.index %}
         {
             "transform": [
                 {
-                    "filter": "datum.annotation == '{annotation_label}'"
+                    "filter": "datum.annotation == '{{ annotation_label|replace("'", "\'") }}'"
                 }
             ],
             "mark": "rect",
@@ -27,7 +27,8 @@
                     "axis": {
                         "orient": "top",
                         "title": null
-                    }
+                    },
+                    "sort": {{ params.group_sorting|tojson }}
                 },
                 "y": {
                     "field": "annotation",
@@ -67,13 +68,19 @@
                         "x": {
                             "field": "group",
                             "type": "ordinal",
-                            "axis": null
+                            "axis": null,
+                            "sort": {{ params.group_sorting|tojson }}
                         },
                         "y": {
                             "field": "symbol",
                             "type": "nominal",
                             "axis": {
                                 "title": null
+                            },
+                            "sort": {
+                                "op": "count",
+                                "field": "status",
+                                "order": "descending"
                             }
                         }
                     }
@@ -94,7 +101,8 @@
                         "x": {
                             "field": "group",
                             "type": "ordinal",
-                            "axis": null
+                            "axis": null,
+                            "sort": {{ params.group_sorting|tojson }}
                         },
                         "y": {
                             "field": "symbol",
@@ -102,6 +110,11 @@
                             "axis": {
                                 "title": null,
                                 "grid": false
+                            },
+                            "sort": {
+                                "op": "count",
+                                "field": "status",
+                                "order": "descending"
                             }
                         },
                         "yOffset": {
