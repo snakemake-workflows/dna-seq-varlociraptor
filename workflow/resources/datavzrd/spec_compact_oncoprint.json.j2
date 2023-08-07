@@ -112,7 +112,8 @@
                             "type": "nominal",
                             "axis": {
                                 "title": null,
-                                "grid": false
+                                "grid": true,
+                                "zindex": 0
                             },
                             "sort": {
                                 "op": "count",
@@ -134,7 +135,30 @@
                     }
                 }
             ]
-        }
+        },
+        {
+            "transform": [{"filter": "datum.status"}],
+            "mark": "rect",
+            "encoding": {
+                "x": {
+                    "field": "group",
+                    "type": "ordinal",
+                    "axis": null,
+                    "sort": {{ params.group_sorting|tojson }}
+                },
+                "color": {
+                    "aggregate": "count",
+                    "field": "status",
+                    "legend": {
+                        "title": "#events"
+                    }
+                },
+                "tooltip": {
+                    "field": "status",
+                    "aggregate": "count"
+                }
+            }
+            }
     ],
     "transform": [
         {
