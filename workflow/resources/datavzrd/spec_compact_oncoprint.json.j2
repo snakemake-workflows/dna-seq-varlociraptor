@@ -1,0 +1,133 @@
+{
+    "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+    "config": {
+        "concat": {
+            "spacing": 0
+        }
+    },
+    "resolve": {
+        "scale": {
+            "color": "independent",
+            "x": "shared"
+        }
+    },
+    "vconcat": [
+        {% for annotation_label in annotation_labels %}
+        {
+            "transform": [
+                {
+                    "filter": "datum.annotation == '{annotation_label}'"
+                }
+            ],
+            "mark": "rect",
+            "encoding": {
+                "x": {
+                    "field": "group",
+                    "type": "ordinal",
+                    "axis": {
+                        "orient": "top",
+                        "title": null
+                    }
+                },
+                "y": {
+                    "field": "annotation",
+                    "axis": {
+                        "title": null
+                    },
+                    "scale": {
+                        "scheme": "category10"
+                    }
+                },
+                "color": {
+                    "field": "annotation_value",
+                    "legend": {
+                        "title": null
+                    }
+                },
+                "opacity": {
+                    "value": 0.8
+                }
+            }
+        },
+        {% endfor %}
+        {
+            "layer": [
+                {
+                    "transform": [
+                        {
+                            "filter": "datum.status"
+                        }
+                    ],
+                    "mark": {
+                        "type": "rect",
+                        "height": 9,
+                        "color": "lightgrey"
+                    },
+                    "encoding": {
+                        "x": {
+                            "field": "group",
+                            "type": "ordinal",
+                            "axis": null
+                        },
+                        "y": {
+                            "field": "symbol",
+                            "type": "nominal",
+                            "axis": {
+                                "title": null
+                            }
+                        }
+                    }
+                },
+                {
+                    "transform": [
+                        {
+                            "filter": "datum.status"
+                        }
+                    ],
+                    "height": {
+                        "step": 3
+                    },
+                    "mark": {
+                        "type": "rect"
+                    },
+                    "encoding": {
+                        "x": {
+                            "field": "group",
+                            "type": "ordinal",
+                            "axis": null
+                        },
+                        "y": {
+                            "field": "symbol",
+                            "type": "nominal",
+                            "axis": {
+                                "title": null,
+                                "grid": false
+                            }
+                        },
+                        "yOffset": {
+                            "field": "status",
+                            "type": "nominal"
+                        },
+                        "color": {
+                            "field": "status",
+                            "type": "nominal",
+                            "scale": {
+                                "scheme": "category10"
+                            }
+                        }
+                    }
+                }
+            ]
+        }
+    ],
+    "transform": [
+        {
+            "calculate": "datum.hgvsp ? (datum.symbol + ':' + split(replace(datum.hgvsp, '%3D', '='), ':')[1]): datum.hgvsg",
+            "as": "variant"
+        },
+        {
+            "calculate": "datum.hgvsp ? datum.hgvsp : datum.hgvsg",
+            "as": "alteration"
+        }
+    ]
+}

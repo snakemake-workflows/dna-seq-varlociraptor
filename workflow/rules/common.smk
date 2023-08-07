@@ -1037,7 +1037,7 @@ def get_oncoprint(oncoprint_type):
             elif oncoprint_type == "variant":
                 return f"{oncoprint_path}/variant-oncoprints"
             elif oncoprint_type == "group-by-variant":
-                return f"{oncoprint_path}/group-by-variant-oncoprint.tsv"
+                return f"{oncoprint_path}/compact-oncoprint.tsv"
             else:
                 raise ValueError(f"bug: unsupported oncoprint type {oncoprint_type}")
         else:
@@ -1058,10 +1058,10 @@ def get_delly_excluded_regions():
         return []
 
 
-def get_group_by_variant_oncoprint_header_labels():
+def get_compact_oncoprint_header_labels():
     with open(
         workflow.source_path(
-            "../resources/datavzrd/group_by_variant_oncoprint_header_labels.json"
+            "../resources/datavzrd/compact_oncoprint_header_labels.json"
         ),
         "r",
     ) as f:

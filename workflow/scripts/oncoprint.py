@@ -117,18 +117,26 @@ def gene_by_sample_oncoprint(calls):
         )
 
 
-def group_by_variant_oncoprint(calls, group_annotation):
+def compact_oncoprint(calls, group_annotation):
     # make a copy since we modify the dataframe below
     calls = calls.copy(deep=True)
     allelefreq_cols = get_allelefreq_columns(calls)
-    calls = calls[["group"] + snakemake.params.group_by_variant_oncoprint_header_labels + allelefreq_cols]
+    calls = calls[["group"] + snakemake.params.compact_oncoprint_header_labels + allelefreq_cols]
 
     def join_allele_freqs(row):
         return " + ".join(colname.split(":")[0].strip() for colname, vaf in row[allelefreq_cols].iteritems() if vaf > 0.0)
 
     calls["status"] = calls.apply(join_allele_freqs, axis="columns") if not calls.empty else []
     calls.drop(columns=allelefreq_cols, inplace=True)
-    return calls
+
+    # add annotation
+    stacked_annotation = group_annotation.T.stack()
+    stacked_annotation.name = "annotation_value"
+    stacked_annotation = stacked_annotation.reset_index()
+    merged = pd.concat([stacked_annotation, calls])
+    # merged = calls.merge(group_annotation.T, how="left", on="group")
+    # merged = merged[group_annotation.T.reset_index().columns.tolist() + calls.columns[1:].tolist()]
+    return merged
 
 
 def variant_oncoprint(gene_calls, group_annotation):
@@ -218,8 +226,8 @@ group_annotation = load_group_annotation()
 gene_oncoprint_main = attach_group_annotation(gene_oncoprint, group_annotation)
 gene_oncoprint_main.to_csv(snakemake.output.gene_oncoprint, sep="\t", index=False)
 
-group_by_variant_oncoprint = group_by_variant_oncoprint(calls, group_annotation)
-group_by_variant_oncoprint.to_csv(snakemake.output.group_by_variant_oncoprint, sep="\t", index=False)
+compact_oncoprint = compact_oncoprint(calls, group_annotation)
+compact_oncoprint.to_csv(snakemake.output.compact_oncoprint, sep="\t", index=False)
 
 os.makedirs(snakemake.output.gene_oncoprint_sortings)
 
