@@ -50,6 +50,7 @@ jobs:
         directory: .test
         snakefile: workflow/Snakefile
         args: "--configfile .test/config-simple/config.yaml --use-conda --show-failed-logs -j 10 --conda-cleanup-pkgs cache"
+        show-disk-usage-on-error: true
 
     - name: Test testcase generation
       uses: snakemake/snakemake-github-action@v1
