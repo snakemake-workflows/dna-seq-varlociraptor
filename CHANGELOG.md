@@ -1,5 +1,12 @@
 # Changelog
 
+## [4.1.0](https://github.com/snakemake-workflows/dna-seq-varlociraptor/compare/v4.0.2...v4.1.0) (2023-08-07)
+
+
+### Features
+
+* Handle trimmed fastqs plus additional fixes ([#252](https://github.com/snakemake-workflows/dna-seq-varlociraptor/issues/252)) ([13ae724](https://github.com/snakemake-workflows/dna-seq-varlociraptor/commit/13ae724c58d4d4bfd45e7cc03f7724b9f17d75ef))
+
 ## [4.0.2](https://github.com/snakemake-workflows/dna-seq-varlociraptor/compare/v4.0.1...v4.0.2) (2023-06-29)
 
 
