@@ -1036,7 +1036,7 @@ def get_oncoprint(oncoprint_type):
                 return f"{oncoprint_path}/gene-oncoprint.tsv"
             elif oncoprint_type == "variant":
                 return f"{oncoprint_path}/variant-oncoprints"
-            elif oncoprint_type == "group-by-variant":
+            elif oncoprint_type == "compact":
                 return f"{oncoprint_path}/compact-oncoprint.tsv"
             else:
                 raise ValueError(f"bug: unsupported oncoprint type {oncoprint_type}")
@@ -1070,5 +1070,7 @@ def get_compact_oncoprint_header_labels():
 
 def get_compact_oncoprint_annotation_labels(wildcards):
     # get annotation labels such that the sort_label comes first
-    labels = get_heterogeneous_labels().index
-    return labels.sort_values(key=lambda x: x == wildcards.sort_label, ascending=False)
+    labels = get_heterogeneous_labels().index.tolist()
+    labels.remove(wildcards.sort_label)
+    labels.insert(0, wildcards.sort_label)
+    return labels

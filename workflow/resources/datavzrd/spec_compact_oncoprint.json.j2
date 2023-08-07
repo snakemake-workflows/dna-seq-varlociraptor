@@ -12,7 +12,7 @@
         }
     },
     "vconcat": [
-        {% for annotation_label in params.annotation_labels.index %}
+        {% for annotation_label in params.annotation_labels %}
         {
             "transform": [
                 {
@@ -24,10 +24,14 @@
                 "x": {
                     "field": "group",
                     "type": "ordinal",
+                    {% if loop.index == 0 %}
                     "axis": {
                         "orient": "top",
                         "title": null
                     },
+                    {% else %}
+                    "axis": null,
+                    {% endif %}
                     "sort": {{ params.group_sorting|tojson }}
                 },
                 "y": {
@@ -41,13 +45,12 @@
                 },
                 "color": {
                     "field": "annotation_value",
-                    "legend": {
-                        "title": null
-                    }
+                    "legend": null
                 },
                 "opacity": {
                     "value": 0.8
-                }
+                },
+                "tooltip": {"field": "annotation_value"}
             }
         },
         {% endfor %}
