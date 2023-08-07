@@ -6,7 +6,7 @@
 !workflow/scripts/*
 !workflow/rules/*
 !workflow/rules/annotation/*
-!workflow/resources/*
+!workflow/resources/**
 !config/*
 !LICENSE
 !README.md
