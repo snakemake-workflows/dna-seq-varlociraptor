@@ -792,7 +792,7 @@ def get_tabix_revel_params():
 
 
 def get_untrimmed_fastqs(wc):
-    return units.loc[wc.sample, wc.read]
+    return units.loc[units.sample_name == wc.sample, wc.read]
 
 
 def get_trimmed_fastqs(wc):
@@ -805,7 +805,7 @@ def get_trimmed_fastqs(wc):
         )
     else:
         fq = "fq1" if wc.read == "R1" or wc.read == "single" else "fq2"
-        return units.loc[wc.sample, fq]
+        return units.loc[units.sample_name == wc.sample, fq]
 
 
 def get_umi_fastq(wc):
