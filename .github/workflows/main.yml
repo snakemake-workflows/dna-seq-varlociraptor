@@ -42,14 +42,7 @@ jobs:
       - Linting
       - Formatting
     steps:
-    - name: Maximize build space
-      uses: easimon/maximize-build-space@master
-      with:
-        root-reserve-mb: 512
-        swap-size-mb: 1024
-
-    - name: Checkout
-      uses: actions/checkout@v2
+    - uses: actions/checkout@v2
 
     - name: Test workflow (local FASTQs)
       uses: snakemake/snakemake-github-action@v1
