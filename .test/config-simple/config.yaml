@@ -45,7 +45,9 @@ calling:
     events: 
       present:
         varlociraptor: 
-          - present
+          - x
+          - y
+          - both
         filter: moderate
         desc: Variants with moderate impact
 
