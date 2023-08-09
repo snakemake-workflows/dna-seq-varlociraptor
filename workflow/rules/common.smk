@@ -886,6 +886,12 @@ def get_umi_fastq(wildcards):
         return "results/untrimmed/{S}_{R}.fastq.gz".format(
             S=wildcards.sample, R=samples.loc[wildcards.sample, "umi_read"]
         )
+    elif samples.loc[wildcards.sample, "umi_read"] == "both":
+        return expand(
+            "results/untrimmed/{S}_{R}.fastq.gz",
+            S=wildcards.sample,
+            R=["fq1", "fq2"]
+        )
     else:
         return samples.loc[wildcards.sample, "umi_read"]
 

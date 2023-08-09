@@ -41,7 +41,7 @@ rule annotate_umis:
     log:
         "logs/fgbio/annotate_bam/{sample}.log",
     wrapper:
-        "v1.23.4/bio/fgbio/annotatebamwithumis"
+        "v2.3.2/bio/fgbio/annotatebamwithumis"
 
 
 rule mark_duplicates:
