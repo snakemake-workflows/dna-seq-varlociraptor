@@ -136,6 +136,8 @@ rule recalibrate_base_qualities:
     params:
         extra=config["params"]["gatk"]["BaseRecalibrator"],
         java_opts="",
+    resources:
+        mem_mb=1024,
     log:
         "logs/gatk/baserecalibrator/{sample}.log",
     threads: 8
