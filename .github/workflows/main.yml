@@ -37,7 +37,7 @@ jobs:
         args: "--lint"
 
   Testing:
-    runs-on: ubuntu-latest
+    runs-on: large-runner
     needs: 
       - Linting
       - Formatting
@@ -49,7 +49,7 @@ jobs:
       with:
         directory: .test
         snakefile: workflow/Snakefile
-        args: "--configfile .test/config-simple/config.yaml --use-conda --show-failed-logs -j 10 --conda-cleanup-pkgs cache"
+        args: "--configfile .test/config-simple/config.yaml --use-conda --show-failed-logs --cores all --conda-cleanup-pkgs cache"
         show-disk-usage-on-error: true
 
     - name: Test testcase generation
@@ -57,7 +57,7 @@ jobs:
       with:
         directory: .test
         snakefile: workflow/Snakefile
-        args: "results/testcases/a/freebayes/IX:314200 --configfile .test/config-simple/config.yaml --use-conda --show-failed-logs -j 10 --conda-cleanup-pkgs cache"
+        args: "results/testcases/a/freebayes/IX:314200 --configfile .test/config-simple/config.yaml --use-conda --show-failed-logs --cores all --conda-cleanup-pkgs cache"
         show-disk-usage-on-error: true
 
     - name: Test report
@@ -73,7 +73,7 @@ jobs:
       with:
         directory: .test
         snakefile: workflow/Snakefile
-        args: "--configfile .test/config-target-regions/config.yaml --use-conda --show-failed-logs -j 10 --conda-cleanup-pkgs cache"
+        args: "--configfile .test/config-target-regions/config.yaml --use-conda --show-failed-logs --cores all --conda-cleanup-pkgs cache"
         stagein: |
           rm -rf .test/results
         show-disk-usage-on-error: true
@@ -83,7 +83,7 @@ jobs:
       with:
         directory: .test
         snakefile: workflow/Snakefile
-        args: "--configfile .test/config-target-regions/config_multiple_beds.yaml --use-conda --show-failed-logs -j 10 --conda-cleanup-pkgs cache"
+        args: "--configfile .test/config-target-regions/config_multiple_beds.yaml --use-conda --show-failed-logs --cores all --conda-cleanup-pkgs cache"
         stagein: |
           rm -rf .test/results
         show-disk-usage-on-error: true
@@ -93,7 +93,7 @@ jobs:
       with:
         directory: .test
         snakefile: workflow/Snakefile
-        args: "--configfile .test/config-no-candidate-filtering/config.yaml --dryrun --use-conda --show-failed-logs -j 10 --conda-cleanup-pkgs cache"
+        args: "--configfile .test/config-no-candidate-filtering/config.yaml --dryrun --use-conda --show-failed-logs --cores all --conda-cleanup-pkgs cache"
         stagein: |
           rm -rf .test/results
         show-disk-usage-on-error: true
@@ -103,7 +103,7 @@ jobs:
       with:
         directory: .test
         snakefile: workflow/Snakefile
-        args: "--configfile .test/config_primers/config.yaml --use-conda --show-failed-logs -j 10 --conda-cleanup-pkgs cache"
+        args: "--configfile .test/config_primers/config.yaml --use-conda --show-failed-logs --cores all --conda-cleanup-pkgs cache"
         stagein: |
           rm -rf .test/results
         show-disk-usage-on-error: true
@@ -113,7 +113,7 @@ jobs:
       with:
         directory: .test
         snakefile: workflow/Snakefile
-        args: "--configfile .test/config-sra/config.yaml --show-failed-logs --use-conda -n -j 10 --conda-cleanup-pkgs cache"
+        args: "--configfile .test/config-sra/config.yaml --show-failed-logs --use-conda -n --cores all --conda-cleanup-pkgs cache"
         stagein: |
           rm -rf .test/results
         show-disk-usage-on-error: true
