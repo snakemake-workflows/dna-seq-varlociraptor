@@ -792,7 +792,7 @@ def get_tabix_revel_params():
 
 
 def get_untrimmed_fastqs(wc):
-    return units.loc[wc.sample, wc.read]
+    return units.loc[units.sample_name == wc.sample, wc.read]
 
 
 def get_trimmed_fastqs(wc):
@@ -805,12 +805,7 @@ def get_trimmed_fastqs(wc):
         )
     else:
         fq = "fq1" if wc.read == "R1" or wc.read == "single" else "fq2"
-        return units.loc[wc.sample, fq]
-
-
-def get_umi_fastq(wc):
-    read = samples.loc[wc.sample, "umi_read"]
-    return "results/untrimmed/{{sample}}_{R}.fastq.gz".format(R=read)
+        return units.loc[units.sample_name == wc.sample, fq]
 
 
 def get_vembrane_config(wildcards, input):
@@ -890,6 +885,10 @@ def get_umi_fastq(wildcards):
     if samples.loc[wildcards.sample, "umi_read"] in ["fq1", "fq2"]:
         return "results/untrimmed/{S}_{R}.fastq.gz".format(
             S=wildcards.sample, R=samples.loc[wildcards.sample, "umi_read"]
+        )
+    elif samples.loc[wildcards.sample, "umi_read"] == "both":
+        return expand(
+            "results/untrimmed/{S}_{R}.fastq.gz", S=wildcards.sample, R=["fq1", "fq2"]
         )
     else:
         return samples.loc[wildcards.sample, "umi_read"]
