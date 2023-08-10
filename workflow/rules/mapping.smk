@@ -12,7 +12,7 @@ rule map_reads:
         sort_order="coordinate",
     threads: 8
     wrapper:
-        "v1.10.0/bio/bwa/mem"
+        "v2.3.2/bio/bwa/mem"
 
 
 rule merge_untrimmed_fastqs:
@@ -57,7 +57,7 @@ rule mark_duplicates:
     params:
         extra=get_markduplicates_extra,
     wrapper:
-        "v1.2.0/bio/picard/markduplicates"
+        "v2.3.2/bio/picard/markduplicates"
 
 
 rule calc_consensus_reads:
@@ -93,7 +93,7 @@ rule map_consensus_reads:
         "logs/bwa_mem/{sample}.{read_type}.consensus.log",
     threads: 8
     wrapper:
-        "v1.10.0/bio/bwa/mem"
+        "v2.3.2/bio/bwa/mem"
 
 
 rule merge_consensus_reads:
@@ -107,7 +107,7 @@ rule merge_consensus_reads:
         "logs/samtools_merge/{sample}.log",
     threads: 8
     wrapper:
-        "v1.10.0/bio/samtools/merge"
+        "v2.3.2/bio/samtools/merge"
 
 
 rule sort_consensus_reads:
@@ -119,7 +119,7 @@ rule sort_consensus_reads:
         "logs/samtools_sort/{sample}.log",
     threads: 8
     wrapper:
-        "v1.10.0/bio/samtools/sort"
+        "v2.3.2/bio/samtools/sort"
 
 
 rule recalibrate_base_qualities:
@@ -136,11 +136,13 @@ rule recalibrate_base_qualities:
     params:
         extra=config["params"]["gatk"]["BaseRecalibrator"],
         java_opts="",
+    resources:
+        mem_mb=1024,
     log:
         "logs/gatk/baserecalibrator/{sample}.log",
     threads: 8
     wrapper:
-        "v1.2.0/bio/gatk/baserecalibratorspark"
+        "v2.3.2/bio/gatk/baserecalibratorspark"
 
 
 ruleorder: apply_bqsr > bam_index
@@ -163,4 +165,4 @@ rule apply_bqsr:
         extra=config["params"]["gatk"]["applyBQSR"],  # optional
         java_opts="",  # optional
     wrapper:
-        "v1.2.0/bio/gatk/applybqsr"
+        "v2.3.2/bio/gatk/applybqsr"
