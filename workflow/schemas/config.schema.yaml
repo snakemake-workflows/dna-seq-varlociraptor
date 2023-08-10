@@ -255,6 +255,9 @@ properties:
             required:
               - params
               - plugins
+        required:
+          - candidate_calls
+          - final_calls
     required:
       - vep
       - vcfs
