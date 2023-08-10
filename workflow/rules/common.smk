@@ -603,7 +603,7 @@ def get_vep_threads():
 
 
 def get_plugin_aux(plugin, index=False):
-    if plugin in config["annotations"]["vep"]["plugins"]:
+    if plugin in config["annotations"]["vep"]["final_calls"]["plugins"]:
         if plugin == "REVEL":
             suffix = ".tbi" if index else ""
             return "resources/revel_scores.tsv.gz{suffix}".format(suffix=suffix)
@@ -854,7 +854,7 @@ def get_vembrane_config(wildcards, input):
         ]
     )
 
-    if "REVEL" in config["annotations"]["vep"]["plugins"]:
+    if "REVEL" in config["annotations"]["vep"]["final_calls"]["plugins"]:
         annotation_fields.append("REVEL")
 
     append_items(annotation_fields, "ANN['{}']".format, lambda x: x.lower())
