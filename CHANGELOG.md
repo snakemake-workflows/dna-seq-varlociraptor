@@ -1,5 +1,12 @@
 # Changelog
 
+## [4.2.0](https://github.com/snakemake-workflows/dna-seq-varlociraptor/compare/v4.1.0...v4.2.0) (2023-08-10)
+
+
+### Features
+
+* update envs and wrappers ([#255](https://github.com/snakemake-workflows/dna-seq-varlociraptor/issues/255)) ([085df20](https://github.com/snakemake-workflows/dna-seq-varlociraptor/commit/085df20ff1181a9b58d5b34ff281c5fdc2f0b589))
+
 ## [4.1.0](https://github.com/snakemake-workflows/dna-seq-varlociraptor/compare/v4.0.2...v4.1.0) (2023-08-07)
 
 
