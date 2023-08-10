@@ -57,9 +57,12 @@ annotations:
   dgidb:
     activate: false
   vep:
-    params: --everything
-    plugins: []
-
+    candidate_calls:
+      params: ""
+      plugins: []
+    final_calls:
+      params: --everything
+      plugins: []
 
 params:
   cutadapt: ""
