@@ -165,14 +165,20 @@ annotations:
     datasources:
       - DrugBank
   vep:
+    # Here, you can add annotations that you want to use in filtering out candidate variants
+    # before they are put into varlociraptor for proper variant calling.
+    candidate_calls:
+      params: --af_gnomade
+      plugins: []
     # Consider removing --everything if VEP is slow for you (e.g. for WGS),
     # and think carefully about which annotations you need.
-    params: --everything --check_existing
-    plugins:
-      # Add any plugin from https://www.ensembl.org/info/docs/tools/vep/script/vep_plugins.html
-      # Plugin args can be passed as well, e.g. "LoFtool,path/to/custom/scores.txt".
-      - LoFtool
-      - REVEL
+    final_calls:
+      params: --everything --check_existing
+      plugins:
+        # Add any plugin from https://www.ensembl.org/info/docs/tools/vep/script/vep_plugins.html
+        # Plugin args can be passed as well, e.g. "LoFtool,path/to/custom/scores.txt".
+        - LoFtool
+        - REVEL
 
 # printing of variants in a table format (might be deprecated soon)
 tables:

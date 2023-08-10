@@ -118,10 +118,14 @@ annotations:
     datasources:
       - DrugBank
   vep:
-    # Consider removing --everything if VEP is slow for you (e.g. for WGS), 
-    # and think carefully about which annotations you need.
-    params: ""
-    plugins: []
+    candidate_calls:
+      params: ""
+      plugins: []
+    final_calls:
+      # Consider removing --everything if VEP is slow for you (e.g. for WGS), 
+      # and think carefully about which annotations you need.
+      params: ""
+      plugins: []
 
 params:
   cutadapt: ""
