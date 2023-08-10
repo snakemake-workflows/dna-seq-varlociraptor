@@ -73,7 +73,7 @@ jobs:
       with:
         directory: .test
         snakefile: workflow/Snakefile
-        args: "results/testcases/a/freebayes/IX:314200 --configfile .test/config-simple/config.yaml --use-conda --show-failed-logs -j 10 --conda-cleanup-pkgs cache"
+        args: "results/testcases/one/freebayes/IX:314200 --configfile .test/config-simple/config.yaml --use-conda --show-failed-logs -j 10 --conda-cleanup-pkgs cache"
         show-disk-usage-on-error: true
 
     - name: Test report
