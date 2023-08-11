@@ -17,10 +17,13 @@ Missing values can be specified by empty columns or by writing `NA`. Lines can b
 # Unit sheet
 
 For each sample, add one or more sequencing units (runs, lanes or replicates) to the unit sheet `config/units.tsv`.
-* Each unit has a `unit_name`, which can be e.g. a running number, or an actual run, lane or replicate id.
-* Each unit has a `sample_name`, which associates it with the biological sample it comes from.
-* For each unit, define either one (column `fq1`) or two (columns `fq1`, `fq2`) FASTQ files (these can point to anywhere in your system). 
-* Alternatively, you can define an SRA (sequence read archive) accession (starting with e.g. ERR or SRR) by using a column `sra`. In the latter case, the pipeline will automatically download the corresponding paired end reads from SRA. If both local files and SRA accession are available, the local files will be preferred.
+* Each unit has a `unit_name`. This can be a running number, or an actual run, lane or replicate id.
+* Each unit has a `sample_name`, which associates it with the biological sample it comes from. This information is used to merged all the units of a sample before read mapping and duplicate marking.
+* For each unit, you need to specify either of these columns:
+  * `fq1` only for single end reads. This can point to any FASTQ file on your system
+  * `fq1` and `fq2` for paired end reads. These can point to any FASTQ files on your system
+  * `sra` only: specify an SRA (sequence read archive) accession (starting with e.g. ERR or SRR). The pipeline will automatically download the corresponding paired end reads from SRA.
+  * If both local files (`fq1`, `fq2`) and SRA accession (`sra`) are available, the local files will be used.
 * Define adapters in the `adapters` column, by putting [cutadapt arguments](https://cutadapt.readthedocs.org) in quotation marks (e.g. `"-a ACGCGATCG -A GCTAGCGTACT"`).
 
 Missing values can be specified by empty columns or by writing `NA`. Lines can be commented out with `#`.
