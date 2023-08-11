@@ -9,8 +9,10 @@ rule annotate_candidate_variants:
         calls="results/candidate-calls/{group}.{caller}.{scatteritem}.annotated.bcf",
         stats="results/candidate-calls/{group}.{caller}.{scatteritem}.stats.html",
     params:
-        extra="--vcf_info_field ANN",
-        plugins=[],
+        plugins=config["annotations"]["vep"]["candidate_calls"]["plugins"],
+        extra="{} --vcf_info_field ANN ".format(
+            config["annotations"]["vep"]["candidate_calls"]["params"]
+        ),
     log:
         "logs/vep/{group}.{caller}.{scatteritem}.annotate_candidates.log",
     benchmark:
@@ -35,9 +37,9 @@ rule annotate_variants:
     params:
         # Pass a list of plugins to use, see https://www.ensembl.org/info/docs/tools/vep/script/vep_plugins.html
         # Plugin args can be added as well, e.g. via an entry "MyPlugin,1,FOO", see docs.
-        plugins=config["annotations"]["vep"]["plugins"],
+        plugins=config["annotations"]["vep"]["final_calls"]["plugins"],
         extra="{} --vcf_info_field ANN --hgvsg".format(
-            config["annotations"]["vep"]["params"]
+            config["annotations"]["vep"]["final_calls"]["params"]
         ),
     log:
         "logs/vep/{group}.{scatteritem}.annotate.log",

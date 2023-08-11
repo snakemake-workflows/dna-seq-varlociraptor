@@ -233,15 +233,31 @@ properties:
               type: string
       vep:
         properties:
-          params:
-            type: string
-          plugins:
-            type: array
-            items:
-              type: string
+          candidate_calls:
+            properties:
+              params:
+                type: string
+              plugins:
+                type: array
+                items:
+                  type: string
+            required:
+              - params
+              - plugins
+          final_calls:
+            properties:
+              params:
+                type: string
+              plugins:
+                type: array
+                items:
+                  type: string
+            required:
+              - params
+              - plugins
         required:
-          - params
-          - plugins
+          - candidate_calls
+          - final_calls
     required:
       - vep
       - vcfs
