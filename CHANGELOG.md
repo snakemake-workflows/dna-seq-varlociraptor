@@ -1,5 +1,22 @@
 # Changelog
 
+## [5.0.0](https://github.com/snakemake-workflows/dna-seq-varlociraptor/compare/v4.2.0...v5.0.0) (2023-08-15)
+
+
+### ⚠ BREAKING CHANGES
+
+* make annotations for candidate variant filtering configurable ([#251](https://github.com/snakemake-workflows/dna-seq-varlociraptor/issues/251))
+
+### Features
+
+* allow umis in both paired end reads ([#257](https://github.com/snakemake-workflows/dna-seq-varlociraptor/issues/257)) ([2fdc798](https://github.com/snakemake-workflows/dna-seq-varlociraptor/commit/2fdc7985127e54c64b24a8ed5dfb11961ccb94d3))
+* make annotations for candidate variant filtering configurable ([#251](https://github.com/snakemake-workflows/dna-seq-varlociraptor/issues/251)) ([b51bd9d](https://github.com/snakemake-workflows/dna-seq-varlociraptor/commit/b51bd9d8c868e67e305ae7de35ec330f264a26da))
+
+
+### Bug Fixes
+
+* allow using one sample in multiple groups ([#258](https://github.com/snakemake-workflows/dna-seq-varlociraptor/issues/258)) ([e336f7a](https://github.com/snakemake-workflows/dna-seq-varlociraptor/commit/e336f7ab64d56c92bf93fe1080e6dd93007e6f11))
+
 ## [4.2.0](https://github.com/snakemake-workflows/dna-seq-varlociraptor/compare/v4.1.0...v4.2.0) (2023-08-10)
 
 
