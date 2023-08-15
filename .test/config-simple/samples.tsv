@@ -1,3 +1,5 @@
 sample_name	group	alias	platform
-a		a	ILLUMINA
-b		b	ILLUMINA
+a	one	x	ILLUMINA
+b	one	y	ILLUMINA
+b	two	x	ILLUMINA
+a	two	y	ILLUMINA

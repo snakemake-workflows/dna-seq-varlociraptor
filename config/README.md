@@ -5,9 +5,10 @@ To configure this workflow, modify ``config/config.yaml`` according to your need
 # Sample sheet
 
 Add samples to `config/samples.tsv`. For each sample, the columns `sample_name`, `alias`, `platform`, and `group` have to be defined. 
-* Samples within the same `group` will be called jointly. 
-* Aliases represent the name of the sample within its group (they can be the same as the sample name, or something simpler, e.g. tumor or normal).
+* Samples within the same `group` can be referenced in a joint [Calling scenario](#calling-scenario) via their `alias`es.
+* `alias`es represent the name of the sample within its group. They are meant to be some abstract description of the sample type to be used in the [Calling scenario](#calling-scenario), and should thus be used consistently across groups. A classic example would be a combination of the `tumor` and `normal` aliases.
 * The `platform` column needs to contain the used sequencing plaform (one of 'CAPILLARY', 'LS454', 'ILLUMINA', 'SOLID', 'HELICOS', 'IONTORRENT', 'ONT', 'PACBIO’).
+* The same `sample_name` entry can be used multiple times within a `samples.tsv` sample sheet, with only the value in the `group` column differing between repeated rows. This way, you can use the same sample for variant calling in different groups, for example if you use a panel of normal samples when you don't have matched normal samples for tumor variant calling.
 
 If mutational burdens shall be estimated for a sample, the to be used ``events`` from the calling scenario (see below) have to be specified in an additional column ``mutational_burden_events``. Multiple events have to be separated by commas within that column.
 
@@ -16,10 +17,13 @@ Missing values can be specified by empty columns or by writing `NA`. Lines can b
 # Unit sheet
 
 For each sample, add one or more sequencing units (runs, lanes or replicates) to the unit sheet `config/units.tsv`.
-* Each unit has a `unit_name`, which can be e.g. a running number, or an actual run, lane or replicate id.
-* Each unit has a `sample_name`, which associates it with the biological sample it comes from.
-* For each unit, define either one (column `fq1`) or two (columns `fq1`, `fq2`) FASTQ files (these can point to anywhere in your system). 
-* Alternatively, you can define an SRA (sequence read archive) accession (starting with e.g. ERR or SRR) by using a column `sra`. In the latter case, the pipeline will automatically download the corresponding paired end reads from SRA. If both local files and SRA accession are available, the local files will be preferred.
+* Each unit has a `unit_name`. This can be a running number, or an actual run, lane or replicate id.
+* Each unit has a `sample_name`, which associates it with the biological sample it comes from. This information is used to merged all the units of a sample before read mapping and duplicate marking.
+* For each unit, you need to specify either of these columns:
+  * `fq1` only for single end reads. This can point to any FASTQ file on your system
+  * `fq1` and `fq2` for paired end reads. These can point to any FASTQ files on your system
+  * `sra` only: specify an SRA (sequence read archive) accession (starting with e.g. ERR or SRR). The pipeline will automatically download the corresponding paired end reads from SRA.
+  * If both local files (`fq1`, `fq2`) and SRA accession (`sra`) are available, the local files will be used.
 * Define adapters in the `adapters` column, by putting [cutadapt arguments](https://cutadapt.readthedocs.org) in quotation marks (e.g. `"-a ACGCGATCG -A GCTAGCGTACT"`).
 
 Missing values can be specified by empty columns or by writing `NA`. Lines can be commented out with `#`.
@@ -44,7 +48,11 @@ For single primer trimming only, the first entry in the config (respective in th
 # Annotating UMIS
 
 For annotating UMIs two additional columns in `sample.tsv` must be set:
-* umi_read: This can be either `fq1` or `fq2` if the UMIs are part of one of the two. Alternatively, the path to an additional fastq file containing just the UMI of each fragment in fq1 and fq2 (with the same read names) can be set.
-* umi_read_structure: A read structure defining the UMI position in each UMI record (see https://github.com/fulcrumgenomics/fgbio/wiki/Read-Structures). In case a separate fastq file only containg UMI sequences is set the read structure needs to be `+M`.
+* `umi_read`: this can be either of the following options:
+  * `fq1` if the UMIs are part of read 1
+  * `fq2` if the UMIs are part of read 2
+  * `both` if there are UMIs in both paired end reads
+  * the path to an additional fastq file containing just the UMI of each fragment in fq1 and fq2 (with the same read names)
+* `umi_read_structure`: A read structure defining the UMI position in each UMI record (see https://github.com/fulcrumgenomics/fgbio/wiki/Read-Structures). If `both` reads contain a UMI, specify a read structure for both with whitespace in between (for example, `8M142T 8M142T`). In case a separate fastq file only containg UMI sequences is set the read structure needs to be `+M`.
 Read names of UMI records must match the corresponding records of the sample fastqs.
 

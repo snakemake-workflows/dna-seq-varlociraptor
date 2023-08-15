@@ -495,8 +495,11 @@ def is_activated(xpath):
 
 def get_read_group(wildcards):
     """Denote sample name and platform in read group."""
+    platform = samples.loc[wildcards.sample, "platform"]
+    if not isinstance(platform, str):
+        platform = platform.drop_duplicates().iloc[0]
     return r"-R '@RG\tID:{sample}\tSM:{sample}\tPL:{platform}'".format(
-        sample=wildcards.sample, platform=samples.loc[wildcards.sample, "platform"]
+        sample=wildcards.sample, platform=platform
     )
 
 
