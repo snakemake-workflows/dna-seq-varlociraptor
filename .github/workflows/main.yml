@@ -43,7 +43,7 @@ jobs:
       - Formatting
     steps:
     - name: update apt
-      run: apt-get update
+      run: sudo apt-get update
     - name: Free Disk Space (Ubuntu)
       uses: jlumbroso/free-disk-space@v1.2.0
       with:
