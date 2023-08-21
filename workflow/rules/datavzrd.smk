@@ -51,6 +51,7 @@ rule render_compact_oncoprint_spec:
     params:
         annotation_labels=get_compact_oncoprint_annotation_labels,
         group_sorting=lambda w, input: json.load(open(input.group_sortings))[w.sort_label],
+        annotation_label_types=annotation_label_types,
     template_engine:
         "jinja2"
 

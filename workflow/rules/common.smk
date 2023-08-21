@@ -1,5 +1,6 @@
 import glob
 from os import path
+from collections import defaultdict
 
 import json
 import yaml
@@ -101,6 +102,9 @@ primer_panels = (
     if config["primers"]["trimming"].get("tsv", "")
     else None
 )
+
+annotation_label_types = defaultdict(lambda: "nominal")
+annotation_label_types.update(config["report"].get("annotation_label_types", dict()))
 
 
 def get_heterogeneous_labels():

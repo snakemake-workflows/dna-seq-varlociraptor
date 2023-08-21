@@ -24,7 +24,7 @@
                 "x": {
                     "field": "group",
                     "type": "ordinal",
-                    {% if loop.index == 0 %}
+                    {% if loop.first %}
                     "axis": {
                         "orient": "top",
                         "title": null
@@ -45,6 +45,7 @@
                 },
                 "color": {
                     "field": "annotation_value",
+                    "type": {{ params.annotation_label_types[annotation_label]|tojson }},
                     "legend": null
                 },
                 "opacity": {
@@ -97,7 +98,8 @@
                         "step": 3
                     },
                     "mark": {
-                        "type": "rect"
+                        "type": "rect",
+                        "tooltip": true,
                     },
                     "encoding": {
                         "x": {
