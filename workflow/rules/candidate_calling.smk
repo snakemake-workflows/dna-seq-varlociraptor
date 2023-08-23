@@ -69,6 +69,45 @@ rule filter_offtarget_variants:
         "v2.3.2/bio/bcftools/filter"
 
 
+rule scanITD:
+    input:
+        ref=genome,
+        ref_idx=genome_fai,
+        regions="results/regions/{group}.expanded_regions.filtered.bed",
+        bam=get_itd_sample,
+        bam_index=lambda w: get_group_bams(w, bai=True),
+    output:
+        temp("results/candidate-calls/{group}.ScanITD.vcf"),
+    log:
+        "logs/ScanITD/{group}.log",
+    conda:
+        "../envs/scanitd.yaml"
+    params:
+        out_name="{group}",
+        extra=config["params"]["ScanITD"]
+    threads: 2
+    shell:
+        "(python workflow/scripts/ScanITD.py -i {input.bam} -r {input.ref} -t {input.regions} "
+        "-o results/candidate-calls/{params.out_name} {params.extra}) 2> {log}"
+
+
+rule make_itd_bcf:
+    input:
+        vcf="results/candidate-calls/{group}.ScanITD.vcf",
+        ref_idx=genome_fai,        
+    output:
+        "results/candidate-calls/{group}.ScanITD.bcf"
+    log:
+        "logs/bcftools/reheader/ScanITD/{group}.log",
+    conda:
+        "../envs/bcftools.yaml"
+    resources:
+        mem_mb=8000,
+    threads: 2
+    shell:
+        "(bcftools reheader -f {input.ref_idx} {input.vcf} | bcftools sort --max-mem {resources.mem_mb}M -Ob > {output}) 2> {log}"
+
+
 rule scatter_candidates:
     input:
         "results/candidate-calls/{group}.{caller}.filtered.bcf"

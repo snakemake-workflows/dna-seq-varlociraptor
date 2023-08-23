@@ -738,7 +738,7 @@ def get_varlociraptor_obs_args(wildcards, input):
 wildcard_constraints:
     group="|".join(groups),
     sample="|".join(samples["sample_name"]),
-    caller="|".join(["freebayes", "delly"]),
+    caller="|".join(["freebayes", "delly", "ScanITD"]),
     filter="|".join(config["calling"]["filter"]),
     event="|".join(config["calling"]["fdr-control"]["events"].keys()),
     regions_type="|".join(["expanded", "covered"]),
@@ -750,6 +750,7 @@ caller = list(
         [
             "freebayes" if is_activated("calling/freebayes") else None,
             "delly" if is_activated("calling/delly") else None,
+            "ScanITD" if is_activated("calling/ScanITD") else None,
         ],
     )
 )
@@ -1064,3 +1065,9 @@ def get_delly_excluded_regions():
         )
     else:
         return []
+
+
+def get_itd_sample(wildcards):
+    tumor_alias=config["calling"]["ScanITD"]["tumor_alias"]
+    bam_in="results/recal/" + samples.loc[(samples["group"] == wildcards.group) & (samples["alias"] == tumor_alias)]["sample_name"] + ".bam"
+    return bam_in
