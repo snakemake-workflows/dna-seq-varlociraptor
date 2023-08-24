@@ -67,6 +67,13 @@ report:
     activate: false
     # select a sample sheet column for stratification
     by-column: condition
+  # Optionally define annotation label types (i.e. the columns in the group sheet)
+  # for displaying them as heatmaps in the report.
+  # By default, the annotated values are considered to be 'nominal',
+  # leading to categorical color coding without an order.
+  # Alternatively, you can set them as quantitative or ordinal here.
+  # annotation_label_types:
+  #   mycolumn: ordinal
 
 calling:
   # Set to true to infer classical genotypes from Varlociraptor's VAF predictions
@@ -187,8 +194,6 @@ tables:
     # Uncomment and add VEP annotation fields to include (IMPACT, Consequence, Feature, SYMBOL, and HGVSp are always included)
     annotation_fields:
       - EXON
-    event_prob: true
-    observations: true
   generate_excel: true
 
 params:

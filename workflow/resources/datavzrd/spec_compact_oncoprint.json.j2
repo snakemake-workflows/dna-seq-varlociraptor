@@ -1,0 +1,175 @@
+{
+    "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+    "config": {
+        "concat": {
+            "spacing": 0
+        }
+    },
+    "resolve": {
+        "scale": {
+            "color": "independent",
+            "x": "shared"
+        }
+    },
+    "vconcat": [
+        {% for annotation_label in params.annotation_labels %}
+        {
+            "transform": [
+                {
+                    "filter": "datum.annotation == '{{ annotation_label|replace("'", "\'") }}'"
+                }
+            ],
+            "mark": "rect",
+            "encoding": {
+                "x": {
+                    "field": "group",
+                    "type": "ordinal",
+                    {% if loop.first %}
+                    "axis": {
+                        "orient": "top",
+                        "title": null
+                    },
+                    {% else %}
+                    "axis": null,
+                    {% endif %}
+                    "sort": {{ params.group_sorting|tojson }}
+                },
+                "y": {
+                    "field": "annotation",
+                    "axis": {
+                        "title": null
+                    },
+                    "scale": {
+                        "scheme": "category10"
+                    }
+                },
+                "color": {
+                    "field": "annotation_value",
+                    "type": {{ params.annotation_label_types[annotation_label]|tojson }},
+                    "legend": null
+                },
+                "opacity": {
+                    "value": 0.8
+                },
+                "tooltip": {"field": "annotation_value"}
+            }
+        },
+        {% endfor %}
+        {
+            "layer": [
+                {
+                    "transform": [
+                        {
+                            "filter": "datum.status"
+                        }
+                    ],
+                    "mark": {
+                        "type": "rect",
+                        "color": "lightgrey"
+                    },
+                    "encoding": {
+                        "x": {
+                            "field": "group",
+                            "type": "ordinal",
+                            "axis": null,
+                            "sort": {{ params.group_sorting|tojson }}
+                        },
+                        "y": {
+                            "field": "symbol",
+                            "type": "nominal",
+                            "axis": {
+                                "title": null
+                            },
+                            "sort": {
+                                "op": "count",
+                                "field": "status",
+                                "order": "descending"
+                            }
+                        }
+                    }
+                },
+                {
+                    "transform": [
+                        {
+                            "filter": "datum.status"
+                        }
+                    ],
+                    "height": {
+                        "step": 3
+                    },
+                    "mark": {
+                        "type": "rect",
+                        "tooltip": true,
+                    },
+                    "encoding": {
+                        "x": {
+                            "field": "group",
+                            "type": "ordinal",
+                            "axis": null,
+                            "sort": {{ params.group_sorting|tojson }}
+                        },
+                        "y": {
+                            "field": "symbol",
+                            "type": "nominal",
+                            "axis": {
+                                "title": null,
+                                "grid": true,
+                                "zindex": 0
+                            },
+                            "sort": {
+                                "op": "count",
+                                "field": "status",
+                                "order": "descending"
+                            }
+                        },
+                        "yOffset": {
+                            "field": "status",
+                            "type": "nominal"
+                        },
+                        "color": {
+                            "field": "status",
+                            "type": "nominal",
+                            "scale": {
+                                "scheme": "category10"
+                            },
+                            "legend": {"labelLimit": 1000}
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "transform": [{"filter": "datum.status"}],
+            "mark": "rect",
+            "encoding": {
+                "x": {
+                    "field": "group",
+                    "type": "ordinal",
+                    "axis": null,
+                    "sort": {{ params.group_sorting|tojson }}
+                },
+                "color": {
+                    "aggregate": "count",
+                    "field": "status",
+                    "legend": {
+                        "title": "#events"
+                    }
+                },
+                "tooltip": {
+                    "field": "status",
+                    "aggregate": "count"
+                }
+            }
+            }
+    ],
+    "transform": [
+        {
+            "calculate": "datum.hgvsp ? (datum.symbol + ':' + split(replace(datum.hgvsp, '%3D', '='), ':')[1]): datum.hgvsg",
+            "as": "variant"
+        },
+        {
+            "calculate": "datum.hgvsp ? datum.hgvsp : datum.hgvsg",
+            "as": "alteration"
+        }
+    ]
+}

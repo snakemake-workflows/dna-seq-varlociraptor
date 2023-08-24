@@ -4,6 +4,7 @@ sys.stderr = open(snakemake.log[0], "w")
 
 import os
 from pathlib import Path
+import json
 
 import pandas as pd
 import numpy as np
@@ -34,12 +35,15 @@ def join_gene_vartypes(df):
 
 
 def load_calls(path, group):
-    calls = pd.read_csv(
-        path, sep="\t", usecols=["symbol", "vartype", "hgvsp", "hgvsg", "consequence"]
-    )
+    calls = pd.read_csv(path, sep="\t")
+    calls = calls[["symbol", "vartype", "hgvsp", "hgvsg", "consequence"] + get_allelefreq_columns(calls)]
     calls["group"] = group
     calls.loc[:, "consequence"] = calls["consequence"].str.replace("&", ",")
     return calls.drop_duplicates()
+
+
+def get_allelefreq_columns(calls):
+    return list(calls.columns[calls.columns.str.endswith("allele frequency")].values)
 
 
 def load_group_annotation():
@@ -85,7 +89,7 @@ def attach_group_annotation(matrix, group_annotation):
     )
 
 
-def gene_oncoprint(calls):
+def gene_by_sample_oncoprint(calls):
     calls = calls[["group", "symbol", "vartype", "consequence"]]
     if not calls.empty:
         grouped = (
@@ -113,6 +117,28 @@ def gene_oncoprint(calls):
         )
 
 
+def compact_oncoprint(calls, group_annotation):
+    # make a copy since we modify the dataframe below
+    calls = calls.copy(deep=True)
+    allelefreq_cols = get_allelefreq_columns(calls)
+    calls = calls[["group"] + snakemake.params.compact_oncoprint_header_labels + allelefreq_cols]
+
+    def join_allele_freqs(row):
+        return " + ".join(colname.split(":")[0].strip() for colname, vaf in row[allelefreq_cols].iteritems() if vaf > 0.0)
+
+    calls["status"] = calls.apply(join_allele_freqs, axis="columns") if not calls.empty else []
+    calls.drop(columns=allelefreq_cols, inplace=True)
+
+    # add annotation
+    stacked_annotation = group_annotation.T.stack()
+    stacked_annotation.name = "annotation_value"
+    stacked_annotation = stacked_annotation.reset_index()
+    merged = pd.concat([stacked_annotation, calls])
+    # merged = calls.merge(group_annotation.T, how="left", on="group")
+    # merged = merged[group_annotation.T.reset_index().columns.tolist() + calls.columns[1:].tolist()]
+    return merged
+
+
 def variant_oncoprint(gene_calls, group_annotation):
     gene_calls = gene_calls[["group", "hgvsp", "hgvsg", "consequence"]]
     gene_calls.loc[:, "exists"] = "X"
@@ -132,6 +158,16 @@ def variant_oncoprint(gene_calls, group_annotation):
 
     return matrix
 
+
+def group_sortings(group_annotation):
+    labels = group_annotation.index.tolist()
+    sortings = dict()
+    for i in range(len(labels)):
+        # move to front for highest sort priority
+        primary = labels[i]
+        order = [primary] + [label for label in labels if label != primary]
+        sortings[primary] = group_annotation.sort_values(by=order, axis="columns").columns.tolist()
+    return sortings
 
 def store(data, output, labels_df, label_idx=None):
     _labels_df = labels_df
@@ -194,17 +230,22 @@ calls = pd.concat(
     ]
 )
 
-
-gene_oncoprint = gene_oncoprint(calls)
+gene_oncoprint = gene_by_sample_oncoprint(calls)
 
 group_annotation = load_group_annotation()
 gene_oncoprint_main = attach_group_annotation(gene_oncoprint, group_annotation)
 gene_oncoprint_main.to_csv(snakemake.output.gene_oncoprint, sep="\t", index=False)
 
+compact_oncoprint = compact_oncoprint(calls, group_annotation)
+compact_oncoprint.to_csv(snakemake.output.compact_oncoprint, sep="\t", index=False)
+
 os.makedirs(snakemake.output.gene_oncoprint_sortings)
 
 sort_oncoprint_labels(gene_oncoprint)
 
+group_sortings = group_sortings(group_annotation)
+with open(snakemake.output.group_sortings, "w") as outfile:
+    json.dump(group_sortings, outfile)
 
 os.makedirs(snakemake.output.variant_oncoprints)
 for gene, gene_calls in calls.groupby("symbol"):

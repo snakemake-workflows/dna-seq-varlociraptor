@@ -1,6 +1,8 @@
 import glob
 from os import path
+from collections import defaultdict
 
+import json
 import yaml
 import pandas as pd
 from snakemake.remote import FTP
@@ -100,6 +102,9 @@ primer_panels = (
     if config["primers"]["trimming"].get("tsv", "")
     else None
 )
+
+annotation_label_types = defaultdict(lambda: "nominal")
+annotation_label_types.update(config["report"].get("annotation_label_types", dict()))
 
 
 def get_heterogeneous_labels():
@@ -869,18 +874,15 @@ def get_vembrane_config(wildcards, input):
             samples, f"FORMAT['{field}']['{{}}']".format, f"{{}}: {name}".format
         )
 
-    if config_output.get("event_prob", False):
-        events = list(scenario["events"].keys())
-        events += ["artifact", "absent"]
-        append_items(events, lambda x: f"INFO['PROB_{x.upper()}']", "prob: {}".format)
+    events = list(scenario["events"].keys())
+    events += ["artifact", "absent"]
+    append_items(events, lambda x: f"INFO['PROB_{x.upper()}']", "prob: {}".format)
     append_format_field("AF", "allele frequency")
     append_format_field("DP", "read depth")
-    if config_output.get("short_observations", False):
-        append_format_field("SROBS", "short ref observations")
-        append_format_field("SAOBS", "short alt observations")
+    append_format_field("SROBS", "short ref observations")
+    append_format_field("SAOBS", "short alt observations")
 
-    if config_output.get("observations", False):
-        append_format_field("OBS", "observations")
+    append_format_field("OBS", "observations")
     return {"expr": join_items(parts), "header": join_items(header)}
 
 
@@ -1046,6 +1048,8 @@ def get_oncoprint(oncoprint_type):
                 return f"{oncoprint_path}/gene-oncoprint.tsv"
             elif oncoprint_type == "variant":
                 return f"{oncoprint_path}/variant-oncoprints"
+            elif oncoprint_type == "compact":
+                return f"{oncoprint_path}/compact-oncoprint.tsv"
             else:
                 raise ValueError(f"bug: unsupported oncoprint type {oncoprint_type}")
         else:
@@ -1064,3 +1068,21 @@ def get_delly_excluded_regions():
         )
     else:
         return []
+
+
+def get_compact_oncoprint_header_labels():
+    with open(
+        workflow.source_path(
+            "../resources/datavzrd/compact_oncoprint_header_labels.json"
+        ),
+        "r",
+    ) as f:
+        return json.load(f)
+
+
+def get_compact_oncoprint_annotation_labels(wildcards):
+    # get annotation labels such that the sort_label comes first
+    labels = get_heterogeneous_labels().index.tolist()
+    labels.remove(wildcards.sort_label)
+    labels.insert(0, wildcards.sort_label)
+    return labels

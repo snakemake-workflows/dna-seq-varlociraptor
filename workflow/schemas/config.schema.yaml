@@ -136,10 +136,6 @@ properties:
       output:
         type: object
         properties:
-          event_prob:
-            type: boolean
-          observations:
-            type: boolean
           annotation_fields:
             type: array
             items: 

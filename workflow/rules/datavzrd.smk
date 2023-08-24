@@ -28,15 +28,32 @@ rule prepare_oncoprint:
         variant_oncoprints=directory(
             "results/tables/oncoprints/{batch}.{event}/variant-oncoprints"
         ),
+        compact_oncoprint="results/tables/oncoprints/{batch}.{event}/compact-oncoprint.tsv",
+        group_sortings="results/tables/oncoprints/{batch}.{event}/group_sortings.json",
     log:
         "logs/prepare_oncoprint/{batch}.{event}.log",
     params:
         groups=get_report_batch,
         labels=get_heterogeneous_labels(),
+        compact_oncoprint_header_labels=get_compact_oncoprint_header_labels(),
     conda:
         "../envs/oncoprint.yaml"
     script:
         "../scripts/oncoprint.py"
+
+
+rule render_compact_oncoprint_spec:
+    input:
+        template=workflow.source_path("../resources/datavzrd/spec_compact_oncoprint.json.j2"),
+        group_sortings="results/tables/oncoprints/{batch}.{event}/group_sortings.json",
+    output:
+        "resources/datavzrd/{batch}.{event}/spec_compact_oncoprint.sort_by_{sort_label}.json",
+    params:
+        annotation_labels=get_compact_oncoprint_annotation_labels,
+        group_sorting=lambda w, input: json.load(open(input.group_sortings))[w.sort_label],
+        annotation_label_types=annotation_label_types,
+    template_engine:
+        "jinja2"
 
 
 rule render_datavzrd_config:
@@ -45,10 +62,16 @@ rule render_datavzrd_config:
             "../resources/datavzrd/variant-calls-template.datavzrd.yaml"
         ),
         variant_oncoprints=get_oncoprint("variant"),
+        compact_oncoprint="results/tables/oncoprints/{batch}.{event}/compact-oncoprint.tsv",
+        specs_compact_oncoprint=expand(
+            "resources/datavzrd/{{batch}}.{{event}}/spec_compact_oncoprint.sort_by_{sort_label}.json",
+            sort_label=get_heterogeneous_labels().index
+        ),
     output:
         "resources/datavzrd/{batch}.{event}.datavzrd.yaml",
     params:
         gene_oncoprint=get_oncoprint("gene"),
+        compact_oncoprint=get_oncoprint("compact"),
         variant_oncoprints=get_variant_oncoprint_tables,
         groups=get_report_batch,
         coding_calls=get_datavzrd_data(impact="coding"),
@@ -88,6 +111,7 @@ rule datavzrd_variants_calls:
         ),
         config="resources/datavzrd/{batch}.{event}.datavzrd.yaml",
         gene_oncoprint=get_oncoprint("gene"),
+        compact_oncoprint=get_oncoprint("compact"),
         variant_oncoprints=get_oncoprint("variant"),
     output:
         report(

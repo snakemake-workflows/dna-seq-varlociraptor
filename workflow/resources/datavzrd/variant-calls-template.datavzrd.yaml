@@ -4,6 +4,7 @@ default-view: ?"overview" if input.variant_oncoprints else f"{params.groups[0]}-
 
 __definitions__:
   - import os
+  - import pandas as pd
   - |
     def read_file(path):
         return open(path, 'r').read()
@@ -41,6 +42,9 @@ datasets:
         gene details:
           column: symbol
           view: "overview-{value}"
+    compact-oncoprint:
+      path: ?params.compact_oncoprint
+      separator: "\t"
     ?for label in params.labels.index.values:
       ?label:
         path: ?os.path.join(params.oncoprint_sorted_datasets, f"{label}.tsv")
@@ -71,7 +75,7 @@ views:
   ?if params.gene_oncoprint:
     ?for view in ["gene-oncoprint"] + list(params.labels.index.values):
       __variables__:
-        labels: ?params.group_annotations.columns.values if view == "gene-oncoprint" else [view]
+        labels: ?list(params.group_annotations.columns.values) if view == "gene-oncoprint" else [view]
       ?"overview" if view == "gene-oncoprint" else f"by {view}":
         ?if view == "gene-oncoprint":
           desc: |
@@ -124,14 +128,21 @@ views:
                 ticks:
                   scale: linear
               optional: true
-    
+
+    ?for sort_label, spec_path in zip(params.labels.index, input.specs_compact_oncoprint):
+      ?f"compact-oncoprint-by-{sort_label}":
+        desc: ?f"Compact oncoprint sorted by {sort_label}. Hover annotation rows with the mouse pointer to see values associated with colors."
+        dataset: compact-oncoprint
+        render-plot:
+          spec-path: ?spec_path
+
     ?for gene, path in params.variant_oncoprints:
       ?f"overview-{gene}":
         desc: ?f"Variants found in gene {gene}."
         dataset: ?f"variant-oncoprint-{gene}"
         hidden: true
         render-table:
-          ?if params.group_annotations.columns.values:
+          ?if list(params.group_annotations.columns.values):
             headers:
               ?for i, annotation in enumerate(params.group_annotations.columns.values):
                 ?i + 1:
