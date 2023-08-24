@@ -37,7 +37,7 @@ rule annotate_umis:
     params:
         extra=get_umi_read_structure,
     resources:
-        mem_gb="10",
+        mem_mb=lambda wc, input: 2.5 * input.size_mb,
     log:
         "logs/fgbio/annotate_bam/{sample}.log",
     wrapper:
