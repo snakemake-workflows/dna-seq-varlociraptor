@@ -56,7 +56,7 @@ rule get_known_variants:
         chromosome=config["ref"].get("chromosome"),
     cache: "omit-software"
     wrapper:
-        "v2.4.0-6-g702a85b/bio/reference/ensembl-variation"
+        "v2.5.0/bio/reference/ensembl-variation"
 
 
 rule get_annotation_gz:

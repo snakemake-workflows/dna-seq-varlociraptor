@@ -1,6 +1,7 @@
 name: ?f"Variant calls {wildcards.event}"
 
 default-view: ?"overview" if input.variant_oncoprints else f"{params.groups[0]}-coding"
+max-in-memory-rows: 1500
 
 __definitions__:
   - import os
