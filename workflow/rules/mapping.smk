@@ -46,9 +46,9 @@ rule annotate_umis:
 
 rule mark_duplicates:
     input:
-        bams=lambda wc: "results/mapped/{sample}.bam"
+        bams=lambda wc: "results/mapped/{sample}.annotated.bam"
         if sample_has_umis(wc.sample)
-        else "results/mapped/{sample}.annotated.bam",
+        else "results/mapped/{sample}.bam",
     output:
         bam=temp("results/dedup/{sample}.bam"),
         metrics="results/qc/dedup/{sample}.metrics.txt",
