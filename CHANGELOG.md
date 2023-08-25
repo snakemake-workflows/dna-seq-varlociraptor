@@ -1,5 +1,14 @@
 # Changelog
 
+## [5.0.1](https://github.com/snakemake-workflows/dna-seq-varlociraptor/compare/v5.0.0...v5.0.1) (2023-08-25)
+
+
+### Bug Fixes
+
+* general fixes and optimizations ([#263](https://github.com/snakemake-workflows/dna-seq-varlociraptor/issues/263)) ([cc486d7](https://github.com/snakemake-workflows/dna-seq-varlociraptor/commit/cc486d704c22779e0dce22da3c5ed17e12b3100c))
+* sample has umis ([#265](https://github.com/snakemake-workflows/dna-seq-varlociraptor/issues/265)) ([914ddfa](https://github.com/snakemake-workflows/dna-seq-varlociraptor/commit/914ddfa0fa0578896c2d6bcc9863f1273ace04b4))
+* switch mem_gb to mem_mb ([#262](https://github.com/snakemake-workflows/dna-seq-varlociraptor/issues/262)) ([6bda9b5](https://github.com/snakemake-workflows/dna-seq-varlociraptor/commit/6bda9b5ee49b51bd5a4adfc737c4ee5f3b57018d))
+
 ## [5.0.0](https://github.com/snakemake-workflows/dna-seq-varlociraptor/compare/v4.2.0...v5.0.0) (2023-08-15)
 
 
