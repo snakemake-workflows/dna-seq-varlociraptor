@@ -21,7 +21,7 @@ rule merge_untrimmed_fastqs:
     output:
         temp("results/untrimmed/{sample}_{read}.fastq.gz"),
     log:
-        "logs/merge-fastqs/untrimemd/{sample}_{read}.log",
+        "logs/merge-fastqs/untrimmed/{sample}_{read}.log",
     wildcard_constraints:
         read="fq1|fq2",
     shell:
@@ -56,8 +56,11 @@ rule mark_duplicates:
         "logs/picard/dedup/{sample}.log",
     params:
         extra=get_markduplicates_extra,
+    resources:
+        #https://broadinstitute.github.io/picard/faq.html
+        mem_mb=3000,
     wrapper:
-        "v2.3.2/bio/picard/markduplicates"
+        "v2.5.0/bio/picard/markduplicates"
 
 
 rule calc_consensus_reads:
@@ -142,7 +145,7 @@ rule recalibrate_base_qualities:
         "logs/gatk/baserecalibrator/{sample}.log",
     threads: 8
     wrapper:
-        "v2.3.2/bio/gatk/baserecalibratorspark"
+        "v1.25.0/bio/gatk/baserecalibratorspark"
 
 
 ruleorder: apply_bqsr > bam_index

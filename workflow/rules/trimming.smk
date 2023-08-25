@@ -26,8 +26,8 @@ rule cutadapt_pe:
     input:
         get_cutadapt_input,
     output:
-        fastq1="results/trimmed/{sample}/{unit}_R1.fastq.gz",
-        fastq2="results/trimmed/{sample}/{unit}_R2.fastq.gz",
+        fastq1=temp("results/trimmed/{sample}/{unit}_R1.fastq.gz"),
+        fastq2=temp("results/trimmed/{sample}/{unit}_R2.fastq.gz"),
         qc="results/trimmed/{sample}/{unit}.paired.qc.txt",
     log:
         "logs/cutadapt/{sample}-{unit}.log",
@@ -43,7 +43,7 @@ rule cutadapt_se:
     input:
         get_cutadapt_input,
     output:
-        fastq="results/trimmed/{sample}/{unit}.single.fastq.gz",
+        fastq=temp("results/trimmed/{sample}/{unit}.single.fastq.gz"),
         qc="results/trimmed/{sample}/{unit}.single.qc.txt",
     log:
         "logs/cutadapt/{sample}-{unit}.se.log",
