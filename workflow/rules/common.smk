@@ -392,9 +392,9 @@ def get_markduplicates_extra(wc):
     c = config["params"]["picard"]["MarkDuplicates"]
 
     if sample_has_umis(wc.sample):
-        b = ""
-    else:
         b = "--BARCODE_TAG RX"
+    else:
+        b = ""
 
     if is_activated("calc_consensus_reads"):
         d = "--TAG_DUPLICATE_SET_MEMBERS true"
@@ -898,7 +898,7 @@ def get_umi_fastq(wildcards):
 
 
 def sample_has_umis(sample):
-    return pd.isna(samples.loc[sample, "umi_read"])
+    return pd.notna(samples.loc[sample, "umi_read"])
 
 
 def get_umi_read_structure(wildcards):
