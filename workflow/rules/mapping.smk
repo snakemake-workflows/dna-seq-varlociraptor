@@ -21,7 +21,7 @@ rule merge_untrimmed_fastqs:
     output:
         temp("results/untrimmed/{sample}_{read}.fastq.gz"),
     log:
-        "logs/merge-fastqs/untrimemd/{sample}_{read}.log",
+        "logs/merge-fastqs/untrimmed/{sample}_{read}.log",
     wildcard_constraints:
         read="fq1|fq2",
     shell:
@@ -37,7 +37,7 @@ rule annotate_umis:
     params:
         extra=get_umi_read_structure,
     resources:
-        mem_gb="10",
+        mem_mb=lambda wc, input: 2.5 * input.size_mb,
     log:
         "logs/fgbio/annotate_bam/{sample}.log",
     wrapper:
@@ -46,9 +46,9 @@ rule annotate_umis:
 
 rule mark_duplicates:
     input:
-        bams=lambda wc: "results/mapped/{sample}.bam"
+        bams=lambda wc: "results/mapped/{sample}.annotated.bam"
         if sample_has_umis(wc.sample)
-        else "results/mapped/{sample}.annotated.bam",
+        else "results/mapped/{sample}.bam",
     output:
         bam=temp("results/dedup/{sample}.bam"),
         metrics="results/qc/dedup/{sample}.metrics.txt",
@@ -56,8 +56,11 @@ rule mark_duplicates:
         "logs/picard/dedup/{sample}.log",
     params:
         extra=get_markduplicates_extra,
+    resources:
+        #https://broadinstitute.github.io/picard/faq.html
+        mem_mb=3000,
     wrapper:
-        "v2.3.2/bio/picard/markduplicates"
+        "v2.5.0/bio/picard/markduplicates"
 
 
 rule calc_consensus_reads:
@@ -142,7 +145,7 @@ rule recalibrate_base_qualities:
         "logs/gatk/baserecalibrator/{sample}.log",
     threads: 8
     wrapper:
-        "v2.3.2/bio/gatk/baserecalibratorspark"
+        "v1.25.0/bio/gatk/baserecalibratorspark"
 
 
 ruleorder: apply_bqsr > bam_index
