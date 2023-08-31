@@ -2,15 +2,15 @@ function(value) {
   var regex = /([0-9]+)([A|a|R|r]?[E|B|P|S|V|e|b|p|s|v])(\.|[0-9]+)(s|p)(\#|\*|\.)(\+|\-|\*)(\>|\<|\*|\!)(\^|\*)(\$|\.)(\*|\.)/g;
   var effects = {
       "E": "Equal",
-      "AB": "Barely (Alternative)",
-      "AP": "Positive (Alternative)",
-      "AS": "Strong (Alternative)",
-      "AV": "Very Strong (Alternative)",
-      "RE": "Equal (Reference)",
-      "RB": "Barely (Reference)",
-      "RP": "Positive (Reference)",
-      "RS": "Strong (Reference)",
-      "RV": "Very Strong (Reference)"
+      "AB": "Barely (Alt)",
+      "AP": "Positive (Alt)",
+      "AS": "Strong (Alt)",
+      "AV": "Very Strong (Alt)",
+      "RE": "Equal (Ref)",
+      "RB": "Barely (Ref)",
+      "RP": "Positive (Ref)",
+      "RS": "Strong (Ref)",
+      "RV": "Very Strong (Ref)"
   }
   var observations = [];
   var orientation = {
@@ -22,15 +22,14 @@ function(value) {
 
   while ((result = regex.exec(value)) != null) {
     strand = result[6].replace("*", "±")
-    edit_distance = result[3].replace(".", "None")
+    edit_distance = result[3].replace(".", "0")
     effect = effects[result[2].toUpperCase()]
-    var quality = "Low mapping quality";
+    var quality = "low";
     if (result[2] == result[2].toUpperCase()) {
-        quality = "High mapping quality";
+        quality = "high";
     }
     observations.push({
         "strand": strand,
-        "strand_orientation": strand + ' ' + orientation[result[7]],
         "effect": effect,
         "times": parseFloat(result[1]),
         "quality": quality,

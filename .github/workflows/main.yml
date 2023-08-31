@@ -17,7 +17,7 @@ jobs:
           # list of changed files within `super-linter`
           fetch-depth: 0
       - name: Formatting
-        uses: github/super-linter@v4
+        uses: github/super-linter@v5
         env:
           VALIDATE_ALL_CODEBASE: false
           DEFAULT_BRANCH: master
@@ -29,7 +29,7 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - name: Lint workflow
-      uses: snakemake/snakemake-github-action@v1.24.0
+      uses: snakemake/snakemake-github-action@v1
       with:
         directory: .
         snakefile: workflow/Snakefile
@@ -42,6 +42,24 @@ jobs:
       - Linting
       - Formatting
     steps:
+    - name: update apt
+      run: sudo apt-get update
+    - name: Free Disk Space (Ubuntu)
+      uses: jlumbroso/free-disk-space@v1.2.0
+      with:
+        # this might remove tools that are actually needed,
+        # if set to "true" but frees about 6 GB
+        tool-cache: false
+        
+        # all of these default to true, but feel free to set to
+        # "false" if necessary for your workflow
+        android: true
+        dotnet: true
+        haskell: true
+        large-packages: true
+        docker-images: true
+        swap-storage: true
+    
     - uses: actions/checkout@v2
 
     - name: Test workflow (local FASTQs)
@@ -50,13 +68,15 @@ jobs:
         directory: .test
         snakefile: workflow/Snakefile
         args: "--configfile .test/config-simple/config.yaml --use-conda --show-failed-logs -j 10 --conda-cleanup-pkgs cache"
+        show-disk-usage-on-error: true
 
     - name: Test testcase generation
       uses: snakemake/snakemake-github-action@v1
       with:
         directory: .test
         snakefile: workflow/Snakefile
-        args: "results/testcases/a/freebayes/IX:314200 --configfile .test/config-simple/config.yaml --use-conda --show-failed-logs -j 10 --conda-cleanup-pkgs cache"
+        args: "results/testcases/one/freebayes/IX:314200 --configfile .test/config-simple/config.yaml --use-conda --show-failed-logs -j 10 --conda-cleanup-pkgs cache"
+        show-disk-usage-on-error: true
 
     - name: Test report
       uses: snakemake/snakemake-github-action@v1
@@ -64,7 +84,7 @@ jobs:
         directory: .test
         snakefile: workflow/Snakefile
         args: "--configfile .test/config-simple/config.yaml --report report.zip"
-
+        show-disk-usage-on-error: true
 
     - name: Test workflow (local FASTQs, target regions)
       uses: snakemake/snakemake-github-action@v1
@@ -74,6 +94,7 @@ jobs:
         args: "--configfile .test/config-target-regions/config.yaml --use-conda --show-failed-logs -j 10 --conda-cleanup-pkgs cache"
         stagein: |
           rm -rf .test/results
+        show-disk-usage-on-error: true
 
     - name: Test workflow (local FASTQs, multiple target regions BED files)
       uses: snakemake/snakemake-github-action@v1
@@ -83,6 +104,7 @@ jobs:
         args: "--configfile .test/config-target-regions/config_multiple_beds.yaml --use-conda --show-failed-logs -j 10 --conda-cleanup-pkgs cache"
         stagein: |
           rm -rf .test/results
+        show-disk-usage-on-error: true
 
     - name: Test workflow (local FASTQs, no candidate filtering)
       uses: snakemake/snakemake-github-action@v1
@@ -92,6 +114,7 @@ jobs:
         args: "--configfile .test/config-no-candidate-filtering/config.yaml --dryrun --use-conda --show-failed-logs -j 10 --conda-cleanup-pkgs cache"
         stagein: |
           rm -rf .test/results
+        show-disk-usage-on-error: true
 
     - name: Test workflow (local FASTQs primer)
       uses: snakemake/snakemake-github-action@v1
@@ -101,6 +124,7 @@ jobs:
         args: "--configfile .test/config_primers/config.yaml --use-conda --show-failed-logs -j 10 --conda-cleanup-pkgs cache"
         stagein: |
           rm -rf .test/results
+        show-disk-usage-on-error: true
 
     - name: Test workflow (SRA FASTQs)
       uses: snakemake/snakemake-github-action@v1
@@ -110,3 +134,4 @@ jobs:
         args: "--configfile .test/config-sra/config.yaml --show-failed-logs --use-conda -n -j 10 --conda-cleanup-pkgs cache"
         stagein: |
           rm -rf .test/results
+        show-disk-usage-on-error: true

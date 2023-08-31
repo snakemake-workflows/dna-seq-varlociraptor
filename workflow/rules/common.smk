@@ -404,9 +404,9 @@ def get_markduplicates_extra(wc):
     c = config["params"]["picard"]["MarkDuplicates"]
 
     if sample_has_umis(wc.sample):
-        b = ""
-    else:
         b = "--BARCODE_TAG RX"
+    else:
+        b = ""
 
     if is_activated("calc_consensus_reads"):
         d = "--TAG_DUPLICATE_SET_MEMBERS true"
@@ -529,8 +529,11 @@ def is_activated(xpath):
 
 def get_read_group(wildcards):
     """Denote sample name and platform in read group."""
+    platform = samples.loc[wildcards.sample, "platform"]
+    if not isinstance(platform, str):
+        platform = platform.drop_duplicates().iloc[0]
     return r"-R '@RG\tID:{sample}\tSM:{sample}\tPL:{platform}'".format(
-        sample=wildcards.sample, platform=samples.loc[wildcards.sample, "platform"]
+        sample=wildcards.sample, platform=platform
     )
 
 
@@ -637,7 +640,7 @@ def get_vep_threads():
 
 
 def get_plugin_aux(plugin, index=False):
-    if plugin in config["annotations"]["vep"]["plugins"]:
+    if plugin in config["annotations"]["vep"]["final_calls"]["plugins"]:
         if plugin == "REVEL":
             suffix = ".tbi" if index else ""
             return "resources/revel_scores.tsv.gz{suffix}".format(suffix=suffix)
@@ -833,21 +836,20 @@ def get_tabix_revel_params():
 
 
 def get_untrimmed_fastqs(wc):
-    return units.loc[wc.sample, wc.read]
+    return units.loc[units.sample_name == wc.sample, wc.read]
 
 
 def get_trimmed_fastqs(wc):
-    return expand(
-        "results/trimmed/{sample}/{unit}_{read}.fastq.gz",
-        unit=units.loc[wc.sample, "unit_name"],
-        sample=wc.sample,
-        read=wc.read,
-    )
-
-
-def get_umi_fastq(wc):
-    read = samples.loc[wc.sample, "umi_read"]
-    return "results/untrimmed/{{sample}}_{R}.fastq.gz".format(R=read)
+    if units.loc[wc.sample, "adapters"].notna().all():
+        return expand(
+            "results/trimmed/{sample}/{unit}_{read}.fastq.gz",
+            unit=units.loc[wc.sample, "unit_name"],
+            sample=wc.sample,
+            read=wc.read,
+        )
+    else:
+        fq = "fq1" if wc.read == "R1" or wc.read == "single" else "fq2"
+        return units.loc[units.sample_name == wc.sample, fq]
 
 
 def get_vembrane_config(wildcards, input):
@@ -873,17 +875,19 @@ def get_vembrane_config(wildcards, input):
             header.append(header_name)
 
     annotation_fields = [
-        {"name": "Symbol", "expr": "ANN['SYMBOL']"},
+        "SYMBOL",
         "Gene",
         "Feature",
-        {"name": "Impact", "expr": "ANN['IMPACT']"},
+        "IMPACT",
         "HGVSp",
-        {"name": "Protein position", "expr": "ANN['Protein_position'].raw"},
-        {"name": "Protein alteration (short)", "expr": "ANN['Amino_acids']"},
+        {"name": "protein position", "expr": "ANN['Protein_position'].raw"},
+        {"name": "protein alteration (short)", "expr": "ANN['Amino_acids']"},
         "HGVSg",
         "Consequence",
-        {"name": "Canonical", "expr": "ANN['CANONICAL']"},
-        {"name": "Clinical significance", "expr": "ANN['CLIN_SIG']"},
+        "CANONICAL",
+        "MANE_PLUS_CLINICAL",
+        {"name": "clinical significance", "expr": "ANN['CLIN_SIG']"},
+        {"name": "gnomad genome af", "expr": "ANN['gnomADg_AF']"},
     ]
 
     annotation_fields.extend(
@@ -894,10 +898,10 @@ def get_vembrane_config(wildcards, input):
         ]
     )
 
-    if "REVEL" in config["annotations"]["vep"]["plugins"]:
+    if "REVEL" in config["annotations"]["vep"]["final_calls"]["plugins"]:
         annotation_fields.append("REVEL")
 
-    append_items(annotation_fields, "ANN['{}']".format)
+    append_items(annotation_fields, "ANN['{}']".format, lambda x: x.lower())
 
     samples = get_group_sample_aliases(wildcards)
 
@@ -926,12 +930,16 @@ def get_umi_fastq(wildcards):
         return "results/untrimmed/{S}_{R}.fastq.gz".format(
             S=wildcards.sample, R=samples.loc[wildcards.sample, "umi_read"]
         )
+    elif samples.loc[wildcards.sample, "umi_read"] == "both":
+        return expand(
+            "results/untrimmed/{S}_{R}.fastq.gz", S=wildcards.sample, R=["fq1", "fq2"]
+        )
     else:
         return samples.loc[wildcards.sample, "umi_read"]
 
 
 def sample_has_umis(sample):
-    return pd.isna(samples.loc[sample, "umi_read"])
+    return pd.notna(samples.loc[sample, "umi_read"])
 
 
 def get_umi_read_structure(wildcards):
@@ -1046,13 +1054,14 @@ def get_fastqc_results(wildcards):
     )
 
     # cutadapt
-    pattern = "results/trimmed/{unit.sample_name}/{unit.unit_name}.{mode}.qc.txt"
-    yield from expand(
-        pattern, unit=sample_units[paired_end_units].itertuples(), mode="paired"
-    )
-    yield from expand(
-        pattern, unit=sample_units[~paired_end_units].itertuples(), mode="single"
-    )
+    if sample_units["adapters"].notna().all():
+        pattern = "results/trimmed/{unit.sample_name}/{unit.unit_name}.{mode}.qc.txt"
+        yield from expand(
+            pattern, unit=sample_units[paired_end_units].itertuples(), mode="paired"
+        )
+        yield from expand(
+            pattern, unit=sample_units[~paired_end_units].itertuples(), mode="single"
+        )
 
     # samtools idxstats
     yield from expand("results/qc/{sample}.bam.idxstats", sample=group_samples)

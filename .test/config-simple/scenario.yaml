@@ -1,13 +1,15 @@
 # simple isolated per-sample calling
-__definitions__:
-  - sample = params.samples.iloc[0].alias
-
 
 samples:
-  ?sample:
-    resolution: 0.01
+  x:
+    resolution: 0.1
+    universe: "[0.0,1.0]"
+  y:
+    resolution: 0.1
     universe: "[0.0,1.0]"
 
+
 events:
-  present: ?f"{sample}:]0.05,1.0]"
-  ffpe_artifact: ?f"{sample}:]0.0,0.05]"
+  x: "x:]0.0,1.0] & y:0.0"
+  y: "y:]0.0,1.0] & x:0.0"
+  both: "y:]0.0,1.0] & x:]0.0,1.0]"

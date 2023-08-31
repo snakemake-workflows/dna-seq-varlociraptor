@@ -13,12 +13,13 @@ PROB_EPSILON = 0.01  # columns with all probabilities below will be dropped
 
 
 def write(df, path):
-    df = df.drop(["Canonical"], axis="columns", errors="ignore")
+    df = df.drop(["mane_plus_clinical"], axis="columns", errors="ignore")
+    df = df.drop(["canonical"], axis="columns", errors="ignore")
     if not df.empty:
         remaining_columns = df.dropna(how="all", axis="columns").columns.tolist()
         if path == snakemake.output.coding:
             # ensure that these columns are kept, even if they contain only NAs in a coding setting
-            remaining_columns.extend(["REVEL", "HGVSp", "Symbol"])
+            remaining_columns.extend(["revel", "hgvsp", "symbol"])
             remaining_columns = [col for col in df.columns if col in remaining_columns]
         df = df[remaining_columns]
     df.to_csv(path, index=False, sep="\t")
@@ -87,7 +88,7 @@ def get_vartype(rec):
 
 def order_impact(df):
     order_impact = ["MODIFIER", "LOW", "MODERATE", "HIGH"]
-    df["Impact"] = pd.Categorical(df["Impact"], order_impact)
+    df["impact"] = pd.Categorical(df["impact"], order_impact)
 
 
 def sort_calls(df):
@@ -109,7 +110,7 @@ def reorder_prob_cols(df):
 
 
 def reorder_vaf_cols(df):
-    split_index = df.columns.get_loc("Consequence")
+    split_index = df.columns.get_loc("consequence")
     left_columns = df.iloc[:, 0:split_index].columns
     vaf_columns = df.filter(regex=": allele frequency$").columns
     right_columns = df.iloc[:, split_index:].columns.drop(vaf_columns)
@@ -134,12 +135,14 @@ def process_variant_calls(calls):
         .replace("", np.nan)
     )
 
-    calls["Protein alteration (short)"] = (
-        calls["Protein alteration (short)"]
-        .apply(eval)
-        .apply("/".join)
-        .replace("", np.nan)
+    calls["protein alteration (short)"] = (
+        calls["protein alteration (short)"].apply(eval).apply("/".join).replace("", np.nan)
     )
+
+    samples = get_samples(calls)
+
+    if calls.columns.str.endswith(": allele frequency").any():
+        calls = bin_max_vaf(calls, samples)
 
     if not calls.empty:
         # these below only work on non empty dataframes
@@ -149,20 +152,22 @@ def process_variant_calls(calls):
     else:
         calls["vartype"] = []
 
-    calls.set_index("Gene", inplace=True, drop=False)
-    samples = get_samples(calls)
+
+    calls.set_index("gene", inplace=True, drop=False)
 
     if calls.columns.str.endswith(": short ref observations").any():
         calls = join_short_obs(calls, samples)
 
-    coding = ~pd.isna(calls["HGVSp"])
-    canonical = calls["Canonical"]
+    coding = ~pd.isna(calls["hgvsp"])
+    canonical = calls["canonical"].notnull()
+    mane_plus_clinical = calls["mane_plus_clinical"].notnull()
+    canonical_mane = canonical | mane_plus_clinical
 
-    noncoding_calls = calls[~coding & canonical]
+    noncoding_calls = calls[~coding & canonical_mane]
     noncoding_calls = cleanup_dataframe(noncoding_calls)
     write(noncoding_calls, snakemake.output.noncoding)
 
-    coding_calls = calls[coding & canonical].drop(
+    coding_calls = calls[coding & canonical_mane].drop(
         [
             "end position",
             "event",
@@ -179,7 +184,7 @@ def process_variant_calls(calls):
         coding_calls,
         snakemake.output.coding,
     )
-    # TODO add possibility to also see non-canonical transcripts (low priority, once everything else works).
+    # TODO add possibility to also see non-canoncical or non-mane+clinical transcripts (low priority, once everything else works).
 
 
 def join_short_obs(df, samples):
@@ -201,6 +206,16 @@ def join_short_obs(df, samples):
     )
     return df
 
+def bin_max_vaf(df, samples):
+    af_columns = [f"{sample}: allele frequency" for sample in samples]
+    max_vaf = df[af_columns].apply("max", axis=1)
+    df["binned max vaf"] = pd.cut(
+        max_vaf, [0, 0.33, 0.66, 1.0], labels=["low", "medium", "high"]
+    )
+    df["binned max vaf"] = pd.Categorical(
+        df["binned max vaf"], ["low", "medium", "high"]
+    )
+    return df
 
 def process_fusion_calls(calls):
     calls = calls[["chromosome", "position", "id", "mateid", "symbol"]]
@@ -218,7 +233,6 @@ def process_fusion_calls(calls):
     paired_fusions = paired_fusions.filter(regex="^(?!mateid|id)")
 
     write(paired_fusions, snakemake.output.fusions)
-
 
 calls = pd.read_csv(snakemake.input[0], sep="\t")
 

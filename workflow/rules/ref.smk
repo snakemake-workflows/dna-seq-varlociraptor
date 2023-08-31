@@ -11,7 +11,7 @@ rule get_genome:
         chromosome=config["ref"].get("chromosome"),
     cache: "omit-software"
     wrapper:
-        "v1.2.0/bio/reference/ensembl-sequence"
+        "v2.3.2/bio/reference/ensembl-sequence"
 
 
 rule genome_faidx:
@@ -23,7 +23,7 @@ rule genome_faidx:
         "logs/genome-faidx.log",
     cache: "omit-software"
     wrapper:
-        "v1.10.0/bio/samtools/faidx"
+        "v2.3.2/bio/samtools/faidx"
 
 
 rule genome_dict:
@@ -56,7 +56,7 @@ rule get_known_variants:
         chromosome=config["ref"].get("chromosome"),
     cache: "omit-software"
     wrapper:
-        "v1.12.0/bio/reference/ensembl-variation"
+        "v2.5.0/bio/reference/ensembl-variation"
 
 
 rule get_annotation:
@@ -71,7 +71,7 @@ rule get_annotation:
         "logs/get_annotation.log",
     cache: "omit-software"  # save space and time with between workflow caching (see docs)
     wrapper:
-        "v1.21.0/bio/reference/ensembl-annotation"
+        "v2.3.2/bio/reference/ensembl-annotation"
 
 
 rule determine_coding_regions:
@@ -122,7 +122,7 @@ rule bwa_index:
         mem_mb=369000,
     cache: True
     wrapper:
-        "v1.10.0/bio/bwa/index"
+        "v2.3.2/bio/bwa/index"
 
 
 rule get_vep_cache:
@@ -134,9 +134,9 @@ rule get_vep_cache:
         release=config["ref"]["release"],
     log:
         "logs/vep/cache.log",
-    cache: True
+    cache: "omit-software"
     wrapper:
-        "v1.22.0/bio/vep/cache"
+        "v2.3.2/bio/vep/cache"
 
 
 rule get_vep_plugins:
@@ -147,4 +147,4 @@ rule get_vep_plugins:
     log:
         "logs/vep/plugins.log",
     wrapper:
-        "v1.12.0/bio/vep/plugins"
+        "v2.3.2/bio/vep/plugins"

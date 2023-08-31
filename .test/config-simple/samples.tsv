@@ -1,3 +1,5 @@
 sample_name	group	alias	platform	datatype
-a		a	ILLUMINA	dna
-b		b	ILLUMINA	dna
+a	one	x	ILLUMINA	dna
+b	one	y	ILLUMINA	dna
+b	two	x	ILLUMINA	dna
+a	two	y	ILLUMINA	dna

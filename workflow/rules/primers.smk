@@ -3,7 +3,7 @@ rule assign_primers:
         bam=get_trimming_input,
         primers=get_primer_regions,
     output:
-        assigned="results/primers/{sample}.assigned.bam",
+        assigned=temp("results/primers/{sample}.assigned.bam"),
         metric="results/primers/{sample}.metric.bam",
     conda:
         "../envs/fgbio.yaml"
@@ -17,8 +17,8 @@ rule filter_primerless_reads:
     input:
         "results/primers/{sample}.assigned.bam",
     output:
-        primers="results/primers/{sample}.primers.bam",
-        primerless="results/primers/{sample}.primerless.bam",
+        primers=temp("results/primers/{sample}.primers.bam"),
+        primerless=temp("results/primers/{sample}.primerless.bam"),
     conda:
         "../envs/filter_reads.yaml"
     log:
@@ -32,7 +32,7 @@ rule trim_primers:
         bam="results/primers/{sample}.primers.bam",
         primers=get_primer_regions,
     output:
-        trimmed="results/trimmed/{sample}.trimmed.bam",
+        trimmed=temp("results/trimmed/{sample}.trimmed.bam"),
     params:
         sort_order="Coordinate",
         single_primer=get_single_primer_flag,
@@ -90,7 +90,7 @@ rule filter_unmapped_primers:
     log:
         "logs/primers/{panel}_primers_filtered.log",
     wrapper:
-        "v1.10.0/bio/samtools/view"
+        "v2.3.2/bio/samtools/view"
 
 
 rule primer_to_bed:
