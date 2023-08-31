@@ -418,7 +418,9 @@ def get_markduplicates_extra(wc):
 
 def get_sample_bam(wildcards, bai=False):
     ext = "bai" if bai else "bam"
-    datatype = samples.loc[samples["sample_name"] == wildcards.sample]["datatype"].iloc[0]
+    datatype = samples.loc[samples["sample_name"] == wildcards.sample]["datatype"].iloc[
+        0
+    ]
     if datatype == "rna":
         return "results/mapped_arriba/{sample}.{ext}".format(
             sample=wildcards.sample, ext=ext
