@@ -1068,6 +1068,6 @@ def get_delly_excluded_regions():
 
 
 def get_itd_sample(wildcards):
-    tumor_alias=config["calling"]["ScanITD"]["tumor_alias"]
+    tumor_alias=config["calling"]["ScanITD"]["alias"]
     bam_in="results/recal/" + samples.loc[(samples["group"] == wildcards.group) & (samples["alias"] == tumor_alias)]["sample_name"] + ".bam"
     return bam_in

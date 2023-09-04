@@ -75,16 +75,15 @@ rule scanITD:
         ref_idx=genome_fai,
         regions="results/regions/{group}.expanded_regions.filtered.bed",
         bam=get_itd_sample,
-        bam_index=lambda w: get_group_bams(w, bai=True),
     output:
-        temp("results/candidate-calls/{group}.ScanITD.vcf"),
+        "results/candidate-calls/{group}.ScanITD.vcf",
     log:
         "logs/ScanITD/{group}.log",
     conda:
         "../envs/scanitd.yaml"
     params:
         out_name="{group}",
-        extra=config["params"]["ScanITD"]
+        extra=config["params"]["ScanITD"]["extra"]
     threads: 2
     shell:
         "(python workflow/scripts/ScanITD.py -i {input.bam} -r {input.ref} -t {input.regions} "
@@ -101,11 +100,14 @@ rule make_itd_bcf:
         "logs/bcftools/reheader/ScanITD/{group}.log",
     conda:
         "../envs/bcftools.yaml"
+    params:
+        itd_max_length_bp=config["params"]["ScanITD"]["itd_max_length_bp"]
     resources:
         mem_mb=8000,
     threads: 2
     shell:
-        "(bcftools reheader -f {input.ref_idx} {input.vcf} | bcftools sort --max-mem {resources.mem_mb}M -Ob > {output}) 2> {log}"
+        "(bcftools reheader -f {input.ref_idx} {input.vcf} | bcftools sort --max-mem {resources.mem_mb}M | "
+        "bcftools view -e 'SVLEN > {params.itd_max_length_bp}' -Ob > {output}) 2> {log}"
 
 
 rule scatter_candidates:

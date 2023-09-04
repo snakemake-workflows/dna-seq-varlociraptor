@@ -445,7 +445,7 @@ def itd_scan(input_bam, output_prefix, ao_cutoff, dp_cutoff, vaf_cutoff,
                         reverse=True)
                     ao = sorted_itd[0][1][0]
                     dp = sorted_itd[0][1][1]
-                    vaf = float(ao)/dp
+                    vaf = float(0) if dp <= 0 else float(ao)/float(dp)
                     itd_pos = sorted_itd[0][0]
                     if dp >= dp_cutoff and ao >= ao_cutoff and vaf >= vaf_cutoff:
                         itd_type, itd_pos, itd_length, itd_mode = itd_id.split(
