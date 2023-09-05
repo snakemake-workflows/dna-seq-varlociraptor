@@ -73,7 +73,7 @@ rule scanITD:
     input:
         ref=genome,
         ref_idx=genome_fai,
-        regions="results/regions/{group}.expanded_regions.filtered.bed",
+        regions=get_itd_regions,
         bam=get_itd_sample,
     output:
         "results/candidate-calls/{group}.ScanITD.vcf",
