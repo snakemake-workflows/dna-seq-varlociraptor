@@ -1,0 +1,16 @@
+name: ?f"Fusion calls {wildcards.event}"
+
+default-view: ?f"{params.groups[0]}-fusions"
+max-in-memory-rows: 1500
+
+datasets:
+  ?for group, path in zip(params.groups, params.fusion_calls):
+    ?f"{group}-fusions":
+      path: ?path
+      separator: "\t"
+
+views:
+  ?for group in params.groups:
+    ?f"{group}-fusions":
+          desc: ?f"Fusion calls.\n{config['calling']['fdr-control']['events'][wildcards.event]['desc']}"
+          dataset: ?f"{group}-fusions"

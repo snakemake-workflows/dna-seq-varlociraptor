@@ -126,67 +126,6 @@ def cleanup_dataframe(df):
     return df
 
 
-def process_variant_calls(calls):
-    calls["clinical significance"] = (
-        calls["clinical significance"]
-        .apply(eval)
-        .apply(sorted)
-        .apply(", ".join)
-        .replace("", np.nan)
-    )
-
-    calls["protein alteration (short)"] = (
-        calls["protein alteration (short)"].apply(eval).apply("/".join).replace("", np.nan)
-    )
-
-    samples = get_samples(calls)
-
-    if calls.columns.str.endswith(": allele frequency").any():
-        calls = bin_max_vaf(calls, samples)
-
-    if not calls.empty:
-        # these below only work on non empty dataframes
-        calls["vartype"] = calls.apply(get_vartype, axis="columns")
-        order_impact(calls)
-        sort_calls(calls)
-    else:
-        calls["vartype"] = []
-
-
-    calls.set_index("gene", inplace=True, drop=False)
-
-    if calls.columns.str.endswith(": short ref observations").any():
-        calls = join_short_obs(calls, samples)
-
-    coding = ~pd.isna(calls["hgvsp"])
-    canonical = calls["canonical"].notnull()
-    mane_plus_clinical = calls["mane_plus_clinical"].notnull()
-    canonical_mane = canonical | mane_plus_clinical
-
-    noncoding_calls = calls[~coding & canonical_mane]
-    noncoding_calls = cleanup_dataframe(noncoding_calls)
-    write(noncoding_calls, snakemake.output.noncoding)
-
-    coding_calls = calls[coding & canonical_mane].drop(
-        [
-            "end position",
-            "event",
-            "id",
-        ],
-        axis="columns",
-    )
-    coding_calls = cleanup_dataframe(coding_calls)
-
-    # coding variants
-    # Here we have all variant info in hgvsp,
-    # hence we can drop the other variant specific columns.
-    write(
-        coding_calls,
-        snakemake.output.coding,
-    )
-    # TODO add possibility to also see non-canoncical or non-mane+clinical transcripts (low priority, once everything else works).
-
-
 def join_short_obs(df, samples):
     for sample in samples:
         sobs_loc = df.columns.get_loc(f"{sample}: observations")
@@ -206,6 +145,7 @@ def join_short_obs(df, samples):
     )
     return df
 
+
 def bin_max_vaf(df, samples):
     af_columns = [f"{sample}: allele frequency" for sample in samples]
     max_vaf = df[af_columns].apply("max", axis=1)
@@ -217,27 +157,63 @@ def bin_max_vaf(df, samples):
     )
     return df
 
-def process_fusion_calls(calls):
-    calls = calls[["chromosome", "position", "id", "mateid", "symbol"]]
-    calls = calls.dropna(how="any", axis="rows")
-    calls = calls.drop_duplicates()
-    first_fusions = calls["id"].str.contains("a$")
-    first_calls = calls[first_fusions]
-    second_calls = calls[~first_fusions]
-    paired_fusions = first_calls.merge(
-        second_calls,
-        left_on="mateid",
-        right_on="id",
-        suffixes=(" partner1", " partner2"),
-    )
-    paired_fusions = paired_fusions.filter(regex="^(?!mateid|id)")
-
-    write(paired_fusions, snakemake.output.fusions)
 
 calls = pd.read_csv(snakemake.input[0], sep="\t")
+calls["clinical significance"] = (
+    calls["clinical significance"]
+    .apply(eval)
+    .apply(sorted)
+    .apply(", ".join)
+    .replace("", np.nan)
+)
 
-fusions = calls["event"].str.contains("^[0-9]+a-[0-9]+b$")
+calls["protein alteration (short)"] = (
+    calls["protein alteration (short)"].apply(eval).apply("/".join).replace("", np.nan)
+)
 
-process_variant_calls(calls[~fusions])
+samples = get_samples(calls)
 
-process_fusion_calls(calls[fusions])
+if calls.columns.str.endswith(": allele frequency").any():
+    calls = bin_max_vaf(calls, samples)
+
+if not calls.empty:
+    # these below only work on non empty dataframes
+    calls["vartype"] = calls.apply(get_vartype, axis="columns")
+    order_impact(calls)
+    sort_calls(calls)
+else:
+    calls["vartype"] = []
+
+
+calls.set_index("gene", inplace=True, drop=False)
+
+if calls.columns.str.endswith(": short ref observations").any():
+    calls = join_short_obs(calls, samples)
+
+coding = ~pd.isna(calls["hgvsp"])
+canonical = calls["canonical"].notnull()
+mane_plus_clinical = calls["mane_plus_clinical"].notnull()
+canonical_mane = canonical | mane_plus_clinical
+
+noncoding_calls = calls[~coding & canonical_mane]
+noncoding_calls = cleanup_dataframe(noncoding_calls)
+write(noncoding_calls, snakemake.output.noncoding)
+
+coding_calls = calls[coding & canonical_mane].drop(
+    [
+        "end position",
+        "event",
+        "id",
+    ],
+    axis="columns",
+)
+coding_calls = cleanup_dataframe(coding_calls)
+
+# coding variants
+# Here we have all variant info in hgvsp,
+# hence we can drop the other variant specific columns.
+write(
+    coding_calls,
+    snakemake.output.coding,
+)
+# TODO add possibility to also see non-canoncical or non-mane+clinical transcripts (low priority, once everything else works).

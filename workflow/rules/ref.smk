@@ -118,8 +118,6 @@ rule bwa_index:
         idx=multiext(genome, ".amb", ".ann", ".bwt", ".pac", ".sa"),
     log:
         "logs/bwa_index.log",
-    resources:
-        mem_mb=369000,
     cache: True
     wrapper:
         "v2.3.2/bio/bwa/index"

@@ -24,7 +24,7 @@ rule annotate_candidate_variants:
 
 rule annotate_variants:
     input:
-        calls="results/calls/{group}.{scatteritem}.bcf",
+        calls="results/calls/{group}.{analysis}.{scatteritem}.bcf",
         cache="resources/vep/cache",
         plugins="resources/vep/plugins",
         revel=lambda wc: get_plugin_aux("REVEL"),
@@ -32,8 +32,8 @@ rule annotate_variants:
         fasta=genome,
         fai=genome_fai,
     output:
-        calls="results/calls/{group}.{scatteritem}.annotated.bcf",
-        stats="results/calls/{group}.{scatteritem}.stats.html",
+        calls="results/calls/{group}.{analysis}.{scatteritem}.annotated.bcf",
+        stats="results/calls/{group}.{analysis}.{scatteritem}.stats.html",
     params:
         # Pass a list of plugins to use, see https://www.ensembl.org/info/docs/tools/vep/script/vep_plugins.html
         # Plugin args can be added as well, e.g. via an entry "MyPlugin,1,FOO", see docs.
@@ -42,7 +42,7 @@ rule annotate_variants:
             config["annotations"]["vep"]["final_calls"]["params"]
         ),
     log:
-        "logs/vep/{group}.{scatteritem}.annotate.log",
+        "logs/vep/{group}.{analysis}.{scatteritem}.annotate.log",
     threads: get_vep_threads()
     wrapper:
         "v2.5.0/bio/vep/annotate"
@@ -89,9 +89,9 @@ rule gather_annotated_calls:
         calls=get_gather_annotated_calls_input(),
         idx=get_gather_annotated_calls_input(ext="bcf.csi"),
     output:
-        "results/final-calls/{group}.annotated.bcf",
+        "results/final-calls/{group}.{analysis}.annotated.bcf",
     log:
-        "logs/gather-annotated-calls/{group}.log",
+        "logs/gather-annotated-calls/{group}.{analysis}.log",
     params:
         extra="-a",
     wrapper:

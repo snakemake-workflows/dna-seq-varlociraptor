@@ -27,6 +27,7 @@ rule varlociraptor_alignment_properties:
         ref=genome,
         ref_idx=genome_fai,
         bam=get_sample_bam,
+        bai=lambda wc: get_sample_bam(wc, bai=True),
     output:
         "results/alignment-properties/{group}/{sample}.json",
     log:
@@ -107,9 +108,9 @@ rule bcftools_concat:
         calls=get_scattered_calls(),
         indexes=get_scattered_calls(ext="bcf.csi"),
     output:
-        "results/calls/{group}.{scatteritem}.bcf",
+        "results/calls/{group}.{analysis}.{scatteritem}.bcf",
     log:
-        "logs/concat-calls/{group}.{scatteritem}.log",
+        "logs/concat-calls/{group}.{analysis}.{scatteritem}.log",
     params:
         extra="-a",  # TODO Check this
     wrapper:

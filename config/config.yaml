@@ -117,6 +117,7 @@ calling:
       # only alphanumerics and underscores
       # ("somatic" below is just an example and can be modified as needed).
       some_id:
+        types: ["variants", "fusions"]
         # labels for the callset, displayed in the report. Will fall back to id if no labels specified
         labels:
           some-label: label text

@@ -1,15 +1,15 @@
 rule vembrane_table:
     input:
-        bcf="results/final-calls/{group}.{event}.fdr-controlled.normal-probs.bcf",
+        bcf="results/final-calls/{group}.{event}.{analysis}.fdr-controlled.normal-probs.bcf",
         scenario="results/scenarios/{group}.yaml",
     output:
-        bcf="results/tables/{group}.{event}.fdr-controlled.tsv",
+        bcf="results/tables/{group}.{event}.{analysis}.fdr-controlled.tsv",
     conda:
         "../envs/vembrane.yaml"
     params:
         config=lambda wc, input: get_vembrane_config(wc, input),
     log:
-        "logs/vembrane-table/{group}.{event}.log",
+        "logs/vembrane-table/{group}.{event}.{analysis}.log",
     shell:
         'vembrane table --header "{params.config[header]}" "{params.config[expr]}" '
         "{input.bcf} > {output.bcf} 2> {log}"

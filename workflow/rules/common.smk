@@ -102,51 +102,64 @@ primer_panels = (
 )
 
 
+def get_type_events(datatype):
+    events = [
+        event
+        for event, entries in config["calling"]["fdr-control"]["events"].items()
+        if datatype in entries.get("types", ["variants"])
+    ]
+    return events
+
+
 def get_heterogeneous_labels():
     nunique = group_annotation.nunique()
     cols_to_drop = nunique[nunique == 1].index
     return group_annotation.drop(cols_to_drop, axis=1).T
 
 
+# Create output based on type and events
 def get_final_output(wildcards):
     final_output = expand(
         "results/qc/multiqc/{group}.html",
         group=groups,
     )
-
-    if config["report"]["activate"]:
-        final_output.extend(
-            expand(
-                "results/datavzrd-report/{batch}.{event}.fdr-controlled",
-                event=config["calling"]["fdr-control"]["events"],
-                batch=get_report_batches(),
-            )
-        )
-    else:
-        final_output.extend(
-            expand(
-                "results/final-calls/{group}.{event}.fdr-controlled.bcf",
-                group=groups,
-                event=config["calling"]["fdr-control"]["events"],
-            )
-        )
-
-    if config["tables"]["activate"]:
-        final_output.extend(
-            expand(
-                "results/tables/{group}.{event}.fdr-controlled.tsv",
-                group=groups,
-                event=config["calling"]["fdr-control"]["events"],
-            )
-        )
-        if config["tables"].get("generate_excel", False):
+    for datatype in ["variants", "fusions"]:
+        if config["report"]["activate"]:
             final_output.extend(
                 expand(
-                    "results/tables/{group}.{event}.fdr-controlled.xlsx",
-                    group=groups,
-                    event=config["calling"]["fdr-control"]["events"],
+                    "results/datavzrd-report/{batch}.{event}.{datatype}.fdr-controlled",
+                    event=get_type_events(datatype),
+                    batch=get_report_batches(),
+                    datatype=datatype,
                 )
             )
+        else:
+            final_output.extend(
+                expand(
+                    "results/final-calls/{group}.{event}.{datatype}.fdr-controlled.bcf",
+                    group=groups,
+                    event=get_type_events(datatype),
+                    datatype=datatype,
+                )
+            )
+
+        if config["tables"]["activate"]:
+            final_output.extend(
+                expand(
+                    "results/tables/{group}.{types}.{datatype}.fdr-controlled.tsv",
+                    group=groups,
+                    event=get_type_events(datatype),
+                    datatype=datatype,
+                )
+            )
+            if config["tables"].get("generate_excel", False):
+                final_output.extend(
+                    expand(
+                        "results/tables/{group}.{event}.{datatype}.fdr-controlled.xlsx",
+                        group=groups,
+                        event=get_type_events(datatype),
+                    )
+                )
 
     final_output.extend(get_mutational_burden_targets())
 
@@ -156,9 +169,9 @@ def get_final_output(wildcards):
 def get_gather_calls_input(ext="bcf"):
     def inner(wildcards):
         if wildcards.by == "odds":
-            pattern = "results/calls/{{{{group}}}}.{{{{event}}}}.{{scatteritem}}.filtered_odds.{ext}"
+            pattern = "results/calls/{{{{group}}}}.{{{{event}}}}.{{{{analysis}}}}.{{scatteritem}}.filtered_odds.{ext}"
         elif wildcards.by == "ann":
-            pattern = "results/calls/{{{{group}}}}.{{{{event}}}}.{{scatteritem}}.filtered_ann.{ext}"
+            pattern = "results/calls/{{{{group}}}}.{{{{event}}}}.{{{{analysis}}}}.{{scatteritem}}.filtered_ann.{ext}"
         else:
             raise ValueError(
                 "Unexpected wildcard value for 'by': {}".format(wildcards.by)
@@ -170,11 +183,19 @@ def get_gather_calls_input(ext="bcf"):
 
 def get_control_fdr_input(wildcards):
     query = get_fdr_control_params(wildcards)
-    if not is_activated("benchmarking") and query["filter"]:
+    if (
+        not is_activated("benchmarking")
+        and query["filter"]
+        and wildcards.analysis == "variants"
+    ):
         by = "ann" if query["local"] else "odds"
-        return "results/calls/{{group}}.{{event}}.filtered_{by}.bcf".format(by=by)
+        return (
+            "results/calls/{{group}}.{{event}}.{{analysis}}.filtered_{by}.bcf".format(
+                by=by
+            )
+        )
     else:
-        return "results/final-calls/{group}.annotated.bcf"
+        return "results/final-calls/{group}.{analysis}.annotated.bcf"
 
 
 def get_recalibrate_quality_input(wildcards, bai=False):
@@ -556,6 +577,7 @@ def get_mutational_burden_targets():
 
 def get_scattered_calls(ext="bcf"):
     def inner(wildcards):
+        caller = "arriba" if wildcards.analysis == "fusions" else variant_caller
         return expand(
             "results/calls/{{group}}.{caller}.{{scatteritem}}.{ext}",
             caller=caller,
@@ -575,17 +597,22 @@ def get_selected_annotations():
 
 
 def get_annotated_bcf(wildcards):
-    selection = get_selected_annotations()
-    return "results/calls/{group}.{scatteritem}{selection}.bcf".format(
-        group=wildcards.group, selection=selection, scatteritem=wildcards.scatteritem
+    selection = get_selected_annotations() if wildcards.analysis == "variants" else ""
+    return "results/calls/{group}.{datatype}.{scatteritem}{selection}.bcf".format(
+        group=wildcards.group,
+        datatype=wildcards.analysis,
+        selection=selection,
+        scatteritem=wildcards.scatteritem,
     )
 
 
 def get_gather_annotated_calls_input(ext="bcf"):
     def inner(wildcards):
-        selection = get_selected_annotations()
+        selection = (
+            get_selected_annotations() if wildcards.analysis == "variants" else ""
+        )
         return gather.calling(
-            "results/calls/{{{{group}}}}.{{scatteritem}}{selection}.{ext}".format(
+            "results/calls/{{{{group}}}}.{{{{analysis}}}}.{{scatteritem}}{selection}.{ext}".format(
                 ext=ext, selection=selection
             )
         )
@@ -624,8 +651,13 @@ def get_report_batches():
 
 def get_merge_calls_input(ext="bcf"):
     def inner(wildcards):
+        vartype = (
+            ["SNV", "INS", "DEL", "MNV", "BND", "INV", "DUP", "REP"]
+            if wildcards.analysis == "variants"
+            else ["BND"]
+        )
         return expand(
-            "results/calls/{{group}}.{vartype}.{{event}}.fdr-controlled.{ext}",
+            "results/calls/{{group}}.{vartype}.{{event}}.{{analysis}}.fdr-controlled.{ext}",
             ext=ext,
             vartype=["SNV", "INS", "DEL", "MNV", "BND", "INV", "DUP", "REP"],
         )
@@ -778,9 +810,10 @@ wildcard_constraints:
     filter="|".join(config["calling"]["filter"]),
     event="|".join(config["calling"]["fdr-control"]["events"].keys()),
     regions_type="|".join(["expanded", "covered"]),
+    analysis="|".join(["fusions", "variants"]),
 
 
-caller = list(
+variant_caller = list(
     filter(
         None,
         [
@@ -792,7 +825,6 @@ caller = list(
             if is_activated("calling/delly")
             and samples["datatype"].str.contains("dna").any()
             else None,
-            "arriba" if samples["datatype"].str.contains("rna").any() else None,
         ],
     )
 )
@@ -854,12 +886,15 @@ def get_trimmed_fastqs(wc):
         return units.loc[units.sample_name == wc.sample, fq]
 
 
+# TODO Build for fusions and variants separatly
 def get_vembrane_config(wildcards, input):
     with open(input.scenario, "r") as scenario_file:
         scenario = yaml.load(scenario_file, Loader=yaml.SafeLoader)
-    parts = ["CHROM, POS, REF, ALT, INFO['END'], INFO['EVENT'], ID, INFO['MATEID'][0]"]
+    parts = [
+        "CHROM, POS, REF, ALT, INFO['END'], INFO['EVENT'], ID, INFO['MATEID'][0], INFO['EXON']"
+    ]
     header = [
-        "chromosome, position, reference allele, alternative allele, end position, event, id, mateid"
+        "chromosome, position, reference allele, alternative allele, end position, event, id, mateid, exon"
     ]
     join_items = ", ".join
 
@@ -876,34 +911,40 @@ def get_vembrane_config(wildcards, input):
             parts.append(parts_field)
             header.append(header_name)
 
-    annotation_fields = [
-        "SYMBOL",
-        "Gene",
-        "Feature",
-        "IMPACT",
-        "HGVSp",
-        {"name": "protein position", "expr": "ANN['Protein_position'].raw"},
-        {"name": "protein alteration (short)", "expr": "ANN['Amino_acids']"},
-        "HGVSg",
-        "Consequence",
-        "CANONICAL",
-        "MANE_PLUS_CLINICAL",
-        {"name": "clinical significance", "expr": "ANN['CLIN_SIG']"},
-        {"name": "gnomad genome af", "expr": "ANN['gnomADg_AF']"},
-    ]
-
-    annotation_fields.extend(
-        [
-            field
-            for field in config_output.get("annotation_fields", [])
-            if field not in annotation_fields
+    if wildcards.analysis == "fusions":
+        info_fields = [
+            {"name": "mateid", "expr": "INFO['MATEID'][0]"},
+            {"name": "exon", "expr": "INFO['EXON']"},
         ]
-    )
+    else:
+        annotation_fields = [
+            "SYMBOL",
+            "Gene",
+            "Feature",
+            "IMPACT",
+            "HGVSp",
+            {"name": "protein position", "expr": "ANN['Protein_position'].raw"},
+            {"name": "protein alteration (short)", "expr": "ANN['Amino_acids']"},
+            "HGVSg",
+            "Consequence",
+            "CANONICAL",
+            "MANE_PLUS_CLINICAL",
+            {"name": "clinical significance", "expr": "ANN['CLIN_SIG']"},
+            {"name": "gnomad genome af", "expr": "ANN['gnomADg_AF']"},
+        ]
 
-    if "REVEL" in config["annotations"]["vep"]["final_calls"]["plugins"]:
-        annotation_fields.append("REVEL")
+        annotation_fields.extend(
+            [
+                field
+                for field in config_output.get("annotation_fields", [])
+                if field not in annotation_fields
+            ]
+        )
 
-    append_items(annotation_fields, "ANN['{}']".format, lambda x: x.lower())
+        if "REVEL" in config["annotations"]["vep"]["final_calls"]["plugins"]:
+            annotation_fields.append("REVEL")
+
+        append_items(annotation_fields, "ANN['{}']".format, lambda x: x.lower())
 
     samples = get_group_sample_aliases(wildcards)
 
@@ -983,6 +1024,8 @@ def format_bowtie_primers(wc, primers):
 
 
 def get_datavzrd_data(impact="coding"):
+    if impact == "fusions":
+        impact = "fusions.joined"
     pattern = "results/tables/{group}.{event}.{impact}.fdr-controlled.tsv"
 
     def inner(wildcards):

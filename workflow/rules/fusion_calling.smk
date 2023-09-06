@@ -11,7 +11,7 @@ use rule * from fusion_calling
 use rule star_index from fusion_calling with:
     input:
         fasta=rules.get_genome.output,
-        annotation=rules.get_annotation.output,
+        gtf=rules.get_annotation.output,
 
 
 use rule star_align from fusion_calling with:
@@ -54,6 +54,7 @@ rule annotate_exons:
         """
 
 
+# TODO Waiting for arriba PR [https://github.com/suhrig/arriba/pull/191]
 rule convert_fusions:
     input:
         fasta=rules.get_genome.output,
@@ -67,7 +68,7 @@ rule convert_fusions:
         "logs/convert_fusions/{sample}.log",
     shell:
         """
-        /home/moelder/workspace/arriba/scripts/convert_fusions_to_vcf.sh {input.fasta} {input.fusions} {output} 2> {log}
+        convert_fusions_to_vcf.sh {input.fasta} {input.fusions} {output} 2> {log}
         """
 
 
