@@ -1002,26 +1002,26 @@ def get_multiqc_results(wildcards):
     paired_end_units = sra_units | ~pd.isna(sample_units["fq2"])
 
     # fastqc
-    # pattern = "results/qc/fastqc/{unit.sample_name}/{unit.unit_name}.{fq}_fastqc.zip"
-    # yield from expand(pattern, unit=sample_units.itertuples(), fq="fq1")
-    # yield from expand(
-    #     pattern, unit=sample_units[paired_end_units].itertuples(), fq="fq2"
-    # )
+    pattern = "results/qc/fastqc/{unit.sample_name}/{unit.unit_name}.{fq}_fastqc.zip"
+    yield from expand(pattern, unit=sample_units.itertuples(), fq="fq1")
+    yield from expand(
+        pattern, unit=sample_units[paired_end_units].itertuples(), fq="fq2"
+    )
 
-    # # cutadapt
-    # pattern = "results/trimmed/{unit.sample_name}/{unit.unit_name}.{mode}.qc.txt"
-    # yield from expand(
-    #     pattern, unit=sample_units[paired_end_units].itertuples(), mode="paired"
-    # )
-    # yield from expand(
-    #     pattern, unit=sample_units[~paired_end_units].itertuples(), mode="single"
-    # )
+    # cutadapt
+    pattern = "results/trimmed/{unit.sample_name}/{unit.unit_name}.{mode}.qc.txt"
+    yield from expand(
+        pattern, unit=sample_units[paired_end_units].itertuples(), mode="paired"
+    )
+    yield from expand(
+        pattern, unit=sample_units[~paired_end_units].itertuples(), mode="single"
+    )
 
-    # # samtools idxstats
-    # yield from expand("results/qc/{sample}.bam.idxstats", sample=group_samples)
+    # samtools idxstats
+    yield from expand("results/qc/{sample}.bam.idxstats", sample=group_samples)
 
-    # # samtools stats
-    # yield from expand("results/qc/{sample}.bam.stats", sample=group_samples)
+    # samtools stats
+    yield from expand("results/qc/{sample}.bam.stats", sample=group_samples)
 
     # somalier results
     yield "results/somalier/relatedness/all.samples.tsv"
