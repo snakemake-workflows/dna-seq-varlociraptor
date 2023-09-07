@@ -2,5 +2,5 @@ channels:
   - conda-forge
   - bioconda
 dependencies:
-  - pandas =1.4
+  - pandas =2.1
   - python =3.10

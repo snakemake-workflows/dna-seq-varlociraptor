@@ -16,7 +16,6 @@ rule filter_candidates_by_annotation:
         'vembrane filter {params.aux} "{params.filter}" --output-fmt bcf --output {output}) &> {log}'
 
 
-# TODO Split up in variants and fusions?
 rule filter_by_annotation:
     input:
         bcf=get_annotated_bcf,
@@ -81,7 +80,6 @@ rule control_fdr:
         "--events {params.query[events]} --fdr {params.query[threshold]} > {output} 2> {log}"
 
 
-# TODO Variants and Fusions
 rule merge_calls:
     input:
         calls=get_merge_calls_input("bcf"),

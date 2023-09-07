@@ -609,7 +609,9 @@ def get_annotated_bcf(wildcards):
 def get_gather_annotated_calls_input(ext="bcf"):
     def inner(wildcards):
         selection = (
-            get_selected_annotations() if wildcards.analysis == "variants" else ""
+            get_selected_annotations()
+            if wildcards.analysis == "variants"
+            else ".annotated"
         )
         return gather.calling(
             "results/calls/{{{{group}}}}.{{{{analysis}}}}.{{scatteritem}}{selection}.{ext}".format(
@@ -659,7 +661,7 @@ def get_merge_calls_input(ext="bcf"):
         return expand(
             "results/calls/{{group}}.{vartype}.{{event}}.{{analysis}}.fdr-controlled.{ext}",
             ext=ext,
-            vartype=["SNV", "INS", "DEL", "MNV", "BND", "INV", "DUP", "REP"],
+            vartype=vartype,
         )
 
     return inner
@@ -803,6 +805,12 @@ def get_varlociraptor_obs_args(wildcards, input):
     ]
 
 
+def get_varlociraptor_params(wildcards, params):
+    if wildcards.caller == "arriba":
+        params += " --propagate-info-fields GENE_NAME GENE_ID EXON"
+    return params
+
+
 wildcard_constraints:
     group="|".join(groups),
     sample="|".join(samples["sample_name"]),
@@ -886,15 +894,12 @@ def get_trimmed_fastqs(wc):
         return units.loc[units.sample_name == wc.sample, fq]
 
 
-# TODO Build for fusions and variants separatly
 def get_vembrane_config(wildcards, input):
     with open(input.scenario, "r") as scenario_file:
         scenario = yaml.load(scenario_file, Loader=yaml.SafeLoader)
-    parts = [
-        "CHROM, POS, REF, ALT, INFO['END'], INFO['EVENT'], ID, INFO['MATEID'][0], INFO['EXON']"
-    ]
+    parts = ["CHROM, POS, REF, ALT, INFO['END'], INFO['EVENT'], ID"]
     header = [
-        "chromosome, position, reference allele, alternative allele, end position, event, id, mateid, exon"
+        "chromosome, position, reference allele, alternative allele, end position, event, id"
     ]
     join_items = ", ".join
 
@@ -912,39 +917,40 @@ def get_vembrane_config(wildcards, input):
             header.append(header_name)
 
     if wildcards.analysis == "fusions":
-        info_fields = [
-            {"name": "mateid", "expr": "INFO['MATEID'][0]"},
-            {"name": "exon", "expr": "INFO['EXON']"},
+        # TODO Are multiple mateids and geneids possible?
+        # TODO Gene_ID is also annotated by vep
+        # TODO Exons are also annotated by vep but differed
+        info_fields = [{"name": "mateid", "expr": "INFO['MATEID'][0]"}, "EXON"]
+        append_items(info_fields, "INFO['{}']".format, lambda x: x.lower())
+
+    annotation_fields = [
+        "SYMBOL",
+        "Gene",
+        "Feature",
+        "IMPACT",
+        "HGVSp",
+        {"name": "protein position", "expr": "ANN['Protein_position'].raw"},
+        {"name": "protein alteration (short)", "expr": "ANN['Amino_acids']"},
+        "HGVSg",
+        "Consequence",
+        "CANONICAL",
+        "MANE_PLUS_CLINICAL",
+        {"name": "clinical significance", "expr": "ANN['CLIN_SIG']"},
+        {"name": "gnomad genome af", "expr": "ANN['gnomADg_AF']"},
+    ]
+
+    annotation_fields.extend(
+        [
+            field
+            for field in config_output.get("annotation_fields", [])
+            if field not in annotation_fields
         ]
-    else:
-        annotation_fields = [
-            "SYMBOL",
-            "Gene",
-            "Feature",
-            "IMPACT",
-            "HGVSp",
-            {"name": "protein position", "expr": "ANN['Protein_position'].raw"},
-            {"name": "protein alteration (short)", "expr": "ANN['Amino_acids']"},
-            "HGVSg",
-            "Consequence",
-            "CANONICAL",
-            "MANE_PLUS_CLINICAL",
-            {"name": "clinical significance", "expr": "ANN['CLIN_SIG']"},
-            {"name": "gnomad genome af", "expr": "ANN['gnomADg_AF']"},
-        ]
+    )
 
-        annotation_fields.extend(
-            [
-                field
-                for field in config_output.get("annotation_fields", [])
-                if field not in annotation_fields
-            ]
-        )
+    if "REVEL" in config["annotations"]["vep"]["final_calls"]["plugins"]:
+        annotation_fields.append("REVEL")
 
-        if "REVEL" in config["annotations"]["vep"]["final_calls"]["plugins"]:
-            annotation_fields.append("REVEL")
-
-        append_items(annotation_fields, "ANN['{}']".format, lambda x: x.lower())
+    append_items(annotation_fields, "ANN['{}']".format, lambda x: x.lower())
 
     samples = get_group_sample_aliases(wildcards)
 
@@ -1070,13 +1076,14 @@ def get_variant_oncoprint_tables(wildcards, input):
         return []
 
 
-def get_datavzrd_report_labels(wildcards):
+def get_datavzrd_report_labels(wildcards, datatype):
     event = config["calling"]["fdr-control"]["events"][wildcards.event]
     labels = {"batch": wildcards.batch}
     if "labels" in event:
         labels.update({key: str(value) for key, value in event["labels"].items()})
     else:
         labels["callset"] = wildcards.event.replace("_", " ")
+    labels.update({"datatype": datatype})
     return labels
 
 

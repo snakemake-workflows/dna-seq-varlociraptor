@@ -49,7 +49,9 @@ rule varlociraptor_preprocess:
     output:
         "results/observations/{group}/{sample}.{caller}.{scatteritem}.bcf",
     params:
-        extra=config["params"]["varlociraptor"]["preprocess"],
+        extra=lambda wc: get_varlociraptor_params(
+            wc, config["params"]["varlociraptor"]["preprocess"]
+        ),
     log:
         "logs/varlociraptor/preprocess/{group}/{sample}.{caller}.{scatteritem}.log",
     benchmark:
@@ -72,7 +74,11 @@ rule varlociraptor_call:
         "logs/varlociraptor/call/{group}.{caller}.{scatteritem}.log",
     params:
         obs=get_varlociraptor_obs_args,
-        extra=config["params"]["varlociraptor"]["call"],
+        # Add -o as workaround to separate info field entries from subcommand
+        extra=lambda wc: get_varlociraptor_params(
+            wc, config["params"]["varlociraptor"]["call"]
+        )
+        + " -o /dev/stdout",
         postprocess=">"
         if not config["calling"].get("infer_genotypes")
         else "| varlociraptor genotype >",
