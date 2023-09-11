@@ -609,9 +609,7 @@ def get_annotated_bcf(wildcards):
 def get_gather_annotated_calls_input(ext="bcf"):
     def inner(wildcards):
         selection = (
-            get_selected_annotations()
-            if wildcards.analysis == "variants"
-            else ".annotated"
+            get_selected_annotations() if wildcards.analysis == "variants" else ""
         )
         return gather.calling(
             "results/calls/{{{{group}}}}.{{{{analysis}}}}.{{scatteritem}}{selection}.{ext}".format(
@@ -917,40 +915,42 @@ def get_vembrane_config(wildcards, input):
             header.append(header_name)
 
     if wildcards.analysis == "fusions":
-        # TODO Are multiple mateids and geneids possible?
-        # TODO Gene_ID is also annotated by vep
-        # TODO Exons are also annotated by vep but differed
-        info_fields = [{"name": "mateid", "expr": "INFO['MATEID'][0]"}, "EXON"]
-        append_items(info_fields, "INFO['{}']".format, lambda x: x.lower())
-
-    annotation_fields = [
-        "SYMBOL",
-        "Gene",
-        "Feature",
-        "IMPACT",
-        "HGVSp",
-        {"name": "protein position", "expr": "ANN['Protein_position'].raw"},
-        {"name": "protein alteration (short)", "expr": "ANN['Amino_acids']"},
-        "HGVSg",
-        "Consequence",
-        "CANONICAL",
-        "MANE_PLUS_CLINICAL",
-        {"name": "clinical significance", "expr": "ANN['CLIN_SIG']"},
-        {"name": "gnomad genome af", "expr": "ANN['gnomADg_AF']"},
-    ]
-
-    annotation_fields.extend(
-        [
-            field
-            for field in config_output.get("annotation_fields", [])
-            if field not in annotation_fields
+        info_fields = [
+            {"name": "mateid", "expr": "INFO['MATEID'][0]"},
+            {"name": "feature_name", "expr": "INFO['GENE_NAME']"},
+            {"name": "feature_id", "expr": "INFO['GENE_ID']"},
+            "EXON",
         ]
-    )
+        append_items(info_fields, "INFO['{}']".format, lambda x: x.lower())
+    else:
+        annotation_fields = [
+            "SYMBOL",
+            "Gene",
+            "Feature",
+            "IMPACT",
+            "HGVSp",
+            {"name": "protein position", "expr": "ANN['Protein_position'].raw"},
+            {"name": "protein alteration (short)", "expr": "ANN['Amino_acids']"},
+            "HGVSg",
+            "Consequence",
+            "CANONICAL",
+            "MANE_PLUS_CLINICAL",
+            {"name": "clinical significance", "expr": "ANN['CLIN_SIG']"},
+            {"name": "gnomad genome af", "expr": "ANN['gnomADg_AF']"},
+        ]
 
-    if "REVEL" in config["annotations"]["vep"]["final_calls"]["plugins"]:
-        annotation_fields.append("REVEL")
+        annotation_fields.extend(
+            [
+                field
+                for field in config_output.get("annotation_fields", [])
+                if field not in annotation_fields
+            ]
+        )
 
-    append_items(annotation_fields, "ANN['{}']".format, lambda x: x.lower())
+        if "REVEL" in config["annotations"]["vep"]["final_calls"]["plugins"]:
+            annotation_fields.append("REVEL")
+
+        append_items(annotation_fields, "ANN['{}']".format, lambda x: x.lower())
 
     samples = get_group_sample_aliases(wildcards)
 
