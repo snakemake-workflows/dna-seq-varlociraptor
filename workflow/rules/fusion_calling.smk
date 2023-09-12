@@ -68,7 +68,7 @@ rule convert_fusions:
         "logs/convert_fusions/{sample}.log",
     shell:
         """
-        convert_fusions_to_vcf.sh {input.fasta} {input.fusions} {output} 2> {log}
+        ./convert_fusions_to_vcf.sh {input.fasta} {input.fusions} {output} 2> {log}
         """
 
 

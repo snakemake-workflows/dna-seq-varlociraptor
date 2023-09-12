@@ -101,9 +101,19 @@ rule render_datavzrd_fusions_config:
     params:
         groups=get_report_batch,
         fusion_calls=get_datavzrd_data(impact="fusions"),
+        spec_observations=workflow.source_path(
+            "../resources/datavzrd/spec_observations.json"
+        ),
+        spec_short_observations=workflow.source_path(
+            "../resources/datavzrd/spec_short_observations.json"
+        ),
+        data_observations=workflow.source_path(
+            "../resources/datavzrd/data_observations.js"
+        ),
+        data_short_observations=workflow.source_path(
+            "../resources/datavzrd/data_short_observations.js"
+        ),
         samples=samples,
-        group_annotations=group_annotation,
-        labels=get_heterogeneous_labels(),
     log:
         "logs/datavzrd_render/{batch}.{event}.fusions.log",
     template_engine:
@@ -143,6 +153,12 @@ rule datavzrd_variants_calls:
 rule datavzrd_fusion_calls:
     input:
         fusion_calls=get_datavzrd_data(impact="fusions"),
+        spec_observations=workflow.source_path(
+            "../resources/datavzrd/spec_observations.json"
+        ),
+        data_observations=workflow.source_path(
+            "../resources/datavzrd/data_observations.js"
+        ),
         config="resources/datavzrd/{batch}.{event}.fusions.datavzrd.yaml",
     output:
         report(
