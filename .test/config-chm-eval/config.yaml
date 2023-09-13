@@ -131,6 +131,8 @@ annotations:
     final_calls:
       params: --everything
       plugins: []
+  spliceai:
+    activate: false
 
 
 params:

@@ -258,10 +258,15 @@ properties:
         required:
           - candidate_calls
           - final_calls
+      spliceai:
+        properties:
+          activate:
+           type: boolean
     required:
       - vep
       - vcfs
       - dgidb
+      - spliceai
 
 
 

@@ -74,7 +74,8 @@ annotations:
         # Add any plugin from https://www.ensembl.org/info/docs/tools/vep/script/vep_plugins.html
         # Plugin args can be passed as well, e.g. "LoFtool,path/to/custom/scores.txt".
         - LoFtool
-
+  spliceai:
+    activate: false
 
 params:
   cutadapt: ""

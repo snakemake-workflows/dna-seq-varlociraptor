@@ -126,6 +126,8 @@ annotations:
       # and think carefully about which annotations you need.
       params: ""
       plugins: []
+  spliceai:
+    activate: false
 
 params:
   cutadapt: ""

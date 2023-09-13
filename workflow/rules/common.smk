@@ -535,6 +535,8 @@ def get_selected_annotations():
         selection += ".db-annotated"
     if is_activated("annotations/dgidb"):
         selection += ".dgidb"
+    if is_activated("annotations/spliceai"):
+        selection += ".spliceai"
     return selection
 
 

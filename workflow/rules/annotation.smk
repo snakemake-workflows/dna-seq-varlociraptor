@@ -84,6 +84,22 @@ rule annotate_dgidb:
         "rbt vcf-annotate-dgidb {input} {params.datasources} > {output} 2> {log}"
 
 
+rule annotate_spliceai:
+    input:
+        bcf="results/calls/{prefix}.bcf",
+        ref=genome,
+    output:
+        "results/calls/{prefix}.spliceai.bcf",
+    params:
+        build=lambda wc: build.lower(),
+    log:
+        "logs/annotate-splieai/{prefix}.log",
+    conda:
+        "../envs/spliceai.yaml"
+    shell:
+        "spliceai -I {input.bcf} -R {input.ref} -A {params.build} -O {output} 2> {log}"
+
+
 rule gather_annotated_calls:
     input:
         calls=get_gather_annotated_calls_input(),
