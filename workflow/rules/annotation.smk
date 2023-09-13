@@ -87,6 +87,7 @@ rule annotate_dgidb:
 rule annotate_spliceai:
     input:
         bcf="results/calls/{prefix}.bcf",
+        idx="results/calls/{prefix}.bcf.csi",
         ref=genome,
     output:
         "results/calls/{prefix}.spliceai.bcf",
@@ -97,7 +98,7 @@ rule annotate_spliceai:
     conda:
         "../envs/spliceai.yaml"
     shell:
-        "spliceai -I {input.bcf} -R {input.ref} -A {params.build} -O {output} 2> {log}"
+        "spliceai -I {input.bcf} -R {input.ref} -A {params.build} -O {output} &> {log}"
 
 
 rule gather_annotated_calls:
