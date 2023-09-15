@@ -146,7 +146,7 @@ def get_final_output(wildcards):
         if config["tables"]["activate"]:
             final_output.extend(
                 expand(
-                    "results/tables/{group}.{types}.{datatype}.fdr-controlled.tsv",
+                    "results/tables/{group}.{event}.{datatype}.fdr-controlled.tsv",
                     group=groups,
                     event=get_type_events(datatype),
                     datatype=datatype,
@@ -158,6 +158,7 @@ def get_final_output(wildcards):
                         "results/tables/{group}.{event}.{datatype}.fdr-controlled.xlsx",
                         group=groups,
                         event=get_type_events(datatype),
+                        datatype=datatype,
                     )
                 )
 
