@@ -21,9 +21,9 @@ rule filter_by_annotation:
         bcf=get_annotated_bcf,
         aux=get_annotation_filter_aux_files,
     output:
-        "results/calls/{group}.{analysis}.{event}.{scatteritem}.filtered_ann.bcf",
+        "results/calls/{group}.{event}.{analysis}.{scatteritem}.filtered_ann.bcf",
     log:
-        "logs/filter-calls/annotation/{group}.{analysis}.{event}.{scatteritem}.log",
+        "logs/filter-calls/annotation/{group}.{event}.{analysis}.{scatteritem}.log",
     params:
         filter=get_annotation_filter_expression,
         aux=get_annotation_filter_aux,
@@ -35,15 +35,15 @@ rule filter_by_annotation:
 
 rule filter_odds:
     input:
-        "results/calls/{group}.{analysis}.{event}.{scatteritem}.filtered_ann.bcf",
+        "results/calls/{group}.{event}.{analysis}.{scatteritem}.filtered_ann.bcf",
     output:
-        "results/calls/{group}.{analysis}.{event}.{scatteritem}.filtered_odds.bcf",
+        "results/calls/{group}.{event}.{analysis}.{scatteritem}.filtered_odds.bcf",
     params:
         events=lambda wc: config["calling"]["fdr-control"]["events"][wc.event][
             "varlociraptor"
         ],
     log:
-        "logs/filter-calls/posterior_odds/{group}.{analysis}.{event}.{scatteritem}.log",
+        "logs/filter-calls/posterior_odds/{group}.{event}.{analysis}.{scatteritem}.log",
     conda:
         "../envs/varlociraptor.yaml"
     shell:
@@ -55,9 +55,9 @@ rule gather_calls:
         calls=get_gather_calls_input(),
         idx=get_gather_calls_input(ext="bcf.csi"),
     output:
-        "results/calls/{group}.{analysis}.{event}.filtered_{by}.bcf",
+        "results/calls/{group}.{event}.{analysis}.filtered_{by}.bcf",
     log:
-        "logs/gather-calls/{group}.{analysis}.{event}.filtered_{by}.log",
+        "logs/gather-calls/{group}.{event}.{analysis}.filtered_{by}.log",
     params:
         extra="-a",
     wrapper:
