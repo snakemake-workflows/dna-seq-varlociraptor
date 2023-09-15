@@ -46,7 +46,7 @@ rule prepare_oncoprint:
     log:
         "logs/prepare_oncoprint/{batch}.{event}.log",
     params:
-        groups=get_report_batch,
+        groups=lambda wc: get_report_batch(wc, "variants"),
         labels=get_heterogeneous_labels(),
     conda:
         "../envs/oncoprint.yaml"
@@ -65,7 +65,7 @@ rule render_datavzrd_variant_config:
     params:
         gene_oncoprint=get_oncoprint("gene"),
         variant_oncoprints=get_variant_oncoprint_tables,
-        groups=get_report_batch,
+        groups=lambda wc: get_report_batch(wc, "variants"),
         coding_calls=get_datavzrd_data(impact="coding"),
         noncoding_calls=get_datavzrd_data(impact="noncoding"),
         spec_observations=workflow.source_path(

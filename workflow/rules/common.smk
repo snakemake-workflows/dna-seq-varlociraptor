@@ -24,11 +24,11 @@ if not "mutational_burden_events" in samples.columns:
     samples["mutational_burden_events"] = pd.NA
 
 # construct genome name
-datatype = "dna"
+datatype_genome = "dna"
 species = config["ref"]["species"]
 build = config["ref"]["build"]
 release = config["ref"]["release"]
-genome_name = f"genome.{datatype}.{species}.{build}.{release}"
+genome_name = f"genome.{datatype_genome}.{species}.{build}.{release}"
 genome_prefix = f"resources/{genome_name}"
 genome = f"{genome_prefix}.fasta"
 genome_fai = f"{genome}.fai"
@@ -61,7 +61,16 @@ if "umi_read" not in samples.columns:
 validate(samples, schema="../schemas/samples.schema.yaml")
 
 
+def get_datatype_groups(datatype):
+    return samples.loc[
+        samples["datatype"] == datatype,
+        "group",
+    ].unique()
+
+
 groups = samples["group"].unique()
+dna_groups = get_datatype_groups("dna")
+rna_groups = get_datatype_groups("rna")
 
 if "groups" in config:
     group_annotation = (
@@ -117,7 +126,7 @@ def get_heterogeneous_labels():
     return group_annotation.drop(cols_to_drop, axis=1).T
 
 
-# Create output based on type and events
+# TODO Generate output considering events only if batch/group with dataset exists
 def get_final_output(wildcards):
     final_output = expand(
         "results/qc/multiqc/{group}.html",
@@ -137,7 +146,7 @@ def get_final_output(wildcards):
             final_output.extend(
                 expand(
                     "results/final-calls/{group}.{event}.{datatype}.fdr-controlled.bcf",
-                    group=groups,
+                    group=dna_groups if datatype == "variants" else rna_groups,
                     event=get_type_events(datatype),
                     datatype=datatype,
                 )
@@ -147,7 +156,7 @@ def get_final_output(wildcards):
             final_output.extend(
                 expand(
                     "results/tables/{group}.{event}.{datatype}.fdr-controlled.tsv",
-                    group=groups,
+                    group=dna_groups if datatype == "variants" else rna_groups,
                     event=get_type_events(datatype),
                     datatype=datatype,
                 )
@@ -156,12 +165,12 @@ def get_final_output(wildcards):
                 final_output.extend(
                     expand(
                         "results/tables/{group}.{event}.{datatype}.fdr-controlled.xlsx",
-                        group=groups,
+                        group=dna_groups if datatype == "variants" else rna_groups,
                         event=get_type_events(datatype),
                         datatype=datatype,
                     )
                 )
-
+    # TODO Should be fine
     final_output.extend(get_mutational_burden_targets())
 
     return final_output
@@ -464,13 +473,6 @@ def get_group_bams(wildcards, bai=False):
     )
 
 
-def get_variant_groups():
-    return samples.loc[
-        samples["datatype"] == "dna",
-        "group",
-    ].unique()
-
-
 def get_arriba_group_candidates(wildcards, csi=False):
     ext = ".csi" if csi else ""
     return expand(
@@ -484,37 +486,6 @@ def get_group_bams_report(group):
     return [
         (sample, "results/recal/{}.bam".format(sample))
         for sample in get_group_samples(group)
-    ]
-
-
-def _get_batch_info(wildcards):
-    for group in get_report_batch(wildcards):
-        for sample, bam in get_group_bams_report(group):
-            yield sample, bam, group
-
-
-def get_batch_bams(wildcards):
-    return (bam for _, bam, _ in _get_batch_info(wildcards))
-
-
-def get_report_bam_params(wildcards, input):
-    return [
-        "{group}:{sample}={bam}".format(group=group, sample=sample, bam=bam)
-        for (sample, _, group), bam in zip(_get_batch_info(wildcards), input.bams)
-    ]
-
-
-def get_batch_bcfs(wildcards):
-    for group in get_report_batch(wildcards):
-        yield "results/final-calls/{group}.{event}.fdr-controlled.bcf".format(
-            group=group, event=wildcards.event
-        )
-
-
-def get_report_bcf_params(wildcards, input):
-    return [
-        "{group}={bcf}".format(group=group, bcf=bcf)
-        for group, bcf in zip(get_report_batch(wildcards), input.bcfs)
     ]
 
 
@@ -571,7 +542,7 @@ def get_read_group(wildcards):
 def get_mutational_burden_targets():
     mutational_burden_targets = []
     if is_activated("mutational_burden"):
-        for group in get_variant_groups():
+        for group in dna_groups:
             mutational_burden_targets.extend(
                 expand(
                     "results/plots/mutational-burden/{group}.{alias}.{mode}.mutational-burden.svg",
@@ -636,9 +607,10 @@ def get_candidate_calls():
         return "results/candidate-calls/{group}.{caller}.{scatteritem}.bcf"
 
 
-def get_report_batch(wildcards):
+# TODO Only return groups where sample for datatype is present
+def get_report_batch(wildcards, datatype):
     if wildcards.batch == "all":
-        _groups = groups
+        _groups = dna_groups if datatype == "variants" else rna_groups
     else:
         _groups = samples.loc[
             samples[config["report"]["stratify"]["by-column"]] == wildcards.batch,
@@ -1038,8 +1010,10 @@ def format_bowtie_primers(wc, primers):
 
 
 def get_datavzrd_data(impact="coding"):
+    datatype = "variants"
     if impact == "fusions":
         impact = "fusions.joined"
+        datatype = "fusions"
     pattern = "results/tables/{group}.{event}.{impact}.fdr-controlled.tsv"
 
     def inner(wildcards):
@@ -1047,7 +1021,7 @@ def get_datavzrd_data(impact="coding"):
             pattern,
             impact=impact,
             event=wildcards.event,
-            group=get_report_batch(wildcards),
+            group=get_report_batch(wildcards, datatype),
         )
 
     return inner
@@ -1062,7 +1036,7 @@ def get_varsome_url():
 
 
 def get_oncoprint_input(wildcards):
-    groups = get_report_batch(wildcards)
+    groups = get_report_batch(wildcards, "variants")
     return expand(
         "results/tables/{group}.{event}.coding.fdr-controlled.tsv",
         group=groups,
@@ -1131,7 +1105,7 @@ def get_fastqc_results(wildcards):
 
 
 def get_variant_oncoprints(wildcards):
-    if len(get_report_batch(wildcards)) > 1:
+    if len(get_report_batch(wildcards, "variants")) > 1:
         return "results/tables/oncoprints/{wildcards.batch}.{wildcards.event}/variant-oncoprints"
     else:
         return []
@@ -1139,7 +1113,7 @@ def get_variant_oncoprints(wildcards):
 
 def get_oncoprint(oncoprint_type):
     def inner(wildcards):
-        if len(get_report_batch(wildcards)) > 1:
+        if len(get_report_batch(wildcards, "variants")) > 1:
             oncoprint_path = (
                 f"results/tables/oncoprints/{wildcards.batch}.{wildcards.event}"
             )
