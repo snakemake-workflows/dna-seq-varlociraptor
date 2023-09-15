@@ -464,6 +464,13 @@ def get_group_bams(wildcards, bai=False):
     )
 
 
+def get_variant_groups():
+    return samples.loc[
+        samples["datatype"] == "dna",
+        "group",
+    ].unique()
+
+
 def get_arriba_group_candidates(wildcards, csi=False):
     ext = ".csi" if csi else ""
     return expand(
@@ -564,7 +571,7 @@ def get_read_group(wildcards):
 def get_mutational_burden_targets():
     mutational_burden_targets = []
     if is_activated("mutational_burden"):
-        for group in groups:
+        for group in get_variant_groups():
             mutational_burden_targets.extend(
                 expand(
                     "results/plots/mutational-burden/{group}.{alias}.{mode}.mutational-burden.svg",

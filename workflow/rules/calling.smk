@@ -106,7 +106,7 @@ rule sort_calls:
     resources:
         mem_mb=8000,
     wrapper:
-        "v1.21.0/bio/bcftools/sort"
+        "v2.6.0/bio/bcftools/sort"
 
 
 rule bcftools_concat:
