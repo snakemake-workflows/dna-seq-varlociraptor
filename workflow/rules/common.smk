@@ -114,10 +114,7 @@ def get_heterogeneous_labels():
 
 
 def get_final_output(wildcards):
-    final_output = expand(
-        "results/qc/multiqc/all.html",
-        group=groups,
-    )
+    final_output = ["results/qc/multiqc/all.html"]
 
     if config["report"]["activate"]:
         final_output.extend(
