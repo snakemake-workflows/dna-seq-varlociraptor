@@ -1072,7 +1072,7 @@ def get_itd_regions(wildcards):
         return "resources/coding_regions.bed"
     else:
         group=samples.loc[wildcards.sample]["group"]
-        return  f"results/regions/{group}.covered_regions.filtered.bed"
+        return  f"results/regions/{group}.expanded_regions.filtered.bed"
 
 
 def get_itd_bcfs(wildcards):
