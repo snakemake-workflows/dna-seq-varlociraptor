@@ -74,17 +74,20 @@ rule scanITD:
         ref=genome,
         ref_idx=genome_fai,
         regions=get_itd_regions,
-        bam=get_itd_sample,
+        bam="results/recal/{sample}.bam",
+        bai="results/recal/{sample}.bai",
     output:
-        "results/candidate-calls/{group}.ScanITD.vcf",
+        "results/candidate-calls/{sample}.ITD.vcf",
     log:
-        "logs/ScanITD/{group}.log",
+        "logs/ScanITD/{sample}.log",
     conda:
         "../envs/scanitd.yaml"
     params:
-        out_name="{group}",
+        out_name="{sample}",
         extra=config["params"]["ScanITD"]["extra"]
     threads: 2
+    benchmark:
+        "benchmarks/ScanITD/{sample}.tsv"
     shell:
         "(python workflow/scripts/ScanITD.py -i {input.bam} -r {input.ref} -t {input.regions} "
         "-o results/candidate-calls/{params.out_name} {params.extra}) 2> {log}"
@@ -92,12 +95,12 @@ rule scanITD:
 
 rule make_itd_bcf:
     input:
-        vcf="results/candidate-calls/{group}.ScanITD.vcf",
+        vcf="results/candidate-calls/{sample}.ITD.vcf",
         ref_idx=genome_fai,        
     output:
-        "results/candidate-calls/{group}.ScanITD.bcf"
+        "results/candidate-calls/{sample}.ITD.bcf"
     log:
-        "logs/bcftools/reheader/ScanITD/{group}.log",
+        "logs/bcftools/reheader/ScanITD/{sample}.log",
     conda:
         "../envs/bcftools.yaml"
     params:
@@ -108,6 +111,20 @@ rule make_itd_bcf:
     shell:
         "(bcftools reheader -f {input.ref_idx} {input.vcf} | bcftools sort --max-mem {resources.mem_mb}M | "
         "bcftools view -e 'SVLEN > {params.itd_max_length_bp}' -Ob > {output}) 2> {log}"
+
+
+rule bcftools_merge_ScanITD:
+    input:
+        calls=get_itd_bcfs,
+        ind=get_itd_bcfs_index,
+    output:
+        "results/candidate-calls/{group}.ScanITD.bcf",
+    log:
+        "logs/bcf-merge/{group}.log",
+    conda:
+        "../envs/bcftools.yaml"
+    shell:
+        "(bcftools merge {input.calls} | bcftools view -Ob > {output}) 2> {log}"
 
 
 rule scatter_candidates:

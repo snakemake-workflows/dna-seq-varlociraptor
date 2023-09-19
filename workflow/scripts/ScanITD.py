@@ -354,7 +354,7 @@ def itd_scan(input_bam, output_prefix, ao_cutoff, dp_cutoff, vaf_cutoff,
 
     genome_seq = Fasta(fasta_file, sequence_always_upper=True, as_raw=True)
 
-    vcffile = open(output_prefix + '.ScanITD.vcf', 'w')
+    vcffile = open(output_prefix + '.ITD.vcf', 'w')
     print(vcf_header(output_prefix), file=vcffile)
     vcf_field_gt = 'GT\t0/1'
     regions = []

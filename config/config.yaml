@@ -81,8 +81,7 @@ calling:
   # See https://varlociraptor.github.io/docs/calling/#generic-variant-calling
   ScanITD:
     activate: false
-    alias: "tumor"  # alias of intrest from config/samples.tsv
-    coding_only: false # interested only in ITD in coding loci? Setting it to true will reduce the runtime for WGS samples.
+    coding_only: false # interested only in ITD in coding loci? Setting it to true may reduce the runtime for WGS samples.
     # ScanITD detects internal tandem duplication. See https://github.com/ylab-hi/ScanITD
 
   scenario: config/scenario.yaml
@@ -218,5 +217,5 @@ params:
     min_alternate_fraction: 0.05 # Reduce for calling variants with lower VAFs
   delly: "" # add extra arguments for delly
   ScanITD: 
-    extra: "" # add extra arguments for ScanITD (beside -t)
+    extra: "" # add extra arguments for ScanITD (except -t)
     itd_max_length_bp: 300

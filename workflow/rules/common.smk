@@ -1067,15 +1067,20 @@ def get_delly_excluded_regions():
         return []
 
 
-def get_itd_sample(wildcards):
-    tumor_alias=config["calling"]["ScanITD"]["alias"]
-    bam_in="results/recal/" + samples.loc[(samples["group"] == wildcards.group) & (samples["alias"] == tumor_alias)]["sample_name"] + ".bam"
-    return bam_in
-
-
 def get_itd_regions(wildcards):
     if config["calling"]["ScanITD"]["coding_only"]:
         return "resources/coding_regions.bed"
     else:
-        group=wildcards.group
+        group=samples.loc[wildcards.sample]["group"]
         return  f"results/regions/{group}.covered_regions.filtered.bed"
+
+
+def get_itd_bcfs(wildcards):
+    sample_names = samples.loc[samples["group"] == wildcards.group, "sample_name"].tolist()
+    return [f"results/candidate-calls/{x}.ITD.bcf" for x in sample_names]
+
+
+def get_itd_bcfs_index(wildcards):
+    sample_names = samples.loc[samples["group"] == wildcards.group, "sample_name"].tolist()
+    return [f"results/candidate-calls/{x}.ITD.bcf.csi" for x in sample_names]
+
