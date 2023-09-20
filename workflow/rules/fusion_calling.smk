@@ -54,7 +54,7 @@ rule annotate_exons:
         """
 
 
-# TODO Waiting for arriba PR [https://github.com/suhrig/arriba/pull/191]
+# Use script provide by arriba once new version is released
 rule convert_fusions:
     input:
         fasta=rules.get_genome.output,
@@ -62,13 +62,15 @@ rule convert_fusions:
         fusions="results/arriba/{sample}.fusions.annotated.tsv",
     output:
         temp("results/candidate-calls/{sample}.arriba.vcf"),
+    params:
+        script_path=workflow.source_path("../scripts/convert_fusions_to_vcf.sh"),
     conda:
         "../envs/arriba.yaml"
     log:
         "logs/convert_fusions/{sample}.log",
     shell:
         """
-        ./convert_fusions_to_vcf.sh {input.fasta} {input.fusions} {output} 2> {log}
+        bash {params.script_path} {input.fasta} {input.fusions} {output} 2> {log}
         """
 
 

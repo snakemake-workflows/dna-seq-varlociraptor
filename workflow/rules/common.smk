@@ -126,7 +126,6 @@ def get_heterogeneous_labels():
     return group_annotation.drop(cols_to_drop, axis=1).T
 
 
-# TODO Generate output considering events only if batch/group with dataset exists
 def get_final_output(wildcards):
     final_output = expand(
         "results/qc/multiqc/{group}.html",

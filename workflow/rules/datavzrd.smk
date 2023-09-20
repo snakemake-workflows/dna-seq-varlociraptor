@@ -16,8 +16,6 @@ rule split_call_tables:
         "../scripts/split-call-tables.py"
 
 
-# TODO This needs a closer look as often two different canonical transcripts exists with different gene names
-# maybe skip vep and pass gene name by arriba annotation (is is reliable?)
 rule process_fusion_call_tables:
     input:
         "results/tables/{group}.{event}.fusions.fdr-controlled.tsv",
@@ -99,7 +97,7 @@ rule render_datavzrd_fusions_config:
     output:
         "resources/datavzrd/{batch}.{event}.fusions.datavzrd.yaml",
     params:
-        groups=get_report_batch,
+        groups=lambda wc: get_report_batch(wc, "fusions"),
         fusion_calls=get_datavzrd_data(impact="fusions"),
         spec_observations=workflow.source_path(
             "../resources/datavzrd/spec_observations.json"
