@@ -169,7 +169,6 @@ def get_final_output(wildcards):
                         datatype=datatype,
                     )
                 )
-    # TODO Should be fine
     final_output.extend(get_mutational_burden_targets())
 
     return final_output
@@ -606,7 +605,6 @@ def get_candidate_calls():
         return "results/candidate-calls/{group}.{caller}.{scatteritem}.bcf"
 
 
-# TODO Only return groups where sample for datatype is present
 def get_report_batch(wildcards, datatype):
     if wildcards.batch == "all":
         _groups = dna_groups if datatype == "variants" else rna_groups
