@@ -19,7 +19,8 @@ rule freebayes:
         ),
     threads: max(workflow.cores - 1, 1)  # use all available cores -1 (because of the pipe) for calling
     wrapper:
-        "v2.3.2/bio/freebayes"
+        #update to new release once available
+        "v2.6.0-35-g755343f/bio/freebayes"
 
 
 rule delly:
