@@ -124,7 +124,7 @@ rule bcftools_merge_ScanITD:
     conda:
         "../envs/bcftools.yaml"
     shell:
-        "(bcftools merge {input.calls} | bcftools view -Ob > {output}) 2> {log}"
+        "(bcftools merge -m none {input.calls} | bcftools view -Ob > {output}) 2> {log}"
 
 
 rule scatter_candidates:

@@ -217,5 +217,5 @@ params:
     min_alternate_fraction: 0.05 # Reduce for calling variants with lower VAFs
   delly: "" # add extra arguments for delly
   ScanITD: 
-    extra: "" # add extra arguments for ScanITD (except -t)
+    extra: "--vaf 0.05" # add extra arguments for ScanITD (except -t)
     itd_max_length_bp: 300
