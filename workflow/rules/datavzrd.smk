@@ -36,6 +36,7 @@ rule prepare_oncoprint:
         groups=get_report_batch,
         labels=get_heterogeneous_labels(),
         compact_oncoprint_header_labels=get_compact_oncoprint_header_labels(),
+        annotation_label_config=annotation_label_config,
     conda:
         "../envs/oncoprint.yaml"
     script:
@@ -51,7 +52,7 @@ rule render_compact_oncoprint_spec:
     params:
         annotation_labels=get_compact_oncoprint_annotation_labels,
         group_sorting=lambda w, input: json.load(open(input.group_sortings))[w.sort_label],
-        annotation_label_types=annotation_label_types,
+        annotation_label_config=annotation_label_config,
     template_engine:
         "jinja2"
 
@@ -66,6 +67,9 @@ rule render_datavzrd_config:
         specs_compact_oncoprint=expand(
             "resources/datavzrd/{{batch}}.{{event}}/spec_compact_oncoprint.sort_by_{sort_label}.json",
             sort_label=get_heterogeneous_labels().index
+        ),
+        compact_oncoprint_sortings=directory(
+            "results/tables/oncoprints/{batch}.{event}/label_sortings/"
         ),
     output:
         "resources/datavzrd/{batch}.{event}.datavzrd.yaml",
@@ -92,7 +96,7 @@ rule render_datavzrd_config:
         samples=samples,
         group_annotations=group_annotation,
         labels=get_heterogeneous_labels(),
-        oncoprint_sorted_datasets="results/tables/oncoprints/{batch}.{event}/label_sortings/",
+        annotation_label_config=annotation_label_config,
     log:
         "logs/datavzrd_render/{batch}.{event}.log",
     template_engine:

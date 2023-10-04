@@ -47,7 +47,7 @@ datasets:
       separator: "\t"
     ?for label in params.labels.index.values:
       ?label:
-        path: ?os.path.join(params.oncoprint_sorted_datasets, f"{label}.tsv")
+        path: ?os.path.join(input.compact_oncoprint_sortings, f"{label}.tsv")
         separator: "\t"
         headers: 2
     ?for gene, path in params.variant_oncoprints:
@@ -99,7 +99,7 @@ views:
                   label: ?annotation
                   plot:
                     heatmap:
-                      scale: ordinal
+                      scale: ?params.annotation_label_config[annotation].get("scale", "ordinal") # TODO make nominal default after next datavzrd release
                       color-scheme: category20
           columns:
             symbol:
@@ -149,7 +149,7 @@ views:
                   label: ?annotation
                   plot:
                     heatmap:
-                      scale: ordinal
+                      scale: ?params.annotation_label_config[annotation].get("scale", "ordinal") # TODO make nominal default after next datavzrd release
                       color-scheme: category20
           columns:
             consequence:

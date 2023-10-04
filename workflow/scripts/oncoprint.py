@@ -166,7 +166,15 @@ def group_sortings(group_annotation):
         # move to front for highest sort priority
         primary = labels[i]
         order = [primary] + [label for label in labels if label != primary]
-        sortings[primary] = group_annotation.sort_values(by=order, axis="columns").columns.tolist()
+        ascending = [
+            snakemake.params.annotation_label_config.get("label", dict()).get("ascending", True)
+            for label in order
+        ]
+        sortings[primary] = group_annotation.sort_values(
+            by=order,
+            ascending=ascending,
+            axis="columns",
+        ).columns.tolist()
     return sortings
 
 def store(data, output, labels_df, label_idx=None):

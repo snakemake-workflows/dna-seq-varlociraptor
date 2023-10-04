@@ -45,7 +45,7 @@
                 },
                 "color": {
                     "field": "annotation_value",
-                    "type": {{ params.annotation_label_types[annotation_label]|tojson }},
+                    "type": {{ params.annotation_label_config[annotation_label].get("scale", "nominal")|tojson }},
                     "legend": null
                 },
                 "opacity": {

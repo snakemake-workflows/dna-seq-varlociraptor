@@ -103,8 +103,8 @@ primer_panels = (
     else None
 )
 
-annotation_label_types = defaultdict(lambda: "nominal")
-annotation_label_types.update(config["report"].get("annotation_label_types", dict()))
+annotation_label_config = defaultdict(dict)
+annotation_label_config.update(config["report"].get("annotation_labels", dict()))
 
 
 def get_heterogeneous_labels():
