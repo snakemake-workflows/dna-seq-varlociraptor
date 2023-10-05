@@ -67,15 +67,17 @@ report:
     activate: false
     # select a sample sheet column for stratification
     by-column: condition
-  # Optionally define annotation label types and sort direction for displaying them as
-  # heatmaps.
+  # Optionally define annotation label types sort direction and domain for
+  # displaying them as heatmaps.
   # By default, the annotated values are considered to be 'nominal',
   # leading to categorical color coding without an order.
   # Alternatively, you can set them as quantitative or ordinal here.
+  # The domain can take any values that are considered valid by vega-lite.
   # annotation_labels:
   #   mycolumn:
-  #     scale: ordinal
+  #     type: ordinal
   #     ascending: true
+  #     domain: [-100, 0]
 
 calling:
   # Set to true to infer classical genotypes from Varlociraptor's VAF predictions

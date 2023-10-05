@@ -31,6 +31,16 @@ __definitions__:
       }}
     }}
     """
+  - |
+    def get_annotation_scale(annotation):
+        # TODO remove this function once datavzrd does it internally (next release)
+        thetype = params.annotation_label_config[annotation].get("type", "ordinal")
+        if thetype == "quantitative":
+            return "linear"
+        elif thetype == "nominal":
+            return "ordinal"
+        else:
+            return thetype
 
 datasets:
   ?if input.variant_oncoprints:
@@ -99,7 +109,7 @@ views:
                   label: ?annotation
                   plot:
                     heatmap:
-                      scale: ?params.annotation_label_config[annotation].get("scale", "ordinal") # TODO make nominal default after next datavzrd release
+                      scale: ?get_annotation_scale(annotation)
                       color-scheme: category20
           columns:
             symbol:
@@ -149,7 +159,7 @@ views:
                   label: ?annotation
                   plot:
                     heatmap:
-                      scale: ?params.annotation_label_config[annotation].get("scale", "ordinal") # TODO make nominal default after next datavzrd release
+                      scale: ?get_annotation_scale(annotation)
                       color-scheme: category20
           columns:
             consequence:

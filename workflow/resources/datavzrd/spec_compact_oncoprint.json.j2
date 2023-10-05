@@ -45,7 +45,11 @@
                 },
                 "color": {
                     "field": "annotation_value",
-                    "type": {{ params.annotation_label_config[annotation_label].get("scale", "nominal")|tojson }},
+                    "type": {{ params.annotation_label_config[annotation_label].get("type", "nominal")|tojson }},
+                    {% if params.annotation_label_config[annotation_label].get("domain") is not none %}
+                    "scale": {
+                        "domain": {{ params.annotation_label_config[annotation_label].get("domain")|tojson }}
+                    }
                     "legend": null
                 },
                 "opacity": {
