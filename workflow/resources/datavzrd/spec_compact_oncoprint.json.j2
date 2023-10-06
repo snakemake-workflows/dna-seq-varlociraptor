@@ -49,7 +49,8 @@
                     {% if params.annotation_label_config[annotation_label].get("domain") is not none %}
                     "scale": {
                         "domain": {{ params.annotation_label_config[annotation_label].get("domain")|tojson }}
-                    }
+                    },
+                    {% endif %}
                     "legend": null
                 },
                 "opacity": {

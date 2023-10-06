@@ -167,7 +167,7 @@ def group_sortings(group_annotation):
         primary = labels[i]
         order = [primary] + [label for label in labels if label != primary]
         ascending = [
-            snakemake.params.annotation_label_config.get("label", dict()).get("ascending", True)
+            snakemake.params.annotation_label_config.get(label, dict()).get("ascending", True)
             for label in order
         ]
         sortings[primary] = group_annotation.sort_values(
