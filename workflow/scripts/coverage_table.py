@@ -18,9 +18,12 @@ for bed in [snakemake.input[0]]:
                 group_regions[(chromosome, gene)] = dict()
             group_regions[(chromosome, gene)][sample] = coverage
 
-df = pd.DataFrame.from_dict(group_regions).T
-df.index.names = ("chromosome", "gene")
-df.reset_index(inplace=True)
+if bool(group_regions):
+    df = pd.DataFrame.from_dict(group_regions).T
+    df.index.names = ("chromosome", "gene")
+    df.reset_index(inplace=True)
+else:
+    df = pd.DataFrame(columns=["chromosome", "gene"])
 
 with open(snakemake.output[0], "w") as csv_file:
     df.to_csv(csv_file, index=False, sep="\t")

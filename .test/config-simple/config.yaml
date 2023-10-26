@@ -92,7 +92,7 @@ params:
     min_alternate_fraction: 0.05 # Reduce for calling variants with lower VAFs
 
 gene_coverage:
-  min_avg_coverage: 5
+  min_avg_coverage: 0
 
 report:
   activate: true
