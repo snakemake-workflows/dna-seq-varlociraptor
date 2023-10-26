@@ -3,9 +3,10 @@ import pandas as pd
 sys.stderr = open(snakemake.log[0], "w")
 
 group_regions = dict()
-
+samples = []
 for bed in [snakemake.input[0]]:
     sample = bed.split("/")[-1].split(".")[0]
+    samples.append(sample)
     with open(bed, "r") as covered_regions:
         for line in covered_regions:
             line = line.strip().split("\t")
@@ -23,7 +24,7 @@ if bool(group_regions):
     df.index.names = ("chromosome", "gene")
     df.reset_index(inplace=True)
 else:
-    df = pd.DataFrame(columns=["chromosome", "gene"])
+    df = pd.DataFrame(columns=["chromosome", "gene"] + samples)
 
 with open(snakemake.output[0], "w") as csv_file:
     df.to_csv(csv_file, index=False, sep="\t")
