@@ -1,5 +1,12 @@
 # Changelog
 
+## [5.0.2](https://github.com/snakemake-workflows/dna-seq-varlociraptor/compare/v5.0.1...v5.0.2) (2023-10-09)
+
+
+### Bug Fixes
+
+* remove superfluous import of FTP remote provider ([ae68b90](https://github.com/snakemake-workflows/dna-seq-varlociraptor/commit/ae68b9079b92ddf6b0ace6888c171381d297ceee))
+
 ## [5.0.1](https://github.com/snakemake-workflows/dna-seq-varlociraptor/compare/v5.0.0...v5.0.1) (2023-08-25)
 
 
