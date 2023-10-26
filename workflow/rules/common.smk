@@ -111,6 +111,10 @@ def get_final_output(wildcards):
         group=groups,
     )
 
+    final_output.extend(
+        expand("results/datavzrd-report/{group}.coverage", group=groups)
+    )
+
     if config["report"]["activate"]:
         final_output.extend(
             expand(
