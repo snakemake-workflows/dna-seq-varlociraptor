@@ -161,7 +161,8 @@ rule datavzrd_coverage:
         report(
             directory("results/datavzrd-report/{group}.coverage"),
             htmlindex="index.html",
-            category="Gene coverage",
+            category="Mean read depth per gene",
+            labels=lambda wc: {"Group": wc.group},
         ),
     log:
         "logs/datavzrd_report/{group}.coverage.log",
