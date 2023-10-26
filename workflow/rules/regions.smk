@@ -18,11 +18,22 @@ rule get_target_regions:
         """
 
 
+rule transform_gene_annotations:
+    input:
+        "resources/annotation.gtf",
+    output:
+        "resources/gene_annotation.bed",
+    log:
+        "logs/plot_coverage/transform_gene_regions.log",
+    script:
+        "../scripts/transform_gene_regions.py"
+
+
 rule build_sample_regions:
     input:
         bam="results/recal/{sample}.bam",
         bai="results/recal/{sample}.bai",
-        bed="resources/gene_annotations.bed",
+        bed="resources/gene_annotation.bed",
     output:
         "results/regions/{group}/{sample}.mosdepth.global.dist.txt",
         "results/regions/{group}/{sample}.quantized.bed.gz",
@@ -101,14 +112,3 @@ rule download_delly_excluded_regions:
         "logs/download_delly_regions/{species}_{build}.log",
     shell:
         "curl {params.url} -o {output} &> {log}"
-
-
-rule transform_gene_annotations:
-    input:
-        "resources/annotation.gtf",
-    output:
-        "resources/gene_annotation.bed",
-    log:
-        "logs/plot_coverage/transform_gene_regions.log",
-    script:
-        "../scripts/transform_gene_regions.py"
