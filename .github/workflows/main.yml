@@ -45,7 +45,7 @@ jobs:
     - name: update apt
       run: sudo apt-get update
     - name: Free Disk Space (Ubuntu)
-      uses: jlumbroso/free-disk-space@v1.2.0
+      uses: jlumbroso/free-disk-space@v1.3.0
       with:
         # this might remove tools that are actually needed,
         # if set to "true" but frees about 6 GB
@@ -57,7 +57,7 @@ jobs:
         dotnet: true
         haskell: true
         large-packages: true
-        docker-images: true
+        docker-images: false
         swap-storage: true
     
     - uses: actions/checkout@v2
