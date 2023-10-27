@@ -30,7 +30,9 @@ rule merge_untrimmed_fastqs:
 
 rule annotate_umis:
     input:
-        bam=lambda wc: "results/mapped/{}.{}.bam".format(wc.sample, get_sample_datatype(wc.sample)),
+        bam=lambda wc: "results/mapped/{}.{}.bam".format(
+            wc.sample, get_sample_datatype(wc.sample)
+        ),
         umi=get_umi_fastq,
     output:
         temp("results/mapped/{sample}.annotated.bam"),
