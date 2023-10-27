@@ -31,7 +31,7 @@ if bool(group_regions):
     df = pd.DataFrame.from_dict(group_regions).T
     df.index.names = ("chromosome", "gene")
     df.reset_index(inplace=True)
-    df = add_missing_columns(samples)
+    df = add_missing_columns(df, samples)
 else:
     df = pd.DataFrame(columns=["chromosome", "gene"] + samples)
 
