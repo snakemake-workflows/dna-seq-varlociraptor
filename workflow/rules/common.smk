@@ -3,10 +3,7 @@ from os import path
 
 import yaml
 import pandas as pd
-from snakemake.remote import FTP
 from snakemake.utils import validate
-
-ftp = FTP.RemoteProvider()
 
 validate(config, schema="../schemas/config.schema.yaml")
 
@@ -69,6 +66,7 @@ def get_datatype_groups(datatype):
 
 
 groups = samples["group"].unique()
+datatypes = samples["datatype"].unique()
 variants_groups = get_datatype_groups("variants")
 fusions_groups = get_datatype_groups("fusions")
 
@@ -131,7 +129,7 @@ def get_final_output(wildcards):
         "results/qc/multiqc/{group}.html",
         group=groups,
     )
-    for datatype in ["variants", "fusions"]:
+    for datatype in datatypes:
         if config["report"]["activate"]:
             final_output.extend(
                 expand(
@@ -226,7 +224,7 @@ def get_sample_bam(wildcards, bai=False):
     ext = "bai" if bai else "bam"
     datatype = get_sample_datatype(wildcards.sample)
     if datatype == "variants":
-        return "results/recal/{sample}.{ext}".format(wildcards.sample, ext)
+        return "results/recal/{}.{}".format(wildcards.sample, ext)
     else:
         if is_activated("calc_consensus_reads"):
             return "results/consensus/{}.{}".format(wildcards.sample, ext)
@@ -576,7 +574,6 @@ def get_scattered_calls(ext="bcf"):
             caller=caller,
             ext=ext,
         )
-
     return inner
 
 
@@ -818,11 +815,11 @@ variant_caller = list(
         [
             "freebayes"
             if is_activated("calling/freebayes")
-            and samples["datatype"].str.contains("dna").any()
+            and samples["datatype"].str.contains("variants").any()
             else None,
             "delly"
             if is_activated("calling/delly")
-            and samples["datatype"].str.contains("dna").any()
+            and samples["datatype"].str.contains("variants").any()
             else None,
         ],
     )
