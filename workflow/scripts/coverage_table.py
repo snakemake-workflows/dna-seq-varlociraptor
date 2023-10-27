@@ -1,6 +1,14 @@
 import pandas as pd
+import numpy as np
 
 sys.stderr = open(snakemake.log[0], "w")
+
+
+def add_missing_columns(df, samples):
+    missing_columns = set(samples).difference(df.columns)
+    df[list(missing_columns)] = np.nan
+    return df
+
 
 group_regions = dict()
 samples = []
@@ -23,6 +31,7 @@ if bool(group_regions):
     df = pd.DataFrame.from_dict(group_regions).T
     df.index.names = ("chromosome", "gene")
     df.reset_index(inplace=True)
+    df = add_missing_columns(samples)
 else:
     df = pd.DataFrame(columns=["chromosome", "gene"] + samples)
 
