@@ -4,7 +4,7 @@ sys.stderr = open(snakemake.log[0], "w")
 
 group_regions = dict()
 samples = []
-for bed in [snakemake.input[0]]:
+for bed in snakemake.input:
     sample = bed.split("/")[-1].split(".")[0]
     samples.append(sample)
     with open(bed, "r") as covered_regions:
