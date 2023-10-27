@@ -370,8 +370,10 @@ def get_group_sample_aliases(wildcards, controls=True):
         (samples["group"] == wildcards.group) & (samples["control"] == "no")
     ]["alias"]
 
+
 def get_sample_datatype(sample):
     return samples.loc[samples["sample_name"] == sample]["datatype"].iloc[0]
+
 
 def get_markduplicates_input(wildcards):
     datatype = get_sample_datatype(wildcards.sample)
@@ -379,6 +381,7 @@ def get_markduplicates_input(wildcards):
         return "results/mapped/{sample}.annotated.bam"
     else:
         return "results/mapped/{}.{}.bam".format(wildcards.sample, datatype)
+
 
 def get_consensus_input(wildcards):
     datatype = get_sample_datatype(wildcards.sample)
@@ -574,6 +577,7 @@ def get_scattered_calls(ext="bcf"):
             caller=caller,
             ext=ext,
         )
+
     return inner
 
 
