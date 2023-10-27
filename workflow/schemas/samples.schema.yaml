@@ -35,8 +35,8 @@ properties:
   datatype:
     type: string
     enum:
-      - dna
-      - rna
+      - variants
+      - fusions
     description: datatype of sample
   primer_panel:
     type: string

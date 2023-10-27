@@ -3,7 +3,10 @@ from os import path
 
 import yaml
 import pandas as pd
+from snakemake.remote import FTP
 from snakemake.utils import validate
+
+ftp = FTP.RemoteProvider()
 
 validate(config, schema="../schemas/config.schema.yaml")
 
@@ -66,8 +69,8 @@ def get_datatype_groups(datatype):
 
 
 groups = samples["group"].unique()
-dna_groups = get_datatype_groups("dna")
-rna_groups = get_datatype_groups("rna")
+variants_groups = get_datatype_groups("variants")
+fusions_groups = get_datatype_groups("fusions")
 
 if "groups" in config:
     group_annotation = (
@@ -142,7 +145,7 @@ def get_final_output(wildcards):
             final_output.extend(
                 expand(
                     "results/final-calls/{group}.{event}.{datatype}.fdr-controlled.bcf",
-                    group=dna_groups if datatype == "variants" else rna_groups,
+                    group=variants_groups if datatype == "variants" else fusions_groups,
                     event=get_type_events(datatype),
                     datatype=datatype,
                 )
@@ -152,7 +155,7 @@ def get_final_output(wildcards):
             final_output.extend(
                 expand(
                     "results/tables/{group}.{event}.{datatype}.fdr-controlled.tsv",
-                    group=dna_groups if datatype == "variants" else rna_groups,
+                    group=variants_groups if datatype == "variants" else fusions_groups,
                     event=get_type_events(datatype),
                     datatype=datatype,
                 )
@@ -161,7 +164,9 @@ def get_final_output(wildcards):
                 final_output.extend(
                     expand(
                         "results/tables/{group}.{event}.{datatype}.fdr-controlled.xlsx",
-                        group=dna_groups if datatype == "variants" else rna_groups,
+                        group=variants_groups
+                        if datatype == "variants"
+                        else fusions_groups,
                         event=get_type_events(datatype),
                         datatype=datatype,
                     )
@@ -214,7 +219,25 @@ def get_recalibrate_quality_input(wildcards, bai=False):
     elif is_activated("remove_duplicates"):
         return "results/dedup/{}.{}".format(wildcards.sample, ext)
     else:
-        return "results/mapped/{}.{}".format(wildcards.sample, ext)
+        return "results/mapped/{}.variants.{}".format(wildcards.sample, ext)
+
+
+def get_sample_bam(wildcards, bai=False):
+    ext = "bai" if bai else "bam"
+    datatype = get_sample_datatype(wildcards.sample)
+    if datatype == "variants":
+        return "results/recal/{sample}.{ext}".format(wildcards.sample, ext)
+    else:
+        if is_activated("calc_consensus_reads"):
+            return "results/consensus/{}.{}".format(wildcards.sample, ext)
+        elif is_activated("primers/trimming"):
+            return "results/trimmed/{sample}.trimmed.{ext}".format(
+                sample=wildcards.sample, ext=ext
+            )
+        elif is_activated("remove_duplicates"):
+            return "results/dedup/{}.{}".format(wildcards.sample, ext)
+        else:
+            return "results/mapped/{}.fusions.{}".format(wildcards.sample, ext)
 
 
 def get_cutadapt_input(wildcards):
@@ -349,21 +372,32 @@ def get_group_sample_aliases(wildcards, controls=True):
         (samples["group"] == wildcards.group) & (samples["control"] == "no")
     ]["alias"]
 
+def get_sample_datatype(sample):
+    return samples.loc[samples["sample_name"] == sample]["datatype"].iloc[0]
+
+def get_markduplicates_input(wildcards):
+    datatype = get_sample_datatype(wildcards.sample)
+    if sample_has_umis(wildcards.sample):
+        return "results/mapped/{sample}.annotated.bam"
+    else:
+        return "results/mapped/{}.{}.bam".format(wildcards.sample, datatype)
 
 def get_consensus_input(wildcards):
+    datatype = get_sample_datatype(wildcards.sample)
     if is_activated("primers/trimming"):
         return "results/trimmed/{}.trimmed.bam".format(wildcards.sample)
     elif is_activated("remove_duplicates"):
         return "results/dedup/{}.bam".format(wildcards.sample)
     else:
-        return "results/mapped/{}.bam".format(wildcards.sample)
+        return "results/mapped/{}.{}.bam".format(wildcards.sample, datatype)
 
 
 def get_trimming_input(wildcards):
+    datatype = get_sample_datatype(wildcards.sample)
     if is_activated("remove_duplicates"):
         return "results/dedup/{}.bam".format(wildcards.sample)
     else:
-        return "results/mapped/{}.bam".format(wildcards.sample)
+        return "results/mapped/{}.{}.bam".format(wildcards.sample, datatype)
 
 
 def get_primer_bed(wc):
@@ -440,21 +474,6 @@ def get_markduplicates_extra(wc):
         d = ""
 
     return f"{c} {b} {d}"
-
-
-def get_sample_bam(wildcards, bai=False):
-    ext = "bai" if bai else "bam"
-    datatype = samples.loc[samples["sample_name"] == wildcards.sample]["datatype"].iloc[
-        0
-    ]
-    if datatype == "rna":
-        return "results/mapped_arriba/{sample}.{ext}".format(
-            sample=wildcards.sample, ext=ext
-        )
-    elif datatype == "dna":
-        return "results/recal/{sample}.{ext}".format(sample=wildcards.sample, ext=ext)
-    else:
-        WorkflowError("Unsupported datatype. Only rna or dna samples allowed.")
 
 
 def get_group_bams(wildcards, bai=False):
@@ -537,7 +556,7 @@ def get_read_group(wildcards):
 def get_mutational_burden_targets():
     mutational_burden_targets = []
     if is_activated("mutational_burden"):
-        for group in dna_groups:
+        for group in variants_groups:
             mutational_burden_targets.extend(
                 expand(
                     "results/plots/mutational-burden/{group}.{alias}.{mode}.mutational-burden.svg",
@@ -604,7 +623,7 @@ def get_candidate_calls():
 
 def get_report_batch(wildcards, datatype):
     if wildcards.batch == "all":
-        _groups = dna_groups if datatype == "variants" else rna_groups
+        _groups = variants_groups if datatype == "variants" else fusions_groups
     else:
         _groups = samples.loc[
             samples[config["report"]["stratify"]["by-column"]] == wildcards.batch,

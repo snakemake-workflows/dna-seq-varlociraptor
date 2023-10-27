@@ -3,7 +3,7 @@ rule map_reads:
         reads=get_map_reads_input,
         idx=rules.bwa_index.output,
     output:
-        temp("results/mapped/{sample}.bam"),
+        temp("results/mapped/{sample}.variants.bam"),
     log:
         "logs/bwa_mem/{sample}.log",
     params:
@@ -30,7 +30,7 @@ rule merge_untrimmed_fastqs:
 
 rule annotate_umis:
     input:
-        bam="results/mapped/{sample}.bam",
+        bam=lambda wc: "results/mapped/{}.{}.bam".format(wc.sample, get_sample_datatype(wc.sample)),
         umi=get_umi_fastq,
     output:
         temp("results/mapped/{sample}.annotated.bam"),
@@ -46,9 +46,7 @@ rule annotate_umis:
 
 rule mark_duplicates:
     input:
-        bams=lambda wc: "results/mapped/{sample}.annotated.bam"
-        if sample_has_umis(wc.sample)
-        else "results/mapped/{sample}.bam",
+        bams=get_markduplicates_input,
     output:
         bam=temp("results/dedup/{sample}.bam"),
         metrics="results/qc/dedup/{sample}.metrics.txt",
