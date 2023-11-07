@@ -65,7 +65,7 @@ rule render_datavzrd_config:
         data_short_observations=workflow.source_path(
             "../resources/datavzrd/data_short_observations.js"
         ),
-        varsome_url=get_varsome_url(),
+        build=config["ref"]["build"],
         samples=samples,
         group_annotations=group_annotation,
         labels=get_heterogeneous_labels(),
