@@ -129,6 +129,11 @@ def get_final_output(wildcards):
         "results/qc/multiqc/{group}.html",
         group=groups,
     )
+
+    final_output.extend(
+        expand("results/datavzrd-report/{group}.coverage", group=groups)
+    )
+
     for datatype in datatypes:
         if config["report"]["activate"]:
             final_output.extend(
@@ -1039,14 +1044,6 @@ def get_datavzrd_data(impact="coding"):
         )
 
     return inner
-
-
-def get_varsome_url():
-    if config["ref"]["species"] == "homo_sapiens":
-        build = "hg38" if config["ref"]["build"] == "GRCh38" else "hg19"
-        return f"https://varsome.com/variant/{build}/chr"
-    else:
-        return None
 
 
 def get_oncoprint_input(wildcards):

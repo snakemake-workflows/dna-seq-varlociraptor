@@ -1,5 +1,18 @@
 # Changelog
 
+## [5.1.0](https://github.com/snakemake-workflows/dna-seq-varlociraptor/compare/v5.0.2...v5.1.0) (2023-11-10)
+
+
+### Features
+
+* gene coverage report ([#270](https://github.com/snakemake-workflows/dna-seq-varlociraptor/issues/270)) ([19ee0eb](https://github.com/snakemake-workflows/dna-seq-varlociraptor/commit/19ee0eb9fbdb8c1adbb131c649c8c432fcdb8a9e))
+* genomenexus link ([#271](https://github.com/snakemake-workflows/dna-seq-varlociraptor/issues/271)) ([16c4a50](https://github.com/snakemake-workflows/dna-seq-varlociraptor/commit/16c4a504b2f17ba1cda13142f6d9896bbe4a603f))
+
+
+### Bug Fixes
+
+* update fastqc wrapper to `v1.10.0` to include memory parsing fix ([#272](https://github.com/snakemake-workflows/dna-seq-varlociraptor/issues/272)) ([ed8b391](https://github.com/snakemake-workflows/dna-seq-varlociraptor/commit/ed8b391419e09fee69929eaf7fac63835683dcdf))
+
 ## [5.0.2](https://github.com/snakemake-workflows/dna-seq-varlociraptor/compare/v5.0.1...v5.0.2) (2023-10-09)
 
 
