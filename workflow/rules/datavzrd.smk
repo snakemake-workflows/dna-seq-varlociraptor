@@ -145,7 +145,7 @@ rule datavzrd_variants_calls:
     log:
         "logs/datavzrd_report/{batch}.{event}.log",
     wrapper:
-        "v2.6.0/utils/datavzrd"
+        "v2.13.0/utils/datavzrd"
 
 
 rule datavzrd_fusion_calls:
@@ -172,7 +172,7 @@ rule datavzrd_fusion_calls:
     log:
         "logs/datavzrd_report/{batch}.{event}.log",
     wrapper:
-        "v2.10.0/utils/datavzrd"
+        "v2.13.0/utils/datavzrd"
 
 
 rule bedtools_merge:
