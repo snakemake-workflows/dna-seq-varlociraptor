@@ -3,10 +3,7 @@ from os import path
 
 import yaml
 import pandas as pd
-from snakemake.remote import FTP
 from snakemake.utils import validate
-
-ftp = FTP.RemoteProvider()
 
 validate(config, schema="../schemas/config.schema.yaml")
 
@@ -112,6 +109,10 @@ def get_final_output(wildcards):
     final_output = expand(
         "results/qc/multiqc/{group}.html",
         group=groups,
+    )
+
+    final_output.extend(
+        expand("results/datavzrd-report/{group}.coverage", group=groups)
     )
 
     if config["report"]["activate"]:
@@ -952,14 +953,6 @@ def get_datavzrd_data(impact="coding"):
         )
 
     return inner
-
-
-def get_varsome_url():
-    if config["ref"]["species"] == "homo_sapiens":
-        build = "hg38" if config["ref"]["build"] == "GRCh38" else "hg19"
-        return f"https://varsome.com/variant/{build}/chr"
-    else:
-        return None
 
 
 def get_oncoprint_input(wildcards):

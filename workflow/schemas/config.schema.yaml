@@ -106,6 +106,12 @@ properties:
           library_length:
             type: integer
 
+  gene_coverage:
+    type: object
+    properties:
+      min_avg_coverage:
+        type: integer
+
   report:
     type: object
     activate:

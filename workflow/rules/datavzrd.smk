@@ -65,7 +65,7 @@ rule render_datavzrd_config:
         data_short_observations=workflow.source_path(
             "../resources/datavzrd/data_short_observations.js"
         ),
-        varsome_url=get_varsome_url(),
+        build=config["ref"]["build"],
         samples=samples,
         group_annotations=group_annotation,
         labels=get_heterogeneous_labels(),
@@ -101,4 +101,70 @@ rule datavzrd_variants_calls:
     log:
         "logs/datavzrd_report/{batch}.{event}.log",
     wrapper:
-        "v2.6.0/utils/datavzrd"
+        "v2.10.0/utils/datavzrd"
+
+
+rule bedtools_merge:
+    input:
+        left="results/regions/{group}/{sample}.regions.bed.gz",
+        right="results/regions/{group}.covered_regions.bed",
+    output:
+        "results/coverage/{group}/{sample}.regions.filtered.bed",
+    params:
+        ## Add optional parameters
+        extra="-wa",
+    log:
+        "logs/bedtools/{group}/{sample}.log",
+    wrapper:
+        "v2.6.0/bio/bedtools/intersect"
+
+
+rule coverage_table:
+    input:
+        lambda wc: expand(
+            "results/coverage/{{group}}/{sample}.regions.filtered.bed",
+            sample=get_group_samples(wc.group),
+        ),
+    output:
+        "results/coverage/{group}.csv",
+    params:
+        min_cov=config["gene_coverage"].get("min_avg_coverage", 0),
+    conda:
+        "../envs/pandas.yaml"
+    log:
+        "logs/coverage/{group}_coverage_table.log",
+    script:
+        "../scripts/coverage_table.py"
+
+
+rule render_datavzrd_gene_coverage_template:
+    input:
+        template=workflow.source_path(
+            "../resources/datavzrd/gene-coverage-template.datavzrd.yaml"
+        ),
+        csv="results/coverage/{group}.csv",
+    output:
+        "resources/datavzrd/{group}.coverage.yaml",
+    params:
+        samples=lambda wc: get_group_samples(wc.group),
+    log:
+        "logs/datavzrd_render/{group}.coverage.log",
+    template_engine:
+        "yte"
+
+
+rule datavzrd_coverage:
+    input:
+        csv="results/coverage/{group}.csv",
+        config="resources/datavzrd/{group}.coverage.yaml",
+    output:
+        report(
+            directory("results/datavzrd-report/{group}.coverage"),
+            htmlindex="index.html",
+            category="Mean read depth per gene",
+            labels=lambda wc: {"Group": wc.group},
+        ),
+    log:
+        "logs/datavzrd_report/{group}.coverage.log",
+    wrapper:
+        "v2.10.0/utils/datavzrd"
