@@ -189,7 +189,7 @@ def get_recalibrate_quality_input(wildcards, bai=False):
     elif is_activated("remove_duplicates"):
         return "results/dedup/{}.{}".format(wildcards.sample, ext)
     else:
-        return "results/mapped/{}.{}".format(wildcards.sample, ext)
+        return get_mapped_input(wildcards.sample, bai)
 
 
 def get_cutadapt_input(wildcards):
@@ -319,14 +319,14 @@ def get_consensus_input(wildcards):
     elif is_activated("remove_duplicates"):
         return "results/dedup/{}.bam".format(wildcards.sample)
     else:
-        return "results/mapped/{}.bam".format(wildcards.sample)
+        return get_mapped_input(wildcards.sample)
 
 
 def get_trimming_input(wildcards):
     if is_activated("remove_duplicates"):
         return "results/dedup/{}.bam".format(wildcards.sample)
     else:
-        return "results/mapped/{}.bam".format(wildcards.sample)
+        return get_mapped_input(wildcards.sample)
 
 
 def get_primer_bed(wc):
@@ -1057,3 +1057,10 @@ def get_delly_excluded_regions():
         )
     else:
         return []
+
+def get_mapped_input(wildcards, bai=False):
+    ext = "bai" if bai else "bam"
+    if is_activated("ref/pangenome"):
+        return "results/vg_mapped/{}.{}".format(wildcards.sample, ext)
+    else:
+        return "results/mapped/{}.{}".format(wildcards.sample, ext)

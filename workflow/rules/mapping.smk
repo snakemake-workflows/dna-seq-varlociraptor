@@ -30,7 +30,7 @@ rule merge_untrimmed_fastqs:
 
 rule annotate_umis:
     input:
-        bam="results/mapped/{sample}.bam",
+        bam=get_mapped_input,
         umi=get_umi_fastq,
     output:
         temp("results/mapped/{sample}.annotated.bam"),
@@ -48,7 +48,7 @@ rule mark_duplicates:
     input:
         bams=lambda wc: "results/mapped/{sample}.annotated.bam"
         if sample_has_umis(wc.sample)
-        else "results/mapped/{sample}.bam",
+        else get_mapped_input(wc),
     output:
         bam=temp("results/dedup/{sample}.bam"),
         metrics="results/qc/dedup/{sample}.metrics.txt",
@@ -169,3 +169,22 @@ rule apply_bqsr:
         java_opts="",  # optional
     wrapper:
         "v2.3.2/bio/gatk/applybqsr"
+
+# optional: map reads to the pangenome with vg giraffe
+rule map_reads_vg_giraffe:
+    input:
+        reads = get_map_reads_input,
+        idx = "resources/pangenome/hprc-v1.0-mc-grch38.xg"
+    output:
+        "results/vg_mapped/{sample}.bam"
+    log:
+        "logs/vg_mapped/{sample}.log"
+    benchmark:    
+        "benchmarks/vg_giraffe/{sample}.tsv"
+    conda:
+        "../envs/vg.yaml"
+    threads: 40
+    params:
+        lambda wc: " ".join(["-f {}".format(read) for read in get_map_reads_input(wc)])
+    shell:
+        "vg giraffe -x {input.idx} {params} --output-format BAM -t {threads}  > {output} 2> {log}"

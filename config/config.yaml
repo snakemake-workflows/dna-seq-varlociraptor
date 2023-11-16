@@ -25,10 +25,13 @@ ref:
   release: 110
   # Genome build
   build: GRCh38
+  # Pangenome alignment with vg instead of linear alignment with bwa is performed.
+  pangenome: 
+    activate: True
   # Optionally, instead of downloading the whole reference from Ensembl via the
   # parameters above, specify a specific chromosome below and uncomment the line.
   # This is usually only relevant for testing.
-  # chromosome: 21
+  chromosome: 21
 
 primers:
   trimming:

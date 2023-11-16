@@ -148,3 +148,16 @@ rule get_vep_plugins:
         "logs/vep/plugins.log",
     wrapper:
         "v2.3.2/bio/vep/plugins"
+
+# github link to the vg index for "xg" extension with the corresponding commit ID:
+# https://github.com/human-pangenomics/hpp_pangenome_resources/tree/201b532d11e8ba75a97db5005b98a780f42feeb6
+
+rule get_vg_pangenome:
+    output:
+        "resources/pangenome/hprc-v1.0-mc-grch38.xg"
+    params:
+        link="https://s3-us-west-2.amazonaws.com/human-pangenomics/pangenomes/freeze/freeze1/minigraph-cactus/hprc-v1.0-mc-grch38.xg"
+    log:
+        "logs/pangenome/get_reference.log"
+    shell:
+        "curl -o {output} {params} 2> {log}"
