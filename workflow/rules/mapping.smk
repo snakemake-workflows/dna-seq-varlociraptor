@@ -188,3 +188,14 @@ rule map_reads_vg_giraffe:
         lambda wc, input: " -f ".join(input.reads),  # potential issue: in case of single end reads, get map_reads_input() returns a string and join() could create a problem.
     shell:
         "vg giraffe -x {input.idx} -f {params} --output-format BAM -t {threads}  > {output} 2> {log}"
+
+rule sort_vg_mapped:
+    input:
+        "results/vg_mapped/{sample}.bam",
+    output:
+        "results/vg_mapped/{sample}_sorted.bam",
+    log:
+        "logs/samtools_sort_vg/{sample}.log",
+    threads: 8
+    wrapper:
+        "v2.3.2/bio/samtools/sort"
