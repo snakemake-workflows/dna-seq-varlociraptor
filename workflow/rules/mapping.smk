@@ -185,6 +185,6 @@ rule map_reads_vg_giraffe:
         "../envs/vg.yaml"
     threads: 40
     params:
-        lambda wc: " ".join(["-f {}".format(read) for read in get_map_reads_input(wc)])
+        lambda wc: " ".join(["-f {}{}".format("results/merged/",wc.sample) for read in get_map_reads_input(wc)]) #lambda function def. requires a rewrite
     shell:
         "vg giraffe -x {input.idx} {params} --output-format BAM -t {threads}  > {output} 2> {log}"
