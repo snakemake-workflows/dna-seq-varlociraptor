@@ -170,21 +170,21 @@ rule apply_bqsr:
     wrapper:
         "v2.3.2/bio/gatk/applybqsr"
 
-# optional: map reads to the pangenome with vg giraffe
+
 rule map_reads_vg_giraffe:
     input:
-        reads = get_map_reads_input,
-        idx = "resources/pangenome/hprc-v1.0-mc-grch38.xg"
+        reads=get_map_reads_input,
+        idx="resources/pangenome/hprc-v1.0-mc-grch38.xg",
     output:
-        "results/vg_mapped/{sample}.bam"
+        "results/vg_mapped/{sample}.bam",
     log:
-        "logs/vg_mapped/{sample}.log"
-    benchmark:    
+        "logs/vg_mapped/{sample}.log",
+    benchmark:
         "benchmarks/vg_giraffe/{sample}.tsv"
     conda:
         "../envs/vg.yaml"
     threads: 40
     params:
-        lambda wc: " ".join(["-f {}{}".format("results/merged/",wc.sample) for read in get_map_reads_input(wc)]) #lambda function def. requires a rewrite
+        lambda wc, input: " -f ".join(input.reads),  # potential issue: in case of single end reads, get map_reads_input() returns a string and join() could create a problem.
     shell:
-        "vg giraffe -x {input.idx} {params} --output-format BAM -t {threads}  > {output} 2> {log}"
+        "vg giraffe -x {input.idx} -f {params} --output-format BAM -t {threads}  > {output} 2> {log}"
