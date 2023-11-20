@@ -219,15 +219,32 @@ rule reheader:
         "samtools view -H {input} | sed 's/GRCh38.chr//g' | samtools reheader - {input} > {output} 2> {log}"
 
 
-rule samtools_index_after_reheader:
+#adding read groups is necessary because base recalibration throws errors 
+#for not being able to find read group information
+
+rule add_rg:
     input:
         "results/vg_mapped/{sample}_reheadered.bam",
     output:
-        "results/vg_mapped/{sample}_reheadered.bai",
+        "results/vg_mapped/{sample}_rg_added.bam",
     log:
-        "logs/samtools_index_after_reheader/{sample}.log",
+        "logs/picard/add_rg/{sample}.log",
+    params:
+        extra="--RGLB lib1 --RGPL illumina --RGPU {sample} --RGSM {sample}",
+    resources:
+        mem_mb=60000,
+    wrapper:
+        "v2.3.2/bio/picard/addorreplacereadgroups"
+
+rule samtools_index_after_reheader:
+    input:
+        "results/vg_mapped/{sample}_rg_added.bam",
+    output:
+        "results/vg_mapped/{sample}_rg_added.bai",
+    log:
+        "logs/samtools_index_vg/{sample}.log",
     benchmark:
-        "benchmarks/samtools_index_after_reheader/{sample}.tsv"
+        "benchmarks/samtools_index_vg/{sample}.tsv"
     threads: 40
     wrapper:
         "v2.3.2/bio/samtools/index"
