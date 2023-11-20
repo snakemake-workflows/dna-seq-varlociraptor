@@ -375,12 +375,6 @@ def get_panel_primer_input(panel):
         return panel["fa1"]
 
 
-def input_is_fasta(primers):
-    primers = primers[0] if isinstance(primers, list) else primers
-    fasta_suffixes = ("fasta", "fa")
-    return True if primers.endswith(fasta_suffixes) else False
-
-
 def get_primer_regions(wc):
     if isinstance(primer_panels, pd.DataFrame):
         return "results/primers/{}_primer_regions.tsv".format(
@@ -916,12 +910,6 @@ def get_dgidb_datasources():
     return ""
 
 
-def get_bowtie_insertsize():
-    if config["primers"]["trimming"].get("library_length", 0) != 0:
-        return "-X {}".format(config["primers"]["trimming"].get("library_length"))
-    return ""
-
-
 def get_filter_params(wc):
     if isinstance(get_panel_primer_input(wc.panel), list):
         return "-b -f 2"
@@ -932,12 +920,6 @@ def get_single_primer_flag(wc):
     if not isinstance(get_sample_primer_fastas(wc.sample), list):
         return "--first-of-pair"
     return ""
-
-
-def format_bowtie_primers(wc, primers):
-    if isinstance(primers, list):
-        return "-1 {r1} -2 {r2}".format(r1=primers[0], r2=primers[1])
-    return primers
 
 
 def get_datavzrd_data(impact="coding"):

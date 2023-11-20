@@ -233,11 +233,13 @@ views:
                   - "#ff5555"
           "regex('.+: allele frequency')":
             plot: 
-              ticks:
+              heatmap:
                 scale: "linear"
-                domain: [0.0, 1.0]
-                aux-domain-columns:
-                  - "regex('.+: allele frequency')"
+                domain: [0.0, 0.05, 1.0]
+                range:
+                  - white
+                  - "#d3e9f8"
+                  - "#1f77b4"
           "regex('.+: read depth')":
             plot: 
               ticks:
@@ -252,6 +254,16 @@ views:
                 range:
                   - white
                   - "#1f77b4"
+          "gnomad genome af":
+            optional: true
+            plot: 
+              heatmap:
+                scale: "linear"
+                domain: [0.0, 0.01, 1.0]
+                range:
+                  - white
+                  - "#adebad"
+                  - "#29a329"
           gene:
             display-mode: hidden
           feature:
@@ -329,11 +341,13 @@ views:
                   - "#ecca00"
           "regex('.+: allele frequency')":
             plot: 
-              ticks:
+              heatmap:
                 scale: "linear"
-                domain: [0.0, 1.0]
-                aux-domain-columns:
-                  - "regex('.+: allele frequency')"
+                domain: [0.0, 0.05, 1.0]
+                range:
+                  - white
+                  - "#d3e9f8"
+                  - "#1f77b4"
           "regex('.+: read depth')":
             plot: 
               ticks:
@@ -348,6 +362,16 @@ views:
                 range:
                   - white
                   - "#1f77b4"
+          "gnomad genome af":
+            optional: true
+            plot: 
+              heatmap:
+                scale: "linear"
+                domain: [0.0, 0.01, 1.0]
+                range:
+                  - white
+                  - "#adebad"
+                  - "#29a329"
           id:
             optional: true
             display-mode: hidden
