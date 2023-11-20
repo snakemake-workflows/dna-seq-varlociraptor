@@ -1062,6 +1062,6 @@ def get_delly_excluded_regions():
 def get_mapped_input(wildcards, bai=False):
     ext = "bai" if bai else "bam"
     if is_activated("ref/pangenome"):
-        return "results/vg_mapped/{}_sorted.{}".format(wildcards.sample, ext)
+        return "results/vg_mapped/{}_reheadered.{}".format(wildcards.sample, ext)
     else:
         return "results/mapped/{}.{}".format(wildcards.sample, ext)

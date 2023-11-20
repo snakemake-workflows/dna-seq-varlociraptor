@@ -189,6 +189,7 @@ rule map_reads_vg_giraffe:
     shell:
         "vg giraffe -x {input.idx} -f {params} --output-format BAM -t {threads}  > {output} 2> {log}"
 
+
 rule sort_vg_mapped:
     input:
         "results/vg_mapped/{sample}.bam",
@@ -199,3 +200,34 @@ rule sort_vg_mapped:
     threads: 8
     wrapper:
         "v2.3.2/bio/samtools/sort"
+
+
+# modify the header for chromosome names to be compatible with the reference genome that are acquired from ensembl
+rule reheader:
+    input:
+        "results/vg_mapped/{sample}_sorted.bam",
+    output:
+        "results/vg_mapped/{sample}_reheadered.bam",
+    log:
+        "logs/samtools_reheader/{sample}.log",
+    benchmark:
+        "benchmarks/samtools_reheader/{sample}.tsv"
+    conda:
+        "../envs/samtools.yaml"
+    threads: 40
+    shell:
+        "samtools view -H {input} | sed 's/GRCh38.chr//g' | samtools reheader - {input} > {output} 2> {log}"
+
+
+rule samtools_index_after_reheader:
+    input:
+        "results/vg_mapped/{sample}_reheadered.bam",
+    output:
+        "results/vg_mapped/{sample}_reheadered.bai",
+    log:
+        "logs/samtools_index_after_reheader/{sample}.log",
+    benchmark:
+        "benchmarks/samtools_index_after_reheader/{sample}.tsv"
+    threads: 40
+    wrapper:
+        "v2.3.2/bio/samtools/index"
