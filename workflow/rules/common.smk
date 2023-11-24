@@ -233,11 +233,14 @@ def get_raw_reads(sample, unit, fq):
         fq = fq[len("fq") :]
         return get_sra_reads(sample, unit, fq)
 
-    if len(pattern) > 1:
+    if type(pattern) is not str and len(pattern) > 1:
         raise ValueError(
             f"Multiple units.tsv entries found for sample '{sample}' and "
-            f"unit '{unit}'. The units.tsv should contain only one entry "
-            "for each combination of sample and unit"
+            f"unit '{unit}'.\n"
+            "The units.tsv should contain only one entry for each combination "
+            "of sample and unit.\n"
+            "Found:\n"
+            f"{pattern}"
         )
 
     if "*" in pattern:
