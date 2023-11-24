@@ -227,7 +227,7 @@ def get_sra_reads(sample, unit, fq):
 
 def get_raw_reads(sample, unit, fq):
     pattern = units.loc[sample].loc[unit, fq]
-    
+
     if pd.isna(pattern):
         assert fq.startswith("fq")
         fq = fq[len("fq") :]
