@@ -227,10 +227,18 @@ def get_sra_reads(sample, unit, fq):
 
 def get_raw_reads(sample, unit, fq):
     pattern = units.loc[sample].loc[unit, fq]
+    
     if pd.isna(pattern):
         assert fq.startswith("fq")
         fq = fq[len("fq") :]
         return get_sra_reads(sample, unit, fq)
+
+    if len(pattern) > 1:
+        raise ValueError(
+            f"Multiple units.tsv entries found for sample '{sample}' and "
+            f"unit '{unit}'. The units.tsv should contain only one entry "
+            "for each combination of sample and unit"
+        )
 
     if "*" in pattern:
         files = sorted(glob.glob(units.loc[sample].loc[unit, fq]))
