@@ -367,8 +367,7 @@ def extract_unique_sample_column_value(sample, col_name):
             )
         else:
             result = result.squeeze()
-    else:
-        return result
+    return result
 
 
 def get_sample_primer_fastas(sample):
