@@ -354,7 +354,7 @@ def get_primer_bed(wc):
 
 
 def extract_unique_sample_column_value(sample, col_name):
-    result = samples.loc[samples["sample"] == sample, col_name].drop_duplicates()
+    result = samples.loc[samples["sample_name"] == sample, col_name].drop_duplicates()
     if type(result) is not str:
         if len(result) > 1:
             ValueError(
