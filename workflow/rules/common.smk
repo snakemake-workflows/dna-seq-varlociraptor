@@ -367,7 +367,8 @@ def extract_unique_sample_column_value(sample, col_name):
             )
         else:
             result = result.squeeze()
-    else return result
+    else:
+        return result
 
 
 def get_sample_primer_fastas(sample):
@@ -927,13 +928,13 @@ def get_umi_fastq(wildcards):
 
 
 def sample_has_umis(sample):
-    return pd.notna(
-        extract_unique_sample_column_value(sample, "umi_read")
-    )
+    return pd.notna(extract_unique_sample_column_value(sample, "umi_read"))
 
 
 def get_umi_read_structure(wildcards):
-    return "-r {}".format(extract_unique_sample_column_value(wildcards.sample, "umi_read_structure"))
+    return "-r {}".format(
+        extract_unique_sample_column_value(wildcards.sample, "umi_read_structure")
+    )
 
 
 def get_dgidb_datasources():
