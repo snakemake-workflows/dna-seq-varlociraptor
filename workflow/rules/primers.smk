@@ -53,7 +53,7 @@ rule map_primers:
     log:
         "logs/bwa_mem/{panel}.log",
     params:
-        extra=lambda wc, input: rf"-R '@RG\tID:{wc.panel}\tSM:{wc.panel}' -L 100 -T {get_shortest_primer_length(input.reads)}",
+        extra=lambda wc, input: get_primer_extra(wc, input),
         sorting="none",  # Can be 'none', 'samtools' or 'picard'.
         sort_order="queryname",  # Can be 'queryname' or 'coordinate'.
         sort_extra="",  # Extra args for samtools/picard.
