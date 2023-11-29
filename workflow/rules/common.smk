@@ -953,7 +953,7 @@ def get_shortest_primer_length(primers):
 
 
 def get_primer_extra(wc, input):
-    extra = fr"-R '@RG\tID:{wc.panel}\tSM:{wc.panel}' -L 100"
+    extra = rf"-R '@RG\tID:{wc.panel}\tSM:{wc.panel}' -L 100"
     min_primer_len = get_shortest_primer_length(input.reads)
     # Check if shortest primer is below default values
     if min_primer_len < 32:
