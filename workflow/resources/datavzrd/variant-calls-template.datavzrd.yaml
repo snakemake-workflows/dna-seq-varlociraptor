@@ -224,7 +224,7 @@ views:
                 scale: ordinal
           revel:
             optional: true
-            plot: 
+            plot:
               heatmap:
                 scale: "linear"
                 domain: [0.0, 1.0]
@@ -232,7 +232,7 @@ views:
                   - white
                   - "#ff5555"
           "regex('.+: allele frequency')":
-            plot: 
+            plot:
               heatmap:
                 scale: "linear"
                 domain: [0.0, 0.05, 1.0]
@@ -241,7 +241,7 @@ views:
                   - "#d3e9f8"
                   - "#1f77b4"
           "regex('.+: read depth')":
-            plot: 
+            plot:
               ticks:
                 scale: "linear"
                 aux-domain-columns:
@@ -256,7 +256,7 @@ views:
                   - "#1f77b4"
           "gnomad genome af":
             optional: true
-            plot: 
+            plot:
               heatmap:
                 scale: "linear"
                 domain: [0.0, 0.01, 1.0]
@@ -340,7 +340,7 @@ views:
                   - "#ec9b00"
                   - "#ecca00"
           "regex('.+: allele frequency')":
-            plot: 
+            plot:
               heatmap:
                 scale: "linear"
                 domain: [0.0, 0.05, 1.0]
@@ -349,7 +349,7 @@ views:
                   - "#d3e9f8"
                   - "#1f77b4"
           "regex('.+: read depth')":
-            plot: 
+            plot:
               ticks:
                 scale: "linear"
                 aux-domain-columns:
@@ -364,7 +364,7 @@ views:
                   - "#1f77b4"
           "gnomad genome af":
             optional: true
-            plot: 
+            plot:
               heatmap:
                 scale: "linear"
                 domain: [0.0, 0.01, 1.0]

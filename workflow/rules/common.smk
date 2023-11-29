@@ -1022,7 +1022,9 @@ def get_shortest_primer_length(primers):
     min_length = 32
     for primer_file in primers:
         with open(primer_file, 'r') as p:
-            min_primer = min([len(p.strip()) for i, p in enumerate(p.readlines()) if i % 2 == 1])
+            min_primer = min(
+                [len(p.strip()) for i, p in enumerate(p.readlines()) if i % 2 == 1]
+            )
             min_length = min(min_length, min_primer)
     return min_length - 2
 
