@@ -44,23 +44,6 @@ rule trim_primers:
         "fgbio TrimPrimers -H -i {input.bam} -p {input.primers} -s {params.sort_order} {params.single_primer} -o {output.trimmed} &> {log}"
 
 
-rule bowtie_build:
-    input:
-        genome,
-    output:
-        directory("resources/bowtie_build/"),
-    params:
-        prefix=f"resources/bowtie_build/{genome_name}",
-    log:
-        "logs/bowtie/build.log",
-    conda:
-        "../envs/bowtie.yaml"
-    cache: True
-    shell:
-        "mkdir {output} & "
-        "bowtie-build {input} {params.prefix} &> {log}"
-
-
 rule map_primers:
     input:
         reads=lambda wc: get_panel_primer_input(wc.panel),
