@@ -944,7 +944,7 @@ def get_shortest_primer_length(primers):
     # set to 32 to match bwa-mem default value considering offset of 2
     min_length = 32
     for primer_file in primers:
-        with open(primer_file, 'r') as p:
+        with open(primer_file, "r") as p:
             min_primer = min(
                 [len(p.strip()) for i, p in enumerate(p.readlines()) if i % 2 == 1]
             )
