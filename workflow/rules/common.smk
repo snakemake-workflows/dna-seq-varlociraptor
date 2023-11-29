@@ -21,11 +21,11 @@ if not "mutational_burden_events" in samples.columns:
     samples["mutational_burden_events"] = pd.NA
 
 # construct genome name
-datatype = "dna"
+datatype_genome = "dna"
 species = config["ref"]["species"]
 build = config["ref"]["build"]
 release = config["ref"]["release"]
-genome_name = f"genome.{datatype}.{species}.{build}.{release}"
+genome_name = f"genome.{datatype_genome}.{species}.{build}.{release}"
 genome_prefix = f"resources/{genome_name}"
 genome = f"{genome_prefix}.fasta"
 genome_fai = f"{genome}.fai"
@@ -58,7 +58,17 @@ if "umi_read" not in samples.columns:
 validate(samples, schema="../schemas/samples.schema.yaml")
 
 
+def get_datatype_groups(datatype):
+    return samples.loc[
+        samples["datatype"] == datatype,
+        "group",
+    ].unique()
+
+
 groups = samples["group"].unique()
+datatypes = samples["datatype"].unique()
+variants_groups = get_datatype_groups("variants")
+fusions_groups = get_datatype_groups("fusions")
 
 if "groups" in config:
     group_annotation = (
@@ -99,6 +109,15 @@ primer_panels = (
 )
 
 
+def get_type_events(datatype):
+    events = [
+        event
+        for event, entries in config["calling"]["fdr-control"]["events"].items()
+        if datatype in entries.get("types", ["variants"])
+    ]
+    return events
+
+
 def get_heterogeneous_labels():
     nunique = group_annotation.nunique()
     cols_to_drop = nunique[nunique == 1].index
@@ -115,40 +134,46 @@ def get_final_output(wildcards):
         expand("results/datavzrd-report/{group}.coverage", group=groups)
     )
 
-    if config["report"]["activate"]:
-        final_output.extend(
-            expand(
-                "results/datavzrd-report/{batch}.{event}.fdr-controlled",
-                event=config["calling"]["fdr-control"]["events"],
-                batch=get_report_batches(),
-            )
-        )
-    else:
-        final_output.extend(
-            expand(
-                "results/final-calls/{group}.{event}.fdr-controlled.bcf",
-                group=groups,
-                event=config["calling"]["fdr-control"]["events"],
-            )
-        )
-
-    if config["tables"]["activate"]:
-        final_output.extend(
-            expand(
-                "results/tables/{group}.{event}.fdr-controlled.tsv",
-                group=groups,
-                event=config["calling"]["fdr-control"]["events"],
-            )
-        )
-        if config["tables"].get("generate_excel", False):
+    for datatype in datatypes:
+        if config["report"]["activate"]:
             final_output.extend(
                 expand(
-                    "results/tables/{group}.{event}.fdr-controlled.xlsx",
-                    group=groups,
-                    event=config["calling"]["fdr-control"]["events"],
+                    "results/datavzrd-report/{batch}.{event}.{datatype}.fdr-controlled",
+                    event=get_type_events(datatype),
+                    batch=get_report_batches(),
+                    datatype=datatype,
+                )
+            )
+        else:
+            final_output.extend(
+                expand(
+                    "results/final-calls/{group}.{event}.{datatype}.fdr-controlled.bcf",
+                    group=variants_groups if datatype == "variants" else fusions_groups,
+                    event=get_type_events(datatype),
+                    datatype=datatype,
                 )
             )
 
+        if config["tables"]["activate"]:
+            final_output.extend(
+                expand(
+                    "results/tables/{group}.{event}.{datatype}.fdr-controlled.tsv",
+                    group=variants_groups if datatype == "variants" else fusions_groups,
+                    event=get_type_events(datatype),
+                    datatype=datatype,
+                )
+            )
+            if config["tables"].get("generate_excel", False):
+                final_output.extend(
+                    expand(
+                        "results/tables/{group}.{event}.{datatype}.fdr-controlled.xlsx",
+                        group=variants_groups
+                        if datatype == "variants"
+                        else fusions_groups,
+                        event=get_type_events(datatype),
+                        datatype=datatype,
+                    )
+                )
     final_output.extend(get_mutational_burden_targets())
 
     return final_output
@@ -157,9 +182,9 @@ def get_final_output(wildcards):
 def get_gather_calls_input(ext="bcf"):
     def inner(wildcards):
         if wildcards.by == "odds":
-            pattern = "results/calls/{{{{group}}}}.{{{{event}}}}.{{scatteritem}}.filtered_odds.{ext}"
+            pattern = "results/calls/{{{{group}}}}.{{{{event}}}}.{{{{analysis}}}}.{{scatteritem}}.filtered_odds.{ext}"
         elif wildcards.by == "ann":
-            pattern = "results/calls/{{{{group}}}}.{{{{event}}}}.{{scatteritem}}.filtered_ann.{ext}"
+            pattern = "results/calls/{{{{group}}}}.{{{{event}}}}.{{{{analysis}}}}.{{scatteritem}}.filtered_ann.{ext}"
         else:
             raise ValueError(
                 "Unexpected wildcard value for 'by': {}".format(wildcards.by)
@@ -171,11 +196,19 @@ def get_gather_calls_input(ext="bcf"):
 
 def get_control_fdr_input(wildcards):
     query = get_fdr_control_params(wildcards)
-    if not is_activated("benchmarking") and query["filter"]:
+    if (
+        not is_activated("benchmarking")
+        and query["filter"]
+        and wildcards.analysis == "variants"
+    ):
         by = "ann" if query["local"] else "odds"
-        return "results/calls/{{group}}.{{event}}.filtered_{by}.bcf".format(by=by)
+        return (
+            "results/calls/{{group}}.{{event}}.{{analysis}}.filtered_{by}.bcf".format(
+                by=by
+            )
+        )
     else:
-        return "results/final-calls/{group}.annotated.bcf"
+        return "results/final-calls/{group}.{analysis}.annotated.bcf"
 
 
 def get_recalibrate_quality_input(wildcards, bai=False):
@@ -189,7 +222,25 @@ def get_recalibrate_quality_input(wildcards, bai=False):
     elif is_activated("remove_duplicates"):
         return "results/dedup/{}.{}".format(wildcards.sample, ext)
     else:
-        return "results/mapped/{}.{}".format(wildcards.sample, ext)
+        return "results/mapped/{}.variants.{}".format(wildcards.sample, ext)
+
+
+def get_sample_bam(wildcards, bai=False):
+    ext = "bai" if bai else "bam"
+    datatype = get_sample_datatype(wildcards.sample)
+    if datatype == "variants":
+        return "results/recal/{}.{}".format(wildcards.sample, ext)
+    else:
+        if is_activated("calc_consensus_reads"):
+            return "results/consensus/{}.{}".format(wildcards.sample, ext)
+        elif is_activated("primers/trimming"):
+            return "results/trimmed/{sample}.trimmed.{ext}".format(
+                sample=wildcards.sample, ext=ext
+            )
+        elif is_activated("remove_duplicates"):
+            return "results/dedup/{}.{}".format(wildcards.sample, ext)
+        else:
+            return "results/mapped/{}.fusions.{}".format(wildcards.sample, ext)
 
 
 def get_cutadapt_input(wildcards):
@@ -292,6 +343,18 @@ def get_map_reads_input(wildcards):
     return "results/merged/{sample}_single.fastq.gz"
 
 
+def get_star_reads_input(wildcards, r2=False):
+    match (bool(is_paired_end(wildcards.sample)), r2):
+        case (True, False):
+            return "results/merged/{sample}_R1.fastq.gz"
+        case (True, True):
+            return "results/merged/{sample}_R2.fastq.gz"
+        case (False, False):
+            return "results/merged/{sample}_single.fastq.gz"
+        case (False, True):
+            return []
+
+
 def get_group_aliases(group):
     return samples.loc[samples["group"] == group]["alias"]
 
@@ -313,20 +376,34 @@ def get_group_sample_aliases(wildcards, controls=True):
     ]["alias"]
 
 
+def get_sample_datatype(sample):
+    return samples.loc[samples["sample_name"] == sample]["datatype"].iloc[0]
+
+
+def get_markduplicates_input(wildcards):
+    datatype = get_sample_datatype(wildcards.sample)
+    if sample_has_umis(wildcards.sample):
+        return "results/mapped/{sample}.annotated.bam"
+    else:
+        return "results/mapped/{}.{}.bam".format(wildcards.sample, datatype)
+
+
 def get_consensus_input(wildcards):
+    datatype = get_sample_datatype(wildcards.sample)
     if is_activated("primers/trimming"):
         return "results/trimmed/{}.trimmed.bam".format(wildcards.sample)
     elif is_activated("remove_duplicates"):
         return "results/dedup/{}.bam".format(wildcards.sample)
     else:
-        return "results/mapped/{}.bam".format(wildcards.sample)
+        return "results/mapped/{}.{}.bam".format(wildcards.sample, datatype)
 
 
 def get_trimming_input(wildcards):
+    datatype = get_sample_datatype(wildcards.sample)
     if is_activated("remove_duplicates"):
         return "results/dedup/{}.bam".format(wildcards.sample)
     else:
-        return "results/mapped/{}.bam".format(wildcards.sample)
+        return "results/mapped/{}.{}.bam".format(wildcards.sample, datatype)
 
 
 def get_primer_bed(wc):
@@ -375,6 +452,12 @@ def get_panel_primer_input(panel):
         return panel["fa1"]
 
 
+def input_is_fasta(primers):
+    primers = primers[0] if isinstance(primers, list) else primers
+    fasta_suffixes = ("fasta", "fa")
+    return True if primers.endswith(fasta_suffixes) else False
+
+
 def get_primer_regions(wc):
     if isinstance(primer_panels, pd.DataFrame):
         return "results/primers/{}_primer_regions.tsv".format(
@@ -410,41 +493,19 @@ def get_group_bams(wildcards, bai=False):
     )
 
 
+def get_arriba_group_candidates(wildcards, csi=False):
+    ext = ".csi" if csi else ""
+    return expand(
+        "results/candidate-calls/{sample}.arriba.bcf{ext}",
+        sample=get_group_samples(wildcards.group),
+        ext=ext,
+    )
+
+
 def get_group_bams_report(group):
     return [
         (sample, "results/recal/{}.bam".format(sample))
         for sample in get_group_samples(group)
-    ]
-
-
-def _get_batch_info(wildcards):
-    for group in get_report_batch(wildcards):
-        for sample, bam in get_group_bams_report(group):
-            yield sample, bam, group
-
-
-def get_batch_bams(wildcards):
-    return (bam for _, bam, _ in _get_batch_info(wildcards))
-
-
-def get_report_bam_params(wildcards, input):
-    return [
-        "{group}:{sample}={bam}".format(group=group, sample=sample, bam=bam)
-        for (sample, _, group), bam in zip(_get_batch_info(wildcards), input.bams)
-    ]
-
-
-def get_batch_bcfs(wildcards):
-    for group in get_report_batch(wildcards):
-        yield "results/final-calls/{group}.{event}.fdr-controlled.bcf".format(
-            group=group, event=wildcards.event
-        )
-
-
-def get_report_bcf_params(wildcards, input):
-    return [
-        "{group}={bcf}".format(group=group, bcf=bcf)
-        for group, bcf in zip(get_report_batch(wildcards), input.bcfs)
     ]
 
 
@@ -501,7 +562,7 @@ def get_read_group(wildcards):
 def get_mutational_burden_targets():
     mutational_burden_targets = []
     if is_activated("mutational_burden"):
-        for group in groups:
+        for group in variants_groups:
             mutational_burden_targets.extend(
                 expand(
                     "results/plots/mutational-burden/{group}.{alias}.{mode}.mutational-burden.svg",
@@ -515,6 +576,7 @@ def get_mutational_burden_targets():
 
 def get_scattered_calls(ext="bcf"):
     def inner(wildcards):
+        caller = "arriba" if wildcards.analysis == "fusions" else variant_caller
         return expand(
             "results/calls/{{group}}.{caller}.{{scatteritem}}.{ext}",
             caller=caller,
@@ -534,17 +596,22 @@ def get_selected_annotations():
 
 
 def get_annotated_bcf(wildcards):
-    selection = get_selected_annotations()
-    return "results/calls/{group}.{scatteritem}{selection}.bcf".format(
-        group=wildcards.group, selection=selection, scatteritem=wildcards.scatteritem
+    selection = get_selected_annotations() if wildcards.analysis == "variants" else ""
+    return "results/calls/{group}.{datatype}.{scatteritem}{selection}.bcf".format(
+        group=wildcards.group,
+        datatype=wildcards.analysis,
+        selection=selection,
+        scatteritem=wildcards.scatteritem,
     )
 
 
 def get_gather_annotated_calls_input(ext="bcf"):
     def inner(wildcards):
-        selection = get_selected_annotations()
+        selection = (
+            get_selected_annotations() if wildcards.analysis == "variants" else ""
+        )
         return gather.calling(
-            "results/calls/{{{{group}}}}.{{scatteritem}}{selection}.{ext}".format(
+            "results/calls/{{{{group}}}}.{{{{analysis}}}}.{{scatteritem}}{selection}.{ext}".format(
                 ext=ext, selection=selection
             )
         )
@@ -560,9 +627,9 @@ def get_candidate_calls():
         return "results/candidate-calls/{group}.{caller}.{scatteritem}.bcf"
 
 
-def get_report_batch(wildcards):
+def get_report_batch(wildcards, datatype):
     if wildcards.batch == "all":
-        _groups = groups
+        _groups = variants_groups if datatype == "variants" else fusions_groups
     else:
         _groups = samples.loc[
             samples[config["report"]["stratify"]["by-column"]] == wildcards.batch,
@@ -583,10 +650,15 @@ def get_report_batches():
 
 def get_merge_calls_input(ext="bcf"):
     def inner(wildcards):
+        vartype = (
+            ["SNV", "INS", "DEL", "MNV", "BND", "INV", "DUP", "REP"]
+            if wildcards.analysis == "variants"
+            else ["BND"]
+        )
         return expand(
-            "results/calls/{{group}}.{vartype}.{{event}}.fdr-controlled.{ext}",
+            "results/calls/{{group}}.{vartype}.{{event}}.{{analysis}}.fdr-controlled.{ext}",
             ext=ext,
-            vartype=["SNV", "INS", "DEL", "MNV", "BND", "INV", "DUP", "REP"],
+            vartype=vartype,
         )
 
     return inner
@@ -730,21 +802,34 @@ def get_varlociraptor_obs_args(wildcards, input):
     ]
 
 
+def get_varlociraptor_params(wildcards, params):
+    if wildcards.caller == "arriba":
+        params += " --propagate-info-fields GENE_NAME GENE_ID EXON"
+    return params
+
+
 wildcard_constraints:
     group="|".join(groups),
     sample="|".join(samples["sample_name"]),
-    caller="|".join(["freebayes", "delly"]),
+    caller="|".join(["freebayes", "delly", "arriba"]),
     filter="|".join(config["calling"]["filter"]),
     event="|".join(config["calling"]["fdr-control"]["events"].keys()),
     regions_type="|".join(["expanded", "covered"]),
+    analysis="|".join(["fusions", "variants"]),
 
 
-caller = list(
+variant_caller = list(
     filter(
         None,
         [
-            "freebayes" if is_activated("calling/freebayes") else None,
-            "delly" if is_activated("calling/delly") else None,
+            "freebayes"
+            if is_activated("calling/freebayes")
+            and samples["datatype"].str.contains("variants").any()
+            else None,
+            "delly"
+            if is_activated("calling/delly")
+            and samples["datatype"].str.contains("variants").any()
+            else None,
         ],
     )
 )
@@ -828,34 +913,43 @@ def get_vembrane_config(wildcards, input):
             parts.append(parts_field)
             header.append(header_name)
 
-    annotation_fields = [
-        "SYMBOL",
-        "Gene",
-        "Feature",
-        "IMPACT",
-        "HGVSp",
-        {"name": "protein position", "expr": "ANN['Protein_position'].raw"},
-        {"name": "protein alteration (short)", "expr": "ANN['Amino_acids']"},
-        "HGVSg",
-        "Consequence",
-        "CANONICAL",
-        "MANE_PLUS_CLINICAL",
-        {"name": "clinical significance", "expr": "ANN['CLIN_SIG']"},
-        {"name": "gnomad genome af", "expr": "ANN['gnomADg_AF']"},
-    ]
-
-    annotation_fields.extend(
-        [
-            field
-            for field in config_output.get("annotation_fields", [])
-            if field not in annotation_fields
+    if wildcards.analysis == "fusions":
+        info_fields = [
+            {"name": "mateid", "expr": "INFO['MATEID'][0]"},
+            {"name": "feature_name", "expr": "INFO['GENE_NAME']"},
+            {"name": "feature_id", "expr": "INFO['GENE_ID']"},
+            "EXON",
         ]
-    )
+        append_items(info_fields, "INFO['{}']".format, lambda x: x.lower())
+    else:
+        annotation_fields = [
+            "SYMBOL",
+            "Gene",
+            "Feature",
+            "IMPACT",
+            "HGVSp",
+            {"name": "protein position", "expr": "ANN['Protein_position'].raw"},
+            {"name": "protein alteration (short)", "expr": "ANN['Amino_acids']"},
+            "HGVSg",
+            "Consequence",
+            "CANONICAL",
+            "MANE_PLUS_CLINICAL",
+            {"name": "clinical significance", "expr": "ANN['CLIN_SIG']"},
+            {"name": "gnomad genome af", "expr": "ANN['gnomADg_AF']"},
+        ]
 
-    if "REVEL" in config["annotations"]["vep"]["final_calls"]["plugins"]:
-        annotation_fields.append("REVEL")
+        annotation_fields.extend(
+            [
+                field
+                for field in config_output.get("annotation_fields", [])
+                if field not in annotation_fields
+            ]
+        )
 
-    append_items(annotation_fields, "ANN['{}']".format, lambda x: x.lower())
+        if "REVEL" in config["annotations"]["vep"]["final_calls"]["plugins"]:
+            annotation_fields.append("REVEL")
+
+        append_items(annotation_fields, "ANN['{}']".format, lambda x: x.lower())
 
     samples = get_group_sample_aliases(wildcards)
 
@@ -910,10 +1004,27 @@ def get_dgidb_datasources():
     return ""
 
 
+def get_bowtie_insertsize():
+    if config["primers"]["trimming"].get("library_length", 0) != 0:
+        return "-X {}".format(config["primers"]["trimming"].get("library_length"))
+    return ""
+
+
 def get_filter_params(wc):
     if isinstance(get_panel_primer_input(wc.panel), list):
         return "-b -f 2"
     return "-b -F 4"
+
+
+def get_shortest_primer_length(primers):
+    primers = primers if isinstance(primers, list) else [primers]
+    # set to 32 to match bwa-mem default value considering offset of 2
+    min_length = 32
+    for primer_file in primers:
+        with open(primer_file, 'r') as p:
+            min_primer = min([len(p.strip()) for i, p in enumerate(p.readlines()) if i % 2 == 1])
+            min_length = min(min_length, min_primer)
+    return min_length - 2
 
 
 def get_single_primer_flag(wc):
@@ -923,6 +1034,10 @@ def get_single_primer_flag(wc):
 
 
 def get_datavzrd_data(impact="coding"):
+    datatype = "variants"
+    if impact == "fusions":
+        impact = "fusions.joined"
+        datatype = "fusions"
     pattern = "results/tables/{group}.{event}.{impact}.fdr-controlled.tsv"
 
     def inner(wildcards):
@@ -930,14 +1045,14 @@ def get_datavzrd_data(impact="coding"):
             pattern,
             impact=impact,
             event=wildcards.event,
-            group=get_report_batch(wildcards),
+            group=get_report_batch(wildcards, datatype),
         )
 
     return inner
 
 
 def get_oncoprint_input(wildcards):
-    groups = get_report_batch(wildcards)
+    groups = get_report_batch(wildcards, "variants")
     return expand(
         "results/tables/{group}.{event}.coding.fdr-controlled.tsv",
         group=groups,
@@ -959,13 +1074,14 @@ def get_variant_oncoprint_tables(wildcards, input):
         return []
 
 
-def get_datavzrd_report_labels(wildcards):
+def get_datavzrd_report_labels(wildcards, datatype):
     event = config["calling"]["fdr-control"]["events"][wildcards.event]
     labels = {"batch": wildcards.batch}
     if "labels" in event:
         labels.update({key: str(value) for key, value in event["labels"].items()})
     else:
         labels["callset"] = wildcards.event.replace("_", " ")
+    labels.update({"datatype": datatype})
     return labels
 
 
@@ -1005,7 +1121,7 @@ def get_fastqc_results(wildcards):
 
 
 def get_variant_oncoprints(wildcards):
-    if len(get_report_batch(wildcards)) > 1:
+    if len(get_report_batch(wildcards, "variants")) > 1:
         return "results/tables/oncoprints/{wildcards.batch}.{wildcards.event}/variant-oncoprints"
     else:
         return []
@@ -1013,7 +1129,7 @@ def get_variant_oncoprints(wildcards):
 
 def get_oncoprint(oncoprint_type):
     def inner(wildcards):
-        if len(get_report_batch(wildcards)) > 1:
+        if len(get_report_batch(wildcards, "variants")) > 1:
             oncoprint_path = (
                 f"results/tables/oncoprints/{wildcards.batch}.{wildcards.event}"
             )

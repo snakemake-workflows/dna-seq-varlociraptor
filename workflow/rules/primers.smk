@@ -44,16 +44,33 @@ rule trim_primers:
         "fgbio TrimPrimers -H -i {input.bam} -p {input.primers} -s {params.sort_order} {params.single_primer} -o {output.trimmed} &> {log}"
 
 
+rule bowtie_build:
+    input:
+        genome,
+    output:
+        directory("resources/bowtie_build/"),
+    params:
+        prefix=f"resources/bowtie_build/{genome_name}",
+    log:
+        "logs/bowtie/build.log",
+    conda:
+        "../envs/bowtie.yaml"
+    cache: True
+    shell:
+        "mkdir {output} & "
+        "bowtie-build {input} {params.prefix} &> {log}"
+
+
 rule map_primers:
     input:
-        reads=lambda w: get_panel_primer_input(w.panel),
+        reads=lambda wc: get_panel_primer_input(wc.panel),
         idx=rules.bwa_index.output,
     output:
         "results/primers/{panel}_primers.bam",
     log:
         "logs/bwa_mem/{panel}.log",
     params:
-        extra=r"-R '@RG\tID:{panel}\tSM:{panel}' -L 100",
+        extra=lambda wc, input: rf"-R '@RG\tID:{wc.panel}\tSM:{wc.panel}' -L 100 -T {get_shortest_primer_length(input.reads)}",
         sorting="none",  # Can be 'none', 'samtools' or 'picard'.
         sort_order="queryname",  # Can be 'queryname' or 'coordinate'.
         sort_extra="",  # Extra args for samtools/picard.
