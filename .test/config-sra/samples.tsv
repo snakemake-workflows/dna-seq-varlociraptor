@@ -1,3 +1,5 @@
 sample_name	group	alias	platform	datatype
-a		a	ILLUMINA	variants
-b		b	ILLUMINA	variants
+PD12A	medium_L	base	ILLUMINA	variants
+PD13B	medium_L	changed	ILLUMINA	variants
+PD09A	soil	changed	ILLUMINA	variants
+PD12A	soil	base	ILLUMINA	variants

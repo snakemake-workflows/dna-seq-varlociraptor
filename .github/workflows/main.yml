@@ -131,7 +131,7 @@ jobs:
       with:
         directory: .test
         snakefile: workflow/Snakefile
-        args: "--configfile .test/config-sra/config.yaml --show-failed-logs --use-conda -n -j 10 --conda-cleanup-pkgs cache"
+        args: "--configfile .test/config-sra/config.yaml --show-failed-logs --use-conda --cores all --set-scatter calling=4 --conda-cleanup-pkgs cache"
         stagein: |
           rm -rf .test/results
         show-disk-usage-on-error: true
