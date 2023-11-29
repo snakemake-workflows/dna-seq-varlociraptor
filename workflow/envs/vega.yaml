@@ -1,4 +1,4 @@
 channels:
   - conda-forge
 dependencies:
-  - vega-lite-cli =3.4
+  - vega-lite-cli =5.16
