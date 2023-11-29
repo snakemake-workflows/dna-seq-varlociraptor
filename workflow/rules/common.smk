@@ -927,15 +927,9 @@ def get_dgidb_datasources():
     return ""
 
 
-def get_bowtie_insertsize():
-    if config["primers"]["trimming"].get("library_length", 0) != 0:
-        return "-X {}".format(config["primers"]["trimming"].get("library_length"))
-    return ""
-
-
 def get_filter_params(wc):
     if isinstance(get_panel_primer_input(wc.panel), list):
-        return "-b -f 2"
+        return "-b -F 12"
     return "-b -F 4"
 
 
@@ -945,10 +939,28 @@ def get_single_primer_flag(wc):
     return ""
 
 
-def format_bowtie_primers(wc, primers):
-    if isinstance(primers, list):
-        return "-1 {r1} -2 {r2}".format(r1=primers[0], r2=primers[1])
-    return primers
+def get_shortest_primer_length(primers):
+    primers = primers if isinstance(primers, list) else [primers]
+    # set to 32 to match bwa-mem default value considering offset of 2
+    min_length = 32
+    for primer_file in primers:
+        with open(primer_file, "r") as p:
+            min_primer = min(
+                [len(p.strip()) for i, p in enumerate(p.readlines()) if i % 2 == 1]
+            )
+            min_length = min(min_length, min_primer)
+    return min_length
+
+
+def get_primer_extra(wc, input):
+    extra = rf"-R '@RG\tID:{wc.panel}\tSM:{wc.panel}' -L 100"
+    min_primer_len = get_shortest_primer_length(input.reads)
+    # Check if shortest primer is below default values
+    if min_primer_len < 32:
+        extra += f" -T {min_primer_len - 2}"
+    if min_primer_len < 19:
+        extra += f" -k {min_primer_len}"
+    return extra
 
 
 def get_datavzrd_data(impact="coding"):
