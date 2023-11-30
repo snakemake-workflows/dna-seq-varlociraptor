@@ -233,13 +233,18 @@ views:
                   - "#ff5555"
           "regex('.+: allele frequency')":
             plot:
-              heatmap:
+              ticks:
                 scale: "linear"
-                domain: [0.0, 0.05, 1.0]
-                range:
-                  - white
-                  - "#d3e9f8"
-                  - "#1f77b4"
+                domain: [0.0, 1.0]
+                aux-domain-columns:
+                  - "regex('.+: allele frequency')"
+                color:
+                  scale: "linear"
+                  domain: [0.0, 0.05, 1.0]
+                  range:
+                    - white
+                    - "#d3e9f8"
+                    - "#1f77b4"
           "regex('.+: read depth')":
             plot:
               ticks:
@@ -341,13 +346,18 @@ views:
                   - "#ecca00"
           "regex('.+: allele frequency')":
             plot:
-              heatmap:
+              ticks:
                 scale: "linear"
-                domain: [0.0, 0.05, 1.0]
-                range:
-                  - white
-                  - "#d3e9f8"
-                  - "#1f77b4"
+                domain: [0.0, 1.0]
+                aux-domain-columns:
+                  - "regex('.+: allele frequency')"
+                color:
+                  scale: "linear"
+                  domain: [0.0, 0.05, 1.0]
+                  range:
+                    - white
+                    - "#d3e9f8"
+                    - "#1f77b4"
           "regex('.+: read depth')":
             plot:
               ticks:
