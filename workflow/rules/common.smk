@@ -430,9 +430,26 @@ def get_primer_bed(wc):
             return "results/primers/uniform_primers.bed"
 
 
+def extract_unique_sample_column_value(sample, col_name):
+    result = samples.loc[samples["sample_name"] == sample, col_name].drop_duplicates()
+    if type(result) is not str:
+        if len(result) > 1:
+            ValueError(
+                "If a sample is specified multiple times in a samples.tsv"
+                "sheet, all columns except 'group' must contain identical"
+                "entries across the occurrences (rows).\n"
+                f"Here we have sample '{sample}' with multiple entries for"
+                f"the '{col_name}' column, namely:\n"
+                f"{result}\n"
+            )
+        else:
+            result = result.squeeze()
+    return result
+
+
 def get_sample_primer_fastas(sample):
     if isinstance(primer_panels, pd.DataFrame):
-        panel = samples.loc[sample, "panel"]
+        panel = extract_unique_sample_column_value(sample, "panel")
         if not pd.isna(primer_panels.loc[panel, "fa2"]):
             return [
                 primer_panels.loc[panel, "fa1"],
@@ -471,9 +488,8 @@ def input_is_fasta(primers):
 
 def get_primer_regions(wc):
     if isinstance(primer_panels, pd.DataFrame):
-        return "results/primers/{}_primer_regions.tsv".format(
-            samples.loc[wc.sample, "panel"]
-        )
+        panel = extract_unique_sample_column_value(wc.sample, "panel")
+        return f"results/primers/{panel}_primer_regions.tsv"
     return "results/primers/uniform_primer_regions.tsv"
 
 
@@ -562,9 +578,7 @@ def is_activated(xpath):
 
 def get_read_group(wildcards):
     """Denote sample name and platform in read group."""
-    platform = samples.loc[wildcards.sample, "platform"]
-    if not isinstance(platform, str):
-        platform = platform.drop_duplicates().iloc[0]
+    platform = extract_unique_sample_column_value(wildcards.sample, "platform")
     return r"-R '@RG\tID:{sample}\tSM:{sample}\tPL:{platform}'".format(
         sample=wildcards.sample, platform=platform
     )
@@ -985,28 +999,27 @@ def get_vembrane_config(wildcards, input):
 
 
 def get_umi_fastq(wildcards):
-    if samples.loc[wildcards.sample, "umi_read"] in ["fq1", "fq2"]:
+    umi_read = extract_unique_sample_column_value(wildcards.sample, "umi_read")
+    if umi_read in ["fq1", "fq2"]:
         return "results/untrimmed/{S}_{R}.fastq.gz".format(
-            S=wildcards.sample, R=samples.loc[wildcards.sample, "umi_read"]
+            S=wildcards.sample, R=umi_read
         )
-    elif samples.loc[wildcards.sample, "umi_read"] == "both":
+    elif umi_read == "both":
         return expand(
             "results/untrimmed/{S}_{R}.fastq.gz", S=wildcards.sample, R=["fq1", "fq2"]
         )
     else:
-        return samples.loc[wildcards.sample, "umi_read"]
+        return umi_read
 
 
 def sample_has_umis(sample):
-    return pd.notna(samples.loc[sample, "umi_read"])
+    return pd.notna(extract_unique_sample_column_value(sample, "umi_read"))
 
 
 def get_umi_read_structure(wildcards):
-    return "-r {}".format(samples.loc[wildcards.sample, "umi_read_structure"])
-
-
-def get_sample_alias(wildcards):
-    return samples.loc[wildcards.sample, "alias"]
+    return "-r {}".format(
+        extract_unique_sample_column_value(wildcards.sample, "umi_read_structure")
+    )
 
 
 def get_dgidb_datasources():
