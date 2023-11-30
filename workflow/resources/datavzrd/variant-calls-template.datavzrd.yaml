@@ -240,11 +240,12 @@ views:
                   - "regex('.+: allele frequency')"
                 color:
                   scale: "linear"
-                  domain: [0.0, 0.05, 1.0]
+                  domain: [0.0, 0.05, 0.0500000001, 1.0]
                   range:
-                    - white
-                    - "#d3e9f8"
-                    - "#1f77b4"
+                  - "#ffd6b3"
+                  - "#ff7f0e"
+                  - "#a8d2f0"
+                  - "#1f77b4"
           "regex('.+: read depth')":
             plot:
               ticks:
@@ -353,11 +354,12 @@ views:
                   - "regex('.+: allele frequency')"
                 color:
                   scale: "linear"
-                  domain: [0.0, 0.05, 1.0]
+                  domain: [0.0, 0.05, 0.0500000001, 1.0]
                   range:
-                    - white
-                    - "#d3e9f8"
-                    - "#1f77b4"
+                  - "#ffd6b3"
+                  - "#ff7f0e"
+                  - "#a8d2f0"
+                  - "#1f77b4"
           "regex('.+: read depth')":
             plot:
               ticks:
