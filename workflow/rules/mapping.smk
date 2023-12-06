@@ -214,7 +214,7 @@ rule keep_only_primary_chr:
     benchmark:    
         "benchmarks/samtools_view_primary_chr/{sample}.tsv"
     params:
-        region="1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 X Y MT"
+        region="GRCh38.chr1 GRCh38.chr2 GRCh38.chr3 GRCh38.chr4 GRCh38.chr5 GRCh38.chr6 GRCh38.chr7 GRCh38.chr8 GRCh38.chr9 GRCh38.chr10 GRCh38.chr11 GRCh38.chr12 GRCh38.chr13 GRCh38.chr14 GRCh38.chr15 GRCh38.chr16 GRCh38.chr17 GRCh38.chr18 GRCh38.chr19 GRCh38.chr20 GRCh38.chr21 GRCh38.chr22 GRCh38.chrX GRCh38.chrY GRCh38.chrM"
     threads: 40
     wrapper:
         "v2.0.0/bio/samtools/view"
