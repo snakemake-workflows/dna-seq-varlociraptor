@@ -201,11 +201,32 @@ rule sort_vg_mapped:
     wrapper:
         "v2.3.2/bio/samtools/sort"
 
-
-# modify the header for chromosome names to be compatible with the reference genome that are acquired from ensembl
-rule reheader:
+#keep only primary chromosomes
+rule keep_only_primary_chr:
     input:
         "results/vg_mapped/{sample}_sorted.bam",
+        "results/vg_mapped/{sample}_sorted.bai",
+    output:
+        bam="results/vg_mapped/{sample}_extracted.bam",
+        idx="results/vg_mapped/{sample}_extracted.bai"
+    log:
+        "logs/samtools_view_primary_chr/{sample}.log",
+    benchmark:    
+        "benchmarks/samtools_view_primary_chr/{sample}.tsv"
+    params:
+        region="1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 X Y MT"
+    threads: 40
+    wrapper:
+        "v2.0.0/bio/samtools/view"
+
+# modify the header for chromosome names to be compatible with the reference genome that are acquired from ensembl
+# first delete all non classical chromosomes including unlocalized, unplaced and EBV chromosomes (delly complains about them being found in the header)
+# second remove GRCh38.chr and third convert M to MT (MT in pangenome reference and M in fasta sequence dict)
+# the following sed command replaces the first "M" it finds and replaces it with "MT"
+
+rule reheader:
+    input:
+        "results/vg_mapped/{sample}_extracted.bam",
     output:
         "results/vg_mapped/{sample}_reheadered.bam",
     log:
@@ -216,8 +237,20 @@ rule reheader:
         "../envs/samtools.yaml"
     threads: 40
     shell:
-        "samtools view -H {input} | sed 's/GRCh38.chr//g' | samtools reheader - {input} > {output} 2> {log}"
+        "samtools view -H {input} | sed '/random/d;/chrUn/d;/EBV/d;s/GRCh38.chr//g;0,/M/s//MT/' | samtools reheader - {input} > {output} 2> {log}"
 
+# rule samtools_index_after_reheader:
+#     input:
+#         "results/vg_mapped/{sample}_reheadered.bam",
+#     output:
+#         "results/vg_mapped/{sample}_reheadered.bai",
+#     log:
+#         "logs/samtools_index_after_reheader/{sample}.log",
+#     benchmark:
+#         "benchmarks/samtools_index_after_reheader/{sample}.tsv"
+#     threads: 40
+#     wrapper:
+#         "v2.3.2/bio/samtools/index"
 
 #adding read groups is necessary because base recalibration throws errors 
 #for not being able to find read group information
@@ -236,15 +269,15 @@ rule add_rg:
     wrapper:
         "v2.3.2/bio/picard/addorreplacereadgroups"
 
-rule samtools_index_after_reheader:
+rule samtools_index_after_rg_addition:
     input:
         "results/vg_mapped/{sample}_rg_added.bam",
     output:
         "results/vg_mapped/{sample}_rg_added.bai",
     log:
-        "logs/samtools_index_vg/{sample}.log",
+        "logs/samtools_index_after_vg_addition/{sample}.log",
     benchmark:
-        "benchmarks/samtools_index_vg/{sample}.tsv"
+        "benchmarks/samtools_index_after_vg_addition/{sample}.tsv"
     threads: 40
     wrapper:
         "v2.3.2/bio/samtools/index"
