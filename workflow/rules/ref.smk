@@ -149,25 +149,3 @@ rule get_vep_plugins:
     wrapper:
         "v2.3.2/bio/vep/plugins"
 
-
-rule coding_regions_bed:
-    input:
-        "resources/annotation.gtf.gz",
-    output:
-        "resources/coding_regions.bed",
-    log:
-        "logs/bed_coding_regions.log",
-    cache: "omit-software"  # save space and time with between workflow caching (see docs)
-    conda:
-        "../envs/awk.yaml"
-    shell:
-        # filter for `exon` entries, but unclear how to exclude pseudogene exons...
-        """
-        ( zcat {input} | \\
-          awk 'BEGIN {{ IFS = "\\t"}} {{ if ($3 == "exon") {{ print $0 }} }}' | \\
-          grep 'transcript_biotype "protein_coding"' | \\
-          grep 'gene_biotype "protein_coding"' | \\
-          awk 'BEGIN {{ IFS = "\\t"; OFS = "\\t"}}  {{ print $1,$4-1,$5 }}'  \\
-           > {output} \\
-        ) 2> {log}
-        """
