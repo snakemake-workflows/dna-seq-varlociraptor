@@ -1,5 +1,19 @@
 # Changelog
 
+## [5.2.0](https://github.com/snakemake-workflows/dna-seq-varlociraptor/compare/v5.1.0...v5.2.0) (2023-11-30)
+
+
+### Features
+
+* colored tick plots in datavzrd report ([#279](https://github.com/snakemake-workflows/dna-seq-varlociraptor/issues/279)) ([757aa0e](https://github.com/snakemake-workflows/dna-seq-varlociraptor/commit/757aa0e60e275538a3dc8d8fdeb6195fc65f4a40))
+* improve and run sra download ci test case ([#276](https://github.com/snakemake-workflows/dna-seq-varlociraptor/issues/276)) ([074661e](https://github.com/snakemake-workflows/dna-seq-varlociraptor/commit/074661e3f7f4fa462a1f77c6a3f3d75346a1a6c3))
+* map primers by bwa and update datavzrd template ([#275](https://github.com/snakemake-workflows/dna-seq-varlociraptor/issues/275)) ([12f22e9](https://github.com/snakemake-workflows/dna-seq-varlociraptor/commit/12f22e9f6c1127546ed9e20add76bdebf8bbec36))
+
+
+### Bug Fixes
+
+* unique values when extracting samples column for repeated samples (in multiple groups) ([#278](https://github.com/snakemake-workflows/dna-seq-varlociraptor/issues/278)) ([aaac1b5](https://github.com/snakemake-workflows/dna-seq-varlociraptor/commit/aaac1b53676879b04f636099975290d1a050fff6))
+
 ## [5.1.0](https://github.com/snakemake-workflows/dna-seq-varlociraptor/compare/v5.0.2...v5.1.0) (2023-11-10)
 
 
