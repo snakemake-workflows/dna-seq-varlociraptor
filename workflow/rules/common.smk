@@ -399,6 +399,7 @@ def get_markduplicates_input(wildcards):
     else:
         return "results/mapped/{sample}.{datatype}.bam"
 
+
 # TODO Consensus reads for star aligned reads?
 def get_consensus_input(wildcards):
     if is_activated("primers/trimming"):
@@ -407,6 +408,7 @@ def get_consensus_input(wildcards):
         return "results/dedup/{sample}.dna.bam"
     else:
         return "results/mapped/{sample}.dna.bam"
+
 
 # TODO
 def get_trimming_input(wildcards):
