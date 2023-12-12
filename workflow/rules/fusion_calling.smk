@@ -21,8 +21,8 @@ use rule star_align from fusion_calling with:
         idx=rules.star_index.output,
         annotation=rules.get_annotation.output,
     output:
-        aln="results/mapped/{sample}.fusions.bam",
-        reads_per_gene="results/mapped/{sample}.fusions.ReadsPerGene.tsv",
+        aln="results/mapped/{sample}.rna.bam",
+        reads_per_gene="results/mapped/{sample}.rna.ReadsPerGene.tsv",
     params:
         # specific parameters to work well with arriba
         extra=lambda wc, input: f"--quantMode GeneCounts --sjdbGTFfile {input.annotation}"
@@ -34,9 +34,12 @@ use rule star_align from fusion_calling with:
 # TODO get input bam based on umi/primers/etc
 use rule arriba from fusion_calling with:
     input:
-        bam=get_sample_bam,
+        bam=lambda wc: get_sample_bam(wc, "fusions"),
         genome=rules.get_genome.output,
         annotation=rules.get_annotation.output,
+    output:
+        fusions="results/arriba/{sample}.fusions.tsv",
+        discarded="results/arriba/{sample}.fusions.discarded.tsv",
 
 
 rule annotate_exons:

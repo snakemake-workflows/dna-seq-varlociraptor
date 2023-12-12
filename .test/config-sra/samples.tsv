@@ -1,5 +1,5 @@
-sample_name	group	alias	platform	datatype
-PD12A	medium_L	base	ILLUMINA	variants
-PD13B	medium_L	changed	ILLUMINA	variants
-PD09A	soil	changed	ILLUMINA	variants
-PD12A	soil	base	ILLUMINA	variants
+sample_name	group	alias	platform	datatype	candidate-calling
+PD12A	medium_L	base	ILLUMINA	dna	variants
+PD13B	medium_L	changed	ILLUMINA	dna	variants
+PD09A	soil	changed	ILLUMINA	dna	variants
+PD12A	soil	base	ILLUMINA	dna	variants

@@ -35,8 +35,15 @@ properties:
   datatype:
     type: string
     enum:
+      - dna
+      - rna
+  candidate-calling:
+    type: string
+    enum:
       - variants
       - fusions
+      - fusions,variants
+      - variants,fusions
     description: datatype of sample
   primer_panel:
     type: string
@@ -55,6 +62,7 @@ required:
   - group
   - platform
   - datatype
+  - candidate-calling
 
 dependentRequired:
   umi_read: ["umi_read_structure"]

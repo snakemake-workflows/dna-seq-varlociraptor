@@ -1,9 +1,10 @@
+#TODO Done
 rule map_reads:
     input:
         reads=get_map_reads_input,
         idx=rules.bwa_index.output,
     output:
-        temp("results/mapped/{sample}.variants.bam"),
+        temp("results/mapped/{sample}.dna.bam"),
     log:
         "logs/bwa_mem/{sample}.log",
     params:
@@ -27,15 +28,13 @@ rule merge_untrimmed_fastqs:
     shell:
         "cat {input} > {output} 2> {log}"
 
-
+#TODO Done
 rule annotate_umis:
     input:
-        bam=lambda wc: "results/mapped/{}.{}.bam".format(
-            wc.sample, get_sample_datatype(wc.sample)
-        ),
+        bam="results/mapped/{sample}.{datatype}.bam",
         umi=get_umi_fastq,
     output:
-        temp("results/mapped/{sample}.annotated.bam"),
+        temp("results/mapped/{sample}.{datatype}.annotated.bam"),
     params:
         extra=get_umi_read_structure,
     resources:
@@ -45,13 +44,13 @@ rule annotate_umis:
     wrapper:
         "v2.3.2/bio/fgbio/annotatebamwithumis"
 
-
+#TODO DOne
 rule mark_duplicates:
     input:
         bams=get_markduplicates_input,
     output:
-        bam=temp("results/dedup/{sample}.bam"),
-        metrics="results/qc/dedup/{sample}.metrics.txt",
+        bam=temp("results/dedup/{sample}.{datatype}.bam"),
+        metrics="results/qc/dedup/{sample}.{datatype}.metrics.txt",
     log:
         "logs/picard/dedup/{sample}.log",
     params:
@@ -125,6 +124,23 @@ rule sort_consensus_reads:
         "v2.3.2/bio/samtools/sort"
 
 
+rule splitncigarreads:
+    input:
+        bam="results/dedup/{sample}.rna.bam",
+        ref=genome,
+    output:
+        "results/split/{sample}.rna.bam",
+    log:
+        "logs/gatk/splitNCIGARreads/{sample}.log",
+    params:
+        extra="",  # optional
+        java_opts="",  # optional
+    resources:
+        mem_mb=1024,
+    wrapper:
+        "v3.1.0/bio/gatk/splitncigarreads"
+
+
 rule recalibrate_base_qualities:
     input:
         bam=get_recalibrate_quality_input,
@@ -135,7 +151,7 @@ rule recalibrate_base_qualities:
         known="resources/variation.noiupac.vcf.gz",
         tbi="resources/variation.noiupac.vcf.gz.tbi",
     output:
-        recal_table=temp("results/recal/{sample}.grp"),
+        recal_table=temp("results/recal/{sample}.{datatype}.grp"),
     params:
         extra=config["params"]["gatk"]["BaseRecalibrator"],
         java_opts="",
@@ -158,10 +174,10 @@ rule apply_bqsr:
         ref=genome,
         ref_dict=genome_dict,
         ref_fai=genome_fai,
-        recal_table="results/recal/{sample}.grp",
+        recal_table="results/recal/{sample}.{datatype}.grp",
     output:
-        bam=protected("results/recal/{sample}.bam"),
-        bai="results/recal/{sample}.bai",
+        bam=protected("results/recal/{sample}.{datatype}.bam"),
+        bai="results/recal/{sample}.{datatype}.bai",
     log:
         "logs/gatk/gatk_applybqsr/{sample}.log",
     params:

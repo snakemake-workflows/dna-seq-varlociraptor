@@ -1,2 +1,2 @@
-sample_name	alias	group	platform	purity	datatype
-NA12878	NA12878	NA12878	ILLUMINA		variants
+sample_name	alias	group	platform	purity	datatype	candidate-calling
+NA12878	NA12878	NA12878	ILLUMINA		dna	variants

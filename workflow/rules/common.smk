@@ -210,37 +210,31 @@ def get_control_fdr_input(wildcards):
     else:
         return "results/final-calls/{group}.{analysis}.annotated.bcf"
 
-
+#TODO Triming and consensus calling for rna?
 def get_recalibrate_quality_input(wildcards, bai=False):
     ext = "bai" if bai else "bam"
+    if wildcards.datatype == "rna":
+        return "results/split/{}.rna.{}".format(wildcards.sample, ext)
+    # Only for dna samples
     if is_activated("calc_consensus_reads"):
-        return "results/consensus/{}.{}".format(wildcards.sample, ext)
+        return "results/consensus/{}.{}.{}".format(wildcards.sample, wildcards.datatype, ext)
     elif is_activated("primers/trimming"):
-        return "results/trimmed/{sample}.trimmed.{ext}".format(
-            sample=wildcards.sample, ext=ext
+        return "results/trimmed/{}.{}.trimmed.{}".format(
+            wildcards.sample, wildcards.datatype, ext
         )
     elif is_activated("remove_duplicates"):
-        return "results/dedup/{}.{}".format(wildcards.sample, ext)
+        return "results/dedup/{}.{}.{}".format(wildcards.sample, wildcards.datatype, ext)
     else:
-        return "results/mapped/{}.variants.{}".format(wildcards.sample, ext)
+        return "results/mapped/{}.{}.{}".format(wildcards.sample, wildcards.datatype, ext)
 
 
-def get_sample_bam(wildcards, bai=False):
+def get_sample_bam(wildcards, candidate_calling, bai=False):
     ext = "bai" if bai else "bam"
-    datatype = get_sample_datatype(wildcards.sample)
-    if datatype == "variants":
-        return "results/recal/{}.{}".format(wildcards.sample, ext)
+    if candidate_calling == "fusions":
+        "results/mapped/{sample}.rna.bam",
     else:
-        if is_activated("calc_consensus_reads"):
-            return "results/consensus/{}.{}".format(wildcards.sample, ext)
-        elif is_activated("primers/trimming"):
-            return "results/trimmed/{sample}.trimmed.{ext}".format(
-                sample=wildcards.sample, ext=ext
-            )
-        elif is_activated("remove_duplicates"):
-            return "results/dedup/{}.{}".format(wildcards.sample, ext)
-        else:
-            return "results/mapped/{}.fusions.{}".format(wildcards.sample, ext)
+        datatype = get_sample_datatype(wildcards.sample)
+        return "results/recal/{}.{}.{}".format(wildcards.sample, datatype, ext)
 
 
 def get_cutadapt_input(wildcards):
@@ -387,34 +381,32 @@ def get_group_sample_aliases(wildcards, controls=True):
     ]["alias"]
 
 
-def get_sample_datatype(sample):
-    return samples.loc[samples["sample_name"] == sample]["datatype"].iloc[0]
+def get_sample_datatype(sample, caller):
+    return samples.loc[sample, "datatype"].iloc[0]
 
 
+#TODO Done
 def get_markduplicates_input(wildcards):
-    datatype = get_sample_datatype(wildcards.sample)
     if sample_has_umis(wildcards.sample):
-        return "results/mapped/{sample}.annotated.bam"
+        return "results/mapped/{sample}.{datatype}.annotated.bam"
     else:
-        return "results/mapped/{}.{}.bam".format(wildcards.sample, datatype)
+        return "results/mapped/{sample}.{datatype}.bam"
 
-
+#TODO Consensus reads for star aligned reads?
 def get_consensus_input(wildcards):
-    datatype = get_sample_datatype(wildcards.sample)
     if is_activated("primers/trimming"):
-        return "results/trimmed/{}.trimmed.bam".format(wildcards.sample)
+        return "results/trimmed/{sample}.dna.trimmed.bam"
     elif is_activated("remove_duplicates"):
-        return "results/dedup/{}.bam".format(wildcards.sample)
+        return "results/dedup/{sample}.dna.bam"
     else:
-        return "results/mapped/{}.{}.bam".format(wildcards.sample, datatype)
+        return "results/mapped/{sample}.dna.bam"
 
-
+#TODO
 def get_trimming_input(wildcards):
-    datatype = get_sample_datatype(wildcards.sample)
     if is_activated("remove_duplicates"):
-        return "results/dedup/{}.bam".format(wildcards.sample)
+        return "results/dedup/{sample}.dna.bam"
     else:
-        return "results/mapped/{}.{}.bam".format(wildcards.sample, datatype)
+        return "results/mapped/{sample}.dna.bam"
 
 
 def get_primer_bed(wc):
