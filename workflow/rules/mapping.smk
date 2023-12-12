@@ -1,4 +1,4 @@
-#TODO Done
+# TODO Done
 rule map_reads:
     input:
         reads=get_map_reads_input,
@@ -28,7 +28,8 @@ rule merge_untrimmed_fastqs:
     shell:
         "cat {input} > {output} 2> {log}"
 
-#TODO Done
+
+# TODO Done
 rule annotate_umis:
     input:
         bam="results/mapped/{sample}.{datatype}.bam",
@@ -44,7 +45,8 @@ rule annotate_umis:
     wrapper:
         "v2.3.2/bio/fgbio/annotatebamwithumis"
 
-#TODO DOne
+
+# TODO DOne
 rule mark_duplicates:
     input:
         bams=get_markduplicates_input,

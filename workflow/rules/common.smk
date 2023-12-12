@@ -210,22 +210,29 @@ def get_control_fdr_input(wildcards):
     else:
         return "results/final-calls/{group}.{analysis}.annotated.bcf"
 
-#TODO Triming and consensus calling for rna?
+
+# TODO Triming and consensus calling for rna?
 def get_recalibrate_quality_input(wildcards, bai=False):
     ext = "bai" if bai else "bam"
     if wildcards.datatype == "rna":
         return "results/split/{}.rna.{}".format(wildcards.sample, ext)
     # Only for dna samples
     if is_activated("calc_consensus_reads"):
-        return "results/consensus/{}.{}.{}".format(wildcards.sample, wildcards.datatype, ext)
+        return "results/consensus/{}.{}.{}".format(
+            wildcards.sample, wildcards.datatype, ext
+        )
     elif is_activated("primers/trimming"):
         return "results/trimmed/{}.{}.trimmed.{}".format(
             wildcards.sample, wildcards.datatype, ext
         )
     elif is_activated("remove_duplicates"):
-        return "results/dedup/{}.{}.{}".format(wildcards.sample, wildcards.datatype, ext)
+        return "results/dedup/{}.{}.{}".format(
+            wildcards.sample, wildcards.datatype, ext
+        )
     else:
-        return "results/mapped/{}.{}.{}".format(wildcards.sample, wildcards.datatype, ext)
+        return "results/mapped/{}.{}.{}".format(
+            wildcards.sample, wildcards.datatype, ext
+        )
 
 
 def get_sample_bam(wildcards, candidate_calling, bai=False):
@@ -385,14 +392,14 @@ def get_sample_datatype(sample, caller):
     return samples.loc[sample, "datatype"].iloc[0]
 
 
-#TODO Done
+# TODO Done
 def get_markduplicates_input(wildcards):
     if sample_has_umis(wildcards.sample):
         return "results/mapped/{sample}.{datatype}.annotated.bam"
     else:
         return "results/mapped/{sample}.{datatype}.bam"
 
-#TODO Consensus reads for star aligned reads?
+# TODO Consensus reads for star aligned reads?
 def get_consensus_input(wildcards):
     if is_activated("primers/trimming"):
         return "results/trimmed/{sample}.dna.trimmed.bam"
@@ -401,7 +408,7 @@ def get_consensus_input(wildcards):
     else:
         return "results/mapped/{sample}.dna.bam"
 
-#TODO
+# TODO
 def get_trimming_input(wildcards):
     if is_activated("remove_duplicates"):
         return "results/dedup/{sample}.dna.bam"
