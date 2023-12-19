@@ -1067,10 +1067,10 @@ def get_itd_regions(wildcards):
 
 def get_itd_bcfs(wildcards):
     sample_names = samples.loc[samples["group"] == wildcards.group, "sample_name"].tolist()
-    return [f"results/candidate-calls/{x}.ITD.bcf" for x in sample_names]
+    return [f"results/candidate-calls/ScanITD/{x}.ITD.bcf" for x in sample_names]
 
 
 def get_itd_bcfs_index(wildcards):
     sample_names = samples.loc[samples["group"] == wildcards.group, "sample_name"].tolist()
-    return [f"results/candidate-calls/{x}.ITD.bcf.csi" for x in sample_names]
+    return [f"results/candidate-calls/ScanITD/{x}.ITD.bcf.csi" for x in sample_names]
 

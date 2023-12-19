@@ -77,7 +77,7 @@ rule split_bam_by_chromosome:
     input:
         "results/recal/{sample}.bam",
     output:
-        bam=config["calling"]["ScanITD"]["tmpDIR"]+"/{sample}_chr{chr}.bam",
+        bam=temp(config["calling"]["ScanITD"]["tmpDIR"]+"/{sample}_chr{chr}.bam"),
         idx=config["calling"]["ScanITD"]["tmpDIR"]+"/{sample}_chr{chr}.bai",
     log:
         "logs/samtools/split_bam_by_chromosome/{sample}_chr{chr}.log",
@@ -97,7 +97,7 @@ rule ScanITD:
         bam=config["calling"]["ScanITD"]["tmpDIR"]+"/{sample}_chr{chr}.bam",
         bai=config["calling"]["ScanITD"]["tmpDIR"]+"/{sample}_chr{chr}.bam",
     output:
-        config["calling"]["ScanITD"]["tmpDIR"]+"/{sample}_chr{chr}.ITD.vcf",
+        temp(config["calling"]["ScanITD"]["tmpDIR"]+"/{sample}_chr{chr}.ITD.vcf"),
     log:
         "logs/ScanITD/{sample}_chr{chr}.log",
     conda:
@@ -138,7 +138,7 @@ rule bcftools_gather_ScanITD:
         calls=expand("results/candidate-calls/ScanITD/{{sample}}_chr{chr}.ITD.bcf",chr=[str(i) for i in range(1, 23)] + ["X", "Y", "MT"]),
         ind=expand("results/candidate-calls/ScanITD/{{sample}}_chr{chr}.ITD.bcf.csi", chr=[str(i) for i in range(1, 23)] + ["X", "Y", "MT"])
     output:
-        "results/candidate-calls/{sample}.ITD.bcf",
+        "results/candidate-calls/ScanITD/{sample}.ITD.bcf",
     log:
         "logs/bcf-merge/samples/{sample}.log",
     conda:
