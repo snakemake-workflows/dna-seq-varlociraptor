@@ -202,6 +202,9 @@ rule sort_vg_mapped:
         "v2.3.2/bio/samtools/sort"
 
 #keep only primary chromosomes
+# use -f 2 to keep only properly paired reads, the mate of a read that's on a nonprimary chromosome is problematic for AddOrReplaceReadGroups, because we remove
+# all the other nonprimary chromosome from the header.
+
 rule keep_only_primary_chr:
     input:
         "results/vg_mapped/{sample}_sorted.bam",
@@ -214,7 +217,8 @@ rule keep_only_primary_chr:
     benchmark:    
         "benchmarks/samtools_view_primary_chr/{sample}.tsv"
     params:
-        region="GRCh38.chr1 GRCh38.chr2 GRCh38.chr3 GRCh38.chr4 GRCh38.chr5 GRCh38.chr6 GRCh38.chr7 GRCh38.chr8 GRCh38.chr9 GRCh38.chr10 GRCh38.chr11 GRCh38.chr12 GRCh38.chr13 GRCh38.chr14 GRCh38.chr15 GRCh38.chr16 GRCh38.chr17 GRCh38.chr18 GRCh38.chr19 GRCh38.chr20 GRCh38.chr21 GRCh38.chr22 GRCh38.chrX GRCh38.chrY GRCh38.chrM"
+        region="GRCh38.chr1 GRCh38.chr2 GRCh38.chr3 GRCh38.chr4 GRCh38.chr5 GRCh38.chr6 GRCh38.chr7 GRCh38.chr8 GRCh38.chr9 GRCh38.chr10 GRCh38.chr11 GRCh38.chr12 GRCh38.chr13 GRCh38.chr14 GRCh38.chr15 GRCh38.chr16 GRCh38.chr17 GRCh38.chr18 GRCh38.chr19 GRCh38.chr20 GRCh38.chr21 GRCh38.chr22 GRCh38.chrX GRCh38.chrY GRCh38.chrM",
+        extra="-f 2"
     threads: 40
     wrapper:
         "v2.0.0/bio/samtools/view"
