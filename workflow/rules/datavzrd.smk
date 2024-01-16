@@ -177,15 +177,15 @@ rule datavzrd_fusion_calls:
 
 rule bedtools_merge:
     input:
-        left="results/regions/{group}/{sample}.regions.bed.gz",
-        right="results/regions/{group}.covered_regions.bed",
+        left="results/regions/{group}/{sample}.{datatype}.regions.bed.gz",
+        right="results/regions/{group}.{datatype}.covered_regions.bed",
     output:
-        "results/coverage/{group}/{sample}.regions.filtered.bed",
+        "results/coverage/{group}/{sample}.{datatype}.regions.filtered.bed",
     params:
         ## Add optional parameters
         extra="-wa",
     log:
-        "logs/bedtools/{group}/{sample}.log",
+        "logs/bedtools/{group}/{sample}_{datatype}.log",
     wrapper:
         "v2.6.0/bio/bedtools/intersect"
 
@@ -193,17 +193,17 @@ rule bedtools_merge:
 rule coverage_table:
     input:
         lambda wc: expand(
-            "results/coverage/{{group}}/{sample}.regions.filtered.bed",
+            "results/coverage/{{group}}/{sample}.{{datatype}}.regions.filtered.bed",
             sample=get_group_samples(wc.group),
         ),
     output:
-        "results/coverage/{group}.csv",
+        "results/coverage/{group}.{datatype}.csv",
     params:
         min_cov=config["gene_coverage"].get("min_avg_coverage", 0),
     conda:
         "../envs/pandas.yaml"
     log:
-        "logs/coverage/{group}_coverage_table.log",
+        "logs/coverage/{group}_{datatype}_coverage_table.log",
     script:
         "../scripts/coverage_table.py"
 
@@ -213,29 +213,29 @@ rule render_datavzrd_gene_coverage_template:
         template=workflow.source_path(
             "../resources/datavzrd/gene-coverage-template.datavzrd.yaml"
         ),
-        csv="results/coverage/{group}.csv",
+        csv="results/coverage/{group}.{datatype}.csv",
     output:
-        "resources/datavzrd/{group}.coverage.yaml",
+        "resources/datavzrd/{group}.{datatype}.coverage.yaml",
     params:
         samples=lambda wc: get_group_samples(wc.group),
     log:
-        "logs/datavzrd_render/{group}.coverage.log",
+        "logs/datavzrd_render/{group}_{datatype}.coverage.log",
     template_engine:
         "yte"
 
 
 rule datavzrd_coverage:
     input:
-        csv="results/coverage/{group}.csv",
-        config="resources/datavzrd/{group}.coverage.yaml",
+        csv="results/coverage/{group}.{datatype}.csv",
+        config="resources/datavzrd/{group}.{datatype}.coverage.yaml",
     output:
         report(
-            directory("results/datavzrd-report/{group}.coverage"),
+            directory("results/datavzrd-report/{group}.{datatype}.coverage"),
             htmlindex="index.html",
             category="Mean read depth per gene",
             labels=lambda wc: {"Group": wc.group},
         ),
     log:
-        "logs/datavzrd_report/{group}.coverage.log",
+        "logs/datavzrd_report/{group}_{datatype}.coverage.log",
     wrapper:
         "v3.0.2/utils/datavzrd"

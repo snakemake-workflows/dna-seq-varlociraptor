@@ -124,9 +124,9 @@ rule bcftools_concat:
         calls=get_scattered_calls(),
         indexes=get_scattered_calls(ext="bcf.csi"),
     output:
-        "results/calls/{group}.{analysis}.{scatteritem}.bcf",
+        "results/calls/{group}.{calling_type}.{scatteritem}.bcf",
     log:
-        "logs/concat-calls/{group}.{analysis}.{scatteritem}.log",
+        "logs/concat-calls/{group}.{calling_type}.{scatteritem}.log",
     params:
         extra="-a",  # TODO Check this
     wrapper:

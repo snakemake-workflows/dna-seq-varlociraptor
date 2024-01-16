@@ -10,25 +10,27 @@ rule fastqc:
         "v2.10.0/bio/fastqc"
 
 
+# TODO
 rule samtools_idxstats:
     input:
-        bam="results/recal/{sample}.bam",
-        idx="results/recal/{sample}.bai",
+        bam="results/recal/{sample}.dna.bam",
+        idx="results/recal/{sample}.dna.bai",
     output:
-        "results/qc/{sample}.bam.idxstats",
+        "results/qc/{sample}.dna.bam.idxstats",
     log:
         "logs/samtools/idxstats/{sample}.log",
     wrapper:
         "v2.3.2/bio/samtools/idxstats"
 
 
+# TODO
 rule samtools_stats:
     input:
-        bam="results/recal/{sample}.bam",
+        bam="results/recal/{sample}.{datatype}.bam",
     output:
-        "results/qc/{sample}.bam.stats",
+        "results/qc/{sample}.{datatype}.bam.stats",
     log:
-        "logs/samtools/stats/{sample}.log",
+        "logs/samtools/stats/{sample}_{datatype}.log",
     wrapper:
         "v2.3.2/bio/samtools/stats"
 
@@ -38,7 +40,7 @@ rule multiqc:
         get_fastqc_results,
     output:
         report(
-            "results/qc/multiqc/{group}.html",
+            "results/qc/multiqc/{group}.{datatype}.html",
             category="Quality control",
             caption="../report/multiqc.rst",
             labels={"Sample group": "{group}"},
@@ -46,6 +48,6 @@ rule multiqc:
     params:
         "--exclude snippy",
     log:
-        "logs/multiqc/{group}.log",
+        "logs/multiqc/{group}_{datatype}.log",
     wrapper:
         "v2.10.0/bio/multiqc"

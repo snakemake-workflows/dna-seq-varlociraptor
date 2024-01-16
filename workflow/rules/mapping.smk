@@ -41,7 +41,7 @@ rule annotate_umis:
     resources:
         mem_mb=lambda wc, input: 2.5 * input.size_mb,
     log:
-        "logs/fgbio/annotate_bam/{sample}.log",
+        "logs/fgbio/annotate_bam/{sample}.{datatype}.log",
     wrapper:
         "v2.3.2/bio/fgbio/annotatebamwithumis"
 
@@ -54,7 +54,7 @@ rule mark_duplicates:
         bam=temp("results/dedup/{sample}.{datatype}.bam"),
         metrics="results/qc/dedup/{sample}.{datatype}.metrics.txt",
     log:
-        "logs/picard/dedup/{sample}.log",
+        "logs/picard/dedup/{sample}.{datatype}.log",
     params:
         extra=get_markduplicates_extra,
     resources:
@@ -160,7 +160,7 @@ rule recalibrate_base_qualities:
     resources:
         mem_mb=1024,
     log:
-        "logs/gatk/baserecalibrator/{sample}.log",
+        "logs/gatk/baserecalibrator/{sample}.{datatype}.log",
     threads: 8
     wrapper:
         "v1.25.0/bio/gatk/baserecalibratorspark"
@@ -181,7 +181,7 @@ rule apply_bqsr:
         bam=protected("results/recal/{sample}.{datatype}.bam"),
         bai="results/recal/{sample}.{datatype}.bai",
     log:
-        "logs/gatk/gatk_applybqsr/{sample}.log",
+        "logs/gatk/gatk_applybqsr/{sample}.{datatype}.log",
     params:
         extra=config["params"]["gatk"]["applyBQSR"],  # optional
         java_opts="",  # optional

@@ -21,9 +21,9 @@ rule filter_by_annotation:
         bcf=get_annotated_bcf,
         aux=get_annotation_filter_aux_files,
     output:
-        "results/calls/{group}.{event}.{analysis}.{scatteritem}.filtered_ann.bcf",
+        "results/calls/{group}.{event}.{calling_type}.{scatteritem}.filtered_ann.bcf",
     log:
-        "logs/filter-calls/annotation/{group}.{event}.{analysis}.{scatteritem}.log",
+        "logs/filter-calls/annotation/{group}.{event}.{calling_type}.{scatteritem}.log",
     params:
         filter=get_annotation_filter_expression,
         aux=get_annotation_filter_aux,
@@ -35,15 +35,15 @@ rule filter_by_annotation:
 
 rule filter_odds:
     input:
-        "results/calls/{group}.{event}.{analysis}.{scatteritem}.filtered_ann.bcf",
+        "results/calls/{group}.{event}.{calling_type}.{scatteritem}.filtered_ann.bcf",
     output:
-        "results/calls/{group}.{event}.{analysis}.{scatteritem}.filtered_odds.bcf",
+        "results/calls/{group}.{event}.{calling_type}.{scatteritem}.filtered_odds.bcf",
     params:
         events=lambda wc: config["calling"]["fdr-control"]["events"][wc.event][
             "varlociraptor"
         ],
     log:
-        "logs/filter-calls/posterior_odds/{group}.{event}.{analysis}.{scatteritem}.log",
+        "logs/filter-calls/posterior_odds/{group}.{event}.{calling_type}.{scatteritem}.log",
     conda:
         "../envs/varlociraptor.yaml"
     shell:
@@ -55,9 +55,9 @@ rule gather_calls:
         calls=get_gather_calls_input(),
         idx=get_gather_calls_input(ext="bcf.csi"),
     output:
-        "results/calls/{group}.{event}.{analysis}.filtered_{by}.bcf",
+        "results/calls/{group}.{event}.{calling_type}.filtered_{by}.bcf",
     log:
-        "logs/gather-calls/{group}.{event}.{analysis}.filtered_{by}.log",
+        "logs/gather-calls/{group}.{event}.{calling_type}.filtered_{by}.log",
     params:
         extra="-a",
     wrapper:
@@ -68,9 +68,9 @@ rule control_fdr:
     input:
         get_control_fdr_input,
     output:
-        "results/calls/{group}.{vartype}.{event}.{analysis}.fdr-controlled.bcf",
+        "results/calls/{group}.{vartype}.{event}.{calling_type}.fdr-controlled.bcf",
     log:
-        "logs/control-fdr/{group}.{vartype}.{event}.{analysis}.log",
+        "logs/control-fdr/{group}.{vartype}.{event}.{calling_type}.log",
     params:
         query=get_fdr_control_params,
     conda:
@@ -85,9 +85,9 @@ rule merge_calls:
         calls=get_merge_calls_input("bcf"),
         idx=get_merge_calls_input("bcf.csi"),
     output:
-        "results/final-calls/{group}.{event}.{analysis}.fdr-controlled.bcf",
+        "results/final-calls/{group}.{event}.{calling_type}.fdr-controlled.bcf",
     log:
-        "logs/merge-calls/{group}.{event}.{analysis}.log",
+        "logs/merge-calls/{group}.{event}.{calling_type}.log",
     params:
         extra="-a",
     wrapper:
@@ -96,11 +96,11 @@ rule merge_calls:
 
 rule convert_phred_scores:
     input:
-        "results/final-calls/{group}.{event}.{analysis}.fdr-controlled.bcf",
+        "results/final-calls/{group}.{event}.{calling_type}.fdr-controlled.bcf",
     output:
-        "results/final-calls/{group}.{event}.{analysis}.fdr-controlled.normal-probs.bcf",
+        "results/final-calls/{group}.{event}.{calling_type}.fdr-controlled.normal-probs.bcf",
     log:
-        "logs/convert-phred-scores/{group}.{event}.{analysis}.log",
+        "logs/convert-phred-scores/{group}.{event}.{calling_type}.log",
     conda:
         "../envs/varlociraptor.yaml"
     shell:

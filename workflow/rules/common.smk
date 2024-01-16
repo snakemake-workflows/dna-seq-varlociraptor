@@ -58,17 +58,17 @@ if "umi_read" not in samples.columns:
 validate(samples, schema="../schemas/samples.schema.yaml")
 
 
-def get_datatype_groups(datatype):
+def get_candidate_calling_groups(candidate_calling):
     return samples.loc[
-        samples["datatype"] == datatype,
+        samples["candidate-calling"] == candidate_calling,
         "group",
     ].unique()
 
 
 groups = samples["group"].unique()
-datatypes = samples["datatype"].unique()
-variants_groups = get_datatype_groups("variants")
-fusions_groups = get_datatype_groups("fusions")
+candidate_calling_types = samples["candidate-calling"].unique()
+variants_groups = get_candidate_calling_groups("variants")
+fusions_groups = get_candidate_calling_groups("fusions")
 
 if "groups" in config:
     group_annotation = (
@@ -109,11 +109,11 @@ primer_panels = (
 )
 
 
-def get_type_events(datatype):
+def get_calling_events(calling_type):
     events = [
         event
         for event, entries in config["calling"]["fdr-control"]["events"].items()
-        if datatype in entries.get("types", ["variants"])
+        if calling_type in entries.get("types", ["variants"])
     ]
     return events
 
@@ -125,53 +125,65 @@ def get_heterogeneous_labels():
 
 
 def get_final_output(wildcards):
+    group_datatypes = [get_group_datatype(group) for group in groups]
     final_output = expand(
-        "results/qc/multiqc/{group}.html",
+        "results/qc/multiqc/{group}.{datatype}.html",
+        zip,
         group=groups,
+        datatype=group_datatypes,
     )
 
     final_output.extend(
-        expand("results/datavzrd-report/{group}.coverage", group=groups)
+        expand(
+            "results/datavzrd-report/{group}.{datatype}.coverage",
+            zip,
+            group=groups,
+            datatype=group_datatypes,
+        )
     )
 
-    for datatype in datatypes:
+    for calling_type in candidate_calling_types:
         if config["report"]["activate"]:
             final_output.extend(
                 expand(
-                    "results/datavzrd-report/{batch}.{event}.{datatype}.fdr-controlled",
-                    event=get_type_events(datatype),
+                    "results/datavzrd-report/{batch}.{event}.{calling_type}.fdr-controlled",
+                    event=get_calling_events(calling_type),
                     batch=get_report_batches(),
-                    datatype=datatype,
+                    calling_type=calling_type,
                 )
             )
         else:
             final_output.extend(
                 expand(
-                    "results/final-calls/{group}.{event}.{datatype}.fdr-controlled.bcf",
-                    group=variants_groups if datatype == "variants" else fusions_groups,
-                    event=get_type_events(datatype),
-                    datatype=datatype,
+                    "results/final-calls/{group}.{event}.{calling_type}.fdr-controlled.bcf",
+                    group=variants_groups
+                    if calling_type == "variants"
+                    else fusions_groups,
+                    event=get_calling_events(calling_type),
+                    calling_type=calling_type,
                 )
             )
 
         if config["tables"]["activate"]:
             final_output.extend(
                 expand(
-                    "results/tables/{group}.{event}.{datatype}.fdr-controlled.tsv",
-                    group=variants_groups if datatype == "variants" else fusions_groups,
-                    event=get_type_events(datatype),
-                    datatype=datatype,
+                    "results/tables/{group}.{event}.{calling_type}.fdr-controlled.tsv",
+                    group=variants_groups
+                    if calling_type == "variants"
+                    else fusions_groups,
+                    event=get_calling_events(calling_type),
+                    calling_type=calling_type,
                 )
             )
             if config["tables"].get("generate_excel", False):
                 final_output.extend(
                     expand(
-                        "results/tables/{group}.{event}.{datatype}.fdr-controlled.xlsx",
+                        "results/tables/{group}.{event}.{calling_type}.fdr-controlled.xlsx",
                         group=variants_groups
-                        if datatype == "variants"
+                        if calling_type == "variants"
                         else fusions_groups,
-                        event=get_type_events(datatype),
-                        datatype=datatype,
+                        event=get_calling_events(calling_type),
+                        calling_type=calling_type,
                     )
                 )
     final_output.extend(get_mutational_burden_targets())
@@ -182,9 +194,9 @@ def get_final_output(wildcards):
 def get_gather_calls_input(ext="bcf"):
     def inner(wildcards):
         if wildcards.by == "odds":
-            pattern = "results/calls/{{{{group}}}}.{{{{event}}}}.{{{{analysis}}}}.{{scatteritem}}.filtered_odds.{ext}"
+            pattern = "results/calls/{{{{group}}}}.{{{{event}}}}.{{{{calling_type}}}}.{{scatteritem}}.filtered_odds.{ext}"
         elif wildcards.by == "ann":
-            pattern = "results/calls/{{{{group}}}}.{{{{event}}}}.{{{{analysis}}}}.{{scatteritem}}.filtered_ann.{ext}"
+            pattern = "results/calls/{{{{group}}}}.{{{{event}}}}.{{{{calling_type}}}}.{{scatteritem}}.filtered_ann.{ext}"
         else:
             raise ValueError(
                 "Unexpected wildcard value for 'by': {}".format(wildcards.by)
@@ -199,16 +211,14 @@ def get_control_fdr_input(wildcards):
     if (
         not is_activated("benchmarking")
         and query["filter"]
-        and wildcards.analysis == "variants"
+        and wildcards.calling_type == "variants"
     ):
         by = "ann" if query["local"] else "odds"
-        return (
-            "results/calls/{{group}}.{{event}}.{{analysis}}.filtered_{by}.bcf".format(
-                by=by
-            )
+        return "results/calls/{{group}}.{{event}}.{{calling_type}}.filtered_{by}.bcf".format(
+            by=by
         )
     else:
-        return "results/final-calls/{group}.{analysis}.annotated.bcf"
+        return "results/final-calls/{group}.{calling_type}.annotated.bcf"
 
 
 # TODO Triming and consensus calling for rna?
@@ -388,8 +398,12 @@ def get_group_sample_aliases(wildcards, controls=True):
     ]["alias"]
 
 
-def get_sample_datatype(sample, caller):
+def get_sample_datatype(sample):
     return samples.loc[sample, "datatype"].iloc[0]
+
+
+def get_group_datatype(group):
+    return samples.loc[samples["group"] == group, "datatype"].iloc[0]
 
 
 # TODO Done
@@ -515,8 +529,9 @@ def get_group_bams(wildcards, bai=False):
     if is_activated("primers/trimming") and not group_is_paired_end(wildcards.group):
         WorkflowError("Primer trimming is only available for paired end data.")
     return expand(
-        "results/recal/{sample}.{ext}",
+        "results/recal/{sample}.{datatype}.{ext}",
         sample=get_group_samples(wildcards.group),
+        datatype=get_group_datatype(wildcards.group),
         ext=ext,
     )
 
@@ -532,7 +547,7 @@ def get_arriba_group_candidates(wildcards, csi=False):
 
 def get_group_bams_report(group):
     return [
-        (sample, "results/recal/{}.bam".format(sample))
+        (sample, "results/recal/{}.{}.bam".format(sample, get_sample_datatype(sample)))
         for sample in get_group_samples(group)
     ]
 
@@ -602,7 +617,7 @@ def get_mutational_burden_targets():
 
 def get_scattered_calls(ext="bcf"):
     def inner(wildcards):
-        caller = "arriba" if wildcards.analysis == "fusions" else variant_caller
+        caller = "arriba" if wildcards.calling_type == "fusions" else variant_caller
         return expand(
             "results/calls/{{group}}.{caller}.{{scatteritem}}.{ext}",
             caller=caller,
@@ -622,10 +637,12 @@ def get_selected_annotations():
 
 
 def get_annotated_bcf(wildcards):
-    selection = get_selected_annotations() if wildcards.analysis == "variants" else ""
-    return "results/calls/{group}.{datatype}.{scatteritem}{selection}.bcf".format(
+    selection = (
+        get_selected_annotations() if wildcards.calling_type == "variants" else ""
+    )
+    return "results/calls/{group}.{calling_type}.{scatteritem}{selection}.bcf".format(
         group=wildcards.group,
-        datatype=wildcards.analysis,
+        calling_type=wildcards.calling_type,
         selection=selection,
         scatteritem=wildcards.scatteritem,
     )
@@ -634,10 +651,10 @@ def get_annotated_bcf(wildcards):
 def get_gather_annotated_calls_input(ext="bcf"):
     def inner(wildcards):
         selection = (
-            get_selected_annotations() if wildcards.analysis == "variants" else ""
+            get_selected_annotations() if wildcards.calling_type == "variants" else ""
         )
         return gather.calling(
-            "results/calls/{{{{group}}}}.{{{{analysis}}}}.{{scatteritem}}{selection}.{ext}".format(
+            "results/calls/{{{{group}}}}.{{{{calling_type}}}}.{{scatteritem}}{selection}.{ext}".format(
                 ext=ext, selection=selection
             )
         )
@@ -678,11 +695,11 @@ def get_merge_calls_input(ext="bcf"):
     def inner(wildcards):
         vartype = (
             ["SNV", "INS", "DEL", "MNV", "BND", "INV", "DUP", "REP"]
-            if wildcards.analysis == "variants"
+            if wildcards.calling_type == "variants"
             else ["BND"]
         )
         return expand(
-            "results/calls/{{group}}.{vartype}.{{event}}.{{analysis}}.fdr-controlled.{ext}",
+            "results/calls/{{group}}.{vartype}.{{event}}.{{calling_type}}.fdr-controlled.{ext}",
             ext=ext,
             vartype=vartype,
         )
@@ -749,19 +766,19 @@ def get_filter_targets(wildcards, input):
 
 
 def get_filter_expression(filter_name):
-    filter = config["calling"]["filter"][filter_name]
-    if isinstance(filter, str):
-        return filter
+    filter_entry = config["calling"]["filter"][filter_name]
+    if isinstance(filter_entry, str):
+        return filter_entry
     else:
-        return config["calling"]["filter"][filter_name]["expression"]
+        return filter_entry["expression"]
 
 
 def get_filter_aux_entries(filter_name):
-    filter = config["calling"]["filter"][filter_name]
-    if isinstance(filter, str):
+    filter_entry = config["calling"]["filter"][filter_name]
+    if isinstance(filter_entry, str):
         return {}
     else:
-        aux = config["calling"]["filter"][filter_name].get("aux-files", {})
+        aux = filter_entry.get("aux-files", {})
         return aux  # [f"--aux {name} {path}" for name, path in aux.items()]
 
 
@@ -790,8 +807,8 @@ def get_annotation_filter_aux(wildcards):
 def get_annotation_filter_aux_files(wildcards):
     return [
         path
-        for filter in get_annotation_filter_names(wildcards)
-        for name, path in get_filter_aux_entries(filter).items()
+        for filter_name in get_annotation_filter_names(wildcards)
+        for name, path in get_filter_aux_entries(filter_name).items()
     ]
 
 
@@ -841,7 +858,7 @@ wildcard_constraints:
     filter="|".join(config["calling"]["filter"]),
     event="|".join(config["calling"]["fdr-control"]["events"].keys()),
     regions_type="|".join(["expanded", "covered"]),
-    analysis="|".join(["fusions", "variants"]),
+    calling_type="|".join(["fusions", "variants"]),
 
 
 variant_caller = list(
@@ -850,11 +867,11 @@ variant_caller = list(
         [
             "freebayes"
             if is_activated("calling/freebayes")
-            and samples["datatype"].str.contains("variants").any()
+            and samples["candidate-calling"].str.contains("variants").any()
             else None,
             "delly"
             if is_activated("calling/delly")
-            and samples["datatype"].str.contains("variants").any()
+            and samples["candidate-calling"].str.contains("variants").any()
             else None,
         ],
     )
@@ -939,7 +956,7 @@ def get_vembrane_config(wildcards, input):
             parts.append(parts_field)
             header.append(header_name)
 
-    if wildcards.analysis == "fusions":
+    if wildcards.calling_type == "fusions":
         info_fields = [
             {"name": "mateid", "expr": "INFO['MATEID'][0]"},
             {"name": "feature_name", "expr": "INFO['GENE_NAME']"},
@@ -1124,6 +1141,8 @@ def get_datavzrd_report_subcategory(wildcards):
 
 def get_fastqc_results(wildcards):
     group_samples = get_group_samples(wildcards.group)
+    # TODO All samples of one group always have the same datatype?
+    group_datatype = get_group_datatype(wildcards.group)
     sample_units = units.loc[group_samples]
     sra_units = pd.isna(sample_units["fq1"])
     paired_end_units = sra_units | ~pd.isna(sample_units["fq2"])
@@ -1146,10 +1165,18 @@ def get_fastqc_results(wildcards):
         )
 
     # samtools idxstats
-    yield from expand("results/qc/{sample}.bam.idxstats", sample=group_samples)
+    yield from expand(
+        "results/qc/{sample}.{datatype}.bam.idxstats",
+        sample=group_samples,
+        datatype=group_datatype,
+    )
 
     # samtools stats
-    yield from expand("results/qc/{sample}.bam.stats", sample=group_samples)
+    yield from expand(
+        "results/qc/{sample}.{datatype}.bam.stats",
+        sample=group_samples,
+        datatype=group_datatype,
+    )
 
 
 def get_variant_oncoprints(wildcards):
