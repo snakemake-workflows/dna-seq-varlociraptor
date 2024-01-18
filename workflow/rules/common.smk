@@ -565,6 +565,14 @@ def is_activated(xpath):
     return bool(c.get("activate", False))
 
 
+def get_star_read_group(wildcards):
+    """Denote sample name and platform in read group."""
+    platform = extract_unique_sample_column_value(wildcards.sample, "platform")
+    return r"--outSAMattrRGline ID:{sample} SM:{sample} PL:{platform}".format(
+        sample=wildcards.sample, platform=platform
+    )
+
+
 def get_read_group(wildcards):
     """Denote sample name and platform in read group."""
     platform = extract_unique_sample_column_value(wildcards.sample, "platform")
