@@ -25,7 +25,7 @@ use rule star_align from fusion_calling with:
         reads_per_gene="results/mapped/star/{sample}.ReadsPerGene.tsv",
     params:
         # specific parameters to work well with arriba
-        extra=lambda wc, input: f"--quantMode GeneCounts --sjdbGTFfile {input.annotation} {get_star_read_group(wc , 'star')}"
+        extra=lambda wc, input: f"--quantMode GeneCounts --sjdbGTFfile {input.annotation} {get_star_read_group(wc)}"
         " --outSAMtype BAM SortedByCoordinate --chimSegmentMin 10 --chimOutType WithinBAM SoftClip"
         " --chimJunctionOverhangMin 10 --chimScoreMin 1 --chimScoreDropMax 30 --chimScoreJunctionNonGTAG 0"
         " --chimScoreSeparation 1 --alignSJstitchMismatchNmax 5 -1 5 5 --chimSegmentReadGapMax 3",
