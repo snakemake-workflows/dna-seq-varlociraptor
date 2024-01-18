@@ -57,7 +57,7 @@ if "umi_read" not in samples.columns:
 
 validate(samples, schema="../schemas/samples.schema.yaml")
 
-
+# Does this correctly return groups where fusion and variants are set?
 def get_candidate_calling_groups(candidate_calling):
     return samples.loc[
         samples["candidate-calling"] == candidate_calling,
@@ -125,20 +125,16 @@ def get_heterogeneous_labels():
 
 
 def get_final_output(wildcards):
-    group_datatypes = [get_group_datatype(group) for group in groups]
     final_output = expand(
-        "results/qc/multiqc/{group}.{datatype}.html",
+        "results/qc/multiqc/{group}.html",
         zip,
         group=groups,
-        datatype=group_datatypes,
     )
 
     final_output.extend(
         expand(
-            "results/datavzrd-report/{group}.{datatype}.coverage",
-            zip,
+            "results/datavzrd-report/{group}.coverage",
             group=groups,
-            datatype=group_datatypes,
         )
     )
 
@@ -221,37 +217,24 @@ def get_control_fdr_input(wildcards):
         return "results/final-calls/{group}.{calling_type}.annotated.bcf"
 
 
-# TODO Triming and consensus calling for rna?
 def get_recalibrate_quality_input(wildcards, bai=False):
     ext = "bai" if bai else "bam"
-    if wildcards.datatype == "rna":
-        return "results/split/{}.rna.{}".format(wildcards.sample, ext)
-    # Only for dna samples
     if is_activated("calc_consensus_reads"):
-        return "results/consensus/{}.{}.{}".format(
-            wildcards.sample, wildcards.datatype, ext
-        )
+        return "results/consensus/{{sample}}.{ext}".format(ext=ext)
     elif is_activated("primers/trimming"):
-        return "results/trimmed/{}.{}.trimmed.{}".format(
-            wildcards.sample, wildcards.datatype, ext
+        return "results/trimmed/{{sample}}.trimmed.{ext}".format(ext=ext
         )
     elif is_activated("remove_duplicates"):
-        return "results/dedup/{}.{}.{}".format(
-            wildcards.sample, wildcards.datatype, ext
-        )
+        return "results/dedup/{{sample}}.{ext}".format(ext=ext)
     else:
-        return "results/mapped/{}.{}.{}".format(
-            wildcards.sample, wildcards.datatype, ext
-        )
-
-
-def get_sample_bam(wildcards, candidate_calling, bai=False):
-    ext = "bai" if bai else "bam"
-    if candidate_calling == "fusions":
-        "results/mapped/{sample}.rna.bam",
-    else:
+        #TODO How to handle SplitNCigarReads and do it only for rna variants but also for rna fusions?
         datatype = get_sample_datatype(wildcards.sample)
-        return "results/recal/{}.{}.{}".format(wildcards.sample, datatype, ext)
+        if datatype == "rna":
+            return "results/split/{{sample}}.{ext}".format(ext=ext)
+        aligner = "star" if get_sample_datatype(wildcards.sample) == "rna" else "bwa"
+        return "results/mapped/{aligner}/{{sample}}.{ext}".format(
+            aligner=aligner, ext=ext
+        )
 
 
 def get_cutadapt_input(wildcards):
@@ -402,34 +385,30 @@ def get_sample_datatype(sample):
     return samples.loc[sample, "datatype"].iloc[0]
 
 
-def get_group_datatype(group):
-    return samples.loc[samples["group"] == group, "datatype"].iloc[0]
-
-
-# TODO Done
 def get_markduplicates_input(wildcards):
+    aligner = "star" if get_sample_datatype(wildcards.sample) == "rna" else "bwa"
     if sample_has_umis(wildcards.sample):
-        return "results/mapped/{sample}.{datatype}.annotated.bam"
+        return "results/mapped/{aligner}/{{sample}}.annotated.bam".format(aligner=aligner)
     else:
-        return "results/mapped/{sample}.{datatype}.bam"
+        return "results/mapped/{aligner}/{{sample}}.bam".format(aligner=aligner)
 
 
-# TODO Consensus reads for star aligned reads?
 def get_consensus_input(wildcards):
     if is_activated("primers/trimming"):
-        return "results/trimmed/{sample}.dna.trimmed.bam"
+        return "results/trimmed/{sample}.trimmed.bam"
     elif is_activated("remove_duplicates"):
-        return "results/dedup/{sample}.dna.bam"
+        return "results/dedup/{sample}.bam"
     else:
-        return "results/mapped/{sample}.dna.bam"
+        aligner = "star" if get_sample_datatype(wildcards.sample) == "rna" else "bwa"
+        return "results/mapped/{aligner}/{{sample}}.bam".format(aligner=aligner)
 
 
-# TODO
 def get_trimming_input(wildcards):
     if is_activated("remove_duplicates"):
-        return "results/dedup/{sample}.dna.bam"
+        return "results/dedup/{sample}.bam"
     else:
-        return "results/mapped/{sample}.dna.bam"
+        aligner = "star" if get_sample_datatype(wildcards.sample) == "rna" else "bwa"
+        return "results/mapped/{aligner}/{{sample}}.bam".format(aligner=aligner)
 
 
 def get_primer_bed(wc):
@@ -529,9 +508,8 @@ def get_group_bams(wildcards, bai=False):
     if is_activated("primers/trimming") and not group_is_paired_end(wildcards.group):
         WorkflowError("Primer trimming is only available for paired end data.")
     return expand(
-        "results/recal/{sample}.{datatype}.{ext}",
+        "results/recal/{sample}.{ext}",
         sample=get_group_samples(wildcards.group),
-        datatype=get_group_datatype(wildcards.group),
         ext=ext,
     )
 
@@ -543,13 +521,6 @@ def get_arriba_group_candidates(wildcards, csi=False):
         sample=get_group_samples(wildcards.group),
         ext=ext,
     )
-
-
-def get_group_bams_report(group):
-    return [
-        (sample, "results/recal/{}.{}.bam".format(sample, get_sample_datatype(sample)))
-        for sample in get_group_samples(group)
-    ]
 
 
 def get_processed_consensus_input(wildcards):
@@ -1141,8 +1112,6 @@ def get_datavzrd_report_subcategory(wildcards):
 
 def get_fastqc_results(wildcards):
     group_samples = get_group_samples(wildcards.group)
-    # TODO All samples of one group always have the same datatype?
-    group_datatype = get_group_datatype(wildcards.group)
     sample_units = units.loc[group_samples]
     sra_units = pd.isna(sample_units["fq1"])
     paired_end_units = sra_units | ~pd.isna(sample_units["fq2"])
@@ -1166,16 +1135,14 @@ def get_fastqc_results(wildcards):
 
     # samtools idxstats
     yield from expand(
-        "results/qc/{sample}.{datatype}.bam.idxstats",
+        "results/qc/{sample}.bam.idxstats",
         sample=group_samples,
-        datatype=group_datatype,
     )
 
     # samtools stats
     yield from expand(
-        "results/qc/{sample}.{datatype}.bam.stats",
+        "results/qc/{sample}.bam.stats",
         sample=group_samples,
-        datatype=group_datatype,
     )
 
 

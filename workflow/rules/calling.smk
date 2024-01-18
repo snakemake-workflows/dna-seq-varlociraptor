@@ -22,40 +22,30 @@ rule render_scenario:
         "yte"
 
 
-# TODO Add sort of variant calling to output (fusion or variant)
 rule varlociraptor_alignment_properties:
     input:
         ref=genome,
         ref_idx=genome_fai,
-        bam=lambda wc: get_sample_bam(wc, wc.candidate_calling),
-        bai=lambda wc: get_sample_bam(wc, wc.candidate_calling, bai=True),
+        bam="results/recal/{sample}.bam",
+        bai="results/recal/{sample}.bai",
     output:
-        "results/alignment-properties/{group}/{sample}.{candidate_calling}.json",
+        "results/alignment-properties/{group}/{sample}.json",
     log:
-        "logs/varlociraptor/estimate-alignment-properties/{group}/{sample}.{candidate_calling}.log",
+        "logs/varlociraptor/estimate-alignment-properties/{group}/{sample}.log",
     conda:
         "../envs/varlociraptor.yaml"
     shell:
         "varlociraptor estimate alignment-properties {input.ref} --bam {input.bam} > {output} 2> {log}"
 
 
-# TODO Add sort of variant calling to alignment_probs
 rule varlociraptor_preprocess:
     input:
         ref=genome,
         ref_idx=genome_fai,
         candidates=get_candidate_calls(),
-        bam=lambda wc: get_sample_bam(
-            wc, "fusions" if wc.caller == "arriba" else "variants"
-        ),
-        bai=lambda wc: get_sample_bam(
-            wc, "fusions" if wc.caller == "arriba" else "variants", bai=True
-        ),
-        alignment_props=lambda wc: "results/alignment-properties/{group}/{sample}.{candidate_calling}.json".format(
-            group=wc.group,
-            sample=wc.sample,
-            candidate_calling="fusions" if wc.caller == "arriba" else "variants",
-        ),
+        bam="results/recal/{sample}.bam",
+        bai="results/recal/{sample}.bai",
+        alignment_props="results/alignment-properties/{group}/{sample}.json",
     output:
         "results/observations/{group}/{sample}.{caller}.{scatteritem}.bcf",
     params:

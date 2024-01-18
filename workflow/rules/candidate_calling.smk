@@ -2,9 +2,7 @@ rule freebayes:
     input:
         ref=genome,
         ref_idx=genome_fai,
-        regions=lambda wc: "results/regions/{{group}}.{datatype}.expanded_regions.filtered.bed".format(
-            datatype=get_group_datatype(wc.group)
-        ),
+        regions="results/regions/{group}.expanded_regions.filtered.bed",
         # you can have a list of samples here
         alns=lambda w: get_group_bams(w),
         idxs=lambda w: get_group_bams(w, bai=True),

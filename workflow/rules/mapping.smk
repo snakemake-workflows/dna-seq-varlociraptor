@@ -4,7 +4,7 @@ rule map_reads:
         reads=get_map_reads_input,
         idx=rules.bwa_index.output,
     output:
-        temp("results/mapped/{sample}.dna.bam"),
+        temp("results/mapped/bwa/{sample}.bam"),
     log:
         "logs/bwa_mem/{sample}.log",
     params:
@@ -32,16 +32,16 @@ rule merge_untrimmed_fastqs:
 # TODO Done
 rule annotate_umis:
     input:
-        bam="results/mapped/{sample}.{datatype}.bam",
+        bam="results/mapped/{aligner}/{sample}.bam",
         umi=get_umi_fastq,
     output:
-        temp("results/mapped/{sample}.{datatype}.annotated.bam"),
+        temp("results/mapped/{aligner}/{sample}.annotated.bam"),
     params:
         extra=get_umi_read_structure,
     resources:
         mem_mb=lambda wc, input: 2.5 * input.size_mb,
     log:
-        "logs/fgbio/annotate_bam/{sample}.{datatype}.log",
+        "logs/fgbio/annotate_bam/{aligner}/{sample}.log",
     wrapper:
         "v2.3.2/bio/fgbio/annotatebamwithumis"
 
@@ -51,10 +51,10 @@ rule mark_duplicates:
     input:
         bams=get_markduplicates_input,
     output:
-        bam=temp("results/dedup/{sample}.{datatype}.bam"),
-        metrics="results/qc/dedup/{sample}.{datatype}.metrics.txt",
+        bam=temp("results/dedup/{sample}.bam"),
+        metrics="results/qc/dedup/{sample}.metrics.txt",
     log:
-        "logs/picard/dedup/{sample}.{datatype}.log",
+        "logs/picard/dedup/{sample}.log",
     params:
         extra=get_markduplicates_extra,
     resources:
@@ -128,10 +128,10 @@ rule sort_consensus_reads:
 
 rule splitncigarreads:
     input:
-        bam="results/dedup/{sample}.rna.bam",
+        bam="results/dedup/{sample}.bam",
         ref=genome,
     output:
-        "results/split/{sample}.rna.bam",
+        "results/split/{sample}.bam",
     log:
         "logs/gatk/splitNCIGARreads/{sample}.log",
     params:
@@ -153,14 +153,14 @@ rule recalibrate_base_qualities:
         known="resources/variation.noiupac.vcf.gz",
         tbi="resources/variation.noiupac.vcf.gz.tbi",
     output:
-        recal_table=temp("results/recal/{sample}.{datatype}.grp"),
+        recal_table=temp("results/recal/{sample}.grp"),
     params:
         extra=config["params"]["gatk"]["BaseRecalibrator"],
         java_opts="",
     resources:
         mem_mb=1024,
     log:
-        "logs/gatk/baserecalibrator/{sample}.{datatype}.log",
+        "logs/gatk/baserecalibrator/{sample}.log",
     threads: 8
     wrapper:
         "v1.25.0/bio/gatk/baserecalibratorspark"
@@ -176,12 +176,12 @@ rule apply_bqsr:
         ref=genome,
         ref_dict=genome_dict,
         ref_fai=genome_fai,
-        recal_table="results/recal/{sample}.{datatype}.grp",
+        recal_table="results/recal/{sample}.grp",
     output:
-        bam=protected("results/recal/{sample}.{datatype}.bam"),
-        bai="results/recal/{sample}.{datatype}.bai",
+        bam=protected("results/recal/{sample}.bam"),
+        bai="results/recal/{sample}.bai",
     log:
-        "logs/gatk/gatk_applybqsr/{sample}.{datatype}.log",
+        "logs/gatk/gatk_applybqsr/{sample}.log",
     params:
         extra=config["params"]["gatk"]["applyBQSR"],  # optional
         java_opts="",  # optional

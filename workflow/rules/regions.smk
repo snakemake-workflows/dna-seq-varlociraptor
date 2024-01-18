@@ -31,17 +31,17 @@ rule transform_gene_annotations:
 
 rule build_sample_regions:
     input:
-        bam="results/recal/{sample}.{datatype}.bam",
-        bai="results/recal/{sample}.{datatype}.bai",
+        bam="results/recal/{sample}.bam",
+        bai="results/recal/{sample}.bai",
         bed="resources/gene_annotation.bed",
     output:
-        "results/regions/{group}/{sample}.{datatype}.mosdepth.global.dist.txt",
-        "results/regions/{group}/{sample}.{datatype}.quantized.bed.gz",
-        "results/regions/{group}/{sample}.{datatype}.regions.bed.gz",
-        "results/regions/{group}/{sample}.{datatype}.mosdepth.region.dist.txt",
-        summary="results/regions/{group}/{sample}.{datatype}.mosdepth.summary.txt",  # this named output is required for prefix parsing
+        "results/regions/{group}/{sample}.mosdepth.global.dist.txt",
+        "results/regions/{group}/{sample}.quantized.bed.gz",
+        "results/regions/{group}/{sample}.regions.bed.gz",
+        "results/regions/{group}/{sample}.mosdepth.region.dist.txt",
+        summary="results/regions/{group}/{sample}.mosdepth.summary.txt",  # this named output is required for prefix parsing
     log:
-        "logs/mosdepth/regions/{group}_{sample}_{datatype}.log",
+        "logs/mosdepth/regions/{group}_{sample}.log",
     params:
         extra="--no-per-base",
         quantize="1:",
@@ -52,13 +52,13 @@ rule build_sample_regions:
 rule merge_expanded_group_regions:
     input:
         lambda wc: expand(
-            "results/regions/{{group}}/{sample}.{{datatype}}.quantized.bed.gz",
+            "results/regions/{{group}}/{sample}.quantized.bed.gz",
             sample=get_group_samples(wc.group),
         ),
     output:
-        "results/regions/{group}.{datatype}.expanded_regions.bed",
+        "results/regions/{group}.expanded_regions.bed",
     log:
-        "logs/regions/{group}_{datatype}_expanded_regions.log",
+        "logs/regions/{group}_expanded_regions.log",
     conda:
         "../envs/bedtools.yaml"
     shell:
@@ -68,13 +68,13 @@ rule merge_expanded_group_regions:
 rule merge_covered_group_regions:
     input:
         lambda wc: expand(
-            "results/regions/{{group}}/{sample}.{{datatype}}.quantized.bed.gz",
+            "results/regions/{{group}}/{sample}.quantized.bed.gz",
             sample=get_group_samples(wc.group),
         ),
     output:
-        "results/regions/{group}.{datatype}.covered_regions.bed",
+        "results/regions/{group}.covered_regions.bed",
     log:
-        "logs/regions/{group}_{datatype}_covered_regions.log",
+        "logs/regions/{group}_covered_regions.log",
     conda:
         "../envs/bedtools.yaml"
     shell:
@@ -83,20 +83,20 @@ rule merge_covered_group_regions:
 
 rule filter_group_regions:
     input:
-        regions="results/regions/{group}.{datatype}.{regions_type}_regions.bed",
+        regions="results/regions/{group}.{regions_type}_regions.bed",
         predefined="resources/target_regions/target_regions.bed"
         if "target_regions" in config
         else [],
         fai=genome_fai,
     output:
-        "results/regions/{group}.{datatype}.{regions_type}_regions.filtered.bed",
+        "results/regions/{group}.{regions_type}_regions.filtered.bed",
     conda:
         "../envs/awk_bedtools.yaml"
     params:
         chroms=config["ref"]["n_chromosomes"],
         filter_targets=get_filter_targets,
     log:
-        "logs/regions/{group}.{datatype}.{regions_type}_regions.filtered.log",
+        "logs/regions/{group}.{regions_type}_regions.filtered.log",
     shell:
         "cat {input.regions} | grep -f <(head -n {params.chroms} {input.fai} | "
         'awk \'{{print "^"$1"\\t"}}\') {params.filter_targets} | sort -k1,1 -k2,2n '
