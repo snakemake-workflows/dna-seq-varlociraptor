@@ -57,6 +57,7 @@ if "umi_read" not in samples.columns:
 
 validate(samples, schema="../schemas/samples.schema.yaml")
 
+
 # Does this correctly return groups where fusion and variants are set?
 def get_candidate_calling_groups(candidate_calling):
     return samples.loc[
@@ -222,12 +223,11 @@ def get_recalibrate_quality_input(wildcards, bai=False):
     if is_activated("calc_consensus_reads"):
         return "results/consensus/{{sample}}.{ext}".format(ext=ext)
     elif is_activated("primers/trimming"):
-        return "results/trimmed/{{sample}}.trimmed.{ext}".format(ext=ext
-        )
+        return "results/trimmed/{{sample}}.trimmed.{ext}".format(ext=ext)
     elif is_activated("remove_duplicates"):
         return "results/dedup/{{sample}}.{ext}".format(ext=ext)
     else:
-        #TODO How to handle SplitNCigarReads and do it only for rna variants but also for rna fusions?
+        # TODO How to handle SplitNCigarReads and do it only for rna variants but also for rna fusions?
         datatype = get_sample_datatype(wildcards.sample)
         if datatype == "rna":
             return "results/split/{{sample}}.{ext}".format(ext=ext)
@@ -388,7 +388,9 @@ def get_sample_datatype(sample):
 def get_markduplicates_input(wildcards):
     aligner = "star" if get_sample_datatype(wildcards.sample) == "rna" else "bwa"
     if sample_has_umis(wildcards.sample):
-        return "results/mapped/{aligner}/{{sample}}.annotated.bam".format(aligner=aligner)
+        return "results/mapped/{aligner}/{{sample}}.annotated.bam".format(
+            aligner=aligner
+        )
     else:
         return "results/mapped/{aligner}/{{sample}}.bam".format(aligner=aligner)
 
