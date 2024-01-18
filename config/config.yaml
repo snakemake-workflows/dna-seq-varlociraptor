@@ -85,9 +85,10 @@ calling:
   freebayes:
     activate: true
   # See https://varlociraptor.github.io/docs/calling/#generic-variant-calling
-  ScanITD:
-    activate: true
-    tmpDIR: "/tmp/ScanITD"  # set the directory for temporary files
+  ScanITD: 
+    activate: false
+    tmpDIR: "/tmp/ScanITD"  # set directory for temporary files
+    # experimental 
     # ScanITD detects internal tandem duplication. See https://github.com/ylab-hi/ScanITD
 
   scenario: config/scenario.yaml

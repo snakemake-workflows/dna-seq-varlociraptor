@@ -95,7 +95,6 @@ rule ScanITD:
         ref_idx=genome_fai,
         regions=get_itd_regions,
         bam=config["calling"]["ScanITD"]["tmpDIR"]+"/{sample}_chr{chr}.bam",
-        bai=config["calling"]["ScanITD"]["tmpDIR"]+"/{sample}_chr{chr}.bam",
     output:
         temp(config["calling"]["ScanITD"]["tmpDIR"]+"/{sample}_chr{chr}.ITD.vcf"),
     log:
