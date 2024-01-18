@@ -382,7 +382,7 @@ def get_group_sample_aliases(wildcards, controls=True):
 
 
 def get_sample_datatype(sample):
-    return samples.loc[sample, "datatype"].iloc[0]
+    return samples.loc[[sample], "datatype"].iloc[0]
 
 
 def get_markduplicates_input(wildcards):
