@@ -59,15 +59,17 @@ validate(samples, schema="../schemas/samples.schema.yaml")
 
 
 # Does this correctly return groups where fusion and variants are set?
-def get_candidate_calling_groups(candidate_calling):
+def get_candidate_calling_groups(calling_type):
     return samples.loc[
-        samples["candidate-calling"] == candidate_calling,
+        samples["candidate-calling"].str.contains(calling_type),
         "group",
     ].unique()
 
 
 groups = samples["group"].unique()
-candidate_calling_types = samples["candidate-calling"].unique()
+candidate_calling_types = (
+    samples["candidate-calling"].str.split(",").explode().unique().tolist()
+)
 variants_groups = get_candidate_calling_groups("variants")
 fusions_groups = get_candidate_calling_groups("fusions")
 
@@ -128,7 +130,6 @@ def get_heterogeneous_labels():
 def get_final_output(wildcards):
     final_output = expand(
         "results/qc/multiqc/{group}.html",
-        zip,
         group=groups,
     )
 
@@ -144,8 +145,8 @@ def get_final_output(wildcards):
             final_output.extend(
                 expand(
                     "results/datavzrd-report/{batch}.{event}.{calling_type}.fdr-controlled",
-                    event=get_calling_events(calling_type),
                     batch=get_report_batches(),
+                    event=get_calling_events(calling_type),
                     calling_type=calling_type,
                 )
             )
@@ -651,9 +652,9 @@ def get_candidate_calls():
         return "results/candidate-calls/{group}.{caller}.{scatteritem}.bcf"
 
 
-def get_report_batch(wildcards, datatype):
+def get_report_batch(wildcards, calling_type):
     if wildcards.batch == "all":
-        _groups = variants_groups if datatype == "variants" else fusions_groups
+        _groups = variants_groups if calling_type == "variants" else fusions_groups
     else:
         _groups = samples.loc[
             samples[config["report"]["stratify"]["by-column"]] == wildcards.batch,
@@ -1064,10 +1065,10 @@ def get_primer_extra(wc, input):
 
 
 def get_datavzrd_data(impact="coding"):
-    datatype = "variants"
+    calling_type = "variants"
     if impact == "fusions":
         impact = "fusions.joined"
-        datatype = "fusions"
+        calling_type = "fusions"
     pattern = "results/tables/{group}.{event}.{impact}.fdr-controlled.tsv"
 
     def inner(wildcards):
@@ -1075,7 +1076,7 @@ def get_datavzrd_data(impact="coding"):
             pattern,
             impact=impact,
             event=wildcards.event,
-            group=get_report_batch(wildcards, datatype),
+            group=get_report_batch(wildcards, calling_type),
         )
 
     return inner
