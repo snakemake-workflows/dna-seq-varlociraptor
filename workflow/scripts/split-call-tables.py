@@ -13,8 +13,7 @@ PROB_EPSILON = 0.01  # columns with all probabilities below will be dropped
 
 
 def write(df, path):
-    df = df.drop(["mane_plus_clinical"], axis="columns", errors="ignore")
-    df = df.drop(["canonical"], axis="columns", errors="ignore")
+    df["mane_plus_clinical"][df["mane_plus_clinical"].notna()] = True
     if not df.empty:
         remaining_columns = df.dropna(how="all", axis="columns").columns.tolist()
         if path == snakemake.output.coding:
