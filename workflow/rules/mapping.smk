@@ -1,4 +1,3 @@
-# TODO Done
 rule map_reads:
     input:
         reads=get_map_reads_input,
@@ -29,7 +28,6 @@ rule merge_untrimmed_fastqs:
         "cat {input} > {output} 2> {log}"
 
 
-# TODO Done
 rule annotate_umis:
     input:
         bam="results/mapped/{aligner}/{sample}.bam",
@@ -46,7 +44,6 @@ rule annotate_umis:
         "v2.3.2/bio/fgbio/annotatebamwithumis"
 
 
-# TODO DOne
 rule mark_duplicates:
     input:
         bams=get_markduplicates_input,
@@ -126,9 +123,10 @@ rule sort_consensus_reads:
         "v2.3.2/bio/samtools/sort"
 
 
+# TODO Does not use consensus reads
 rule splitncigarreads:
     input:
-        bam="results/dedup/{sample}.bam",
+        bam="results/mapped/star/{sample}.bam",
         ref=genome,
     output:
         "results/split/{sample}.bam",

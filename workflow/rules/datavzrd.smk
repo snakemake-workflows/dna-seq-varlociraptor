@@ -139,7 +139,7 @@ rule datavzrd_variants_calls:
             htmlindex="index.html",
             caption="../report/calls.rst",
             category="Variant calls",
-            labels=lambda wc: get_datavzrd_report_labels(wc, "variants"),
+            labels=lambda wc: get_datavzrd_report_labels(wc),
             subcategory=get_datavzrd_report_subcategory,
         ),
     log:
@@ -166,7 +166,7 @@ rule datavzrd_fusion_calls:
             htmlindex="index.html",
             caption="../report/calls.rst",
             category="Fusion calls",
-            labels=lambda wc: get_datavzrd_report_labels(wc, "fusions"),
+            labels=lambda wc: get_datavzrd_report_labels(wc),
             subcategory=get_datavzrd_report_subcategory,
         ),
     log:

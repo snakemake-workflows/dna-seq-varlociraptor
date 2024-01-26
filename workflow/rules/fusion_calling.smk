@@ -33,7 +33,7 @@ use rule star_align from fusion_calling with:
 
 use rule arriba from fusion_calling with:
     input:
-        bam="results/recal/{sample}.bam",
+        bam="results/mapped/star/{sample}.bam",
         genome=rules.get_genome.output,
         annotation=rules.get_annotation.output,
     output:

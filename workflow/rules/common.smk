@@ -221,6 +221,10 @@ def get_control_fdr_input(wildcards):
 
 def get_recalibrate_quality_input(wildcards, bai=False):
     ext = "bai" if bai else "bam"
+    datatype = get_sample_datatype(wildcards.sample)
+    if datatype == "rna":
+        return "results/split/{{sample}}.{ext}".format(ext=ext)
+    # Post-processing of DNA samples
     if is_activated("calc_consensus_reads"):
         return "results/consensus/{{sample}}.{ext}".format(ext=ext)
     elif is_activated("primers/trimming"):
@@ -228,14 +232,7 @@ def get_recalibrate_quality_input(wildcards, bai=False):
     elif is_activated("remove_duplicates"):
         return "results/dedup/{{sample}}.{ext}".format(ext=ext)
     else:
-        # TODO How to handle SplitNCigarReads and do it only for rna variants but also for rna fusions?
-        datatype = get_sample_datatype(wildcards.sample)
-        if datatype == "rna":
-            return "results/split/{{sample}}.{ext}".format(ext=ext)
-        aligner = "star" if get_sample_datatype(wildcards.sample) == "rna" else "bwa"
-        return "results/mapped/{aligner}/{{sample}}.{ext}".format(
-            aligner=aligner, ext=ext
-        )
+        return "results/mapped/bwa/{{sample}}.{ext}".format(ext=ext)
 
 
 def get_cutadapt_input(wildcards):
@@ -1105,14 +1102,13 @@ def get_variant_oncoprint_tables(wildcards, input):
         return []
 
 
-def get_datavzrd_report_labels(wildcards, datatype):
+def get_datavzrd_report_labels(wildcards):
     event = config["calling"]["fdr-control"]["events"][wildcards.event]
     labels = {"batch": wildcards.batch}
     if "labels" in event:
         labels.update({key: str(value) for key, value in event["labels"].items()})
     else:
         labels["callset"] = wildcards.event.replace("_", " ")
-    labels.update({"datatype": datatype})
     return labels
 
 

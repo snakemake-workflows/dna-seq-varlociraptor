@@ -134,7 +134,7 @@ rule get_vep_cache:
         "logs/vep/cache.log",
     cache: "omit-software"
     wrapper:
-        "v2.3.2/bio/vep/cache"
+        "v3.3.5/bio/vep/cache"
 
 
 rule get_vep_plugins:
@@ -145,4 +145,4 @@ rule get_vep_plugins:
     log:
         "logs/vep/plugins.log",
     wrapper:
-        "v2.3.2/bio/vep/plugins"
+        "v3.3.5/bio/vep/plugins"
