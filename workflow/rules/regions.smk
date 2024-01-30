@@ -18,13 +18,27 @@ rule get_target_regions:
         """
 
 
+rule transform_gene_annotations:
+    input:
+        "resources/annotation.gtf",
+    output:
+        "resources/gene_annotation.bed",
+    log:
+        "logs/plot_coverage/transform_gene_regions.log",
+    script:
+        "../scripts/transform_gene_regions.py"
+
+
 rule build_sample_regions:
     input:
         bam="results/recal/{sample}.bam",
         bai="results/recal/{sample}.bai",
+        bed="resources/gene_annotation.bed",
     output:
         "results/regions/{group}/{sample}.mosdepth.global.dist.txt",
         "results/regions/{group}/{sample}.quantized.bed.gz",
+        "results/regions/{group}/{sample}.regions.bed.gz",
+        "results/regions/{group}/{sample}.mosdepth.region.dist.txt",
         summary="results/regions/{group}/{sample}.mosdepth.summary.txt",  # this named output is required for prefix parsing
     log:
         "logs/mosdepth/regions/{group}_{sample}.log",

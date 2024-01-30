@@ -9,27 +9,54 @@ __definitions__:
     def read_file(path):
         return open(path, 'r').read()
   - |
+    hgvsp_content = f"""
+      function(value, row) {{
+        let hgvsp_regex = /^(.+?):(.+)$/;
+        // discard protein id
+        let hgvsp = value.match(hgvsp_regex)[2].replace('%3D', '=');
+        return hgvsp
+      }}
+    """
+  - |
     varsome_link = f"""
-    function(value, row) {{
+    function(row) {{
       let hgvsp_regex = /^(.+?):(.+)$/;
       // discard protein id
-      let hgvsp = value.match(hgvsp_regex)[2].replace('%3D', '=');
+
+      let hgvsp = row.hgvsp.match(hgvsp_regex)[2].replace('%3D', '=');
 
       let chr = row.chromosome;
       let pos = row.position;
       let ref = row["reference allele"];
       let alt = row["alternative allele"];
-
-      const url = "{params.varsome_url}";
+      var build = ""
+      if  ( "{params.build}" === "GRCh38" ) {{
+        build = "hg38/"
+      }} else {{
+        build = "hg19/"
+      }}
+      const url = "https://varsome.com/variant/";
       let aa_regex = /^[ACGTacgt]+$/;
       if ( ref.match(aa_regex) && alt.match(aa_regex)) {{
         let descriptor = `${{chr}}:${{pos}}:${{ref}}:${{alt}}`
-        return `<a href="${{url}}${{descriptor}}" target="_blank">${{hgvsp}}</a>`;
+        return `${{url}}${{build}}${{descriptor}}`;
       }}
       else {{
         return `${{hgvsp}}`;
       }}
     }}
+    """
+  - |
+    genomenexus_link = f"""
+      function(row) {{
+        let hgvsg = row.hgvsg
+        var build = ""
+        if  ( "{params.build}" === "GRCh38" ) {{
+          build = "grch38."
+        }}
+        const url_suffix = "genomenexus.org/variant/"
+        return `https://${{build}}${{url_suffix}}${{hgvsg}}`
+      }}
     """
 
 datasets:
@@ -167,9 +194,13 @@ views:
             link-to-url:
               ensembl:
                 url: https://www.ensembl.org/Homo_sapiens/Transcript/Summary?t={feature}
-          ?if params.varsome_url:
-            hgvsp:
-              custom: ?varsome_link
+          hgvsp:
+            link-to-url:
+              custom-content: ?hgvsp_content
+              varsome:
+                url: "{query_varsome}"
+              genome nexus:
+                url: "{query_genomenexus}"
           vartype:
             display-mode: hidden
           impact:
@@ -193,7 +224,7 @@ views:
                 scale: ordinal
           revel:
             optional: true
-            plot: 
+            plot:
               heatmap:
                 scale: "linear"
                 domain: [0.0, 1.0]
@@ -201,14 +232,22 @@ views:
                   - white
                   - "#ff5555"
           "regex('.+: allele frequency')":
-            plot: 
+            plot:
               ticks:
                 scale: "linear"
                 domain: [0.0, 1.0]
                 aux-domain-columns:
                   - "regex('.+: allele frequency')"
+                color:
+                  scale: "linear"
+                  domain: [0.0, 0.05, 0.0500000001, 1.0]
+                  range:
+                  - "#ffd6b3"
+                  - "#ff7f0e"
+                  - "#a8d2f0"
+                  - "#1f77b4"
           "regex('.+: read depth')":
-            plot: 
+            plot:
               ticks:
                 scale: "linear"
                 aux-domain-columns:
@@ -221,6 +260,16 @@ views:
                 range:
                   - white
                   - "#1f77b4"
+          "gnomad genome af":
+            optional: true
+            plot:
+              heatmap:
+                scale: "linear"
+                domain: [0.0, 0.01, 1.0]
+                range:
+                  - white
+                  - "#adebad"
+                  - "#29a329"
           gene:
             display-mode: hidden
           feature:
@@ -254,6 +303,13 @@ views:
                 data: ?read_file(params.data_observations)
                 spec: ?read_file(params.spec_observations)
               display-mode: detail
+        add-columns:
+          query_varsome:
+            value: ?varsome_link
+            display-mode: hidden
+          query_genomenexus:
+            value: ?genomenexus_link
+            display-mode: hidden
 
 
 
@@ -290,14 +346,22 @@ views:
                   - "#ec9b00"
                   - "#ecca00"
           "regex('.+: allele frequency')":
-            plot: 
+            plot:
               ticks:
                 scale: "linear"
                 domain: [0.0, 1.0]
                 aux-domain-columns:
                   - "regex('.+: allele frequency')"
+                color:
+                  scale: "linear"
+                  domain: [0.0, 0.05, 0.0500000001, 1.0]
+                  range:
+                  - "#ffd6b3"
+                  - "#ff7f0e"
+                  - "#a8d2f0"
+                  - "#1f77b4"
           "regex('.+: read depth')":
-            plot: 
+            plot:
               ticks:
                 scale: "linear"
                 aux-domain-columns:
@@ -310,6 +374,16 @@ views:
                 range:
                   - white
                   - "#1f77b4"
+          "gnomad genome af":
+            optional: true
+            plot:
+              heatmap:
+                scale: "linear"
+                domain: [0.0, 0.01, 1.0]
+                range:
+                  - white
+                  - "#adebad"
+                  - "#29a329"
           id:
             optional: true
             display-mode: hidden
@@ -331,6 +405,12 @@ views:
           alternative allele:
             display-mode: detail
           ?for alias in params.samples.loc[params.samples["group"] == group, "alias"]:
+            '?f"{alias}: short observations"':
+              optional: true
+              custom-plot:
+                data: ?read_file(params.data_short_observations)
+                spec: ?read_file(params.spec_short_observations)
+              display-mode: detail
             '?f"{alias}: observations"':
               optional: true
               custom-plot:

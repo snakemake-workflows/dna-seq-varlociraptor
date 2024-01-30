@@ -1,5 +1,39 @@
 # Changelog
 
+## [5.2.0](https://github.com/snakemake-workflows/dna-seq-varlociraptor/compare/v5.1.0...v5.2.0) (2023-11-30)
+
+
+### Features
+
+* colored tick plots in datavzrd report ([#279](https://github.com/snakemake-workflows/dna-seq-varlociraptor/issues/279)) ([757aa0e](https://github.com/snakemake-workflows/dna-seq-varlociraptor/commit/757aa0e60e275538a3dc8d8fdeb6195fc65f4a40))
+* improve and run sra download ci test case ([#276](https://github.com/snakemake-workflows/dna-seq-varlociraptor/issues/276)) ([074661e](https://github.com/snakemake-workflows/dna-seq-varlociraptor/commit/074661e3f7f4fa462a1f77c6a3f3d75346a1a6c3))
+* map primers by bwa and update datavzrd template ([#275](https://github.com/snakemake-workflows/dna-seq-varlociraptor/issues/275)) ([12f22e9](https://github.com/snakemake-workflows/dna-seq-varlociraptor/commit/12f22e9f6c1127546ed9e20add76bdebf8bbec36))
+
+
+### Bug Fixes
+
+* unique values when extracting samples column for repeated samples (in multiple groups) ([#278](https://github.com/snakemake-workflows/dna-seq-varlociraptor/issues/278)) ([aaac1b5](https://github.com/snakemake-workflows/dna-seq-varlociraptor/commit/aaac1b53676879b04f636099975290d1a050fff6))
+
+## [5.1.0](https://github.com/snakemake-workflows/dna-seq-varlociraptor/compare/v5.0.2...v5.1.0) (2023-11-10)
+
+
+### Features
+
+* gene coverage report ([#270](https://github.com/snakemake-workflows/dna-seq-varlociraptor/issues/270)) ([19ee0eb](https://github.com/snakemake-workflows/dna-seq-varlociraptor/commit/19ee0eb9fbdb8c1adbb131c649c8c432fcdb8a9e))
+* genomenexus link ([#271](https://github.com/snakemake-workflows/dna-seq-varlociraptor/issues/271)) ([16c4a50](https://github.com/snakemake-workflows/dna-seq-varlociraptor/commit/16c4a504b2f17ba1cda13142f6d9896bbe4a603f))
+
+
+### Bug Fixes
+
+* update fastqc wrapper to `v1.10.0` to include memory parsing fix ([#272](https://github.com/snakemake-workflows/dna-seq-varlociraptor/issues/272)) ([ed8b391](https://github.com/snakemake-workflows/dna-seq-varlociraptor/commit/ed8b391419e09fee69929eaf7fac63835683dcdf))
+
+## [5.0.2](https://github.com/snakemake-workflows/dna-seq-varlociraptor/compare/v5.0.1...v5.0.2) (2023-10-09)
+
+
+### Bug Fixes
+
+* remove superfluous import of FTP remote provider ([ae68b90](https://github.com/snakemake-workflows/dna-seq-varlociraptor/commit/ae68b9079b92ddf6b0ace6888c171381d297ceee))
+
 ## [5.0.1](https://github.com/snakemake-workflows/dna-seq-varlociraptor/compare/v5.0.0...v5.0.1) (2023-08-25)
 
 

@@ -36,16 +36,80 @@ jobs:
         stagein: "mamba install -y -n snakemake --channel conda-forge pyarrow=6.0"
         args: "--lint"
 
-  Testing:
+  Dryrun_Tests:
     runs-on: ubuntu-latest
     needs: 
       - Linting
       - Formatting
     steps:
+   
+    - uses: actions/checkout@v2
+
+    - name: Test workflow (local FASTQs)
+      uses: snakemake/snakemake-github-action@v1
+      with:
+        directory: .test
+        snakefile: workflow/Snakefile
+        args: "--configfile .test/config-simple/config.yaml --use-conda --show-failed-logs -j 10 --conda-cleanup-pkgs cache --dryrun"
+        show-disk-usage-on-error: true
+
+    - name: Test testcase generation
+      uses: snakemake/snakemake-github-action@v1
+      with:
+        directory: .test
+        snakefile: workflow/Snakefile
+        args: "results/testcases/one/freebayes/IX:314200 --configfile .test/config-simple/config.yaml --use-conda --show-failed-logs -j 10 --conda-cleanup-pkgs cache --dryrun"
+        show-disk-usage-on-error: true
+
+    - name: Test workflow (local FASTQs, target regions)
+      uses: snakemake/snakemake-github-action@v1
+      with:
+        directory: .test
+        snakefile: workflow/Snakefile
+        args: "--configfile .test/config-target-regions/config.yaml --use-conda --show-failed-logs -j 10 --conda-cleanup-pkgs cache --dryrun"
+        show-disk-usage-on-error: true
+
+    - name: Test workflow (local FASTQs, multiple target regions BED files)
+      uses: snakemake/snakemake-github-action@v1
+      with:
+        directory: .test
+        snakefile: workflow/Snakefile
+        args: "--configfile .test/config-target-regions/config_multiple_beds.yaml --use-conda --show-failed-logs -j 10 --conda-cleanup-pkgs cache --dryrun"
+        show-disk-usage-on-error: true
+
+    - name: Test workflow (local FASTQs, no candidate filtering)
+      uses: snakemake/snakemake-github-action@v1
+      with:
+        directory: .test
+        snakefile: workflow/Snakefile
+        args: "--configfile .test/config-no-candidate-filtering/config.yaml --use-conda --show-failed-logs -j 10 --conda-cleanup-pkgs cache --dryrun"
+        show-disk-usage-on-error: true
+
+    - name: Test workflow (local FASTQs primer)
+      uses: snakemake/snakemake-github-action@v1
+      with:
+        directory: .test
+        snakefile: workflow/Snakefile
+        args: "--configfile .test/config_primers/config.yaml --use-conda --show-failed-logs -j 10 --conda-cleanup-pkgs cache --dryrun"
+        show-disk-usage-on-error: true
+
+    - name: Test workflow (SRA FASTQs)
+      uses: snakemake/snakemake-github-action@v1
+      with:
+        directory: .test
+        snakefile: workflow/Snakefile
+        args: "--configfile .test/config-sra/config.yaml --show-failed-logs --use-conda --cores all --set-scatter calling=4 --conda-cleanup-pkgs cache --dryrun"
+        show-disk-usage-on-error: true
+
+  Quick_Tests:
+    runs-on: ubuntu-latest
+    needs: 
+      - Dryrun_Tests
+    steps:
     - name: update apt
       run: sudo apt-get update
     - name: Free Disk Space (Ubuntu)
-      uses: jlumbroso/free-disk-space@v1.2.0
+      uses: jlumbroso/free-disk-space@v1.3.0
       with:
         # this might remove tools that are actually needed,
         # if set to "true" but frees about 6 GB
@@ -57,7 +121,7 @@ jobs:
         dotnet: true
         haskell: true
         large-packages: true
-        docker-images: true
+        docker-images: false
         swap-storage: true
     
     - uses: actions/checkout@v2
@@ -111,7 +175,7 @@ jobs:
       with:
         directory: .test
         snakefile: workflow/Snakefile
-        args: "--configfile .test/config-no-candidate-filtering/config.yaml --dryrun --use-conda --show-failed-logs -j 10 --conda-cleanup-pkgs cache"
+        args: "--configfile .test/config-no-candidate-filtering/config.yaml --use-conda --show-failed-logs -j 10 --conda-cleanup-pkgs cache"
         stagein: |
           rm -rf .test/results
         show-disk-usage-on-error: true
@@ -126,12 +190,35 @@ jobs:
           rm -rf .test/results
         show-disk-usage-on-error: true
 
+  Long_Tests:
+    runs-on: ubuntu-latest
+    needs: 
+      - Dryrun_Tests
+    steps:
+    - name: update apt
+      run: sudo apt-get update
+    - name: Free Disk Space (Ubuntu)
+      uses: jlumbroso/free-disk-space@v1.3.0
+      with:
+        # this might remove tools that are actually needed,
+        # if set to "true" but frees about 6 GB
+        tool-cache: false
+        
+        # all of these default to true, but feel free to set to
+        # "false" if necessary for your workflow
+        android: true
+        dotnet: true
+        haskell: true
+        large-packages: true
+        docker-images: false
+        swap-storage: true
+    
+    - uses: actions/checkout@v2
+
     - name: Test workflow (SRA FASTQs)
       uses: snakemake/snakemake-github-action@v1
       with:
         directory: .test
         snakefile: workflow/Snakefile
-        args: "--configfile .test/config-sra/config.yaml --show-failed-logs --use-conda -n -j 10 --conda-cleanup-pkgs cache"
-        stagein: |
-          rm -rf .test/results
+        args: "--configfile .test/config-sra/config.yaml --show-failed-logs --use-conda --cores all --set-scatter calling=4 --conda-cleanup-pkgs cache"
         show-disk-usage-on-error: true

@@ -5,11 +5,11 @@ units: config-sra/units.tsv
 ref:
   # Number of chromosomes to consider for calling.
   # The first n entries of the FASTA will be considered.
-  n_chromosomes: 25
+  n_chromosomes: 17
   # Ensembl species name
   species: saccharomyces_cerevisiae
   # Ensembl release
-  release: 100
+  release: 110
   # Genome build
   build: R64-1-1
 
@@ -22,11 +22,9 @@ primers:
 
 # Estimation of tumor mutational burden.
 mutational_burden:
-  activate: false
+  activate: true
   events:
-    - SOMATIC_TUMOR_LOW
-    - SOMATIC_TUMOR_MEDIUM
-    - SOMATIC_TUMOR_HIGH
+    - changed_only
 
 calling:
   delly:
@@ -37,13 +35,17 @@ calling:
   scenario: config-sra/scenario.yaml
   # See http://snpeff.sourceforge.net/SnpSift.html#filter
   filter:
+    candidates: "ANN['IMPACT'] in ['MODERATE', 'HIGH']"
     moderate: "ANN['IMPACT'] == 'MODERATE'"
   fdr-control:
     threshold: 0.05
+    local: true
     events: 
       present:
         varlociraptor: 
-          - "PRESENT"
+          - base_only
+          - changed_only
+          - both
         filter:
           - moderate
         desc: Variants with moderate impact
@@ -52,16 +54,16 @@ annotations:
   dbnsfp:
     activate: false
   vcfs:
-    activate: true
+    activate: false
     known: resources/variation.vcf.gz
   dgidb:
     activate: false
   vep:
     candidate_calls:
-      params: ""
+      params: "--fields IMPACT"
       plugins: []
     final_calls:
-      params: --everything
+      params: "--fields IMPACT"
       plugins: []
   spliceai:
     activate: false
@@ -82,9 +84,12 @@ params:
     call: ""
     # Add extra arguments for varlociraptor preprocess. By default, we limit the depth to 200.
     # Increase this value for panel sequencing!
-    preprocess: "--max-depth 200"
+    preprocess: "--max-depth 50"
   freebayes:
-    min_alternate_fraction: 0.05 # Reduce for calling variants with lower VAFs
+    min_alternate_fraction: 0.4 # Reduce for calling variants with lower VAFs
+
+gene_coverage:
+  min_avg_coverage: 8
 
 report:
   activate: false

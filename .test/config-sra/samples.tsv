@@ -1,3 +1,5 @@
 sample_name	group	alias	platform
-a		a	ILLUMINA
-b		b	ILLUMINA
+PD12A	medium_L	base	ILLUMINA
+PD13B	medium_L	changed	ILLUMINA
+PD09A	soil	changed	ILLUMINA
+PD12A	soil	base	ILLUMINA

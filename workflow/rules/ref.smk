@@ -59,9 +59,9 @@ rule get_known_variants:
         "v2.5.0/bio/reference/ensembl-variation"
 
 
-rule get_annotation_gz:
+rule get_annotation:
     output:
-        "resources/annotation.gtf.gz",
+        "resources/annotation.gtf",
     params:
         species=config["ref"]["species"],
         release=config["ref"]["release"],
@@ -76,7 +76,7 @@ rule get_annotation_gz:
 
 rule determine_coding_regions:
     input:
-        "resources/annotation.gtf.gz",
+        "resources/annotation.gtf",
     output:
         "resources/coding_regions.bed.gz",
     log:
@@ -87,7 +87,7 @@ rule determine_coding_regions:
     shell:
         # filter for `exon` entries, but unclear how to exclude pseudogene exons...
         """
-        ( zcat {input} | \\
+        ( cat {input} | \\
           awk 'BEGIN {{ IFS = "\\t"}} {{ if ($3 == "exon") {{ print $0 }} }}' | \\
           grep 'transcript_biotype "protein_coding"' | \\
           grep 'gene_biotype "protein_coding"' | \\

@@ -3,10 +3,7 @@ from os import path
 
 import yaml
 import pandas as pd
-from snakemake.remote import FTP
 from snakemake.utils import validate
-
-ftp = FTP.RemoteProvider()
 
 validate(config, schema="../schemas/config.schema.yaml")
 
@@ -112,6 +109,10 @@ def get_final_output(wildcards):
     final_output = expand(
         "results/qc/multiqc/{group}.html",
         group=groups,
+    )
+
+    final_output.extend(
+        expand("results/datavzrd-report/{group}.coverage", group=groups)
     )
 
     if config["report"]["activate"]:
@@ -226,10 +227,21 @@ def get_sra_reads(sample, unit, fq):
 
 def get_raw_reads(sample, unit, fq):
     pattern = units.loc[sample].loc[unit, fq]
+
     if pd.isna(pattern):
         assert fq.startswith("fq")
         fq = fq[len("fq") :]
         return get_sra_reads(sample, unit, fq)
+
+    if type(pattern) is not str and len(pattern) > 1:
+        raise ValueError(
+            f"Multiple units.tsv entries found for sample '{sample}' and "
+            f"unit '{unit}'.\n"
+            "The units.tsv should contain only one entry for each combination "
+            "of sample and unit.\n"
+            "Found:\n"
+            f"{pattern}"
+        )
 
     if "*" in pattern:
         files = sorted(glob.glob(units.loc[sample].loc[unit, fq]))
@@ -341,9 +353,26 @@ def get_primer_bed(wc):
             return "results/primers/uniform_primers.bed"
 
 
+def extract_unique_sample_column_value(sample, col_name):
+    result = samples.loc[samples["sample_name"] == sample, col_name].drop_duplicates()
+    if type(result) is not str:
+        if len(result) > 1:
+            ValueError(
+                "If a sample is specified multiple times in a samples.tsv"
+                "sheet, all columns except 'group' must contain identical"
+                "entries across the occurrences (rows).\n"
+                f"Here we have sample '{sample}' with multiple entries for"
+                f"the '{col_name}' column, namely:\n"
+                f"{result}\n"
+            )
+        else:
+            result = result.squeeze()
+    return result
+
+
 def get_sample_primer_fastas(sample):
     if isinstance(primer_panels, pd.DataFrame):
-        panel = samples.loc[sample, "panel"]
+        panel = extract_unique_sample_column_value(sample, "panel")
         if not pd.isna(primer_panels.loc[panel, "fa2"]):
             return [
                 primer_panels.loc[panel, "fa1"],
@@ -382,9 +411,8 @@ def input_is_fasta(primers):
 
 def get_primer_regions(wc):
     if isinstance(primer_panels, pd.DataFrame):
-        return "results/primers/{}_primer_regions.tsv".format(
-            samples.loc[wc.sample, "panel"]
-        )
+        panel = extract_unique_sample_column_value(wc.sample, "panel")
+        return f"results/primers/{panel}_primer_regions.tsv"
     return "results/primers/uniform_primer_regions.tsv"
 
 
@@ -495,9 +523,7 @@ def is_activated(xpath):
 
 def get_read_group(wildcards):
     """Denote sample name and platform in read group."""
-    platform = samples.loc[wildcards.sample, "platform"]
-    if not isinstance(platform, str):
-        platform = platform.drop_duplicates().iloc[0]
+    platform = extract_unique_sample_column_value(wildcards.sample, "platform")
     return r"-R '@RG\tID:{sample}\tSM:{sample}\tPL:{platform}'".format(
         sample=wildcards.sample, platform=platform
     )
@@ -887,28 +913,27 @@ def get_vembrane_config(wildcards, input):
 
 
 def get_umi_fastq(wildcards):
-    if samples.loc[wildcards.sample, "umi_read"] in ["fq1", "fq2"]:
+    umi_read = extract_unique_sample_column_value(wildcards.sample, "umi_read")
+    if umi_read in ["fq1", "fq2"]:
         return "results/untrimmed/{S}_{R}.fastq.gz".format(
-            S=wildcards.sample, R=samples.loc[wildcards.sample, "umi_read"]
+            S=wildcards.sample, R=umi_read
         )
-    elif samples.loc[wildcards.sample, "umi_read"] == "both":
+    elif umi_read == "both":
         return expand(
             "results/untrimmed/{S}_{R}.fastq.gz", S=wildcards.sample, R=["fq1", "fq2"]
         )
     else:
-        return samples.loc[wildcards.sample, "umi_read"]
+        return umi_read
 
 
 def sample_has_umis(sample):
-    return pd.notna(samples.loc[sample, "umi_read"])
+    return pd.notna(extract_unique_sample_column_value(sample, "umi_read"))
 
 
 def get_umi_read_structure(wildcards):
-    return "-r {}".format(samples.loc[wildcards.sample, "umi_read_structure"])
-
-
-def get_sample_alias(wildcards):
-    return samples.loc[wildcards.sample, "alias"]
+    return "-r {}".format(
+        extract_unique_sample_column_value(wildcards.sample, "umi_read_structure")
+    )
 
 
 def get_dgidb_datasources():
@@ -917,15 +942,9 @@ def get_dgidb_datasources():
     return ""
 
 
-def get_bowtie_insertsize():
-    if config["primers"]["trimming"].get("library_length", 0) != 0:
-        return "-X {}".format(config["primers"]["trimming"].get("library_length"))
-    return ""
-
-
 def get_filter_params(wc):
     if isinstance(get_panel_primer_input(wc.panel), list):
-        return "-b -f 2"
+        return "-b -F 12"
     return "-b -F 4"
 
 
@@ -935,10 +954,28 @@ def get_single_primer_flag(wc):
     return ""
 
 
-def format_bowtie_primers(wc, primers):
-    if isinstance(primers, list):
-        return "-1 {r1} -2 {r2}".format(r1=primers[0], r2=primers[1])
-    return primers
+def get_shortest_primer_length(primers):
+    primers = primers if isinstance(primers, list) else [primers]
+    # set to 32 to match bwa-mem default value considering offset of 2
+    min_length = 32
+    for primer_file in primers:
+        with open(primer_file, "r") as p:
+            min_primer = min(
+                [len(p.strip()) for i, p in enumerate(p.readlines()) if i % 2 == 1]
+            )
+            min_length = min(min_length, min_primer)
+    return min_length
+
+
+def get_primer_extra(wc, input):
+    extra = rf"-R '@RG\tID:{wc.panel}\tSM:{wc.panel}' -L 100"
+    min_primer_len = get_shortest_primer_length(input.reads)
+    # Check if shortest primer is below default values
+    if min_primer_len < 32:
+        extra += f" -T {min_primer_len - 2}"
+    if min_primer_len < 19:
+        extra += f" -k {min_primer_len}"
+    return extra
 
 
 def get_datavzrd_data(impact="coding"):
@@ -953,14 +990,6 @@ def get_datavzrd_data(impact="coding"):
         )
 
     return inner
-
-
-def get_varsome_url():
-    if config["ref"]["species"] == "homo_sapiens":
-        build = "hg38" if config["ref"]["build"] == "GRCh38" else "hg19"
-        return f"https://varsome.com/variant/{build}/chr"
-    else:
-        return None
 
 
 def get_oncoprint_input(wildcards):

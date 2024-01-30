@@ -1,0 +1,21 @@
+name: "Mean read depth per gene"
+
+datasets:
+  gene-coverage:
+    path: ?input.csv
+    separator: "\t"
+
+views:
+  ?f"{wildcards.group}":
+    dataset: gene-coverage
+    render-table:
+      columns:
+        ?for sample in params.samples:
+          ?sample:
+            plot:
+              heatmap:
+                scale: linear
+                range:
+                    - white
+                    - "#ff5555"
+                aux-domain-columns: ?list(params.samples)
