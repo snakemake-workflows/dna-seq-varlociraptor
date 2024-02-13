@@ -19,7 +19,7 @@ rule varlociraptor_estimate_contamination:
         tsv="results/contamination/{group}.contamination_estimate.tsv",
         plot="results/contamination/{group}.contamination_estimate.json",
     log:
-        "logs/varlociraptor/contamination/{group}.{tumor_sample}.{normal_sample}_contamination_estimate.tsv",
+        "logs/varlociraptor/contamination/{group}.contamination_estimate.log",
     conda:
         "../envs/varlociraptor.yaml"
     shell:
