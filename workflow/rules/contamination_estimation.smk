@@ -13,8 +13,8 @@ use rule bcftools_concat as bcftools_concat_all_obs_per_sample with:
 
 rule varlociraptor_estimate_contamination:
     input:
-        sample=lambda wc: f'results/observations/{{group}}/{samples.loc[(samples["group"] == wc.group) & (samples["alias"] == "tumor"), "full_sample_name"]}.bcf',
-        contaminant=lambda wc: f'results/observations/{{group}}/{samples.loc[(samples["group"] == wc.group) & (samples["alias"] == "normal"), "full_sample_name"]}.bcf',
+        sample=lambda wc: f'results/observations/{{group}}/{samples.loc[(samples["group"] == wc.group) & (samples["alias"] == "tumor"), "full_sample_name"].squeeze()}.bcf',
+        contaminant=lambda wc: f'results/observations/{{group}}/{samples.loc[(samples["group"] == wc.group) & (samples["alias"] == "normal"), "full_sample_name"].squeeze()}.bcf',
     output:
         tsv="results/contamination/{group}.contamination_estimate.tsv",
         plot="results/contamination/{group}.contamination_estimate.json",
