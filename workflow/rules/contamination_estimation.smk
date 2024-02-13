@@ -13,11 +13,11 @@ use rule bcftools_concat as bcftools_concat_all_obs_per_sample with:
 
 rule varlociraptor_estimate_contamination:
     input:
-        sample="results/observations/{group}/{sample}.bcf",
-        contaminant="results/observations/{group}/{sample}.bcf",
+        sample=lambda wc: f'results/observations/{{group}}/{samples.loc[(samples["group"] == wc.group) & (samples["alias"] == "tumor"), "full_sample_name"]}.bcf',
+        contaminant=lambda wc: f'results/observations/{{group}}/{samples.loc[(samples["group"] == wc.group) & (samples["alias"] == "normal"), "full_sample_name"]}.bcf',
     output:
-        tsv="results/contamination/{group}.{tumor_sample}.{normal_sample}_contamination_estimate.tsv",
-        plot="results/contamination/{group}.{tumor_sample}.{normal_sample}_contamination_estimate.json",
+        tsv="results/contamination/{group}.contamination_estimate.tsv",
+        plot="results/contamination/{group}.contamination_estimate.json",
     log:
         "logs/varlociraptor/contamination/{group}.{tumor_sample}.{normal_sample}_contamination_estimate.tsv",
     conda:
