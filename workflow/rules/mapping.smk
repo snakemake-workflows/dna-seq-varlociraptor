@@ -126,7 +126,9 @@ rule sort_consensus_reads:
 # TODO Does not use consensus reads
 rule splitncigarreads:
     input:
-        bam="results/mapped/star/{sample}.bam",
+        bam=lambda wc: "results/dedup/{sample}.bam"
+        if is_activated("remove_duplicates")
+        else "results/mapped/star/{sample}.bam",
         ref=genome,
     output:
         "results/split/{sample}.bam",
