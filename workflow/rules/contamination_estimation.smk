@@ -1,9 +1,7 @@
 use rule bcftools_concat as bcftools_concat_all_obs_per_sample with:
     input:
         gather.calling(
-            "results/observations/{{{{group}}}}/{{{{sample}}}}.{caller}.{{scatteritem}}.bcf".format(
-                caller=caller
-            )
+            f"results/observations/{{{{group}}}}/{{{{sample}}}}.{caller}.{{scatteritem}}.bcf"
         ),
     output:
         "results/observations/{group}/{sample}.bcf",
