@@ -764,7 +764,7 @@ def get_varlociraptor_obs_args(wildcards, input):
 wildcard_constraints:
     group="|".join(groups),
     sample="|".join(samples["sample_name"]),
-    caller="|".join(["freebayes", "delly"]),
+    caller="|".join(["freebayes", "delly", "ScanITD"]),
     filter="|".join(config["calling"]["filter"]),
     event="|".join(config["calling"]["fdr-control"]["events"].keys()),
     regions_type="|".join(["expanded", "covered"]),
@@ -776,6 +776,7 @@ caller = list(
         [
             "freebayes" if is_activated("calling/freebayes") else None,
             "delly" if is_activated("calling/delly") else None,
+            "ScanITD" if is_activated("calling/ScanITD") else None,
         ],
     )
 )
@@ -1093,3 +1094,19 @@ def get_delly_excluded_regions():
         )
     else:
         return []
+
+
+def get_itd_regions(wildcards):
+    group=samples.loc[wildcards.sample]["group"]
+    return  f"results/regions/{group}.expanded_regions.filtered.bed"
+
+
+def get_itd_bcfs(wildcards):
+    sample_names = samples.loc[samples["group"] == wildcards.group, "sample_name"].tolist()
+    return [f"results/candidate-calls/ScanITD/{x}.ITD.bcf" for x in sample_names]
+
+
+def get_itd_bcfs_index(wildcards):
+    sample_names = samples.loc[samples["group"] == wildcards.group, "sample_name"].tolist()
+    return [f"results/candidate-calls/ScanITD/{x}.ITD.bcf.csi" for x in sample_names]
+

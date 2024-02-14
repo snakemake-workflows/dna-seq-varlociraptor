@@ -148,3 +148,4 @@ rule get_vep_plugins:
         "logs/vep/plugins.log",
     wrapper:
         "v2.3.2/bio/vep/plugins"
+
