@@ -67,9 +67,7 @@ def get_calling_groups(calling_type):
 
 
 groups = samples["group"].unique()
-calling_types = (
-    samples["calling"].str.split(",").explode().unique().tolist()
-)
+calling_types = samples["calling"].str.split(",").explode().unique().tolist()
 variants_groups = get_calling_groups("variants")
 fusions_groups = get_calling_groups("fusions")
 
@@ -661,6 +659,7 @@ def get_report_batch(calling_type):
         if not any(_groups):
             raise ValueError("No samples found. Is your sample sheet empty?")
         return _groups
+
     return inner
 
 
