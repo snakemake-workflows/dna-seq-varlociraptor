@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# this script is part of arriba (https://github.com/suhrig/arriba) and published under the MIT Expat License.
+# this script is part of arriba (https://github.com/suhrig/arriba) and published under the MIT Expat license.
 # source: https://github.com/suhrig/arriba/blob/master/scripts/convert_fusions_to_vcf.sh
 
 
