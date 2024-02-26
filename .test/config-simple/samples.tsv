@@ -1,4 +1,4 @@
-sample_name	group	alias	platform	datatype	candidate-calling
+sample_name	group	alias	platform	datatype	calling
 a	one	x	ILLUMINA	dna	variants
 b	one	y	ILLUMINA	dna	variants
 b	two	x	ILLUMINA	dna	variants

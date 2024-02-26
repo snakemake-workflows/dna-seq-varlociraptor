@@ -4,13 +4,13 @@ To configure this workflow, modify ``config/config.yaml`` according to your need
 
 # Sample sheet
 
-Add samples to `config/samples.tsv`. For each sample, the columns `sample_name`, `alias`, `platform`, `datatype`, `candidate-calling` and `group` have to be defined. 
+Add samples to `config/samples.tsv`. For each sample, the columns `sample_name`, `alias`, `platform`, `datatype`, `calling` and `group` have to be defined. 
 * Samples within the same `group` can be referenced in a joint [Calling scenario](#calling-scenario) via their `alias`es.
 * `alias`es represent the name of the sample within its group. They are meant to be some abstract description of the sample type to be used in the [Calling scenario](#calling-scenario), and should thus be used consistently across groups. A classic example would be a combination of the `tumor` and `normal` aliases.
 * The `platform` column needs to contain the used sequencing plaform (one of 'CAPILLARY', 'LS454', 'ILLUMINA', 'SOLID', 'HELICOS', 'IONTORRENT', 'ONT', 'PACBIO’).
 * The same `sample_name` entry can be used multiple times within a `samples.tsv` sample sheet, with only the value in the `group` column differing between repeated rows. This way, you can use the same sample for variant calling in different groups, for example if you use a panel of normal samples when you don't have matched normal samples for tumor variant calling.
 * The `datatype` column specifies what kind of data each sample corresponds to. This can either be `rna` or `dna`.
-* The `candidate-calling` column sets the kind of analysis to be performed. This can be either `fusions`, `variants` or both (comma separated). Fusion calling is still under developement and should be considered as experimental. 
+* The `calling` column sets the kind of analysis to be performed. This can be either `fusions`, `variants` or both (comma separated). Fusion calling is still under developement and should be considered as experimental. 
 
 If mutational burdens shall be estimated for a sample, the to be used ``events`` from the calling scenario (see below) have to be specified in an additional column ``mutational_burden_events``. Multiple events have to be separated by commas within that column.
 

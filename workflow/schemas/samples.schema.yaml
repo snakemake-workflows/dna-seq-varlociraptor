@@ -37,7 +37,7 @@ properties:
     enum:
       - dna
       - rna
-  candidate-calling:
+  calling:
     type: string
     enum:
       - variants
@@ -62,7 +62,7 @@ required:
   - group
   - platform
   - datatype
-  - candidate-calling
+  - calling
 
 dependentRequired:
   umi_read: ["umi_read_structure"]

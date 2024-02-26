@@ -59,19 +59,19 @@ validate(samples, schema="../schemas/samples.schema.yaml")
 
 
 # Does this correctly return groups where fusion and variants are set?
-def get_candidate_calling_groups(calling_type):
+def get_calling_groups(calling_type):
     return samples.loc[
-        samples["candidate-calling"].str.contains(calling_type),
+        samples["calling"].str.contains(calling_type),
         "group",
     ].unique()
 
 
 groups = samples["group"].unique()
-candidate_calling_types = (
-    samples["candidate-calling"].str.split(",").explode().unique().tolist()
+calling_types = (
+    samples["calling"].str.split(",").explode().unique().tolist()
 )
-variants_groups = get_candidate_calling_groups("variants")
-fusions_groups = get_candidate_calling_groups("fusions")
+variants_groups = get_calling_groups("variants")
+fusions_groups = get_calling_groups("fusions")
 
 if "groups" in config:
     group_annotation = (
@@ -140,7 +140,7 @@ def get_final_output(wildcards):
         )
     )
 
-    for calling_type in candidate_calling_types:
+    for calling_type in calling_types:
         if config["report"]["activate"]:
             final_output.extend(
                 expand(
@@ -649,17 +649,19 @@ def get_candidate_calls():
         return "results/candidate-calls/{group}.{caller}.{scatteritem}.bcf"
 
 
-def get_report_batch(wildcards, calling_type):
-    if wildcards.batch == "all":
-        _groups = variants_groups if calling_type == "variants" else fusions_groups
-    else:
-        _groups = samples.loc[
-            samples[config["report"]["stratify"]["by-column"]] == wildcards.batch,
-            "group",
-        ].unique()
-    if not any(_groups):
-        raise ValueError("No samples found. Is your sample sheet empty?")
-    return _groups
+def get_report_batch(calling_type):
+    def inner(wildcards):
+        if wildcards.batch == "all":
+            _groups = variants_groups if calling_type == "variants" else fusions_groups
+        else:
+            _groups = samples.loc[
+                samples[config["report"]["stratify"]["by-column"]] == wildcards.batch,
+                "group",
+            ].unique()
+        if not any(_groups):
+            raise ValueError("No samples found. Is your sample sheet empty?")
+        return _groups
+    return inner
 
 
 def get_report_batches():
@@ -846,11 +848,11 @@ variant_caller = list(
         [
             "freebayes"
             if is_activated("calling/freebayes")
-            and samples["candidate-calling"].str.contains("variants").any()
+            and samples["calling"].str.contains("variants").any()
             else None,
             "delly"
             if is_activated("calling/delly")
-            and samples["candidate-calling"].str.contains("variants").any()
+            and samples["calling"].str.contains("variants").any()
             else None,
         ],
     )
@@ -1073,14 +1075,14 @@ def get_datavzrd_data(impact="coding"):
             pattern,
             impact=impact,
             event=wildcards.event,
-            group=get_report_batch(wildcards, calling_type),
+            group=get_report_batch(calling_type),
         )
 
     return inner
 
 
 def get_oncoprint_input(wildcards):
-    groups = get_report_batch(wildcards, "variants")
+    groups = get_report_batch("variants")
     return expand(
         "results/tables/{group}.{event}.coding.fdr-controlled.tsv",
         group=groups,
@@ -1154,7 +1156,7 @@ def get_fastqc_results(wildcards):
 
 
 def get_variant_oncoprints(wildcards):
-    if len(get_report_batch(wildcards, "variants")) > 1:
+    if len(get_report_batch("variants")) > 1:
         return "results/tables/oncoprints/{wildcards.batch}.{wildcards.event}/variant-oncoprints"
     else:
         return []
@@ -1162,7 +1164,7 @@ def get_variant_oncoprints(wildcards):
 
 def get_oncoprint(oncoprint_type):
     def inner(wildcards):
-        if len(get_report_batch(wildcards, "variants")) > 1:
+        if len(get_report_batch("variants")) > 1:
             oncoprint_path = (
                 f"results/tables/oncoprints/{wildcards.batch}.{wildcards.event}"
             )

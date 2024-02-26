@@ -1,4 +1,4 @@
-sample_name	group	alias	platform	datatype	candidate-calling
+sample_name	group	alias	platform	datatype	calling
 PD12A	medium_L	base	ILLUMINA	dna	variants
 PD13B	medium_L	changed	ILLUMINA	dna	variants
 PD09A	soil	changed	ILLUMINA	dna	variants

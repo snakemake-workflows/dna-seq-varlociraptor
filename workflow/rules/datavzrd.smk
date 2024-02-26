@@ -44,7 +44,7 @@ rule prepare_oncoprint:
     log:
         "logs/prepare_oncoprint/{batch}.{event}.log",
     params:
-        groups=lambda wc: get_report_batch(wc, "variants"),
+        groups=get_report_batch("variants"),
         labels=get_heterogeneous_labels(),
     conda:
         "../envs/oncoprint.yaml"
@@ -63,7 +63,7 @@ rule render_datavzrd_variant_config:
     params:
         gene_oncoprint=get_oncoprint("gene"),
         variant_oncoprints=get_variant_oncoprint_tables,
-        groups=lambda wc: get_report_batch(wc, "variants"),
+        groups=get_report_batch("variants"),
         coding_calls=get_datavzrd_data(impact="coding"),
         noncoding_calls=get_datavzrd_data(impact="noncoding"),
         spec_observations=workflow.source_path(
@@ -97,7 +97,7 @@ rule render_datavzrd_fusions_config:
     output:
         "resources/datavzrd/{batch}.{event}.fusions.datavzrd.yaml",
     params:
-        groups=lambda wc: get_report_batch(wc, "fusions"),
+        groups=get_report_batch("fusions"),
         fusion_calls=get_datavzrd_data(impact="fusions"),
         spec_observations=workflow.source_path(
             "../resources/datavzrd/spec_observations.json"
@@ -139,7 +139,7 @@ rule datavzrd_variants_calls:
             htmlindex="index.html",
             caption="../report/calls.rst",
             category="Variant calls",
-            labels=lambda wc: get_datavzrd_report_labels(wc),
+            labels=get_datavzrd_report_labels,
             subcategory=get_datavzrd_report_subcategory,
         ),
     log:
@@ -166,7 +166,7 @@ rule datavzrd_fusion_calls:
             htmlindex="index.html",
             caption="../report/calls.rst",
             category="Fusion calls",
-            labels=lambda wc: get_datavzrd_report_labels(wc),
+            labels=get_datavzrd_report_labels,
             subcategory=get_datavzrd_report_subcategory,
         ),
     log:
