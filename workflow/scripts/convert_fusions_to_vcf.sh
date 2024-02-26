@@ -1,5 +1,9 @@
 #!/bin/bash
 
+# this script is part of arriba (https://github.com/suhrig/arriba) and published under the MIT Expat License.
+# source: https://github.com/suhrig/arriba/blob/master/scripts/convert_fusions_to_vcf.sh
+
+
 # parse command-line arguments
 if [ $# -ne 3 ]; then
 	echo Usage: $(basename "$0") assembly.fa input_fusions.tsv output_fusions.vcf
