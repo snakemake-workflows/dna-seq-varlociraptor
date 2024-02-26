@@ -646,19 +646,21 @@ def get_candidate_calls():
     else:
         return "results/candidate-calls/{group}.{caller}.{scatteritem}.bcf"
 
+def _get_report_batch(calling_type, batch):
+    if batch == "all":
+        _groups = variants_groups if calling_type == "variants" else fusions_groups
+    else:
+        _groups = samples.loc[
+            samples[config["report"]["stratify"]["by-column"]] == batch,
+            "group",
+        ].unique()
+    if not any(_groups):
+        raise ValueError("No samples found. Is your sample sheet empty?")
+    return _groups
 
 def get_report_batch(calling_type):
     def inner(wildcards):
-        if wildcards.batch == "all":
-            _groups = variants_groups if calling_type == "variants" else fusions_groups
-        else:
-            _groups = samples.loc[
-                samples[config["report"]["stratify"]["by-column"]] == wildcards.batch,
-                "group",
-            ].unique()
-        if not any(_groups):
-            raise ValueError("No samples found. Is your sample sheet empty?")
-        return _groups
+        return _get_report_batch(calling_type, wildcards.batch)
 
     return inner
 
@@ -1155,7 +1157,7 @@ def get_fastqc_results(wildcards):
 
 
 def get_variant_oncoprints(wildcards):
-    if len(get_report_batch("variants")) > 1:
+    if len(_get_report_batch("variants", wildcards.batch)) > 1:
         return "results/tables/oncoprints/{wildcards.batch}.{wildcards.event}/variant-oncoprints"
     else:
         return []
@@ -1163,7 +1165,7 @@ def get_variant_oncoprints(wildcards):
 
 def get_oncoprint(oncoprint_type):
     def inner(wildcards):
-        if len(get_report_batch("variants")) > 1:
+        if len(_get_report_batch("variants", wildcards.batch)) > 1:
             oncoprint_path = (
                 f"results/tables/oncoprints/{wildcards.batch}.{wildcards.event}"
             )
