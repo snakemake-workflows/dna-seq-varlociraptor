@@ -646,6 +646,7 @@ def get_candidate_calls():
     else:
         return "results/candidate-calls/{group}.{caller}.{scatteritem}.bcf"
 
+
 def _get_report_batch(calling_type, batch):
     if batch == "all":
         _groups = variants_groups if calling_type == "variants" else fusions_groups
@@ -657,6 +658,7 @@ def _get_report_batch(calling_type, batch):
     if not any(_groups):
         raise ValueError("No samples found. Is your sample sheet empty?")
     return _groups
+
 
 def get_report_batch(calling_type):
     def inner(wildcards):
