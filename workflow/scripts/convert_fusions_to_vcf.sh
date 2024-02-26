@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # this script is part of arriba (https://github.com/suhrig/arriba) and published under the MIT Expat license.
-# source: https://github.com/suhrig/arriba/blob/master/scripts/convert_fusions_to_vcf.sh
+# source: https://github.com/suhrig/arriba/blob/910478/scripts/convert_fusions_to_vcf.sh
 
 
 # parse command-line arguments
