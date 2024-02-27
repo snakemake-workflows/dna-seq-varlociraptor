@@ -147,7 +147,7 @@ jobs:
       with:
         directory: .test
         snakefile: workflow/Snakefile
-        args: "--configfile .test/config-simple/config.yaml --report report.zip"
+        args: "--configfile .test/config-simple/config.yaml --cores 1 --report report.zip"
         show-disk-usage-on-error: true
 
     - name: Test workflow (local FASTQs, target regions)
