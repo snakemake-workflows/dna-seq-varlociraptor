@@ -58,6 +58,19 @@ __definitions__:
         return `https://${{build}}${{url_suffix}}${{hgvsg}}`
       }}
     """
+  - |
+    protein_id = f"""
+      function(row) {{
+        let protein_id = row.hgvsp.split(':')[0]
+        return protein_id
+      }}
+    """
+  - |
+    empty_content = f"""
+      function(row) {{
+        return ""
+      }}
+    """
 
 datasets:
   ?if input.variant_oncoprints:
@@ -290,6 +303,28 @@ views:
             display-mode: detail
           protein alteration (short):
             display-mode: detail
+          canonical:
+            optional: true
+            display-mode: detail
+            plot:
+              heatmap:
+                scale: "ordinal"
+                domain: ["", "True"]
+                range:
+                  - white
+                  - black
+                custom-content: ?empty_content
+          mane_plus_clinical:
+            optional: true
+            display-mode: detail
+            plot:
+              heatmap:
+                scale: "ordinal"
+                domain: ["", "True"]
+                range:
+                  - white
+                  - black
+                custom-content: ?empty_content
           ?for alias in params.samples.loc[params.samples["group"] == group, "alias"]:
             '?f"{alias}: short observations"':
               optional: true
@@ -310,6 +345,10 @@ views:
           query_genomenexus:
             value: ?genomenexus_link
             display-mode: hidden
+          ensembl_protein_id:
+            value: ?protein_id
+            display-mode: detail
+
 
 
 
@@ -404,6 +443,28 @@ views:
             display-mode: detail
           alternative allele:
             display-mode: detail
+          canonical:
+            optional: true
+            display-mode: detail
+            plot:
+              heatmap:
+                scale: "ordinal"
+                domain: ["", "True"]
+                range:
+                  - white
+                  - black
+                custom-content: ?empty_content
+          mane_plus_clinical:
+            optional: true
+            display-mode: detail
+            plot:
+              heatmap:
+                scale: "ordinal"
+                domain: ["", "True"]
+                range:
+                  - white
+                  - black
+                custom-content: ?empty_content
           ?for alias in params.samples.loc[params.samples["group"] == group, "alias"]:
             '?f"{alias}: short observations"':
               optional: true

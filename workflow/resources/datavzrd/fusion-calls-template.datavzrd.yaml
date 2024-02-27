@@ -1,0 +1,57 @@
+name: ?f"Fusion calls {wildcards.event}"
+
+default-view: ?f"{params.groups[0]}-fusions"
+
+__definitions__:
+  - import os
+  - |
+    def read_file(path):
+        return open(path, 'r').read()
+
+datasets:
+  ?for group, path in zip(params.groups, params.fusion_calls):
+    ?f"{group}-fusions":
+      path: ?path
+      separator: "\t"
+
+views:
+  ?for group in params.groups:
+    ?f"{group}-fusions":
+          desc: ?f"Fusion calls.\n{config['calling']['fdr-control']['events'][wildcards.event]['desc']}"
+          dataset: ?f"{group}-fusions"
+          render-table:
+            columns:
+              "regex('.+: allele frequency')":
+                plot: 
+                  ticks:
+                    scale: "linear"
+                    domain: [0.0, 1.0]
+                    aux-domain-columns:
+                      - "regex('.+: allele frequency')"
+              "regex('.+: read depth')":
+                plot: 
+                  ticks:
+                    scale: "linear"
+                    aux-domain-columns:
+                      - "regex('.+: read depth')"
+              "regex('prob: .+')":
+                plot:
+                  heatmap:
+                    scale: linear
+                    domain: [0.0, 1.0]
+                    range:
+                      - white
+                      - "#1f77b4"
+              ?for alias in params.samples.loc[params.samples["group"] == group, "alias"]:
+                '?f"{alias}: short observations"':
+                  optional: true
+                  custom-plot:
+                    data: ?read_file(params.data_short_observations)
+                    spec: ?read_file(params.spec_short_observations)
+                  display-mode: detail
+                '?f"{alias}: observations"':
+                  optional: true
+                  custom-plot:
+                    data: ?read_file(params.data_observations)
+                    spec-path: ?params.spec_observations
+                  display-mode: detail

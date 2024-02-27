@@ -22,7 +22,7 @@ ref:
   # Ensembl species name
   species: homo_sapiens
   # Ensembl release
-  release: 110
+  release: 111
   # Genome build
   build: GRCh38
   # Optionally, instead of downloading the whole reference from Ensembl via the
@@ -121,8 +121,9 @@ calling:
       # Add any number of events here to filter for.
       # The id of each event can be chosen freely, but needs to contain
       # only alphanumerics and underscores
-      # ("somatic" below is just an example and can be modified as needed).
+      # ("some_id" below is just an example and can be modified as needed).
       some_id:
+        types: ["variants", "fusions"]
         # labels for the callset, displayed in the report. Will fall back to id if no labels specified
         labels:
           some-label: label text
