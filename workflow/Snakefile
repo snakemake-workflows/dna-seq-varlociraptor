@@ -35,6 +35,7 @@ include: "rules/table.smk"
 include: "rules/regions.smk"
 include: "rules/plugins.smk"
 include: "rules/datavzrd.smk"
+include: "rules/fusion_calling.smk"
 include: "rules/testcase.smk"
 
 

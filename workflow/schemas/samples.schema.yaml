@@ -32,6 +32,19 @@ properties:
     minimum: 0.0
     maximum: 1.0
     description: Purity to use for tumor/normal groups.
+  datatype:
+    type: string
+    enum:
+      - dna
+      - rna
+  calling:
+    type: string
+    enum:
+      - variants
+      - fusions
+      - fusions,variants
+      - variants,fusions
+    description: datatype of sample
   primer_panel:
     type: string
     description: ID of primer panel
@@ -48,6 +61,8 @@ required:
   - alias
   - group
   - platform
+  - datatype
+  - calling
 
 dependentRequired:
   umi_read: ["umi_read_structure"]
