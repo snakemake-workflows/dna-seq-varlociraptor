@@ -1,5 +1,17 @@
 # Changelog
 
+## [5.3.0](https://github.com/snakemake-workflows/dna-seq-varlociraptor/compare/v5.2.0...v5.3.0) (2024-02-27)
+
+
+### Features
+
+* fusion calling ([#222](https://github.com/snakemake-workflows/dna-seq-varlociraptor/issues/222)) ([d0b45ba](https://github.com/snakemake-workflows/dna-seq-varlociraptor/commit/d0b45babb717ee7587fc3dafc359a6bc9494fd94))
+
+
+### Performance Improvements
+
+* reorganize tests to first only do dry-runs and then run long and short tests in one runner each ([#280](https://github.com/snakemake-workflows/dna-seq-varlociraptor/issues/280)) ([ee973c6](https://github.com/snakemake-workflows/dna-seq-varlociraptor/commit/ee973c649ed0e3c6a657e20c2a806247060ab62a))
+
 ## [5.2.0](https://github.com/snakemake-workflows/dna-seq-varlociraptor/compare/v5.1.0...v5.2.0) (2023-11-30)
 
 
