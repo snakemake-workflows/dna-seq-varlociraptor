@@ -244,7 +244,7 @@ def get_cutadapt_input(wildcards):
     if len(fq1) == 1:
 
         def get_reads(fq):
-            return get_raw_reads(unit.sample_name, unit.unit_name, fq)
+            return get_raw_reads(unit.sample_name, unit.unit_name, fq)[0]
 
     else:
         ending = ".gz" if unit["fq1"].endswith("gz") else ""
