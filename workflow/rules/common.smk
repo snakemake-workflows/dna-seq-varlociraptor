@@ -239,24 +239,27 @@ def get_cutadapt_input(wildcards):
     if pd.isna(unit["fq1"]):
         return get_sra_reads(wildcards.sample, wildcards.unit, ["1", "2"])
 
-    if unit["fq1"].endswith("gz"):
-        ending = ".gz"
+    fq1 = get_raw_reads(unit.sample_name, unit.unit_name, "fq1")
+
+    if len(fq1) == 1:
+
+        def get_reads(fq):
+            return get_raw_reads(unit.sample_name, unit.unit_name, fq)[0]
+
     else:
-        ending = ""
+        ending = ".gz" if unit["fq1"].endswith("gz") else ""
+
+        def get_reads(fq):
+            return (
+                f"pipe/cutadapt/{unit.sample_name}/{unit.unit_name}.fq1.fastq{ending}"
+            )
 
     if pd.isna(unit["fq2"]):
-        # single end local sample
-        return "pipe/cutadapt/{S}/{U}.fq1.fastq{E}".format(
-            S=unit.sample_name, U=unit.unit_name, E=ending
-        )
+        # single end sample
+        return get_reads("fq1")
     else:
-        # paired end local sample
-        return expand(
-            "pipe/cutadapt/{S}/{U}.{{read}}.fastq{E}".format(
-                S=unit.sample_name, U=unit.unit_name, E=ending
-            ),
-            read=["fq1", "fq2"],
-        )
+        # paired end sample
+        return [get_reads("fq1"), get_reads("fq2")]
 
 
 def get_sra_reads(sample, unit, fq):
@@ -289,7 +292,7 @@ def get_raw_reads(sample, unit, fq):
         if not files:
             raise ValueError(
                 "No raw fastq files found for unit pattern {} (sample {}). "
-                "Please check the your sample sheet.".format(unit, sample)
+                "Please check your sample sheet.".format(unit, sample)
             )
     else:
         files = [pattern]
