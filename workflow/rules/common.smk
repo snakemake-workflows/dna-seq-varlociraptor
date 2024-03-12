@@ -984,7 +984,9 @@ def get_vembrane_config(wildcards, input):
     samples = get_group_sample_aliases(wildcards)
 
     def append_format_field(field, name):
-        append_items(samples, f"FORMAT['{field}']['{}']".format, f"{}: {name}".format)
+        append_items(
+            samples, f"FORMAT['{field}']['{{}}']".format, f"{{}}: {name}".format
+        )
 
     if config_output.get("event_prob", False):
         events = list(scenario["events"].keys())
@@ -1102,7 +1104,7 @@ def get_variant_oncoprint_tables(wildcards, input):
         assert all(table.endswith(".tsv") for table in tables)
         genes = [gene_table[:-4] for gene_table in tables]
         return list(
-            zip(genes, expand(f"{oncoprint_dir}/{oncoprint}", oncoprint=tables))
+            zip(genes, expand(f"{oncoprint_dir}/{{oncoprint}}", oncoprint=tables))
         )
     else:
         return []
