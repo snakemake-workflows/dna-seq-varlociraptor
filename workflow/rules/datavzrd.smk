@@ -143,7 +143,7 @@ rule datavzrd_variants_calls:
             subcategory=get_datavzrd_report_subcategory,
         ),
     params:
-        extra="--debug"
+        extra="--debug",
     log:
         "logs/datavzrd_report/{batch}.{event}.log",
     wrapper:
