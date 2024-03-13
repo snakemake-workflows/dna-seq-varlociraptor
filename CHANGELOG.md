@@ -1,5 +1,13 @@
 # Changelog
 
+## [5.3.1](https://github.com/snakemake-workflows/dna-seq-varlociraptor/compare/v5.3.0...v5.3.1) (2024-03-12)
+
+
+### Bug Fixes
+
+* avoid piping if there is no glob pattern in the given fastqs ([#286](https://github.com/snakemake-workflows/dna-seq-varlociraptor/issues/286)) ([645e5c0](https://github.com/snakemake-workflows/dna-seq-varlociraptor/commit/645e5c06a50d61e3415e9e7aa6b61501264dba5c))
+* require Snakemake 8 ([#284](https://github.com/snakemake-workflows/dna-seq-varlociraptor/issues/284)) ([9a19971](https://github.com/snakemake-workflows/dna-seq-varlociraptor/commit/9a1997158425bed989e805026213c47250fd8c58))
+
 ## [5.3.0](https://github.com/snakemake-workflows/dna-seq-varlociraptor/compare/v5.2.0...v5.3.0) (2024-02-27)
 
 
