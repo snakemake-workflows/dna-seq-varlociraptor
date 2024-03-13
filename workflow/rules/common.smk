@@ -962,7 +962,7 @@ def get_vembrane_config(wildcards, input):
             "CANONICAL",
             "MANE_PLUS_CLINICAL",
             {"name": "clinical significance", "expr": "ANN['CLIN_SIG']"},
-            {"name": "gnomad genome af", "expr": "ANN['gnomADg_AF']"},
+            {"name": "gnomad genome af", "expr": "ANN['gnomADg_AF']"}
         ]
 
         annotation_fields.extend(
@@ -972,9 +972,19 @@ def get_vembrane_config(wildcards, input):
                 if field not in annotation_fields
             ]
         )
-
-        if "REVEL" in config["annotations"]["vep"]["final_calls"]["plugins"]:
-            annotation_fields.append("REVEL")
+        for plugin in ["REVEL", "SpliceAI", "AlphaMissense"]:
+            if any(entry.startswith(plugin) for entry in config["annotations"]["vep"]["final_calls"]["plugins"]):
+                if plugin == "REVEL":
+                    annotation_fields.append("REVEL")
+                elif plugin == "SpliceAI":
+                    annotation_fields += [
+                        {"name": "spliceai acceptor gain", "expr": "ANN['SpliceAI_pred_DS_AG']"},
+                        {"name": "spliceai acceptor loss", "expr": "ANN['SpliceAI_pred_DS_AL']"},
+                        {"name": "spliceai donor gain", "expr": "ANN['SpliceAI_pred_DS_DG']"},
+                        {"name": "spliceai donor loss", "expr": "ANN['SpliceAI_pred_DS_DL']"}
+                    ]
+                elif plugin == "AlphaMissense":
+                    annotation_fields.append({"name": "alphamissense", "expr": "ANN['am_pathogenicity']"})
 
         append_items(annotation_fields, "ANN['{}']".format, lambda x: x.lower())
 
