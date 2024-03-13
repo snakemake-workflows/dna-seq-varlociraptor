@@ -29,12 +29,7 @@ __definitions__:
       let pos = row.position;
       let ref = row["reference allele"];
       let alt = row["alternative allele"];
-      var build = ""
-      if  ( "{params.build}" === "GRCh38" ) {{
-        build = "hg38/"
-      }} else {{
-        build = "hg19/"
-      }}
+      let build = ( "{params.build}" === "GRCh38" ) ? "hg38/" : "hg19/";
       const url = "https://varsome.com/variant/";
       let aa_regex = /^[ACGTacgt]+$/;
       if ( ref.match(aa_regex) && alt.match(aa_regex)) {{
@@ -50,10 +45,7 @@ __definitions__:
     genomenexus_link = f"""
       function(row) {{
         let hgvsg = row.hgvsg
-        var build = ""
-        if  ( "{params.build}" === "GRCh38" ) {{
-          build = "grch38."
-        }}
+        let build = ( "{params.build}" === "GRCh38" ) ? "grch38." : "";
         const url_suffix = "genomenexus.org/variant/"
         return `https://${{build}}${{url_suffix}}${{hgvsg}}`
       }}

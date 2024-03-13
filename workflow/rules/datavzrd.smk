@@ -142,12 +142,10 @@ rule datavzrd_variants_calls:
             labels=get_datavzrd_report_labels,
             subcategory=get_datavzrd_report_subcategory,
         ),
-    params:
-        extra="--debug",
     log:
         "logs/datavzrd_report/{batch}.{event}.log",
     wrapper:
-        "v3.4.1/utils/datavzrd"
+        "v3.4.1-13-g8c86447/utils/datavzrd"
 
 
 rule datavzrd_fusion_calls:
