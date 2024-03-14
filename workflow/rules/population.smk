@@ -25,7 +25,7 @@ if lookup(dpath="population/db/activate", within=config):
         input:
             "results/final-calls/{group}.variants.annotated.bcf",
         output:
-            update(lookup(dpath="population/db/path", within=config)),
+            get_population_db(before_update=False),
         log:
             "logs/population/db_export/{group}.log",
         script:

@@ -898,6 +898,16 @@ def get_annotation_pipes(wildcards, input):
         return ""
 
 
+def get_population_db(before_update=False):
+    if lookup(dpath="population/db/activate", within=config):
+        db = lookup(dpath="population/db/path", within=config)
+        if before_update:
+            return before_update(db)
+        else:
+            return update(db)
+    return []
+
+
 def get_annotation_vcfs(idx=False):
     fmt = lambda f: f if not idx else "{}.tbi".format(f)
     return [fmt(f) for _, f in annotations]

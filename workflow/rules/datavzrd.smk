@@ -33,6 +33,7 @@ rule prepare_oncoprint:
     input:
         calls=get_oncoprint_input,
         group_annotation=config.get("groups", []),
+        population_db=get_population_db(before_update=True),
     output:
         gene_oncoprint="results/tables/oncoprints/{batch}.{event}/gene-oncoprint.tsv",
         gene_oncoprint_sortings=directory(
