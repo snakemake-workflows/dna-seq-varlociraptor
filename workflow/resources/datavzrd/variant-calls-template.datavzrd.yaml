@@ -67,7 +67,7 @@ __definitions__:
     spliceai_content = f"""
       function(value, row) {{
         if (value.length !== 0) {{
-          return `${{row.spliceai_effect}}: ${{value}}`
+          return `${{row.spliceai_effect}}${{value}}`
         }} else {{
           return ``
         }}

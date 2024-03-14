@@ -160,11 +160,11 @@ def bin_max_vaf(df, samples):
 def select_spliceai_effect(calls):
     spliceai_columns = calls.filter(like="spliceai", axis=1)
     max_spliceai_effects = (
-        spliceai_columns.apply(lambda row: row.idxmax(), axis=1)
-        .astype(str)
-        .str.removeprefix("spliceai ")
+        spliceai_columns.idxmax(axis=1).astype(str).str.removeprefix("spliceai ") + ": "
     )
-    max_score = spliceai_columns.apply(lambda row: row.max(), axis=1)
+    max_score = spliceai_columns.max(axis=1)
+    # Do not annotate effect for variants with high uncertainty (prob below 0.2)
+    max_spliceai_effects[max_score < 0.2] = np.nan
     col_index = calls.columns.get_loc("spliceai acceptor gain")
     calls = calls.drop(calls.filter(like="spliceai", axis=1).columns, axis=1)
     calls.insert(col_index, "spliceai_effect", max_spliceai_effects)
