@@ -1,6 +1,6 @@
 from snakemake.utils import min_version
 
-min_version("8.5.4")
+min_version("8.7.0")
 
 
 configfile: "config/config.yaml"

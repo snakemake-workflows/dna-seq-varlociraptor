@@ -152,9 +152,11 @@ def get_final_output(wildcards):
             final_output.extend(
                 expand(
                     "results/final-calls/{group}.{event}.{calling_type}.fdr-controlled.bcf",
-                    group=variants_groups
-                    if calling_type == "variants"
-                    else fusions_groups,
+                    group=(
+                        variants_groups
+                        if calling_type == "variants"
+                        else fusions_groups
+                    ),
                     event=get_calling_events(calling_type),
                     calling_type=calling_type,
                 )
@@ -164,9 +166,11 @@ def get_final_output(wildcards):
             final_output.extend(
                 expand(
                     "results/tables/{group}.{event}.{calling_type}.fdr-controlled.tsv",
-                    group=variants_groups
-                    if calling_type == "variants"
-                    else fusions_groups,
+                    group=(
+                        variants_groups
+                        if calling_type == "variants"
+                        else fusions_groups
+                    ),
                     event=get_calling_events(calling_type),
                     calling_type=calling_type,
                 )
@@ -175,14 +179,19 @@ def get_final_output(wildcards):
                 final_output.extend(
                     expand(
                         "results/tables/{group}.{event}.{calling_type}.fdr-controlled.xlsx",
-                        group=variants_groups
-                        if calling_type == "variants"
-                        else fusions_groups,
+                        group=(
+                            variants_groups
+                            if calling_type == "variants"
+                            else fusions_groups
+                        ),
                         event=get_calling_events(calling_type),
                         calling_type=calling_type,
                     )
                 )
     final_output.extend(get_mutational_burden_targets())
+
+    if lookup(dpath="population/db/activate", within=config):
+        final_output.append(lookup(dpath="population/db/path", within=config))
 
     return final_output
 
@@ -852,14 +861,18 @@ variant_caller = list(
     filter(
         None,
         [
-            "freebayes"
-            if is_activated("calling/freebayes")
-            and samples["calling"].str.contains("variants").any()
-            else None,
-            "delly"
-            if is_activated("calling/delly")
-            and samples["calling"].str.contains("variants").any()
-            else None,
+            (
+                "freebayes"
+                if is_activated("calling/freebayes")
+                and samples["calling"].str.contains("variants").any()
+                else None
+            ),
+            (
+                "delly"
+                if is_activated("calling/delly")
+                and samples["calling"].str.contains("variants").any()
+                else None
+            ),
         ],
     )
 )

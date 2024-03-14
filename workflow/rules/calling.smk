@@ -79,9 +79,11 @@ rule varlociraptor_call:
             wc, config["params"]["varlociraptor"]["call"]
         )
         + " -o /dev/stdout",
-        postprocess=">"
-        if not config["calling"].get("infer_genotypes")
-        else "| varlociraptor genotype >",
+        postprocess=(
+            ">"
+            if not config["calling"].get("infer_genotypes")
+            else "| varlociraptor genotype >"
+        ),
     conda:
         "../envs/varlociraptor.yaml"
     benchmark:
