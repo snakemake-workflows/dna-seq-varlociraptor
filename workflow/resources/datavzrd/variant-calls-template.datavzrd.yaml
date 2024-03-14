@@ -67,7 +67,8 @@ __definitions__:
     spliceai_content = f"""
       function(value, row) {{
         if (value.length !== 0) {{
-          return `${{row.spliceai_effect}}${{value}}`
+          let effect = (typeof row.spliceai_effect !== 'undefined' ) ? row.spliceai_effect : "";
+          return `${{effect}}${{value}}`
         }} else {{
           return ``
         }}
@@ -352,7 +353,7 @@ views:
                 scale: "linear"
                 domain: [0.0, 0.2, 0.5, 0.8, 1.0]
                 range:
-                  - "#22964"
+                  - "#ffffff"
                   - "#f9f7ae"
                   - "#fcac63"
                   - "#f16e43"
