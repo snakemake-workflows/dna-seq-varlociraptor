@@ -2,6 +2,7 @@ rule split_call_tables:
     input:
         calls="results/tables/{group}.{event}.variants.fdr-controlled.tsv",
         population_db=get_population_db(before_update=True),
+        population_db_idx=get_population_db(idx=True),
     output:
         coding="results/tables/{group}.{event}.coding.fdr-controlled.tsv",
         noncoding="results/tables/{group}.{event}.noncoding.fdr-controlled.tsv",

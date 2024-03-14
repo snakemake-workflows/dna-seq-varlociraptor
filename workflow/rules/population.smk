@@ -30,3 +30,15 @@ if is_activated("population/db"):
             "logs/population/db_export/{group}.log",
         script:
             "scripts/update_population_db.py"
+
+    rule population_db_index:
+        input:
+            get_population_db(before_update=True),
+        output:
+            get_population_db(idx=True),
+        log:
+            "logs/bcf-index/population_db.log",
+        conda:
+            "../envs/bcftools.yaml"
+        shell:
+            "bcftools index {input} 2> {log}"
