@@ -1,6 +1,7 @@
 rule split_call_tables:
     input:
-        "results/tables/{group}.{event}.variants.fdr-controlled.tsv",
+        calls="results/tables/{group}.{event}.variants.fdr-controlled.tsv",
+        population_db=get_population_db(before_update=True),
     output:
         coding="results/tables/{group}.{event}.coding.fdr-controlled.tsv",
         noncoding="results/tables/{group}.{event}.noncoding.fdr-controlled.tsv",
@@ -33,7 +34,6 @@ rule prepare_oncoprint:
     input:
         calls=get_oncoprint_input,
         group_annotation=config.get("groups", []),
-        population_db=get_population_db(before_update=True),
     output:
         gene_oncoprint="results/tables/oncoprints/{batch}.{event}/gene-oncoprint.tsv",
         gene_oncoprint_sortings=directory(
