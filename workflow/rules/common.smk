@@ -190,7 +190,7 @@ def get_final_output(wildcards):
                 )
     final_output.extend(get_mutational_burden_targets())
 
-    if lookup(dpath="population/db/activate", within=config):
+    if is_activated("population/db"):
         final_output.append(lookup(dpath="population/db/path", within=config))
 
     return final_output
@@ -899,7 +899,7 @@ def get_annotation_pipes(wildcards, input):
 
 
 def get_population_db(before_update=False):
-    if lookup(dpath="population/db/activate", within=config):
+    if is_activated("population/db"):
         db = lookup(dpath="population/db/path", within=config)
         if before_update:
             return before_update(db)

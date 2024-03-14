@@ -1,4 +1,4 @@
-if lookup(dpath="population/db/activate", within=config):
+if is_activated("population/db"):
 
     rule population_filter_variants:
         input:
