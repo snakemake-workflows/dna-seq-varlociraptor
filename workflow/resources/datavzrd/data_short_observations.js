@@ -10,11 +10,7 @@ function(value) {
   var observations = [];
   let obs = value.split(",")
   for (i=0; i<2; i++) {
-    if (i === 0) {
-      allele = "Reference"
-    } else {
-      allele = "Alternative"
-    }
+    let allele = (i === 0) ? "Reference" : "Alternative";
     while ((result = regex.exec(obs[i])) != null) {
       effect = effects[result[2].toUpperCase()]
       if (effect !== "Equal") {
