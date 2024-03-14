@@ -157,6 +157,21 @@ def bin_max_vaf(df, samples):
     return df
 
 
+def select_spliceai_effect(calls):
+    spliceai_columns = calls.filter(like="spliceai", axis=1)
+    max_spliceai_effects = (
+        spliceai_columns.idxmax(axis=1).astype(str).str.removeprefix("spliceai ") + ": "
+    )
+    max_score = spliceai_columns.max(axis=1)
+    # Do not annotate effect for variants with high uncertainty (prob below 0.2)
+    max_spliceai_effects[max_score < 0.2] = np.nan
+    col_index = calls.columns.get_loc("spliceai acceptor gain")
+    calls = calls.drop(calls.filter(like="spliceai", axis=1).columns, axis=1)
+    calls.insert(col_index, "spliceai_effect", max_spliceai_effects)
+    calls.insert(col_index, "spliceai", max_score)
+    return calls
+
+
 calls = pd.read_csv(snakemake.input[0], sep="\t")
 calls["clinical significance"] = (
     calls["clinical significance"]
@@ -188,6 +203,9 @@ calls.set_index("gene", inplace=True, drop=False)
 
 if calls.columns.str.endswith(": short ref observations").any():
     calls = join_short_obs(calls, samples)
+
+if calls.columns.str.startswith("spliceai").any():
+    calls = select_spliceai_effect(calls)
 
 coding = ~pd.isna(calls["hgvsp"])
 canonical = calls["canonical"].notnull()
