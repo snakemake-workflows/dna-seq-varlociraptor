@@ -25,7 +25,7 @@ if is_activated("population/db"):
         input:
             "results/final-calls/{group}.variants.annotated.bcf",
         output:
-            get_population_db(before_update=False),
+            get_population_db(use_before_update=False),
         log:
             "logs/population/db_export/{group}.log",
         script:
@@ -33,9 +33,9 @@ if is_activated("population/db"):
 
     rule population_db_index:
         input:
-            get_population_db(before_update=True),
+            get_population_db(use_before_update=True),
         output:
-            get_population_db(idx=True),
+            get_population_db(use_before_update=True, idx=True),
         log:
             "logs/bcf-index/population_db.log",
         conda:

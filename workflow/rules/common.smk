@@ -898,14 +898,14 @@ def get_annotation_pipes(wildcards, input):
         return ""
 
 
-def get_population_db(before_update=False, idx=False):
+def get_population_db(use_before_update=False, idx=False):
     if is_activated("population/db"):
         db = lookup(dpath="population/db/path", within=config)
         if not db.endswith(".bcf"):
             raise ValueError("Population database must be a BCF file.")
         if idx:
             return f"{db}.csi"
-        elif before_update:
+        elif use_before_update:
             return before_update(db)
         else:
             return update(db)
