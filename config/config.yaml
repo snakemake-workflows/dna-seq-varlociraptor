@@ -165,6 +165,8 @@ population:
     # The path can be outside of the workdir. Snakemake will update the file with each new
     # sample that occurs.
     path: ...
+    alias: tumor
+    fdr: 0.05
     # Varlociraptor events to be used.
     events:
       - somatic_tumor_high

@@ -13,7 +13,7 @@ rule split_call_tables:
     log:
         "logs/split_tables/{group}.{event}.log",
     conda:
-        "../envs/pandas.yaml"
+        "../envs/split_call_tables.yaml"
     script:
         "../scripts/split-call-tables.py"
 

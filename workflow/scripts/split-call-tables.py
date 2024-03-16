@@ -2,12 +2,11 @@ import sys
 
 sys.stderr = open(snakemake.log[0], "w")
 
-import json
-import re
-
 import numpy as np
 import pandas as pd
+import pysam
 
+from typing import Generator
 
 PROB_EPSILON = 0.01  # columns with all probabilities below will be dropped
 
@@ -164,7 +163,9 @@ class PopulationDb:
         self._variants = None
         self.bcf = pysam.VariantFile(path)
 
-    def variants(self, contig: str, pos: int, alt: str) -> Generator[pysam.VariantRecord, None, None]:
+    def variants(
+        self, contig: str, pos: int, alt: str
+    ) -> Generator[pysam.VariantRecord, None, None]:
         """Return variants at given position"""
         if not self._is_in_interval(contig, pos):
             self.contig = contig
@@ -175,28 +176,36 @@ class PopulationDb:
                 yield variant
             if variant.pos > pos:
                 break
-    
+
     def annotate_row(self, row):
         # TODO: deal with SVs
         db_vars = self.variants(
             row["chromosome"], row["position"], row["alternative allele"]
         )
-        return ",".join([
-            f"{name}:{sample['AF']:0.2f}"
-            for variant in db_vars
-            for name, sample in zip(self.bcf.header.samples, variant.samples.values())
-            if sample["AF"] > 0.0
-        ])
-    
+        return ",".join(
+            [
+                f"{name}:{sample['AF']:0.2f}"
+                for variant in db_vars
+                for name, sample in zip(
+                    self.bcf.header.samples, variant.samples.values()
+                )
+                if sample["AF"] > 0.0
+            ]
+        )
+
     def _load_variants(self):
         self._variants = self.bcf.fetch(self.contig, self.pos, self.end)
-    
+
     @property
     def end(self):
         return self.pos + 1000
-    
+
     def _is_in_interval(self, contig: str, pos: int):
-        return self.pos is not None and self.contig == contig and self.pos <= pos <= self.end
+        return (
+            self.pos is not None
+            and self.contig == contig
+            and self.pos <= pos <= self.end
+        )
 
 
 def select_spliceai_effect(calls):
