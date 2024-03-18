@@ -904,9 +904,15 @@ def get_population_db(use_before_update=False, idx=False):
         if not db.endswith(".bcf"):
             raise ValueError("Population database must be a BCF file.")
         if idx:
-            return f"{db}.csi"
+            if exists(db):
+                return f"{db}.csi"
+            else:
+                return []
         elif use_before_update:
-            return before_update(db)
+            if exists(db):
+                return before_update(db)
+            else:
+                return []
         else:
             return update(db)
     return []
