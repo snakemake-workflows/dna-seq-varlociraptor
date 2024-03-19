@@ -1,5 +1,17 @@
 if is_activated("population/db"):
 
+    rule clean_population_db:
+        input:
+            get_population_db(use_before_update=True),
+        output:
+            temp("results/population_db.cleaned.bcf"),
+        params:
+            remove_groups=lambda wc: ",".join(variants_groups),
+        conda:
+            "../envs/bcftools.yaml"
+        shell:
+            "bcftools view --samples ^{params.remove_groups} {input} -Ob > {output}"
+
     rule population_filter_variants:
         input:
             "results/final-calls/{group}.variants.annotated.bcf",
@@ -24,6 +36,7 @@ if is_activated("population/db"):
 
     rule population_db_update:
         input:
+            cleaned_db=get_cleaned_population_db(),
             bcf=get_population_bcfs(),
             bcf_idx=get_population_bcfs(idx=True),
         output:

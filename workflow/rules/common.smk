@@ -898,6 +898,19 @@ def get_annotation_pipes(wildcards, input):
         return ""
 
 
+def get_cleaned_population_db(idx=False):
+    if is_activated("population/db"):
+        db = lookup(dpath="population/db/path", within=config)
+        csi = ".csi" if idx else ""
+        if not db.endswith(".bcf"):
+            raise ValueError("Population database must be a BCF file.")
+        if exists(db):
+            return f"results/population_db.cleaned.bcf{csi}"
+        else:
+            return []
+    return []
+
+
 def get_population_bcfs(idx=False):
     csi = ".csi" if idx else ""
     return expand(

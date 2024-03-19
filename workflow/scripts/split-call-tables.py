@@ -170,7 +170,7 @@ class PopulationDb:
         if not self._is_in_interval(contig, pos):
             self.contig = contig
             self.pos = pos
-            self.variants = self._load_variants()
+            self._variants = self._load_variants()
         for variant in self._variants:
             if variant.pos == pos and variant.alts[0] == alt:
                 yield variant
@@ -189,13 +189,12 @@ class PopulationDb:
                 for name, sample in zip(
                     self.bcf.header.samples, variant.samples.values()
                 )
-                if sample["AF"] > 0.0
+                if sample["AFD"] > 0.0
             ]
         )
 
     def _load_variants(self):
-        # Should this be returned instead of being assigned?
-        self._variants = self.bcf.fetch(self.contig, self.pos, self.end)
+        return self.bcf.fetch(str(self.contig), self.pos, self.end)
 
     @property
     def end(self):
