@@ -6,4 +6,3 @@ dependencies:
   - python =3.10
   - scikit-learn =1.1.2
   - statsmodels =0.13.2
-  - pysam =0.22

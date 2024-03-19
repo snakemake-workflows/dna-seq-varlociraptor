@@ -1,5 +1,4 @@
 import sys
-from typing import Generator, List, Optional
 
 sys.stderr = open(snakemake.log[0], "w")
 
@@ -8,7 +7,6 @@ from pathlib import Path
 
 import pandas as pd
 import numpy as np
-import pysam
 
 from sklearn.feature_selection import chi2
 from statsmodels.stats.multitest import fdrcorrection
