@@ -1,18 +1,18 @@
 import os
 import shutil
 import sys
+
 sys.stderr = open(snakemake.log[0], "w")
 
-from pathlib import Path
 import subprocess as sp
 import pysam
 
 db_path = snakemake.output[0]
 
 
-def sample_in_db():
+def sample_in_db(group):
     samples = pysam.VariantFile(db_path).header.samples
-    if snakemake.wildcards.group in samples:
+    if group in samples:
         if len(samples) == 1:
             return "only"
         else:
@@ -21,24 +21,43 @@ def sample_in_db():
         return "not"
 
 
-def copy_to_db():
-    shutil.copyfile(snakemake.input[0], db_path)
+def copy_to_db(bcf_path):
+    shutil.copyfile(bcf_path, db_path)
 
 
-def update_db():
-    match sample_in_db():
+def update_db(bcf_path, group):
+    sp.run(["bcftools", "index", "-f", db_path])
+    match sample_in_db(group):
         case "only":
-            copy_to_db()
+            copy_to_db(bcf_path)
             return
         case "one":
-            aux_args = ["--samples", f"^{snakemake.wildcards.group}"]
+            aux_args = ["--force-samples", f"^{group}"]
         case "not":
             aux_args = []
-    sp.run(["bcftools", "merge", "-m", "none", db_path, snakemake.input[0], f"{db_path}.updated"] + aux_args, check=True, stderr=sp.PIPE)
+
+    sp.run(
+        [
+            "bcftools",
+            "merge",
+            "-m",
+            "none",
+            db_path,
+            bcf_path,
+            "-Ob",
+            "-o",
+            f"{db_path}.updated",
+        ]
+        + aux_args,
+        check=True,
+        stderr=sp.PIPE,
+    )
     shutil.move(f"{db_path}.updated", db_path)
 
 
-if os.path.exists(db_path):
-    update_db()
-else:
-    copy_to_db()
+for bcf_path in snakemake.input.bcf:
+    if os.path.exists(db_path):
+        group = bcf_path.split("/")[2].split(".")[0]
+        update_db(bcf_path, group)
+    else:
+        copy_to_db(bcf_path)

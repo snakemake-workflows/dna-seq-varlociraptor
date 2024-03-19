@@ -19,17 +19,21 @@ if is_activated("population/db"):
             "--events {params.events} --fdr {params.fdr} | "
             "bcftools view --samples {params.alias} | "
             "bcftools annotate --remove ^{params.keep_fields} | "
-            "bcftools reheader -s <(echo '{wildcards.group}') > {output} 2> {log}"
+            "bcftools reheader -s <(echo '{wildcards.group}') | "
+            "bcftools view -Ob > {output} 2> {log}"
 
     rule population_db_update:
         input:
-            "results/final-calls/{group}.variants.annotated.bcf",
+            bcf=get_population_bcfs(),
+            bcf_idx=get_population_bcfs(idx=True),
         output:
             get_population_db(use_before_update=False),
         log:
-            "logs/population/db_export/{group}.log",
+            "logs/population/db_export/update_population_db.log",
+        conda:
+            "../envs/population_db.yaml"
         script:
-            "scripts/update_population_db.py"
+            "../scripts/update_population_db.py"
 
     rule population_db_index:
         input:
