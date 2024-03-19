@@ -48,15 +48,3 @@ if is_activated("population/db"):
             "../envs/bcftools.yaml"
         shell:
             "bcftools merge -m none {input.cleaned_db} {input.bcfs} -Ob > {output} 2> {log}"
-
-    rule population_db_index:
-        input:
-            get_population_db(use_before_update=True),
-        output:
-            get_population_db(use_before_update=True, idx=True),
-        log:
-            "logs/bcf-index/population_db.log",
-        conda:
-            "../envs/bcftools.yaml"
-        shell:
-            "bcftools index {input} 2> {log}"

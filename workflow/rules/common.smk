@@ -920,17 +920,12 @@ def get_population_bcfs(idx=False):
     )
 
 
-def get_population_db(use_before_update=False, idx=False):
+def get_population_db(use_before_update=False):
     if is_activated("population/db"):
         db = lookup(dpath="population/db/path", within=config)
         if not db.endswith(".bcf"):
             raise ValueError("Population database must be a BCF file.")
-        if idx:
-            if exists(db):
-                return f"{db}.csi"
-            else:
-                return []
-        elif use_before_update:
+        if use_before_update:
             if exists(db):
                 return before_update(db)
             else:
