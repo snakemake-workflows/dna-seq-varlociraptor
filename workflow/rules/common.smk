@@ -899,8 +899,12 @@ def get_annotation_pipes(wildcards, input):
 
 
 def get_population_bcfs(idx=False):
-    csi=".csi" if idx else ""
-    return expand("results/population/{group}.variants.filtered.bcf{idx}", group=variants_groups, idx=csi)
+    csi = ".csi" if idx else ""
+    return expand(
+        "results/population/{group}.variants.filtered.bcf{idx}",
+        group=variants_groups,
+        idx=csi,
+    )
 
 
 def get_population_db(use_before_update=False, idx=False):
