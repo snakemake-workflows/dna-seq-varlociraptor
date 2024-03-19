@@ -1,6 +1,7 @@
 import os
 import shutil
 import sys
+import tempfile
 
 sys.stderr = open(snakemake.log[0], "w")
 
@@ -27,28 +28,42 @@ def copy_to_db(bcf_path):
 
 def update_db(bcf_path, group):
     sp.run(["bcftools", "index", "-f", db_path])
+
     match sample_in_db(group):
         case "only":
             copy_to_db(bcf_path)
             return
         case "one":
-            aux_args = ["--force-samples", f"^{group}"]
+            # This should probably remove the existing sample
+            _, db_tmp = tempfile.mkstemp()
+            sp.run(
+                [
+                    "bcftools",
+                    "view",
+                    db_path,
+                    "--samples",
+                    f"^{group}",
+                    "-Ob",
+                    "-o",
+                    db_tmp,
+                ]
+            )
         case "not":
-            aux_args = []
+            db_tmp = db_path
 
+    sp.run(["bcftools", "index", "-f", db_tmp])
     sp.run(
         [
             "bcftools",
             "merge",
             "-m",
             "none",
-            db_path,
+            db_tmp,
             bcf_path,
             "-Ob",
             "-o",
             f"{db_path}.updated",
-        ]
-        + aux_args,
+        ],
         check=True,
         stderr=sp.PIPE,
     )

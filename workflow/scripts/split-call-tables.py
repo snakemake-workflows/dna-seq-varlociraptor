@@ -194,6 +194,7 @@ class PopulationDb:
         )
 
     def _load_variants(self):
+        # Should this be returned instead of being assigned?
         self._variants = self.bcf.fetch(self.contig, self.pos, self.end)
 
     @property

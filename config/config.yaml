@@ -159,7 +159,7 @@ calc_consensus_reads:
 
 population:
   db:
-    # Set to true to contiuously update a population database (BCF) with each new sample.
+    # Set to true to continuously update a population database (BCF) with each new sample.
     activate: false
     # Path to a BCF file to be used to collect variants across mutliple runs of the pipeline.
     # The path can be outside of the workdir. Snakemake will update the file with each new
