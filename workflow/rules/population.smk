@@ -37,16 +37,17 @@ if is_activated("population/db"):
     rule population_db_update:
         input:
             cleaned_db=get_cleaned_population_db(),
-            bcf=get_population_bcfs(),
-            bcf_idx=get_population_bcfs(idx=True),
+            cleaned_db_idx=get_cleaned_population_db(idx=True),
+            bcfs=get_population_bcfs(),
+            bcfs_idx=get_population_bcfs(idx=True),
         output:
             get_population_db(use_before_update=False),
         log:
             "logs/population/db_export/update_population_db.log",
         conda:
-            "../envs/population_db.yaml"
-        script:
-            "../scripts/update_population_db.py"
+            "../envs/bcftools.yaml"
+        shell:
+            "bcftools merge -m none {input.cleaned_db} {input.bcfs} -Ob > {output} 2> {log}"
 
     rule population_db_index:
         input:
