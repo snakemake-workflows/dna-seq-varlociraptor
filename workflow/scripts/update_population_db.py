@@ -48,10 +48,10 @@ def update_db(bcf_path, group):
                     db_tmp,
                 ]
             )
+            sp.run(["bcftools", "index", db_tmp])
         case "not":
             db_tmp = db_path
 
-    sp.run(["bcftools", "index", "-f", db_tmp])
     sp.run(
         [
             "bcftools",
