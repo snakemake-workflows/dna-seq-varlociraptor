@@ -189,7 +189,7 @@ class PopulationDb:
                 for name, sample in zip(
                     self.bcf.header.samples, variant.samples.values()
                 )
-                if sample["AFD"] > 0.0
+                if sample["AF"][0] and sample["AF"][0] > 0.0
             ]
         )
 
@@ -241,7 +241,7 @@ samples = get_samples(calls)
 if calls.columns.str.endswith(": allele frequency").any():
     calls = bin_max_vaf(calls, samples)
 
-if snakemake.input.population_db:
+if snakemake.input.population_db and not calls.empty:
     population_db = PopulationDb(snakemake.input.population_db)
     calls["population"] = calls.apply(population_db.annotate_row, axis="columns")
 

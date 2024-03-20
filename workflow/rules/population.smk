@@ -23,14 +23,14 @@ if is_activated("population/db"):
             events=lookup(dpath="population/db/events", within=config),
             fdr=lookup(dpath="population/db/fdr", within=config),
             alias=lookup(dpath="population/db/alias", within=config),
-            keep_fields="INFO/SVLEN,INFO/SVTYPE,INFO/MATEID,INFO/END,INFO/CIPOS,INFO/CIEND,FORMAT/AF",
+            keep_fields="^INFO/SVLEN,INFO/SVTYPE,INFO/MATEID,INFO/END,INFO/CIPOS,INFO/CIEND,^FORMAT/AF",
         conda:
             "../envs/varlociraptor.yaml"
         shell:
             "varlociraptor filter-calls control-fdr --mode local-smart {input} "
             "--events {params.events} --fdr {params.fdr} | "
             "bcftools view --samples {params.alias} | "
-            "bcftools annotate --remove ^{params.keep_fields} | "
+            "bcftools annotate --remove {params.keep_fields} | "
             "bcftools reheader -s <(echo '{wildcards.group}') | "
             "bcftools view -Ob > {output} 2> {log}"
 
