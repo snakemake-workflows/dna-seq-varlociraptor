@@ -184,7 +184,7 @@ class PopulationDb:
         )
         return ",".join(
             [
-                f"{name}:{sample['AF']:0.2f}"
+                f"{name}:{sample['AF'][0]:0.2f}"
                 for variant in db_vars
                 for name, sample in zip(
                     self.bcf.header.samples, variant.samples.values()
