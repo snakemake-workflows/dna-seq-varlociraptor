@@ -243,7 +243,9 @@ if calls.columns.str.endswith(": allele frequency").any():
 
 if snakemake.input.population_db and not calls.empty:
     population_db = PopulationDb(snakemake.input.population_db)
-    calls["population"] = calls.apply(population_db.annotate_row, axis="columns")
+    calls["population"] = calls.apply(
+        population_db.annotate_row, axis="columns"
+    ).replace("", np.nan)
 
 if not calls.empty:
     # these below only work on non empty dataframes
