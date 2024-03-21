@@ -74,6 +74,16 @@ __definitions__:
         }}
       }}
     """
+  - |
+    make_popover = f"""
+      function(value, row) {{
+        if (value.length === 0) {{
+          return ``
+        }}
+        const len = value.split(',').length;
+        return `<span data-toggle="popover" data-content="${{custom_value}}">${{len}}</span>`;
+      }}
+    """
 
 datasets:
   ?if input.variant_oncoprints:
@@ -373,6 +383,9 @@ views:
                   - "#d7ee82"
                   - "#fedd8e"
                   - "#d4322c"
+          population:
+            optional: true
+            custom: ?make_popover
         add-columns:
           query_varsome:
             value: ?varsome_link
@@ -545,3 +558,6 @@ views:
                   - "#d7ee82"
                   - "#fedd8e"
                   - "#d4322c"
+          population:
+            optional: true
+            custom: ?make_popover
