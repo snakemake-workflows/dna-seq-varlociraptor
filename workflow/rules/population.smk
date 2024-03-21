@@ -10,7 +10,7 @@ if is_activated("population/db"):
         conda:
             "../envs/bcftools.yaml"
         shell:
-            "bcftools view --samples ^{params.remove_groups} {input} -Ob > {output}"
+            "bcftools view --force-samples --samples ^{params.remove_groups} {input} -Ob > {output}"
 
     rule population_filter_variants:
         input:
