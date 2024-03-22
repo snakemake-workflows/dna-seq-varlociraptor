@@ -81,7 +81,7 @@ __definitions__:
           return ``
         }}
         const len = value.split(',').length;
-        return `<span data-toggle="popover" data-content="${{custom_value}}">${{len}}</span>`;
+        return `<span data-toggle="popover" data-content="${{value}}">${{len}}</span>`;
       }}
     """
 
