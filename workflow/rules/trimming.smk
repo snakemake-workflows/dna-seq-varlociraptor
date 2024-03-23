@@ -36,7 +36,7 @@ rule cutadapt_pe:
         adapters=get_cutadapt_adapters,
     threads: 8
     wrapper:
-        "v2.3.2/bio/cutadapt/pe"
+        "v3.5.3/bio/cutadapt/pe"
 
 
 rule cutadapt_se:
@@ -52,7 +52,7 @@ rule cutadapt_se:
         adapters=get_cutadapt_adapters,
     threads: 8
     wrapper:
-        "v2.3.2/bio/cutadapt/se"
+        "v3.5.3/bio/cutadapt/se"
 
 
 rule merge_trimmed_fastqs:
