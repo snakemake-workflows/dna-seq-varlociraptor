@@ -1,5 +1,39 @@
 # Changelog
 
+## [5.3.1](https://github.com/snakemake-workflows/dna-seq-varlociraptor/compare/v5.3.0...v5.3.1) (2024-03-12)
+
+
+### Bug Fixes
+
+* avoid piping if there is no glob pattern in the given fastqs ([#286](https://github.com/snakemake-workflows/dna-seq-varlociraptor/issues/286)) ([645e5c0](https://github.com/snakemake-workflows/dna-seq-varlociraptor/commit/645e5c06a50d61e3415e9e7aa6b61501264dba5c))
+* require Snakemake 8 ([#284](https://github.com/snakemake-workflows/dna-seq-varlociraptor/issues/284)) ([9a19971](https://github.com/snakemake-workflows/dna-seq-varlociraptor/commit/9a1997158425bed989e805026213c47250fd8c58))
+
+## [5.3.0](https://github.com/snakemake-workflows/dna-seq-varlociraptor/compare/v5.2.0...v5.3.0) (2024-02-27)
+
+
+### Features
+
+* fusion calling ([#222](https://github.com/snakemake-workflows/dna-seq-varlociraptor/issues/222)) ([d0b45ba](https://github.com/snakemake-workflows/dna-seq-varlociraptor/commit/d0b45babb717ee7587fc3dafc359a6bc9494fd94))
+
+
+### Performance Improvements
+
+* reorganize tests to first only do dry-runs and then run long and short tests in one runner each ([#280](https://github.com/snakemake-workflows/dna-seq-varlociraptor/issues/280)) ([ee973c6](https://github.com/snakemake-workflows/dna-seq-varlociraptor/commit/ee973c649ed0e3c6a657e20c2a806247060ab62a))
+
+## [5.2.0](https://github.com/snakemake-workflows/dna-seq-varlociraptor/compare/v5.1.0...v5.2.0) (2023-11-30)
+
+
+### Features
+
+* colored tick plots in datavzrd report ([#279](https://github.com/snakemake-workflows/dna-seq-varlociraptor/issues/279)) ([757aa0e](https://github.com/snakemake-workflows/dna-seq-varlociraptor/commit/757aa0e60e275538a3dc8d8fdeb6195fc65f4a40))
+* improve and run sra download ci test case ([#276](https://github.com/snakemake-workflows/dna-seq-varlociraptor/issues/276)) ([074661e](https://github.com/snakemake-workflows/dna-seq-varlociraptor/commit/074661e3f7f4fa462a1f77c6a3f3d75346a1a6c3))
+* map primers by bwa and update datavzrd template ([#275](https://github.com/snakemake-workflows/dna-seq-varlociraptor/issues/275)) ([12f22e9](https://github.com/snakemake-workflows/dna-seq-varlociraptor/commit/12f22e9f6c1127546ed9e20add76bdebf8bbec36))
+
+
+### Bug Fixes
+
+* unique values when extracting samples column for repeated samples (in multiple groups) ([#278](https://github.com/snakemake-workflows/dna-seq-varlociraptor/issues/278)) ([aaac1b5](https://github.com/snakemake-workflows/dna-seq-varlociraptor/commit/aaac1b53676879b04f636099975290d1a050fff6))
+
 ## [5.1.0](https://github.com/snakemake-workflows/dna-seq-varlociraptor/compare/v5.0.2...v5.1.0) (2023-11-10)
 
 

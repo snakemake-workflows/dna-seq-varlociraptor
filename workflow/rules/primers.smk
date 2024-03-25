@@ -44,40 +44,22 @@ rule trim_primers:
         "fgbio TrimPrimers -H -i {input.bam} -p {input.primers} -s {params.sort_order} {params.single_primer} -o {output.trimmed} &> {log}"
 
 
-rule bowtie_build:
+rule map_primers:
     input:
-        genome,
-    output:
-        directory("resources/bowtie_build/"),
-    params:
-        prefix=f"resources/bowtie_build/{genome_name}",
-    log:
-        "logs/bowtie/build.log",
-    conda:
-        "../envs/bowtie.yaml"
-    cache: True
-    shell:
-        "mkdir {output} & "
-        "bowtie-build {input} {params.prefix} &> {log}"
-
-
-rule bowtie_map:
-    input:
-        primers=lambda w: get_panel_primer_input(w.panel),
-        idx="resources/bowtie_build",
+        reads=lambda wc: get_panel_primer_input(wc.panel),
+        idx=rules.bwa_index.output,
     output:
         "results/primers/{panel}_primers.bam",
-    params:
-        primers=lambda wc, input: format_bowtie_primers(wc, input.primers),
-        prefix=f"resources/bowtie_build/{genome_name}",
-        insertsize=get_bowtie_insertsize(),
-        primer_format=lambda wc, input: "-f" if input_is_fasta(input.primers) else "",
     log:
-        "logs/bowtie/{panel}_map.log",
-    conda:
-        "../envs/bowtie.yaml"
-    shell:
-        "bowtie {params.primers} -x {params.prefix} {params.insertsize} {params.primer_format} -S | samtools view -b - > {output} 2> {log}"
+        "logs/bwa_mem/{panel}.log",
+    params:
+        extra=lambda wc, input: get_primer_extra(wc, input),
+        sorting="none",  # Can be 'none', 'samtools' or 'picard'.
+        sort_order="queryname",  # Can be 'queryname' or 'coordinate'.
+        sort_extra="",  # Extra args for samtools/picard.
+    threads: 8
+    wrapper:
+        "v2.13.0/bio/bwa/mem"
 
 
 rule filter_unmapped_primers:

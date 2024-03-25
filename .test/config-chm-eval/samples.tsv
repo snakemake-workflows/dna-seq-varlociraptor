@@ -1,2 +1,2 @@
-sample_name	group	alias	platform
-chm		chm	ILLUMINA
+sample_name	group	alias	platform	datatype	calling
+chm		chm	ILLUMINA	dna	variants

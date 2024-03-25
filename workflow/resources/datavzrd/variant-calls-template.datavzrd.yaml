@@ -29,12 +29,7 @@ __definitions__:
       let pos = row.position;
       let ref = row["reference allele"];
       let alt = row["alternative allele"];
-      var build = ""
-      if  ( "{params.build}" === "GRCh38" ) {{
-        build = "hg38/"
-      }} else {{
-        build = "hg19/"
-      }}
+      let build = ( "{params.build}" === "GRCh38" ) ? "hg38/" : "hg19/";
       const url = "https://varsome.com/variant/";
       let aa_regex = /^[ACGTacgt]+$/;
       if ( ref.match(aa_regex) && alt.match(aa_regex)) {{
@@ -50,12 +45,33 @@ __definitions__:
     genomenexus_link = f"""
       function(row) {{
         let hgvsg = row.hgvsg
-        var build = ""
-        if  ( "{params.build}" === "GRCh38" ) {{
-          build = "grch38."
-        }}
+        let build = ( "{params.build}" === "GRCh38" ) ? "grch38." : "";
         const url_suffix = "genomenexus.org/variant/"
         return `https://${{build}}${{url_suffix}}${{hgvsg}}`
+      }}
+    """
+  - |
+    protein_id = f"""
+      function(row) {{
+        let protein_id = row.hgvsp.split(':')[0]
+        return protein_id
+      }}
+    """
+  - |
+    empty_content = f"""
+      function(row) {{
+        return ""
+      }}
+    """
+  - |
+    spliceai_content = f"""
+      function(value, row) {{
+        if (value.length !== 0) {{
+          let effect = (typeof row.spliceai_effect !== 'undefined' ) ? row.spliceai_effect : "";
+          return `${{effect}}${{value}}`
+        }} else {{
+          return ``
+        }}
       }}
     """
 
@@ -186,7 +202,12 @@ views:
 
   ?for group in params.groups:
     ?f"{group}-coding":
-      desc: ?f"Variants in coding regions.\n{config['calling']['fdr-control']['events'][wildcards.event]['desc']}"
+      desc: |
+        ?f"""
+        Variants in coding regions.\n{config['calling']['fdr-control']['events'][wildcards.event]['desc']}\n
+        SpliceAI scores are probabilities of a variant being splice-altered.\n
+        AlphaMissense scores are classified as: likely benign (<0.34), ambiguous (0.34<=, <=0.564), likely pathogenic (0.564<).
+        """
       dataset: ?f"{group}-coding"
       render-table:
         columns:
@@ -224,7 +245,7 @@ views:
                 scale: ordinal
           revel:
             optional: true
-            plot: 
+            plot:
               heatmap:
                 scale: "linear"
                 domain: [0.0, 1.0]
@@ -232,14 +253,22 @@ views:
                   - white
                   - "#ff5555"
           "regex('.+: allele frequency')":
-            plot: 
+            plot:
               ticks:
                 scale: "linear"
                 domain: [0.0, 1.0]
                 aux-domain-columns:
                   - "regex('.+: allele frequency')"
+                color:
+                  scale: "linear"
+                  domain: [0.0, 0.05, 0.0500000001, 1.0]
+                  range:
+                  - "#ffd6b3"
+                  - "#ff7f0e"
+                  - "#a8d2f0"
+                  - "#1f77b4"
           "regex('.+: read depth')":
-            plot: 
+            plot:
               ticks:
                 scale: "linear"
                 aux-domain-columns:
@@ -252,6 +281,16 @@ views:
                 range:
                   - white
                   - "#1f77b4"
+          "gnomad genome af":
+            optional: true
+            plot:
+              heatmap:
+                scale: "linear"
+                domain: [0.0, 0.01, 1.0]
+                range:
+                  - white
+                  - "#adebad"
+                  - "#29a329"
           gene:
             display-mode: hidden
           feature:
@@ -272,6 +311,28 @@ views:
             display-mode: detail
           protein alteration (short):
             display-mode: detail
+          canonical:
+            optional: true
+            display-mode: detail
+            plot:
+              heatmap:
+                scale: "ordinal"
+                domain: ["", "True"]
+                range:
+                  - white
+                  - black
+                custom-content: ?empty_content
+          mane_plus_clinical:
+            optional: true
+            display-mode: detail
+            plot:
+              heatmap:
+                scale: "ordinal"
+                domain: ["", "True"]
+                range:
+                  - white
+                  - black
+                custom-content: ?empty_content
           ?for alias in params.samples.loc[params.samples["group"] == group, "alias"]:
             '?f"{alias}: short observations"':
               optional: true
@@ -285,6 +346,33 @@ views:
                 data: ?read_file(params.data_observations)
                 spec: ?read_file(params.spec_observations)
               display-mode: detail
+          spliceai:
+            optional: true
+            plot:
+              heatmap:
+                scale: "linear"
+                domain: [0.0, 0.2, 0.5, 0.8, 1.0]
+                range:
+                  - "#ffffff"
+                  - "#f9f7ae"
+                  - "#fcac63"
+                  - "#f16e43"
+                  - "#d4322c"
+                custom-content: ?spliceai_content
+          spliceai_effect:
+            optional: true
+            display-mode: hidden
+          alphamissense:
+            optional: true
+            plot:
+              heatmap:
+                scale: "linear"
+                domain: [0.0, 0.34, 0.564, 1.0]
+                range:
+                  - "#22964"
+                  - "#d7ee82"
+                  - "#fedd8e"
+                  - "#d4322c"
         add-columns:
           query_varsome:
             value: ?varsome_link
@@ -292,12 +380,21 @@ views:
           query_genomenexus:
             value: ?genomenexus_link
             display-mode: hidden
+          ensembl_protein_id:
+            value: ?protein_id
+            display-mode: detail
+
 
 
 
 
     ?f"{group}-noncoding":
-      desc: ?f"Variants in non-coding regions.\n{config['calling']['fdr-control']['events'][wildcards.event]['desc']}"
+      desc: |
+        ?f"""
+        Variants in non-coding regions.\n{config['calling']['fdr-control']['events'][wildcards.event]['desc']}
+        SpliceAI scores are probabilities of a variant being splice-altered.\n
+        AlphaMissense scores are classified as: likely benign (<0.34), ambiguous (0.34<=, <=0.564), likely pathogenic (0.564<).
+        """
       dataset: ?f"{group}-noncoding"
       render-table:
         columns:
@@ -328,14 +425,22 @@ views:
                   - "#ec9b00"
                   - "#ecca00"
           "regex('.+: allele frequency')":
-            plot: 
+            plot:
               ticks:
                 scale: "linear"
                 domain: [0.0, 1.0]
                 aux-domain-columns:
                   - "regex('.+: allele frequency')"
+                color:
+                  scale: "linear"
+                  domain: [0.0, 0.05, 0.0500000001, 1.0]
+                  range:
+                  - "#ffd6b3"
+                  - "#ff7f0e"
+                  - "#a8d2f0"
+                  - "#1f77b4"
           "regex('.+: read depth')":
-            plot: 
+            plot:
               ticks:
                 scale: "linear"
                 aux-domain-columns:
@@ -348,6 +453,16 @@ views:
                 range:
                   - white
                   - "#1f77b4"
+          "gnomad genome af":
+            optional: true
+            plot:
+              heatmap:
+                scale: "linear"
+                domain: [0.0, 0.01, 1.0]
+                range:
+                  - white
+                  - "#adebad"
+                  - "#29a329"
           id:
             optional: true
             display-mode: hidden
@@ -368,6 +483,28 @@ views:
             display-mode: detail
           alternative allele:
             display-mode: detail
+          canonical:
+            optional: true
+            display-mode: detail
+            plot:
+              heatmap:
+                scale: "ordinal"
+                domain: ["", "True"]
+                range:
+                  - white
+                  - black
+                custom-content: ?empty_content
+          mane_plus_clinical:
+            optional: true
+            display-mode: detail
+            plot:
+              heatmap:
+                scale: "ordinal"
+                domain: ["", "True"]
+                range:
+                  - white
+                  - black
+                custom-content: ?empty_content
           ?for alias in params.samples.loc[params.samples["group"] == group, "alias"]:
             '?f"{alias}: short observations"':
               optional: true
@@ -381,3 +518,30 @@ views:
                 data: ?read_file(params.data_observations)
                 spec: ?read_file(params.spec_observations)
               display-mode: detail
+          spliceai:
+            optional: true
+            plot:
+              heatmap:
+                scale: "linear"
+                domain: [0.0, 0.2, 0.5, 0.8, 1.0]
+                range:
+                  - "#22964"
+                  - "#f9f7ae"
+                  - "#fcac63"
+                  - "#f16e43"
+                  - "#d4322c"
+                custom-content: ?spliceai_content
+          spliceai_effect:
+            optional: true
+            display-mode: hidden
+          alphamissense:
+            optional: true
+            plot:
+              heatmap:
+                scale: "linear"
+                domain: [0.0, 0.34, 0.564, 1.0]
+                range:
+                  - "#22964"
+                  - "#d7ee82"
+                  - "#fedd8e"
+                  - "#d4322c"

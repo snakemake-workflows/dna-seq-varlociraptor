@@ -22,7 +22,7 @@ ref:
   # Ensembl species name
   species: homo_sapiens
   # Ensembl release
-  release: 110
+  release: 111
   # Genome build
   build: GRCh38
   # Pangenome alignment with vg instead of linear alignment with bwa is performed.
@@ -124,8 +124,9 @@ calling:
       # Add any number of events here to filter for.
       # The id of each event can be chosen freely, but needs to contain
       # only alphanumerics and underscores
-      # ("somatic" below is just an example and can be modified as needed).
+      # ("some_id" below is just an example and can be modified as needed).
       some_id:
+        types: ["variants", "fusions"]
         # labels for the callset, displayed in the report. Will fall back to id if no labels specified
         labels:
           some-label: label text
@@ -188,6 +189,13 @@ annotations:
         # Plugin args can be passed as well, e.g. "LoFtool,path/to/custom/scores.txt".
         - LoFtool
         - REVEL
+        # For integration of SpliceAI preprocessed snv and indel scores (including index files) are required. 
+        # Scores are available on https://basespace.illumina.com/s/otSPW8hnhaZR
+        #- SpliceAI,snv=<path/to/spliceai_scores.raw.snv.hg38.vcf.gz,indel=<path/to/spliceai_scores.raw.indel.hg38.vcf.gz>
+        # For annotation of AlphaMissense scores a tsv-file containing processed scores is required.
+        # Scores are available on https://zenodo.org/records/10813168
+        # A tabix index is required and can be created by calling `tabix -s 1 -b 2 -e 2 -f -S 1 AlphaMissense_hg38.tsv.gz`
+        #- AlphaMissense,file=<path/to/AlphaMissense_hg38.tsv.gz>
 
 # printing of variants in a table format (might be deprecated soon)
 tables:
