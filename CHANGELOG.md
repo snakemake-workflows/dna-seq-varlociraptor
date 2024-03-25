@@ -1,5 +1,18 @@
 # Changelog
 
+## [5.4.0](https://github.com/snakemake-workflows/dna-seq-varlociraptor/compare/v5.3.1...v5.4.0) (2024-03-23)
+
+
+### Features
+
+* support alphamissense and spliceai ([#287](https://github.com/snakemake-workflows/dna-seq-varlociraptor/issues/287)) ([91a81fa](https://github.com/snakemake-workflows/dna-seq-varlociraptor/commit/91a81fa0ac6ac31a8ca3a76bc1eb741f2044e734))
+
+
+### Bug Fixes
+
+* update to latest cutadapt ([#291](https://github.com/snakemake-workflows/dna-seq-varlociraptor/issues/291)) ([ca73fa7](https://github.com/snakemake-workflows/dna-seq-varlociraptor/commit/ca73fa7c6e18af5fa3934850ac7128ba9cd9dbcc))
+* use latest wrapper for obtaining known variants ([#290](https://github.com/snakemake-workflows/dna-seq-varlociraptor/issues/290)) ([c8cf4df](https://github.com/snakemake-workflows/dna-seq-varlociraptor/commit/c8cf4dfbc1f3666db1a58b03afcf190da445fe13))
+
 ## [5.3.1](https://github.com/snakemake-workflows/dna-seq-varlociraptor/compare/v5.3.0...v5.3.1) (2024-03-12)
 
 
