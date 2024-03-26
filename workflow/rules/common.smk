@@ -230,6 +230,9 @@ def get_recalibrate_quality_input(wildcards, bai=False):
     elif is_activated("remove_duplicates"):
         return "results/dedup/{{sample}}.{ext}".format(ext=ext)
     else:
+      if is_activated("ref/pangenome"):
+        return "results/mapped/vg/{{sample}}_rg_added.{ext}".format(ext=ext)
+      else:
         return "results/mapped/bwa/{{sample}}.{ext}".format(ext=ext)
 
 
@@ -385,7 +388,12 @@ def get_sample_datatype(sample):
 
 
 def get_markduplicates_input(wildcards):
-    aligner = "star" if get_sample_datatype(wildcards.sample) == "rna" else "bwa"
+    if get_sample_datatype(wildcards.sample) == "rna":
+      aligner = "star"  
+    elif get_sample_datatype(wildcards.sample) == "dna" && is_activated("ref/pangenome"):
+      aligner = "vg"
+    else:
+      aligner = "bwa"
     if sample_has_umis(wildcards.sample):
         return "results/mapped/{aligner}/{{sample}}.annotated.bam".format(
             aligner=aligner
@@ -400,7 +408,12 @@ def get_consensus_input(wildcards):
     elif is_activated("remove_duplicates"):
         return "results/dedup/{sample}.bam"
     else:
-        aligner = "star" if get_sample_datatype(wildcards.sample) == "rna" else "bwa"
+        if get_sample_datatype(wildcards.sample) == "rna":
+          aligner = "star"  
+        elif get_sample_datatype(wildcards.sample) == "dna" && is_activated("ref/pangenome"):
+          aligner = "vg"
+        else:
+          aligner = "bwa"
         return "results/mapped/{aligner}/{{sample}}.bam".format(aligner=aligner)
 
 
@@ -408,7 +421,12 @@ def get_trimming_input(wildcards):
     if is_activated("remove_duplicates"):
         return "results/dedup/{sample}.bam"
     else:
-        aligner = "star" if get_sample_datatype(wildcards.sample) == "rna" else "bwa"
+        if get_sample_datatype(wildcards.sample) == "rna":
+          aligner = "star"  
+        elif get_sample_datatype(wildcards.sample) == "dna" && is_activated("ref/pangenome"):
+          aligner = "vg"
+        else:
+          aligner = "bwa"
         return "results/mapped/{aligner}/{{sample}}.bam".format(aligner=aligner)
 
 
@@ -1223,3 +1241,4 @@ def get_delly_excluded_regions():
         )
     else:
         return []
+
