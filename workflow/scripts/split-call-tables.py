@@ -2,12 +2,11 @@ import sys
 
 sys.stderr = open(snakemake.log[0], "w")
 
-import json
-import re
-
 import numpy as np
 import pandas as pd
+import pysam
 
+from typing import Generator
 
 PROB_EPSILON = 0.01  # columns with all probabilities below will be dropped
 
@@ -157,6 +156,58 @@ def bin_max_vaf(df, samples):
     return df
 
 
+class PopulationDb:
+    def __init__(self, path):
+        self.contig = None
+        self.pos = None
+        self._variants = None
+        self.bcf = pysam.VariantFile(path)
+
+    def variants(
+        self, contig: str, pos: int, alt: str
+    ) -> Generator[pysam.VariantRecord, None, None]:
+        """Return variants at given position"""
+        if not self._is_in_interval(contig, pos):
+            self.contig = contig
+            self.pos = pos
+            self._variants = self._load_variants()
+        for variant in self._variants:
+            if variant.pos == pos and variant.alts[0] == alt:
+                yield variant
+            if variant.pos > pos:
+                break
+
+    def annotate_row(self, row):
+        # TODO: deal with SVs
+        db_vars = self.variants(
+            row["chromosome"], row["position"], row["alternative allele"]
+        )
+        return ",".join(
+            [
+                f"{name}:{sample['AF'][0]:0.2f}"
+                for variant in db_vars
+                for name, sample in zip(
+                    self.bcf.header.samples, variant.samples.values()
+                )
+                if sample["AF"][0] and sample["AF"][0] > 0.0
+            ]
+        )
+
+    def _load_variants(self):
+        return self.bcf.fetch(str(self.contig), self.pos, self.end)
+
+    @property
+    def end(self):
+        return self.pos + 1000
+
+    def _is_in_interval(self, contig: str, pos: int):
+        return (
+            self.pos is not None
+            and self.contig == contig
+            and self.pos <= pos <= self.end
+        )
+
+
 def select_spliceai_effect(calls):
     spliceai_columns = calls.filter(like="spliceai", axis=1)
     max_spliceai_effects = (
@@ -189,6 +240,12 @@ samples = get_samples(calls)
 
 if calls.columns.str.endswith(": allele frequency").any():
     calls = bin_max_vaf(calls, samples)
+
+if snakemake.input.population_db and not calls.empty:
+    population_db = PopulationDb(snakemake.input.population_db)
+    calls["population"] = calls.apply(
+        population_db.annotate_row, axis="columns"
+    ).replace("", np.nan)
 
 if not calls.empty:
     # these below only work on non empty dataframes

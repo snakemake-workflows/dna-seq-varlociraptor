@@ -114,9 +114,9 @@ properties:
 
   report:
     type: object
-    activate:
-      type: boolean
     properties:
+      activate:
+        type: boolean
       stratify:
         type: object
         properties:
@@ -133,6 +133,22 @@ properties:
       - activate
       - max_read_depth
 
+  population:
+    type: object
+    properties:
+      db:
+        type: object
+        properties:
+          activate:
+            type: boolean
+          path:
+            type: string
+          events:
+            type: array
+            items: 
+              type: string
+        required:
+          - activate
 
   tables:
     type: object

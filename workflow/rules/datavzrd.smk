@@ -1,6 +1,8 @@
 rule split_call_tables:
     input:
-        "results/tables/{group}.{event}.variants.fdr-controlled.tsv",
+        calls="results/tables/{group}.{event}.variants.fdr-controlled.tsv",
+        population_db=get_cleaned_population_db(),
+        population_db_idx=get_cleaned_population_db(idx=True),
     output:
         coding="results/tables/{group}.{event}.coding.fdr-controlled.tsv",
         noncoding="results/tables/{group}.{event}.noncoding.fdr-controlled.tsv",
@@ -11,7 +13,7 @@ rule split_call_tables:
     log:
         "logs/split_tables/{group}.{event}.log",
     conda:
-        "../envs/pandas.yaml"
+        "../envs/split_call_tables.yaml"
     script:
         "../scripts/split-call-tables.py"
 
@@ -145,7 +147,7 @@ rule datavzrd_variants_calls:
     log:
         "logs/datavzrd_report/{batch}.{event}.log",
     wrapper:
-        "v3.5.0/utils/datavzrd"
+        "v3.5.2-1-gefb4337/utils/datavzrd"
 
 
 rule datavzrd_fusion_calls:
@@ -172,7 +174,7 @@ rule datavzrd_fusion_calls:
     log:
         "logs/datavzrd_report/{batch}.{event}.log",
     wrapper:
-        "v3.5.0/utils/datavzrd"
+        "v3.5.2-1-gefb4337/utils/datavzrd"
 
 
 rule bedtools_merge:
@@ -238,4 +240,4 @@ rule datavzrd_coverage:
     log:
         "logs/datavzrd_report/{group}.coverage.log",
     wrapper:
-        "v3.5.0/utils/datavzrd"
+        "v3.5.2-1-gefb4337/utils/datavzrd"
