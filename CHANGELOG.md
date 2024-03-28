@@ -1,5 +1,12 @@
 # Changelog
 
+## [5.4.1](https://github.com/snakemake-workflows/dna-seq-varlociraptor/compare/v5.4.0...v5.4.1) (2024-03-28)
+
+
+### Bug Fixes
+
+* use latest wrapper for obtaining known variants ([#292](https://github.com/snakemake-workflows/dna-seq-varlociraptor/issues/292)) ([1268dd9](https://github.com/snakemake-workflows/dna-seq-varlociraptor/commit/1268dd9caf777c4707ea61e47d5267ef509410ae))
+
 ## [5.4.0](https://github.com/snakemake-workflows/dna-seq-varlociraptor/compare/v5.3.1...v5.4.0) (2024-03-23)
 
 
