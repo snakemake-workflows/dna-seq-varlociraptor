@@ -390,7 +390,7 @@ def get_sample_datatype(sample):
 def get_markduplicates_input(wildcards):
     if get_sample_datatype(wildcards.sample) == "rna":
       aligner = "star"  
-    elif get_sample_datatype(wildcards.sample) == "dna" && is_activated("ref/pangenome"):
+    elif get_sample_datatype(wildcards.sample) == "dna" and is_activated("ref/pangenome"):
       aligner = "vg"
     else:
       aligner = "bwa"
@@ -410,7 +410,7 @@ def get_consensus_input(wildcards):
     else:
         if get_sample_datatype(wildcards.sample) == "rna":
           aligner = "star"  
-        elif get_sample_datatype(wildcards.sample) == "dna" && is_activated("ref/pangenome"):
+        elif get_sample_datatype(wildcards.sample) == "dna" & is_activated("ref/pangenome"):
           aligner = "vg"
         else:
           aligner = "bwa"
@@ -423,7 +423,7 @@ def get_trimming_input(wildcards):
     else:
         if get_sample_datatype(wildcards.sample) == "rna":
           aligner = "star"  
-        elif get_sample_datatype(wildcards.sample) == "dna" && is_activated("ref/pangenome"):
+        elif get_sample_datatype(wildcards.sample) == "dna" & is_activated("ref/pangenome"):
           aligner = "vg"
         else:
           aligner = "bwa"

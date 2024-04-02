@@ -194,9 +194,9 @@ rule map_reads_vg_giraffe:
         reads=get_map_reads_input,
         idx="resources/pangenome/hprc-v1.0-mc-grch38.xg",
     output:
-        "results/vg_mapped/{sample}.bam",
+        "results/mapped/vg/{sample}_mapped.bam",
     log:
-        "logs/vg_mapped/{sample}.log",
+        "logs/mapped/vg/{sample}.log",
     benchmark:
         "benchmarks/vg_giraffe/{sample}.tsv"
     conda:
@@ -208,11 +208,11 @@ rule map_reads_vg_giraffe:
         "vg giraffe -x {input.idx} -f {params} --output-format BAM -t {threads}  > {output} 2> {log}"
 
 
-rule sort_vg_mapped:
+rule sort_mapped_vg:
     input:
-        "results/vg_mapped/{sample}.bam",
+        "results/mapped/vg/{sample}_mapped.bam",
     output:
-        "results/vg_mapped/{sample}_sorted.bam",
+        "results/mapped/vg/{sample}_sorted.bam",
     log:
         "logs/samtools_sort_vg/{sample}.log",
     threads: 8
@@ -225,11 +225,11 @@ rule sort_vg_mapped:
 
 rule keep_only_primary_chr:
     input:
-        "results/vg_mapped/{sample}_sorted.bam",
-        "results/vg_mapped/{sample}_sorted.bai",
+        "results/mapped/vg/{sample}_sorted.bam",
+        "results/mapped/vg/{sample}_sorted.bai",
     output:
-        bam="results/vg_mapped/{sample}_extracted.bam",
-        idx="results/vg_mapped/{sample}_extracted.bai"
+        bam="results/mapped/vg/{sample}_extracted.bam",
+        idx="results/mapped/vg/{sample}_extracted.bai"
     log:
         "logs/samtools_view_primary_chr/{sample}.log",
     benchmark:    
@@ -248,9 +248,9 @@ rule keep_only_primary_chr:
 
 rule reheader:
     input:
-        "results/vg_mapped/{sample}_extracted.bam",
+        "results/mapped/vg/{sample}_extracted.bam",
     output:
-        "results/vg_mapped/{sample}_reheadered.bam",
+        "results/mapped/vg/{sample}_reheadered.bam",
     log:
         "logs/samtools_reheader/{sample}.log",
     benchmark:
@@ -279,9 +279,9 @@ rule reheader:
 
 rule add_rg:
     input:
-        "results/vg_mapped/{sample}_reheadered.bam",
+        "results/mapped/vg/{sample}_reheadered.bam",
     output:
-        "results/vg_mapped/{sample}_rg_added.bam",
+        "results/mapped/vg/{sample}.bam",
     log:
         "logs/picard/add_rg/{sample}.log",
     params:
@@ -293,9 +293,9 @@ rule add_rg:
 
 rule samtools_index_after_rg_addition:
     input:
-        "results/vg_mapped/{sample}_rg_added.bam",
+        "results/mapped/vg/{sample}.bam",
     output:
-        "results/vg_mapped/{sample}_rg_added.bai",
+        "results/mapped/vg/{sample}.bai",
     log:
         "logs/samtools_index_after_vg_addition/{sample}.log",
     benchmark:
