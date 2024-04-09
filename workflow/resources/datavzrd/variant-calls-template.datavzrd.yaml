@@ -51,6 +51,18 @@ __definitions__:
       }}
     """
   - |
+    alphamissense_link = f"""
+      function(row) {{
+        if ( typeof row.swissprot !== 'undefined' ) {{
+          let swissprot = row.swissprot.split('.')[0]
+          let residue = row["protein position"]
+          const url_prefix = "https://alphamissense.hegelab.org/hotspot?uid="
+          return `${{url_prefix}}${{swissprot}}&resi=${{residue}}`
+        }}
+        return ``
+      }}
+    """
+  - |
     protein_id = f"""
       function(row) {{
         let protein_id = row.hgvsp.split(':')[0]
@@ -228,10 +240,12 @@ views:
           hgvsp:
             link-to-url:
               custom-content: ?hgvsp_content
-              varsome:
+              VarSome:
                 url: "{query_varsome}"
-              genome nexus:
+              Genome Nexus:
                 url: "{query_genomenexus}"
+              AlphaMissense:
+                url: "{query_alphamissense}"
           vartype:
             display-mode: hidden
           impact:
@@ -306,6 +320,8 @@ views:
           feature:
             display-mode: hidden
           binned max vaf:
+            display-mode: hidden
+          swissprot:
             display-mode: hidden
           hgvsg:
             display-mode: detail
@@ -393,6 +409,9 @@ views:
           query_genomenexus:
             value: ?genomenexus_link
             display-mode: hidden
+          query_alphamissense:
+            value: ?alphamissense_link
+            display-mode: hidden
           ensembl_protein_id:
             value: ?protein_id
             display-mode: detail
@@ -422,6 +441,8 @@ views:
                 color-scheme: category20
                 scale: ordinal
           vartype:
+            display-mode: hidden
+          swissprot:
             display-mode: hidden
           impact:
             plot:
