@@ -966,6 +966,7 @@ def get_vembrane_config(wildcards, input):
             "MANE_PLUS_CLINICAL",
             {"name": "clinical significance", "expr": "ANN['CLIN_SIG']"},
             {"name": "gnomad genome af", "expr": "ANN['gnomADg_AF']"},
+            "SWISSPROT",
         ]
 
         annotation_fields.extend(
