@@ -1,5 +1,13 @@
 # Changelog
 
+## [5.5.0](https://github.com/snakemake-workflows/dna-seq-varlociraptor/compare/v5.4.1...v5.5.0) (2024-04-09)
+
+
+### Features
+
+* add ability to store variants in a population database (BCF) ([#288](https://github.com/snakemake-workflows/dna-seq-varlociraptor/issues/288)) ([e52c29b](https://github.com/snakemake-workflows/dna-seq-varlociraptor/commit/e52c29bca9ba13795e404c1e65119ff7647576b0))
+* add alphamissense linkout ([#294](https://github.com/snakemake-workflows/dna-seq-varlociraptor/issues/294)) ([a775627](https://github.com/snakemake-workflows/dna-seq-varlociraptor/commit/a775627fc894c698f587f0bc811d6b6122d6054c))
+
 ## [5.4.1](https://github.com/snakemake-workflows/dna-seq-varlociraptor/compare/v5.4.0...v5.4.1) (2024-03-28)
 
 
