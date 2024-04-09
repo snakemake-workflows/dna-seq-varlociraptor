@@ -16,7 +16,7 @@ if is_activated("population/db"):
         input:
             "results/final-calls/{group}.variants.annotated.bcf",
         output:
-            "results/population/{group}.variants.filtered.bcf",
+            temp("results/population/{group}.variants.filtered.bcf"),
         log:
             "logs/population/{group}.filter.log",
         params:
@@ -32,7 +32,7 @@ if is_activated("population/db"):
             "bcftools view --samples {params.alias} | "
             "bcftools annotate --remove {params.keep_fields} | "
             "bcftools reheader -s <(echo '{wildcards.group}') | "
-            "bcftools view -Ob > {output} 2> {log}"
+            "bcftools view -Ou > {output} 2> {log}"
 
     rule population_db_update:
         input:

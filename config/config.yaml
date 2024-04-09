@@ -165,7 +165,9 @@ population:
     # The path can be outside of the workdir. Snakemake will update the file with each new
     # sample that occurs.
     path: ...
+    # Alias of sample to be included into database
     alias: tumor
+    # False discovery rate threshold of variants to be considered.
     fdr: 0.05
     # Varlociraptor events to be used.
     events:
