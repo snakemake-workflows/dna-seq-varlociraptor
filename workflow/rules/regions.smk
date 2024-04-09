@@ -84,9 +84,11 @@ rule merge_covered_group_regions:
 rule filter_group_regions:
     input:
         regions="results/regions/{group}.{regions_type}_regions.bed",
-        predefined="resources/target_regions/target_regions.bed"
-        if "target_regions" in config
-        else [],
+        predefined=(
+            "resources/target_regions/target_regions.bed"
+            if "target_regions" in config
+            else []
+        ),
         fai=genome_fai,
     output:
         "results/regions/{group}.{regions_type}_regions.filtered.bed",

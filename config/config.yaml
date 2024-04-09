@@ -157,6 +157,23 @@ remove_duplicates:
 calc_consensus_reads:
   activate: false
 
+population:
+  db:
+    # Set to true to continuously update a population database (BCF) with each new sample.
+    activate: false
+    # Path to a BCF file to be used to collect variants across mutliple runs of the pipeline.
+    # The path can be outside of the workdir. Snakemake will update the file with each new
+    # sample that occurs.
+    path: ...
+    # Alias of sample to be included into database
+    alias: tumor
+    # False discovery rate threshold of variants to be considered.
+    fdr: 0.05
+    # Varlociraptor events to be used.
+    events:
+      - somatic_tumor_high
+      - somatic_tumor_medium
+
 annotations:
   vcfs:
     activate: true
