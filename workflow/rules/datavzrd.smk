@@ -1,6 +1,8 @@
 rule split_call_tables:
     input:
-        "results/tables/{group}.{event}.fdr-controlled.tsv",
+        calls="results/tables/{group}.{event}.variants.fdr-controlled.tsv",
+        population_db=get_cleaned_population_db(),
+        population_db_idx=get_cleaned_population_db(idx=True),
     output:
         coding="results/tables/{group}.{event}.coding.fdr-controlled.tsv",
         noncoding="results/tables/{group}.{event}.noncoding.fdr-controlled.tsv",
@@ -11,9 +13,22 @@ rule split_call_tables:
     log:
         "logs/split_tables/{group}.{event}.log",
     conda:
-        "../envs/pandas.yaml"
+        "../envs/split_call_tables.yaml"
     script:
         "../scripts/split-call-tables.py"
+
+
+rule process_fusion_call_tables:
+    input:
+        "results/tables/{group}.{event}.fusions.fdr-controlled.tsv",
+    output:
+        fusions="results/tables/{group}.{event}.fusions.joined.fdr-controlled.tsv",
+    log:
+        "logs/join_partner/{group}.{event}.log",
+    conda:
+        "../envs/pandas.yaml"
+    script:
+        "../scripts/join_fusion_partner.py"
 
 
 rule prepare_oncoprint:
@@ -31,7 +46,7 @@ rule prepare_oncoprint:
     log:
         "logs/prepare_oncoprint/{batch}.{event}.log",
     params:
-        groups=get_report_batch,
+        groups=get_report_batch("variants"),
         labels=get_heterogeneous_labels(),
     conda:
         "../envs/oncoprint.yaml"
@@ -39,18 +54,18 @@ rule prepare_oncoprint:
         "../scripts/oncoprint.py"
 
 
-rule render_datavzrd_config:
+rule render_datavzrd_variant_config:
     input:
         template=workflow.source_path(
             "../resources/datavzrd/variant-calls-template.datavzrd.yaml"
         ),
         variant_oncoprints=get_oncoprint("variant"),
     output:
-        "resources/datavzrd/{batch}.{event}.datavzrd.yaml",
+        "resources/datavzrd/{batch}.{event}.variants.datavzrd.yaml",
     params:
         gene_oncoprint=get_oncoprint("gene"),
         variant_oncoprints=get_variant_oncoprint_tables,
-        groups=get_report_batch,
+        groups=get_report_batch("variants"),
         coding_calls=get_datavzrd_data(impact="coding"),
         noncoding_calls=get_datavzrd_data(impact="noncoding"),
         spec_observations=workflow.source_path(
@@ -71,7 +86,36 @@ rule render_datavzrd_config:
         labels=get_heterogeneous_labels(),
         oncoprint_sorted_datasets="results/tables/oncoprints/{batch}.{event}/label_sortings/",
     log:
-        "logs/datavzrd_render/{batch}.{event}.log",
+        "logs/datavzrd_render/{batch}.{event}.variants.log",
+    template_engine:
+        "yte"
+
+
+rule render_datavzrd_fusions_config:
+    input:
+        template=workflow.source_path(
+            "../resources/datavzrd/fusion-calls-template.datavzrd.yaml"
+        ),
+    output:
+        "resources/datavzrd/{batch}.{event}.fusions.datavzrd.yaml",
+    params:
+        groups=get_report_batch("fusions"),
+        fusion_calls=get_datavzrd_data(impact="fusions"),
+        spec_observations=workflow.source_path(
+            "../resources/datavzrd/spec_observations.json"
+        ),
+        spec_short_observations=workflow.source_path(
+            "../resources/datavzrd/spec_short_observations.json"
+        ),
+        data_observations=workflow.source_path(
+            "../resources/datavzrd/data_observations.js"
+        ),
+        data_short_observations=workflow.source_path(
+            "../resources/datavzrd/data_short_observations.js"
+        ),
+        samples=samples,
+    log:
+        "logs/datavzrd_render/{batch}.{event}.fusions.log",
     template_engine:
         "yte"
 
@@ -86,12 +130,14 @@ rule datavzrd_variants_calls:
         data_observations=workflow.source_path(
             "../resources/datavzrd/data_observations.js"
         ),
-        config="resources/datavzrd/{batch}.{event}.datavzrd.yaml",
+        config="resources/datavzrd/{batch}.{event}.variants.datavzrd.yaml",
         gene_oncoprint=get_oncoprint("gene"),
         variant_oncoprints=get_oncoprint("variant"),
     output:
         report(
-            directory("results/datavzrd-report/{batch}.{event}.fdr-controlled"),
+            directory(
+                "results/datavzrd-report/{batch}.{event}.variants.fdr-controlled"
+            ),
             htmlindex="index.html",
             caption="../report/calls.rst",
             category="Variant calls",
@@ -101,7 +147,34 @@ rule datavzrd_variants_calls:
     log:
         "logs/datavzrd_report/{batch}.{event}.log",
     wrapper:
-        "v2.10.0/utils/datavzrd"
+        "v3.5.2-1-gefb4337/utils/datavzrd"
+
+
+rule datavzrd_fusion_calls:
+    input:
+        fusion_calls=get_datavzrd_data(impact="fusions"),
+        spec_observations=workflow.source_path(
+            "../resources/datavzrd/spec_observations.json"
+        ),
+        data_observations=workflow.source_path(
+            "../resources/datavzrd/data_observations.js"
+        ),
+        config="resources/datavzrd/{batch}.{event}.fusions.datavzrd.yaml",
+    output:
+        report(
+            directory(
+                "results/datavzrd-report/{batch}.{event}.fusions.fdr-controlled"
+            ),
+            htmlindex="index.html",
+            caption="../report/calls.rst",
+            category="Fusion calls",
+            labels=get_datavzrd_report_labels,
+            subcategory=get_datavzrd_report_subcategory,
+        ),
+    log:
+        "logs/datavzrd_report/{batch}.{event}.log",
+    wrapper:
+        "v3.5.2-1-gefb4337/utils/datavzrd"
 
 
 rule bedtools_merge:
@@ -167,4 +240,4 @@ rule datavzrd_coverage:
     log:
         "logs/datavzrd_report/{group}.coverage.log",
     wrapper:
-        "v2.10.0/utils/datavzrd"
+        "v3.5.2-1-gefb4337/utils/datavzrd"

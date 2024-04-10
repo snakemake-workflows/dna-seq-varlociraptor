@@ -3,7 +3,7 @@ rule map_reads:
         reads=get_map_reads_input,
         idx=rules.bwa_index.output,
     output:
-        temp("results/mapped/{sample}.bam"),
+        temp("results/mapped/bwa/{sample}.bam"),
     log:
         "logs/bwa_mem/{sample}.log",
     params:
@@ -30,25 +30,23 @@ rule merge_untrimmed_fastqs:
 
 rule annotate_umis:
     input:
-        bam="results/mapped/{sample}.bam",
+        bam="results/mapped/{aligner}/{sample}.bam",
         umi=get_umi_fastq,
     output:
-        temp("results/mapped/{sample}.annotated.bam"),
+        temp("results/mapped/{aligner}/{sample}.annotated.bam"),
     params:
         extra=get_umi_read_structure,
     resources:
         mem_mb=lambda wc, input: 2.5 * input.size_mb,
     log:
-        "logs/fgbio/annotate_bam/{sample}.log",
+        "logs/fgbio/annotate_bam/{aligner}/{sample}.log",
     wrapper:
         "v2.3.2/bio/fgbio/annotatebamwithumis"
 
 
 rule mark_duplicates:
     input:
-        bams=lambda wc: "results/mapped/{sample}.annotated.bam"
-        if sample_has_umis(wc.sample)
-        else "results/mapped/{sample}.bam",
+        bams=get_markduplicates_input,
     output:
         bam=temp("results/dedup/{sample}.bam"),
         metrics="results/qc/dedup/{sample}.metrics.txt",
@@ -123,6 +121,28 @@ rule sort_consensus_reads:
     threads: 8
     wrapper:
         "v2.3.2/bio/samtools/sort"
+
+
+# TODO Does not use consensus reads
+rule splitncigarreads:
+    input:
+        bam=lambda wc: (
+            "results/dedup/{sample}.bam"
+            if is_activated("remove_duplicates")
+            else "results/mapped/star/{sample}.bam"
+        ),
+        ref=genome,
+    output:
+        "results/split/{sample}.bam",
+    log:
+        "logs/gatk/splitNCIGARreads/{sample}.log",
+    params:
+        extra="",  # optional
+        java_opts="",  # optional
+    resources:
+        mem_mb=1024,
+    wrapper:
+        "v3.1.0/bio/gatk/splitncigarreads"
 
 
 rule recalibrate_base_qualities:

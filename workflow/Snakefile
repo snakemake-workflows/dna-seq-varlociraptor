@@ -1,6 +1,6 @@
 from snakemake.utils import min_version
 
-min_version("7.17.0")
+min_version("8.9.0")
 
 
 configfile: "config/config.yaml"
@@ -35,7 +35,9 @@ include: "rules/table.smk"
 include: "rules/regions.smk"
 include: "rules/plugins.smk"
 include: "rules/datavzrd.smk"
+include: "rules/fusion_calling.smk"
 include: "rules/testcase.smk"
+include: "rules/population.smk"
 
 
 batches = "all"

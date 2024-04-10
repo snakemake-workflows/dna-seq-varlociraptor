@@ -2,19 +2,17 @@ import sys
 
 sys.stderr = open(snakemake.log[0], "w")
 
-import json
-import re
-
 import numpy as np
 import pandas as pd
+import pysam
 
+from typing import Generator
 
 PROB_EPSILON = 0.01  # columns with all probabilities below will be dropped
 
 
 def write(df, path):
-    df = df.drop(["mane_plus_clinical"], axis="columns", errors="ignore")
-    df = df.drop(["canonical"], axis="columns", errors="ignore")
+    df["mane_plus_clinical"][df["mane_plus_clinical"].notna()] = True
     if not df.empty:
         remaining_columns = df.dropna(how="all", axis="columns").columns.tolist()
         if path == snakemake.output.coding:
@@ -158,6 +156,73 @@ def bin_max_vaf(df, samples):
     return df
 
 
+class PopulationDb:
+    def __init__(self, path):
+        self.contig = None
+        self.pos = None
+        self._variants = None
+        self.bcf = pysam.VariantFile(path)
+
+    def variants(
+        self, contig: str, pos: int, alt: str
+    ) -> Generator[pysam.VariantRecord, None, None]:
+        """Return variants at given position"""
+        if not self._is_in_interval(contig, pos):
+            self.contig = contig
+            self.pos = pos
+            self._variants = self._load_variants()
+        for variant in self._variants:
+            if variant.pos == pos and variant.alts[0] == alt:
+                yield variant
+            if variant.pos > pos:
+                break
+
+    def annotate_row(self, row):
+        # TODO: deal with SVs
+        db_vars = self.variants(
+            row["chromosome"], row["position"], row["alternative allele"]
+        )
+        return ",".join(
+            [
+                f"{name}:{sample['AF'][0]:0.2f}"
+                for variant in db_vars
+                for name, sample in zip(
+                    self.bcf.header.samples, variant.samples.values()
+                )
+                if sample["AF"][0] and sample["AF"][0] > 0.0
+            ]
+        )
+
+    def _load_variants(self):
+        return self.bcf.fetch(str(self.contig), self.pos, self.end)
+
+    @property
+    def end(self):
+        return self.pos + 1000
+
+    def _is_in_interval(self, contig: str, pos: int):
+        return (
+            self.pos is not None
+            and self.contig == contig
+            and self.pos <= pos <= self.end
+        )
+
+
+def select_spliceai_effect(calls):
+    spliceai_columns = calls.filter(like="spliceai", axis=1)
+    max_spliceai_effects = (
+        spliceai_columns.idxmax(axis=1).astype(str).str.removeprefix("spliceai ") + ": "
+    )
+    max_score = spliceai_columns.max(axis=1)
+    # Do not annotate effect for variants with high uncertainty (prob below 0.2)
+    max_spliceai_effects[max_score < 0.2] = np.nan
+    col_index = calls.columns.get_loc("spliceai acceptor gain")
+    calls = calls.drop(calls.filter(like="spliceai", axis=1).columns, axis=1)
+    calls.insert(col_index, "spliceai_effect", max_spliceai_effects)
+    calls.insert(col_index, "spliceai", max_score)
+    return calls
+
+
 calls = pd.read_csv(snakemake.input[0], sep="\t")
 calls["clinical significance"] = (
     calls["clinical significance"]
@@ -176,6 +241,12 @@ samples = get_samples(calls)
 if calls.columns.str.endswith(": allele frequency").any():
     calls = bin_max_vaf(calls, samples)
 
+if snakemake.input.population_db and not calls.empty:
+    population_db = PopulationDb(snakemake.input.population_db)
+    calls["population"] = calls.apply(
+        population_db.annotate_row, axis="columns"
+    ).replace("", np.nan)
+
 if not calls.empty:
     # these below only work on non empty dataframes
     calls["vartype"] = calls.apply(get_vartype, axis="columns")
@@ -189,6 +260,9 @@ calls.set_index("gene", inplace=True, drop=False)
 
 if calls.columns.str.endswith(": short ref observations").any():
     calls = join_short_obs(calls, samples)
+
+if calls.columns.str.startswith("spliceai").any():
+    calls = select_spliceai_effect(calls)
 
 coding = ~pd.isna(calls["hgvsp"])
 canonical = calls["canonical"].notnull()

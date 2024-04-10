@@ -17,7 +17,7 @@ if config["mutational_burden"]["activate"]:
 
     rule estimate_mutational_burden:
         input:
-            calls="results/final-calls/{group}.annotated.bcf",
+            calls="results/final-calls/{group}.variants.annotated.bcf",
             coverage_breadth="results/regions/{group}.covered_regions.filtered.coding.coverage_breadth.txt",
         output:
             report(

@@ -4,10 +4,14 @@ __definitions__:
 
 
 samples:
-  ?sample:
+  base:
+    resolution: 0.01
+    universe: "[0.0,1.0]"
+  changed:
     resolution: 0.01
     universe: "[0.0,1.0]"
 
 events:
-  present: ?f"{sample}:]0.05,1.0]"
-  ffpe_artifact: ?f"{sample}:]0.0,0.05]"
+  changed_only: "changed:]0.0,1.0] & base:0.0"
+  base_only: "base:]0.0,1.0] & changed:0.0"
+  both: "base:]0.0,1.0] & changed:]0.0,1.0]"
