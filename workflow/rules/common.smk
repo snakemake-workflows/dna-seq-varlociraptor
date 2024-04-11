@@ -1091,7 +1091,7 @@ def get_umi_fastq(wildcards):
         return expand(
             "results/untrimmed/{S}_{R}.sorted.fastq.gz",
             S=wildcards.sample,
-            R=["fq1", "fq2"]
+            R=["fq1", "fq2"],
         )
     else:
         return umi_read
