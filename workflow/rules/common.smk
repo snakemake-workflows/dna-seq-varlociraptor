@@ -1089,7 +1089,9 @@ def get_umi_fastq(wildcards):
         )
     elif umi_read == "both":
         return expand(
-            "results/untrimmed/{S}_{R}.sorted.fastq.gz", S=wildcards.sample, R=["fq1", "fq2"]
+            "results/untrimmed/{S}_{R}.sorted.fastq.gz",
+            S=wildcards.sample,
+            R=["fq1", "fq2"]
         )
     else:
         return umi_read

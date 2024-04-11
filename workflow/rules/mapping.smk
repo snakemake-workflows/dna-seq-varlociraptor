@@ -17,13 +17,13 @@ rule map_reads:
 
 rule query_sort_reads:
     input:
-        "results/mapped/{aligner}/{sample}.bam"
+        "results/mapped/{aligner}/{sample}.bam",
     output:
-        temp("results/mapped/{aligner}/{sample}.sorted.bam")
+        temp("results/mapped/{aligner}/{sample}.sorted.bam"),
     conda:
         "../envs/fgbio.yaml"
     log:
-        "logs/fgbio/sort_bam/{aligner}_{sample}.log"
+        "logs/fgbio/sort_bam/{aligner}_{sample}.log",
     shell:
         "fgbio SortBam -i {input} -o {output} -s Queryname 2> {log}"
 
@@ -43,13 +43,13 @@ rule merge_untrimmed_fastqs:
 
 rule sort_untrimmed_fastqs:
     input:
-        "results/untrimmed/{sample}_{read}.fastq.gz"
+        "results/untrimmed/{sample}_{read}.fastq.gz",
     output:
-        temp("results/untrimmed/{sample}_{read}.sorted.fastq.gz")
+        temp("results/untrimmed/{sample}_{read}.sorted.fastq.gz"),
     conda:
         "../envs/fgbio.yaml"
     log:
-        "logs/fgbio/sort_fastq/{sample}_{read}.log"
+        "logs/fgbio/sort_fastq/{sample}_{read}.log",
     shell:
         "fgbio SortFastq -i {input} -o {output} 2> {log}"
 
