@@ -15,6 +15,19 @@ rule map_reads:
         "v2.3.2/bio/bwa/mem"
 
 
+rule query_sort_reads:
+    input:
+        "results/mapped/{aligner}/{sample}.bam"
+    output:
+        temp("results/mapped/{aligner}/{sample}.sorted.bam")
+    conda:
+        "../envs/fgbio.yaml"
+    log:
+        "logs/fgbio/sort_bam/{aligner}_{sample}.log"
+    shell:
+        "fgbio SortBam -i {input} -o {output} -s Queryname 2> {log}"
+
+
 rule merge_untrimmed_fastqs:
     input:
         get_untrimmed_fastqs,
@@ -28,20 +41,43 @@ rule merge_untrimmed_fastqs:
         "cat {input} > {output} 2> {log}"
 
 
+rule sort_untrimmed_fastqs:
+    input:
+        "results/untrimmed/{sample}_{read}.fastq.gz"
+    output:
+        temp("results/untrimmed/{sample}_{read}.sorted.fastq.gz")
+    conda:
+        "../envs/fgbio.yaml"
+    log:
+        "logs/fgbio/sort_fastq/{sample}_{read}.log"
+    shell:
+        "fgbio SortFastq -i {input} -o {output} 2> {log}"
+
+
 rule annotate_umis:
     input:
-        bam="results/mapped/{aligner}/{sample}.bam",
+        bam="results/mapped/{aligner}/{sample}.sorted.bam",
         umi=get_umi_fastq,
     output:
         temp("results/mapped/{aligner}/{sample}.annotated.bam"),
     params:
         extra=get_umi_read_structure,
-    resources:
-        mem_mb=lambda wc, input: 2.5 * input.size_mb,
     log:
         "logs/fgbio/annotate_bam/{aligner}/{sample}.log",
     wrapper:
-        "v2.3.2/bio/fgbio/annotatebamwithumis"
+        "v3.7.0/bio/fgbio/annotatebamwithumis"
+
+
+rule sort_annotated_reads:
+    input:
+        "results/mapped/{aligner}/{sample}.annotated.bam",
+    output:
+        temp("results/mapped/{aligner}/{sample}.annotated.sorted.bam"),
+    log:
+        "logs/samtools_sort/{aligner}_{sample}.log",
+    threads: 8
+    wrapper:
+        "v3.7.0/bio/samtools/sort"
 
 
 rule mark_duplicates:

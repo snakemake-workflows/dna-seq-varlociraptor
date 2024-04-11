@@ -396,7 +396,7 @@ def get_sample_datatype(sample):
 def get_markduplicates_input(wildcards):
     aligner = "star" if get_sample_datatype(wildcards.sample) == "rna" else "bwa"
     if sample_has_umis(wildcards.sample):
-        return "results/mapped/{aligner}/{{sample}}.annotated.bam".format(
+        return "results/mapped/{aligner}/{{sample}}.annotated.sorted.bam".format(
             aligner=aligner
         )
     else:
@@ -1084,12 +1084,12 @@ def get_vembrane_config(wildcards, input):
 def get_umi_fastq(wildcards):
     umi_read = extract_unique_sample_column_value(wildcards.sample, "umi_read")
     if umi_read in ["fq1", "fq2"]:
-        return "results/untrimmed/{S}_{R}.fastq.gz".format(
+        return "results/untrimmed/{S}_{R}.sorted.fastq.gz".format(
             S=wildcards.sample, R=umi_read
         )
     elif umi_read == "both":
         return expand(
-            "results/untrimmed/{S}_{R}.fastq.gz", S=wildcards.sample, R=["fq1", "fq2"]
+            "results/untrimmed/{S}_{R}.sorted.fastq.gz", S=wildcards.sample, R=["fq1", "fq2"]
         )
     else:
         return umi_read
@@ -1100,7 +1100,7 @@ def sample_has_umis(sample):
 
 
 def get_umi_read_structure(wildcards):
-    return "-r {}".format(
+    return "-s true -r {}".format(
         extract_unique_sample_column_value(wildcards.sample, "umi_read_structure")
     )
 
