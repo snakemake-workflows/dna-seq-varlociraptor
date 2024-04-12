@@ -8,24 +8,11 @@ rule map_reads:
         "logs/bwa_mem/{sample}.log",
     params:
         extra=get_read_group,
-        sorting="samtools",
-        sort_order="coordinate",
+        sorting=get_map_reads_sorting_params,
+        sort_order=lambda wc: get_map_reads_sorting_params(wc, order_param=True),
     threads: 8
     wrapper:
-        "v2.3.2/bio/bwa/mem"
-
-
-rule query_sort_reads:
-    input:
-        "results/mapped/{aligner}/{sample}.bam",
-    output:
-        temp("results/mapped/{aligner}/{sample}.sorted.bam"),
-    conda:
-        "../envs/fgbio.yaml"
-    log:
-        "logs/fgbio/sort_bam/{aligner}_{sample}.log",
-    shell:
-        "fgbio SortBam -i {input} -o {output} -s Queryname 2> {log}"
+        "v3.7.0-29-ge7ff82c/bio/bwa/mem"
 
 
 rule merge_untrimmed_fastqs:
@@ -33,6 +20,8 @@ rule merge_untrimmed_fastqs:
         get_untrimmed_fastqs,
     output:
         temp("results/untrimmed/{sample}_{read}.fastq.gz"),
+    conda:
+        "../envs/fgbio.yaml"
     log:
         "logs/merge-fastqs/untrimmed/{sample}_{read}.log",
     wildcard_constraints:
@@ -56,7 +45,7 @@ rule sort_untrimmed_fastqs:
 
 rule annotate_umis:
     input:
-        bam="results/mapped/{aligner}/{sample}.sorted.bam",
+        bam="results/mapped/{aligner}/{sample}.bam",
         umi=get_umi_fastq,
     output:
         temp("results/mapped/{aligner}/{sample}.annotated.bam"),
