@@ -9,10 +9,10 @@ rule map_reads:
     params:
         extra=get_read_group,
         sorting=get_map_reads_sorting_params,
-        sort_order=lambda wc: get_map_reads_sorting_params(wc, order_param=True),
+        sort_order=lambda wc: get_map_reads_sorting_params(wc, ordering=True),
     threads: 8
     wrapper:
-        "v3.7.0-29-ge7ff82c/bio/bwa/mem"
+        "v3.8.0/bio/bwa/mem"
 
 
 rule merge_untrimmed_fastqs:

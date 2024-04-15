@@ -589,8 +589,8 @@ def get_read_group(wildcards):
     )
 
 
-def get_map_reads_sorting_params(wildcards, order_param=False):
-    match (sample_has_umis(wildcards.sample), order_param):
+def get_map_reads_sorting_params(wildcards, ordering=False):
+    match (sample_has_umis(wildcards.sample), ordering):
         case (True, True):
             return "queryname"
         case (True, False):
