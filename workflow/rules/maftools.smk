@@ -10,6 +10,7 @@ rule group_bcf_to_vcf:
     wrapper:
         "v3.8.0/bio/bcftools/view"
 
+
 rule group_vcf_to_maf:
     input:
         vcf="results/final-calls/{group}.{event}.{calling_type}.fdr-controlled.vcf",
@@ -17,7 +18,7 @@ rule group_vcf_to_maf:
     output:
         maf="results/final-calls/{group}.{event}.{calling_type}.fdr-controlled.maf",
     log:
-        "logs/final-calls/{group}.{event}.{calling_type}.fdr-controlled.log"
+        "logs/final-calls/{group}.{event}.{calling_type}.fdr-controlled.log",
     conda:
         "envs/vcf2maf.yaml"
     params:
