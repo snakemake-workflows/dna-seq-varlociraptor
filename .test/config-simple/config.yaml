@@ -94,6 +94,9 @@ params:
 gene_coverage:
   min_avg_coverage: 0
 
+maftools:
+  activate: true
+
 report:
   activate: true
   max_read_depth: 250

@@ -170,6 +170,9 @@ tables:
 gene_coverage:
   min_avg_coverage: 5
 
+maftools:
+  activate: false
+
 report:
   activate: false
   max_read_depth: 250
