@@ -161,6 +161,20 @@ def get_final_output(wildcards):
                     calling_type=calling_type,
                 )
             )
+        
+        if config["maftools"]["activate"]:
+            final_output.extend(
+                expand(
+                    results/final-calls/{group}.{event}.{calling_type}.fdr-controlled.maf",
+                    group=(
+                        variants_groups
+                        if calling_type == "variants"
+                        else fusions_groups
+                    ),
+                    event=get_calling_events(calling_type),
+                    calling_type=calling_type,
+                )
+            )
 
         if config["tables"]["activate"]:
             final_output.extend(
