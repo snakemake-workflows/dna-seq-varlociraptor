@@ -396,7 +396,7 @@ def get_sample_datatype(sample):
 def get_markduplicates_input(wildcards):
     aligner = "star" if get_sample_datatype(wildcards.sample) == "rna" else "bwa"
     if sample_has_umis(wildcards.sample):
-        return "results/mapped/{aligner}/{{sample}}.annotated.sorted.bam".format(
+        return "results/mapped/{aligner}/{{sample}}.annotated.bam".format(
             aligner=aligner
         )
     else:

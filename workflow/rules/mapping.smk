@@ -48,7 +48,7 @@ rule annotate_umis:
         bam="results/mapped/{aligner}/{sample}.bam",
         umi=get_umi_fastq,
     output:
-        temp("results/mapped/{aligner}/{sample}.annotated.bam"),
+        pipe("pipe/{aligner}/{sample}.annotated.bam"),
     params:
         extra=get_annotate_umis_params,
     log:
@@ -59,9 +59,9 @@ rule annotate_umis:
 
 rule sort_annotated_reads:
     input:
-        "results/mapped/{aligner}/{sample}.annotated.bam",
+        "pipe/{aligner}/{sample}.annotated.bam",
     output:
-        temp("results/mapped/{aligner}/{sample}.annotated.sorted.bam"),
+        temp("results/mapped/{aligner}/{sample}.annotated.bam"),
     log:
         "logs/samtools_sort/{aligner}_{sample}.log",
     threads: 8
