@@ -50,7 +50,7 @@ rule annotate_umis:
     output:
         temp("results/mapped/{aligner}/{sample}.annotated.bam"),
     params:
-        extra=get_umi_read_structure,
+        extra=get_annotate_umis_params,
     log:
         "logs/fgbio/annotate_bam/{aligner}/{sample}.log",
     wrapper:

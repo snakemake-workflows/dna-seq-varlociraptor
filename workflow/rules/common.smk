@@ -1113,8 +1113,8 @@ def sample_has_umis(sample):
     return pd.notna(extract_unique_sample_column_value(sample, "umi_read"))
 
 
-def get_umi_read_structure(wildcards):
-    return "-s true -r {}".format(
+def get_annotate_umis_params(wildcards):
+    return "--sorted=true -r {}".format(
         extract_unique_sample_column_value(wildcards.sample, "umi_read_structure")
     )
 
