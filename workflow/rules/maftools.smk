@@ -14,7 +14,7 @@ rule group_bcf_to_vcf:
 rule group_vcf_to_maf:
     input:
         vcf="results/maftools/{group}.{event}.{calling_type}.fdr-controlled.vcf",
-        ref=dna_seq_varlociraptor.genome,
+        ref=genome,
     output:
         maf="results/maftools/{group}.{event}.{calling_type}.fdr-controlled.maf",
     log:
