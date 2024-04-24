@@ -589,6 +589,18 @@ def get_read_group(wildcards):
     )
 
 
+def get_map_reads_sorting_params(wildcards, ordering=False):
+    match (sample_has_umis(wildcards.sample), ordering):
+        case (True, True):
+            return "queryname"
+        case (True, False):
+            return "fgbio"
+        case (False, True):
+            return "coordinate"
+        case (False, False):
+            return "samtools"
+
+
 def get_mutational_burden_targets():
     mutational_burden_targets = []
     if is_activated("mutational_burden"):
@@ -1084,12 +1096,14 @@ def get_vembrane_config(wildcards, input):
 def get_umi_fastq(wildcards):
     umi_read = extract_unique_sample_column_value(wildcards.sample, "umi_read")
     if umi_read in ["fq1", "fq2"]:
-        return "results/untrimmed/{S}_{R}.fastq.gz".format(
+        return "results/untrimmed/{S}_{R}.sorted.fastq.gz".format(
             S=wildcards.sample, R=umi_read
         )
     elif umi_read == "both":
         return expand(
-            "results/untrimmed/{S}_{R}.fastq.gz", S=wildcards.sample, R=["fq1", "fq2"]
+            "results/untrimmed/{S}_{R}.sorted.fastq.gz",
+            S=wildcards.sample,
+            R=["fq1", "fq2"],
         )
     else:
         return umi_read
@@ -1099,8 +1113,8 @@ def sample_has_umis(sample):
     return pd.notna(extract_unique_sample_column_value(sample, "umi_read"))
 
 
-def get_umi_read_structure(wildcards):
-    return "-r {}".format(
+def get_annotate_umis_params(wildcards):
+    return "--sorted=true -r {}".format(
         extract_unique_sample_column_value(wildcards.sample, "umi_read_structure")
     )
 
