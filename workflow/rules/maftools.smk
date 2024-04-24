@@ -20,7 +20,7 @@ rule group_vcf_to_maf:
     log:
         "logs/maftools/{group}.{event}.{calling_type}.fdr-controlled.log",
     conda:
-        "envs/vcf2maf.yaml"
+        "../envs/vcf2maf.yaml"
     params:
         genome_build=config["ref"]["build"],
         species=config["ref"]["species"],
