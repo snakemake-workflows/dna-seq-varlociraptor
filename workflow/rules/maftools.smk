@@ -2,9 +2,9 @@ rule group_bcf_to_vcf:
     input:
         "results/final-calls/{group}.{event}.{calling_type}.fdr-controlled.bcf",
     output:
-        temp("results/final-calls/{group}.{event}.{calling_type}.fdr-controlled.vcf"),
+        temp("results/maftools/{group}.{event}.{calling_type}.fdr-controlled.vcf"),
     log:
-        "logs/final-calls/{group}.{event}.{calling_type}.fdr-controlled.log",
+        "logs/maftools/{group}.{event}.{calling_type}.fdr-controlled.log",
     params:
         extra="",
     wrapper:
@@ -13,12 +13,12 @@ rule group_bcf_to_vcf:
 
 rule group_vcf_to_maf:
     input:
-        vcf="results/final-calls/{group}.{event}.{calling_type}.fdr-controlled.vcf",
+        vcf="results/maftools/{group}.{event}.{calling_type}.fdr-controlled.vcf",
         ref=dna_seq_varlociraptor.genome,
     output:
-        maf="results/final-calls/{group}.{event}.{calling_type}.fdr-controlled.maf",
+        maf="results/maftools/{group}.{event}.{calling_type}.fdr-controlled.maf",
     log:
-        "logs/final-calls/{group}.{event}.{calling_type}.fdr-controlled.log",
+        "logs/maftools/{group}.{event}.{calling_type}.fdr-controlled.log",
     conda:
         "envs/vcf2maf.yaml"
     params:
