@@ -1023,6 +1023,7 @@ def get_vembrane_config(wildcards, input):
             {"name": "protein position", "expr": "ANN['Protein_position'].raw"},
             {"name": "protein alteration (short)", "expr": "ANN['Amino_acids']"},
             "HGVSg",
+            "HGVSc",
             "Consequence",
             "CANONICAL",
             "MANE_PLUS_CLINICAL",
