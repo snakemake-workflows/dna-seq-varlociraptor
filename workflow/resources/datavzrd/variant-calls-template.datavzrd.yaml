@@ -1,3 +1,5 @@
+__use_yte__: true
+
 name: ?f"Variant calls {wildcards.event}"
 
 default-view: ?"overview" if input.variant_oncoprints else f"{params.groups[0]}-coding"
