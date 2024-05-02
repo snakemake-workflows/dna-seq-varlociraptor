@@ -221,6 +221,9 @@ views:
                     aux-domain-columns: ?list(params.groups)
             hgvsg:
               display-mode: hidden
+            hgvsc:
+              optional: true
+              display-mode: hidden
 
   ?for group in params.groups:
     ?f"{group}-coding":
@@ -324,6 +327,8 @@ views:
           swissprot:
             display-mode: hidden
           hgvsg:
+            display-mode: hidden
+          hgvsc:
             display-mode: detail
           chromosome:
             display-mode: detail
@@ -507,6 +512,9 @@ views:
           binned max vaf:
             display-mode: hidden
           hgvsg:
+            optional: true
+            display-mode: hidden
+          hgvsc:
             optional: true
             display-mode: detail
           chromosome:
