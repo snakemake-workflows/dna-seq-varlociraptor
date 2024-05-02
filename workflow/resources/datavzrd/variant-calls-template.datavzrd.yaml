@@ -100,7 +100,7 @@ __definitions__:
 datasets:
   ?if input.variant_oncoprints:
     gene-oncoprint:
-      path: ?params.gene_oncoprint
+      path: ?input.gene_oncoprint
       separator: "\t"
       headers: ?len(params.group_annotations.columns) + 1
       links:
@@ -109,7 +109,7 @@ datasets:
           view: "overview-{value}"
     ?for label in params.labels.index.values:
       ?label:
-        path: ?os.path.join(params.oncoprint_sorted_datasets, f"{label}.tsv")
+        path: ?os.path.join(input.oncoprint_sorted_datasets, f"{label}.tsv")
         separator: "\t"
         headers: 2
     ?for gene, path in params.variant_oncoprints:
@@ -124,17 +124,17 @@ datasets:
               table-row: ?f"{group}-coding/hgvsp"
               optional: true
 
-  ?for group, path in zip(params.groups, params.coding_calls):
+  ?for group, path in zip(params.groups, input.coding_calls):
     ?f"{group}-coding":
       path: ?path
       separator: "\t"
-  ?for group, path in zip(params.groups, params.noncoding_calls):
+  ?for group, path in zip(params.groups, input.noncoding_calls):
     ?f"{group}-noncoding":
       path: ?path
       separator: "\t"
 
 views:
-  ?if params.gene_oncoprint:
+  ?if input.gene_oncoprint:
     ?for view in ["gene-oncoprint"] + list(params.labels.index.values):
       __variables__:
         labels: ?params.group_annotations.columns.values if view == "gene-oncoprint" else [view]
@@ -363,14 +363,14 @@ views:
             '?f"{alias}: short observations"':
               optional: true
               custom-plot:
-                data: ?read_file(params.data_short_observations)
-                spec: ?read_file(params.spec_short_observations)
+                data: ?read_file(input.data_short_observations)
+                spec: ?read_file(input.spec_short_observations)
               display-mode: detail
             '?f"{alias}: observations"':
               optional: true
               custom-plot:
-                data: ?read_file(params.data_observations)
-                spec: ?read_file(params.spec_observations)
+                data: ?read_file(input.data_observations)
+                spec: ?read_file(input.spec_observations)
               display-mode: detail
           spliceai:
             optional: true
@@ -543,14 +543,14 @@ views:
             '?f"{alias}: short observations"':
               optional: true
               custom-plot:
-                data: ?read_file(params.data_short_observations)
-                spec: ?read_file(params.spec_short_observations)
+                data: ?read_file(input.data_short_observations)
+                spec: ?read_file(input.spec_short_observations)
               display-mode: detail
             '?f"{alias}: observations"':
               optional: true
               custom-plot:
-                data: ?read_file(params.data_observations)
-                spec: ?read_file(params.spec_observations)
+                data: ?read_file(input.data_observations)
+                spec: ?read_file(input.spec_observations)
               display-mode: detail
           spliceai:
             optional: true

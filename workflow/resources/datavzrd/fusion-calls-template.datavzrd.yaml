@@ -9,7 +9,7 @@ __definitions__:
         return open(path, 'r').read()
 
 datasets:
-  ?for group, path in zip(params.groups, params.fusion_calls):
+  ?for group, path in zip(params.groups, input.fusion_calls):
     ?f"{group}-fusions":
       path: ?path
       separator: "\t"
@@ -46,12 +46,12 @@ views:
                 '?f"{alias}: short observations"':
                   optional: true
                   custom-plot:
-                    data: ?read_file(params.data_short_observations)
-                    spec: ?read_file(params.spec_short_observations)
+                    data: ?read_file(input.data_short_observations)
+                    spec: ?read_file(input.spec_short_observations)
                   display-mode: detail
                 '?f"{alias}: observations"':
                   optional: true
                   custom-plot:
-                    data: ?read_file(params.data_observations)
-                    spec-path: ?params.spec_observations
+                    data: ?read_file(input.data_observations)
+                    spec-path: ?input.spec_observations
                   display-mode: detail
