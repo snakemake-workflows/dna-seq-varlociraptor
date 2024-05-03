@@ -98,7 +98,9 @@ rule datavzrd_variants_calls:
         samples=samples,
         group_annotations=group_annotation,
         labels=get_heterogeneous_labels(),
-        event_desc=lookup(dpath="calling/fdr-control/events/{event}/desc", within=config),
+        event_desc=lookup(
+            dpath="calling/fdr-control/events/{event}/desc", within=config
+        ),
     wrapper:
         "v3.10.1/utils/datavzrd"
 
