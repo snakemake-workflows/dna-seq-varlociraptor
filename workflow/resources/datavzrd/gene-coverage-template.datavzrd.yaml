@@ -1,3 +1,5 @@
+__use_yte__: true
+
 name: "Mean read depth per gene"
 
 datasets:
