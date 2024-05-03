@@ -231,7 +231,7 @@ views:
     ?f"{group}-coding":
       desc: |
         ?f"""
-        Variants in coding regions.\n{config['calling']['fdr-control']['events'][wildcards.event]['desc']}\n
+        Variants in coding regions.\n{params.event_desc}\n
         SpliceAI scores are probabilities of a variant being splice-altered.\n
         AlphaMissense scores are classified as: likely benign (<0.34), ambiguous (0.34<=, <=0.564), likely pathogenic (0.564<).
         """
@@ -430,7 +430,7 @@ views:
     ?f"{group}-noncoding":
       desc: |
         ?f"""
-        Variants in non-coding regions.\n{config['calling']['fdr-control']['events'][wildcards.event]['desc']}
+        Variants in non-coding regions.\n{params.event_desc}
         SpliceAI scores are probabilities of a variant being splice-altered.\n
         AlphaMissense scores are classified as: likely benign (<0.34), ambiguous (0.34<=, <=0.564), likely pathogenic (0.564<).
         """
