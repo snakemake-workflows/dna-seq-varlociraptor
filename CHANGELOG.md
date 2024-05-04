@@ -1,5 +1,18 @@
 # Changelog
 
+## [5.6.0](https://github.com/snakemake-workflows/dna-seq-varlociraptor/compare/v5.5.0...v5.6.0) (2024-05-04)
+
+
+### Features
+
+* reduce fgbio memory usage ([#296](https://github.com/snakemake-workflows/dna-seq-varlociraptor/issues/296)) ([71611c8](https://github.com/snakemake-workflows/dna-seq-varlociraptor/commit/71611c80e6712b016f1df5838c4ceb05e059e388))
+
+
+### Bug Fixes
+
+* fusion candidate filtering ([#299](https://github.com/snakemake-workflows/dna-seq-varlociraptor/issues/299)) ([6cc658a](https://github.com/snakemake-workflows/dna-seq-varlociraptor/commit/6cc658aeed60fe09ff7a9ab3bb10b8a94569343a))
+* use latest datavzrd wrapper that integrates template rendering ([#300](https://github.com/snakemake-workflows/dna-seq-varlociraptor/issues/300)) ([0ad923f](https://github.com/snakemake-workflows/dna-seq-varlociraptor/commit/0ad923fc3f4f5b36da714925194410803786125a))
+
 ## [5.5.0](https://github.com/snakemake-workflows/dna-seq-varlociraptor/compare/v5.4.1...v5.5.0) (2024-04-09)
 
 
