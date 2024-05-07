@@ -242,6 +242,8 @@ views:
             link-to-url:
               ensembl:
                 url: https://www.ensembl.org/Homo_sapiens/Transcript/Summary?t={feature}
+          'clinical significance':
+            custom: ?read_file(input.clin_sig)
           hgvsp:
             link-to-url:
               custom-content: ?hgvsp_content
