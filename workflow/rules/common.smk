@@ -634,17 +634,18 @@ def get_selected_annotations():
     return selection
 
 
-def get_annotated_bcf(wildcards):
+def get_annotated_bcf(wildcards, index=False):
+    ext = ".csi" if index else ""
     selection = (
         get_selected_annotations() if wildcards.calling_type == "variants" else ""
     )
-    return "results/calls/{group}.{calling_type}.{scatteritem}{selection}.bcf".format(
+    return "results/calls/{group}.{calling_type}.{scatteritem}{selection}.bcf{ext}".format(
         group=wildcards.group,
         calling_type=wildcards.calling_type,
         selection=selection,
         scatteritem=wildcards.scatteritem,
+        ext=ext
     )
-
 
 def get_gather_annotated_calls_input(ext="bcf"):
     def inner(wildcards):
