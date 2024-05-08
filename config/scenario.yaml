@@ -1,6 +1,6 @@
 samples:
-  SRR233141:
+  tumor:
     universe: "[0.0,1.0]"
 
 events:
-  present: "SRR233141:]0.0,1.0]"
+  present: "tumor:]0.0,1.0]"

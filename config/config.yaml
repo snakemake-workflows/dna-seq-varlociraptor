@@ -142,8 +142,9 @@ calling:
           # Add varlociraptor events to aggregated over.
           # The probability for the union of these events is used for controlling
           # the FDR.
-          - somatic_tumor_high
-          - somatic_tumor_medium
+          - present
+          # - somatic_tumor_high
+          # - somatic_tumor_medium
         filter: # myfilter
           # Add any number of filters here.
           # A single filter can be set as string.
