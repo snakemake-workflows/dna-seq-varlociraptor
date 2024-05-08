@@ -1,3 +1,5 @@
+__use_yte__: true
+
 name: ?f"Variant calls {wildcards.event}"
 
 default-view: ?"overview" if input.variant_oncoprints else f"{params.groups[0]}-coding"
@@ -51,6 +53,18 @@ __definitions__:
       }}
     """
   - |
+    alphamissense_link = f"""
+      function(row) {{
+        if ( typeof row.swissprot !== 'undefined' ) {{
+          let swissprot = row.swissprot.split('.')[0]
+          let residue = row["protein position"]
+          const url_prefix = "https://alphamissense.hegelab.org/hotspot?uid="
+          return `${{url_prefix}}${{swissprot}}&resi=${{residue}}`
+        }}
+        return ``
+      }}
+    """
+  - |
     protein_id = f"""
       function(row) {{
         let protein_id = row.hgvsp.split(':')[0]
@@ -74,11 +88,21 @@ __definitions__:
         }}
       }}
     """
+  - |
+    make_popover = f"""
+      function(value, row) {{
+        if (value.length === 0) {{
+          return ``
+        }}
+        const len = value.split(',').length;
+        return `<span data-toggle="popover" data-content="${{value}}">${{len}}</span>`;
+      }}
+    """
 
 datasets:
   ?if input.variant_oncoprints:
     gene-oncoprint:
-      path: ?params.gene_oncoprint
+      path: ?input.gene_oncoprint
       separator: "\t"
       headers: ?len(params.group_annotations.columns) + 1
       links:
@@ -87,7 +111,7 @@ datasets:
           view: "overview-{value}"
     ?for label in params.labels.index.values:
       ?label:
-        path: ?os.path.join(params.oncoprint_sorted_datasets, f"{label}.tsv")
+        path: ?os.path.join(input.oncoprint_sorted_datasets, f"{label}.tsv")
         separator: "\t"
         headers: 2
     ?for gene, path in params.variant_oncoprints:
@@ -102,17 +126,17 @@ datasets:
               table-row: ?f"{group}-coding/hgvsp"
               optional: true
 
-  ?for group, path in zip(params.groups, params.coding_calls):
+  ?for group, path in zip(params.groups, input.coding_calls):
     ?f"{group}-coding":
       path: ?path
       separator: "\t"
-  ?for group, path in zip(params.groups, params.noncoding_calls):
+  ?for group, path in zip(params.groups, input.noncoding_calls):
     ?f"{group}-noncoding":
       path: ?path
       separator: "\t"
 
 views:
-  ?if params.gene_oncoprint:
+  ?if input.gene_oncoprint:
     ?for view in ["gene-oncoprint"] + list(params.labels.index.values):
       __variables__:
         labels: ?params.group_annotations.columns.values if view == "gene-oncoprint" else [view]
@@ -199,12 +223,15 @@ views:
                     aux-domain-columns: ?list(params.groups)
             hgvsg:
               display-mode: hidden
+            hgvsc:
+              optional: true
+              display-mode: hidden
 
   ?for group in params.groups:
     ?f"{group}-coding":
       desc: |
         ?f"""
-        Variants in coding regions.\n{config['calling']['fdr-control']['events'][wildcards.event]['desc']}\n
+        Variants in coding regions.\n{params.event_desc}\n
         SpliceAI scores are probabilities of a variant being splice-altered.\n
         AlphaMissense scores are classified as: likely benign (<0.34), ambiguous (0.34<=, <=0.564), likely pathogenic (0.564<).
         """
@@ -218,10 +245,12 @@ views:
           hgvsp:
             link-to-url:
               custom-content: ?hgvsp_content
-              varsome:
+              VarSome:
                 url: "{query_varsome}"
-              genome nexus:
+              Genome Nexus:
                 url: "{query_genomenexus}"
+              AlphaMissense:
+                url: "{query_alphamissense}"
           vartype:
             display-mode: hidden
           impact:
@@ -297,7 +326,11 @@ views:
             display-mode: hidden
           binned max vaf:
             display-mode: hidden
+          swissprot:
+            display-mode: hidden
           hgvsg:
+            display-mode: hidden
+          hgvsc:
             display-mode: detail
           chromosome:
             display-mode: detail
@@ -337,14 +370,14 @@ views:
             '?f"{alias}: short observations"':
               optional: true
               custom-plot:
-                data: ?read_file(params.data_short_observations)
-                spec: ?read_file(params.spec_short_observations)
+                data: ?read_file(input.data_short_observations)
+                spec: ?read_file(input.spec_short_observations)
               display-mode: detail
             '?f"{alias}: observations"':
               optional: true
               custom-plot:
-                data: ?read_file(params.data_observations)
-                spec: ?read_file(params.spec_observations)
+                data: ?read_file(input.data_observations)
+                spec: ?read_file(input.spec_observations)
               display-mode: detail
           spliceai:
             optional: true
@@ -373,12 +406,18 @@ views:
                   - "#d7ee82"
                   - "#fedd8e"
                   - "#d4322c"
+          population:
+            optional: true
+            custom: ?make_popover
         add-columns:
           query_varsome:
             value: ?varsome_link
             display-mode: hidden
           query_genomenexus:
             value: ?genomenexus_link
+            display-mode: hidden
+          query_alphamissense:
+            value: ?alphamissense_link
             display-mode: hidden
           ensembl_protein_id:
             value: ?protein_id
@@ -391,7 +430,7 @@ views:
     ?f"{group}-noncoding":
       desc: |
         ?f"""
-        Variants in non-coding regions.\n{config['calling']['fdr-control']['events'][wildcards.event]['desc']}
+        Variants in non-coding regions.\n{params.event_desc}
         SpliceAI scores are probabilities of a variant being splice-altered.\n
         AlphaMissense scores are classified as: likely benign (<0.34), ambiguous (0.34<=, <=0.564), likely pathogenic (0.564<).
         """
@@ -409,6 +448,8 @@ views:
                 color-scheme: category20
                 scale: ordinal
           vartype:
+            display-mode: hidden
+          swissprot:
             display-mode: hidden
           impact:
             plot:
@@ -474,6 +515,9 @@ views:
             display-mode: hidden
           hgvsg:
             optional: true
+            display-mode: hidden
+          hgvsc:
+            optional: true
             display-mode: detail
           chromosome:
             display-mode: detail
@@ -509,14 +553,14 @@ views:
             '?f"{alias}: short observations"':
               optional: true
               custom-plot:
-                data: ?read_file(params.data_short_observations)
-                spec: ?read_file(params.spec_short_observations)
+                data: ?read_file(input.data_short_observations)
+                spec: ?read_file(input.spec_short_observations)
               display-mode: detail
             '?f"{alias}: observations"':
               optional: true
               custom-plot:
-                data: ?read_file(params.data_observations)
-                spec: ?read_file(params.spec_observations)
+                data: ?read_file(input.data_observations)
+                spec: ?read_file(input.spec_observations)
               display-mode: detail
           spliceai:
             optional: true
@@ -545,3 +589,6 @@ views:
                   - "#d7ee82"
                   - "#fedd8e"
                   - "#d4322c"
+          population:
+            optional: true
+            custom: ?make_popover

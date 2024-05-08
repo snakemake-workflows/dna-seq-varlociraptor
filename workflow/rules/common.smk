@@ -152,9 +152,11 @@ def get_final_output(wildcards):
             final_output.extend(
                 expand(
                     "results/final-calls/{group}.{event}.{calling_type}.fdr-controlled.bcf",
-                    group=variants_groups
-                    if calling_type == "variants"
-                    else fusions_groups,
+                    group=(
+                        variants_groups
+                        if calling_type == "variants"
+                        else fusions_groups
+                    ),
                     event=get_calling_events(calling_type),
                     calling_type=calling_type,
                 )
@@ -164,9 +166,11 @@ def get_final_output(wildcards):
             final_output.extend(
                 expand(
                     "results/tables/{group}.{event}.{calling_type}.fdr-controlled.tsv",
-                    group=variants_groups
-                    if calling_type == "variants"
-                    else fusions_groups,
+                    group=(
+                        variants_groups
+                        if calling_type == "variants"
+                        else fusions_groups
+                    ),
                     event=get_calling_events(calling_type),
                     calling_type=calling_type,
                 )
@@ -175,14 +179,19 @@ def get_final_output(wildcards):
                 final_output.extend(
                     expand(
                         "results/tables/{group}.{event}.{calling_type}.fdr-controlled.xlsx",
-                        group=variants_groups
-                        if calling_type == "variants"
-                        else fusions_groups,
+                        group=(
+                            variants_groups
+                            if calling_type == "variants"
+                            else fusions_groups
+                        ),
                         event=get_calling_events(calling_type),
                         calling_type=calling_type,
                     )
                 )
     final_output.extend(get_mutational_burden_targets())
+
+    if is_activated("population/db"):
+        final_output.append(lookup(dpath="population/db/path", within=config))
 
     return final_output
 
@@ -598,6 +607,18 @@ def get_read_group(wildcards):
     )
 
 
+def get_map_reads_sorting_params(wildcards, ordering=False):
+    match (sample_has_umis(wildcards.sample), ordering):
+        case (True, True):
+            return "queryname"
+        case (True, False):
+            return "fgbio"
+        case (False, True):
+            return "coordinate"
+        case (False, False):
+            return "samtools"
+
+
 def get_mutational_burden_targets():
     mutational_burden_targets = []
     if is_activated("mutational_burden"):
@@ -871,14 +892,18 @@ variant_caller = list(
     filter(
         None,
         [
-            "freebayes"
-            if is_activated("calling/freebayes")
-            and samples["calling"].str.contains("variants").any()
-            else None,
-            "delly"
-            if is_activated("calling/delly")
-            and samples["calling"].str.contains("variants").any()
-            else None,
+            (
+                "freebayes"
+                if is_activated("calling/freebayes")
+                and samples["calling"].str.contains("variants").any()
+                else None
+            ),
+            (
+                "delly"
+                if is_activated("calling/delly")
+                and samples["calling"].str.contains("variants").any()
+                else None
+            ),
         ],
     )
 )
@@ -902,6 +927,43 @@ def get_annotation_pipes(wildcards, input):
         )
     else:
         return ""
+
+
+def get_cleaned_population_db(idx=False):
+    if is_activated("population/db"):
+        db = lookup(dpath="population/db/path", within=config)
+        csi = ".csi" if idx else ""
+        if not db.endswith(".bcf"):
+            raise ValueError("Population database must be a BCF file.")
+        if exists(db):
+            return f"results/population_db.cleaned.bcf{csi}"
+        else:
+            return []
+    return []
+
+
+def get_population_bcfs(idx=False):
+    csi = ".csi" if idx else ""
+    return expand(
+        "results/population/{group}.variants.filtered.bcf{idx}",
+        group=variants_groups,
+        idx=csi,
+    )
+
+
+def get_population_db(use_before_update=False):
+    if is_activated("population/db"):
+        db = lookup(dpath="population/db/path", within=config)
+        if not db.endswith(".bcf"):
+            raise ValueError("Population database must be a BCF file.")
+        if use_before_update:
+            if exists(db):
+                return before_update(db)
+            else:
+                return []
+        else:
+            return update(db)
+    return []
 
 
 def get_annotation_vcfs(idx=False):
@@ -980,11 +1042,13 @@ def get_vembrane_config(wildcards, input):
             {"name": "protein position", "expr": "ANN['Protein_position'].raw"},
             {"name": "protein alteration (short)", "expr": "ANN['Amino_acids']"},
             "HGVSg",
+            "HGVSc",
             "Consequence",
             "CANONICAL",
             "MANE_PLUS_CLINICAL",
             {"name": "clinical significance", "expr": "ANN['CLIN_SIG']"},
             {"name": "gnomad genome af", "expr": "ANN['gnomADg_AF']"},
+            "SWISSPROT",
         ]
 
         annotation_fields.extend(
@@ -1052,12 +1116,14 @@ def get_vembrane_config(wildcards, input):
 def get_umi_fastq(wildcards):
     umi_read = extract_unique_sample_column_value(wildcards.sample, "umi_read")
     if umi_read in ["fq1", "fq2"]:
-        return "results/untrimmed/{S}_{R}.fastq.gz".format(
+        return "results/untrimmed/{S}_{R}.sorted.fastq.gz".format(
             S=wildcards.sample, R=umi_read
         )
     elif umi_read == "both":
         return expand(
-            "results/untrimmed/{S}_{R}.fastq.gz", S=wildcards.sample, R=["fq1", "fq2"]
+            "results/untrimmed/{S}_{R}.sorted.fastq.gz",
+            S=wildcards.sample,
+            R=["fq1", "fq2"],
         )
     else:
         return umi_read
@@ -1067,8 +1133,8 @@ def sample_has_umis(sample):
     return pd.notna(extract_unique_sample_column_value(sample, "umi_read"))
 
 
-def get_umi_read_structure(wildcards):
-    return "-r {}".format(
+def get_annotate_umis_params(wildcards):
+    return "--sorted=true -r {}".format(
         extract_unique_sample_column_value(wildcards.sample, "umi_read_structure")
     )
 
