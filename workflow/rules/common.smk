@@ -239,10 +239,10 @@ def get_recalibrate_quality_input(wildcards, bai=False):
     elif is_activated("remove_duplicates"):
         return "results/dedup/{{sample}}.{ext}".format(ext=ext)
     else:
-      if is_activated("ref/pangenome"):
-        return "results/mapped/vg/{{sample}}_rg_added.{ext}".format(ext=ext)
-      else:
-        return "results/mapped/bwa/{{sample}}.{ext}".format(ext=ext)
+        if is_activated("ref/pangenome"):
+            return "results/mapped/vg/{{sample}}_rg_added.{ext}".format(ext=ext)
+        else:
+            return "results/mapped/bwa/{{sample}}.{ext}".format(ext=ext)
 
 
 def get_cutadapt_input(wildcards):
@@ -398,11 +398,13 @@ def get_sample_datatype(sample):
 
 def get_markduplicates_input(wildcards):
     if get_sample_datatype(wildcards.sample) == "rna":
-      aligner = "star"  
-    elif get_sample_datatype(wildcards.sample) == "dna" and is_activated("ref/pangenome"):
-      aligner = "vg"
+        aligner = "star"
+    elif get_sample_datatype(wildcards.sample) == "dna" and is_activated(
+        "ref/pangenome"
+    ):
+        aligner = "vg"
     else:
-      aligner = "bwa"
+        aligner = "bwa"
     if sample_has_umis(wildcards.sample):
         return "results/mapped/{aligner}/{{sample}}.annotated.bam".format(
             aligner=aligner
@@ -418,11 +420,13 @@ def get_consensus_input(wildcards):
         return "results/dedup/{sample}.bam"
     else:
         if get_sample_datatype(wildcards.sample) == "rna":
-          aligner = "star"  
-        elif get_sample_datatype(wildcards.sample) == "dna" & is_activated("ref/pangenome"):
-          aligner = "vg"
+            aligner = "star"
+        elif get_sample_datatype(wildcards.sample) == "dna" & is_activated(
+            "ref/pangenome"
+        ):
+            aligner = "vg"
         else:
-          aligner = "bwa"
+            aligner = "bwa"
         return "results/mapped/{aligner}/{{sample}}.bam".format(aligner=aligner)
 
 
@@ -431,11 +435,13 @@ def get_trimming_input(wildcards):
         return "results/dedup/{sample}.bam"
     else:
         if get_sample_datatype(wildcards.sample) == "rna":
-          aligner = "star"  
-        elif get_sample_datatype(wildcards.sample) == "dna" & is_activated("ref/pangenome"):
-          aligner = "vg"
+            aligner = "star"
+        elif get_sample_datatype(wildcards.sample) == "dna" & is_activated(
+            "ref/pangenome"
+        ):
+            aligner = "vg"
         else:
-          aligner = "bwa"
+            aligner = "bwa"
         return "results/mapped/{aligner}/{{sample}}.bam".format(aligner=aligner)
 
 
@@ -660,13 +666,16 @@ def get_annotated_bcf(wildcards, index=False):
     selection = (
         get_selected_annotations() if wildcards.calling_type == "variants" else ""
     )
-    return "results/calls/{group}.{calling_type}.{scatteritem}{selection}.bcf{ext}".format(
-        group=wildcards.group,
-        calling_type=wildcards.calling_type,
-        selection=selection,
-        scatteritem=wildcards.scatteritem,
-        ext=ext
+    return (
+        "results/calls/{group}.{calling_type}.{scatteritem}{selection}.bcf{ext}".format(
+            group=wildcards.group,
+            calling_type=wildcards.calling_type,
+            selection=selection,
+            scatteritem=wildcards.scatteritem,
+            ext=ext,
+        )
     )
+
 
 def get_gather_annotated_calls_input(ext="bcf"):
     def inner(wildcards):
@@ -1175,7 +1184,7 @@ def get_primer_extra(wc, input):
     min_primer_len = get_shortest_primer_length(input.reads)
     # Check if shortest primer is below default values
     if min_primer_len < 32:
-        extra += f" -T {min_primer_len - 2}"
+        extra += f" -T {min_primer_len-2}"
     if min_primer_len < 19:
         extra += f" -k {min_primer_len}"
     return extra
@@ -1308,4 +1317,3 @@ def get_delly_excluded_regions():
         )
     else:
         return []
-
