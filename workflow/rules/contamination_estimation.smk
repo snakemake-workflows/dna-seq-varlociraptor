@@ -1,21 +1,17 @@
 use rule bcftools_concat as bcftools_concat_all_obs_per_sample with:
     input:
-        gather.calling(
-            expand(
-                "results/observations/{{{{group}}}}/{{{{sample}}}}.{caller}.{{scatteritem}}.bcf",
-                caller = caller,
-            )
-        ),
+        calls=get_scattered_obs(),
+        indexes=get_scattered_obs(ext="bcf.csi"),
     output:
-        "results/observations/{group}/{sample}.bcf",
+        "results/observations/{group}/{sample}.freebayes.bcf",
     log:
         "logs/observations/{group}/{sample}.bcftools_concat_all_obs_per_sample.log",
 
 
 rule varlociraptor_estimate_contamination:
     input:
-        sample=lambda wc: f'results/observations/{{group}}/{samples.loc[(samples["group"] == wc.group) & (samples["alias"] == "tumor"), "sample_name"].squeeze()}.bcf',
-        contaminant=lambda wc: f'results/observations/{{group}}/{samples.loc[(samples["group"] == wc.group) & (samples["alias"] == "normal"), "sample_name"].squeeze()}.bcf',
+        sample=lambda wc: f'results/observations/{{group}}/{samples.loc[(samples["group"] == wc.group) & (samples["alias"] == "tumor"), "sample_name"].squeeze()}.freebayes.bcf',
+        contaminant=lambda wc: f'results/observations/{{group}}/{samples.loc[(samples["group"] == wc.group) & (samples["alias"] == "normal"), "sample_name"].squeeze()}.freebayes.bcf',
     output:
         tsv="results/contamination/{group}.contamination_estimate.tsv",
         plot="results/contamination/{group}.contamination_estimate.json",

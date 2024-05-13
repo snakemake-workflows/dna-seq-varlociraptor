@@ -554,6 +554,18 @@ def get_scattered_calls(ext="bcf"):
 
     return inner
 
+def get_scattered_obs(ext="bcf"):
+    def inner(wildcards):
+        return gather.calling(
+            expand(
+                "results/observations/{{{{group}}}}/{{{{sample}}}}.freebayes.{{scatteritem}}.{ext}",
+                ext=ext,
+            )
+        )
+
+    return inner
+
+
 
 def get_selected_annotations():
     selection = ".annotated"
