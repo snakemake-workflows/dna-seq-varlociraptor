@@ -11,64 +11,22 @@ __definitions__:
     def read_file(path):
         return open(path, 'r').read()
   - |
-    hgvsp_content = f"""
+    hgvs_content = f"""
       function(value, row) {{
-        let hgvsp_regex = /^(.+?):(.+)$/;
+        let hgvs_regex = /^(.+?):(.+)$/;
         // discard protein id
-        let hgvsp = value.match(hgvsp_regex)[2].replace('%3D', '=');
-        return hgvsp
-      }}
-    """
-  - |
-    varsome_link = f"""
-    function(row) {{
-      let hgvsp_regex = /^(.+?):(.+)$/;
-      // discard protein id
-
-      let hgvsp = row.hgvsp.match(hgvsp_regex)[2].replace('%3D', '=');
-
-      let chr = row.chromosome;
-      let pos = row.position;
-      let ref = row["reference allele"];
-      let alt = row["alternative allele"];
-      let build = ( "{params.build}" === "GRCh38" ) ? "hg38/" : "hg19/";
-      const url = "https://varsome.com/variant/";
-      let aa_regex = /^[ACGTacgt]+$/;
-      if ( ref.match(aa_regex) && alt.match(aa_regex)) {{
-        let descriptor = `${{chr}}:${{pos}}:${{ref}}:${{alt}}`
-        return `${{url}}${{build}}${{descriptor}}`;
-      }}
-      else {{
-        return `${{hgvsp}}`;
-      }}
-    }}
-    """
-  - |
-    genomenexus_link = f"""
-      function(row) {{
-        let hgvsg = row.hgvsg
-        let build = ( "{params.build}" === "GRCh38" ) ? "grch38." : "";
-        const url_suffix = "genomenexus.org/variant/"
-        return `https://${{build}}${{url_suffix}}${{hgvsg}}`
-      }}
-    """
-  - |
-    alphamissense_link = f"""
-      function(row) {{
-        if ( typeof row.swissprot !== 'undefined' ) {{
-          let swissprot = row.swissprot.split('.')[0]
-          let residue = row["protein position"]
-          const url_prefix = "https://alphamissense.hegelab.org/hotspot?uid="
-          return `${{url_prefix}}${{swissprot}}&resi=${{residue}}`
-        }}
-        return ``
+        let hgvs = value.match(hgvs_regex)[2].replace('%3D', '=');
+        return hgvs
       }}
     """
   - |
     protein_id = f"""
       function(row) {{
+        if ( typeof row.hgvsp !== 'undefined') {{
         let protein_id = row.hgvsp.split(':')[0]
         return protein_id
+        }}
+        return ``
       }}
     """
   - |
@@ -232,7 +190,7 @@ views:
       desc: |
         ?f"""
         Variants in coding regions.\n{params.event_desc}\n
-        SpliceAI scores are probabilities of a variant being splice-altered.\n
+        SpliceAI scores are probabilities of a variant being splice-altering.\n
         AlphaMissense scores are classified as: likely benign (<0.34), ambiguous (0.34<=, <=0.564), likely pathogenic (0.564<).
         """
       dataset: ?f"{group}-coding"
@@ -245,14 +203,9 @@ views:
           'clinical significance':
             custom: ?read_file(input.clin_sig)
           hgvsp:
-            link-to-url:
-              custom-content: ?hgvsp_content
-              VarSome:
-                url: "{query_varsome}"
-              Genome Nexus:
-                url: "{query_genomenexus}"
-              AlphaMissense:
-                url: "{query_alphamissense}"
+            custom: ?hgvs_content
+          hgvsc:
+            custom: ?read_file(input.linkouts)
           vartype:
             display-mode: hidden
           impact:
@@ -332,8 +285,6 @@ views:
             display-mode: hidden
           hgvsg:
             display-mode: hidden
-          hgvsc:
-            display-mode: detail
           chromosome:
             display-mode: detail
           position:
@@ -412,28 +363,19 @@ views:
             optional: true
             custom: ?make_popover
         add-columns:
-          query_varsome:
-            value: ?varsome_link
-            display-mode: hidden
-          query_genomenexus:
-            value: ?genomenexus_link
-            display-mode: hidden
-          query_alphamissense:
-            value: ?alphamissense_link
+          build:
+            value: ?f"function() {{ return `{params.build}` }}"
             display-mode: hidden
           ensembl_protein_id:
             value: ?protein_id
             display-mode: detail
 
 
-
-
-
     ?f"{group}-noncoding":
       desc: |
         ?f"""
         Variants in non-coding regions.\n{params.event_desc}
-        SpliceAI scores are probabilities of a variant being splice-altered.\n
+        SpliceAI scores are probabilities of a variant being splice-altering.\n
         AlphaMissense scores are classified as: likely benign (<0.34), ambiguous (0.34<=, <=0.564), likely pathogenic (0.564<).
         """
       dataset: ?f"{group}-noncoding"
@@ -444,6 +386,8 @@ views:
             link-to-url:
               ensembl:
                 url: https://www.ensembl.org/Homo_sapiens/Transcript/Summary?t={feature}
+          hgvsc:
+            custom: ?read_file(input.linkouts)
           consequence:
             plot:
               heatmap:
@@ -452,6 +396,7 @@ views:
           vartype:
             display-mode: hidden
           swissprot:
+            optional: true
             display-mode: hidden
           impact:
             plot:
@@ -518,9 +463,6 @@ views:
           hgvsg:
             optional: true
             display-mode: hidden
-          hgvsc:
-            optional: true
-            display-mode: detail
           chromosome:
             display-mode: detail
           position:
@@ -594,3 +536,7 @@ views:
           population:
             optional: true
             custom: ?make_popover
+        add-columns:
+          build:
+            value: ?f"function() {{ return `{params.build}` }}"
+            display-mode: hidden
