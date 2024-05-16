@@ -38,6 +38,7 @@ include: "rules/datavzrd.smk"
 include: "rules/fusion_calling.smk"
 include: "rules/testcase.smk"
 include: "rules/population.smk"
+include: "rules/mutational_signatures.smk"
 
 
 batches = "all"

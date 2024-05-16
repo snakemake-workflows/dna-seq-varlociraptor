@@ -189,6 +189,7 @@ def get_final_output(wildcards):
                     )
                 )
     final_output.extend(get_mutational_burden_targets())
+    final_output.extend(get_mutational_signature_targets())
 
     if is_activated("population/db"):
         final_output.append(lookup(dpath="population/db/path", within=config))
@@ -614,6 +615,18 @@ def get_mutational_burden_targets():
                 )
             )
     return mutational_burden_targets
+
+def get_mutational_signature_targets():
+    mutational_signature_targets = []
+    if is_activated("mutational_signatures"):
+        for group in variants_groups:
+            mutational_signature_targets.extend(
+                expand(
+                    "results/mutational-signatures/{event}.tsv",
+                    events=config["mutational_signatures"].get("events"),
+                )
+            )
+    return mutational_signature_targets
 
 
 def get_scattered_calls(ext="bcf"):
