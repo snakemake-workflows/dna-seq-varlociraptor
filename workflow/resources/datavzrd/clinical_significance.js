@@ -13,9 +13,9 @@ function clin_sig(value) {
     "affects": "#6f42c1", // purple
     "drug_response": "#6610f2", // dark purple
     "risk_factor": "#e3342f", // red
-    "likely_pathogenic": "#dc3545", // dark red
-    "pathogenic/likely_pathogenic": "#bd2130", // deep red
-    "pathogenic": "#dc3545" // dark red
+    "likely_pathogenic": "#bd2130", // dark red
+    "pathogenic/likely_pathogenic": "#dc3545", // deep red
+    "pathogenic": "#bd2130" // dark red
   };
   
   const splitValues = value.split(",").map(item => `<span style="background-color: ${colorMapping[item.trim()]}"class="badge">${item.trim()}</span>`);
