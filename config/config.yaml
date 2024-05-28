@@ -143,8 +143,8 @@ calling:
           # The probability for the union of these events is used for controlling
           # the FDR.
           - present
-          # - somatic_tumor_high
-          # - somatic_tumor_medium
+          - somatic_tumor_high
+          - somatic_tumor_medium
         filter: # myfilter
           # Add any number of filters here.
           # A single filter can be set as string.
