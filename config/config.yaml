@@ -247,4 +247,4 @@ params:
   delly: ""
   freebayes:
     min_alternate_fraction: 0.05 # Reduce for calling variants with lower VAFs
-    extra: """
+    extra: ""
