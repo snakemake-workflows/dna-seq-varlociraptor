@@ -19,7 +19,7 @@ rule filter_candidates_by_annotation:
 rule filter_by_annotation:
     input:
         bcf=get_annotated_bcf,
-        csi=lambda wc: get_annotated_bcf(wc, index=True),
+        csi=partial(get_annotated_bcf, index=True),
         aux=get_annotation_filter_aux_files,
     output:
         "results/calls/{group}.{event}.{calling_type}.{scatteritem}.filtered_ann.bcf",
