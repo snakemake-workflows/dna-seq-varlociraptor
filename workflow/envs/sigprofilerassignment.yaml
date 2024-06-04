@@ -2,5 +2,4 @@ channels:
   - conda-forge
   - bioconda
 dependencies:
-  - bioconductor-yapsa =1.28
-  - r-tidyverse =2.0
+  - sigprofilerassignment =0.1
