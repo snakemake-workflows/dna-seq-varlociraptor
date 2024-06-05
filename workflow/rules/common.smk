@@ -747,7 +747,7 @@ def get_fdr_control_params(wildcards):
             dpath="calling/fdr-control/local",
             within=config,
             default=True,
-        )
+        ),
     )
     mode = "--mode " + lookup(
         dpath="mode",
@@ -755,8 +755,8 @@ def get_fdr_control_params(wildcards):
         default=lookup(
             dpath="calling/fdr-control/mode",
             within=config,
-            default="local-smart" if local else "global-smart"
-        )
+            default="local-smart" if local else "global-smart",
+        ),
     )
 
     return {
