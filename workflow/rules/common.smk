@@ -737,8 +737,30 @@ def get_fdr_control_params(wildcards):
         "threshold", config["calling"]["fdr-control"].get("threshold", 0.05)
     )
     events = query["varlociraptor"]
-    local = query.get("local", config["calling"]["fdr-control"].get("local", False))
-    mode = "--mode local-smart" if local else "--mode global-smart"
+
+    # local is a formerly supported key which we support as a fallback now
+    # in order to a avoid a breaking change in the config.
+    local = lookup(
+        dpath="local",
+        within=query,
+        default=lookup(
+            dpath="calling/fdr-control/local",
+            within=config,
+            default=True,
+        ),
+    )
+    mode = lookup(
+        dpath="mode",
+        within=query,
+        default=lookup(
+            dpath="calling/fdr-control/mode",
+            within=config,
+            default="local-smart" if local else "global-smart",
+        ),
+    )
+
+    mode = f"--mode {mode}"
+
     return {
         "threshold": threshold,
         "events": events,
