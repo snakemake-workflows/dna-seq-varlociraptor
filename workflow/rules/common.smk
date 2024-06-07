@@ -749,7 +749,7 @@ def get_fdr_control_params(wildcards):
             default=True,
         ),
     )
-    mode = "--mode " + lookup(
+    mode = lookup(
         dpath="mode",
         within=query,
         default=lookup(
@@ -758,6 +758,8 @@ def get_fdr_control_params(wildcards):
             default="local-smart" if local else "global-smart",
         ),
     )
+
+    mode = f"--mode {mode}"
 
     return {
         "threshold": threshold,
