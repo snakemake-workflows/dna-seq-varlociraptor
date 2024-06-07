@@ -1007,7 +1007,11 @@ def get_trimmed_fastqs(wc):
         )
     else:
         fq = "fq1" if wc.read == "R1" or wc.read == "single" else "fq2"
-        return units.loc[units.sample_name == wc.sample, fq]
+        return [
+            read
+            for unit in units.loc[wc.sample, "unit_name"]
+            for read in get_raw_reads(wc.sample, unit, fq)
+        ]
 
 
 def get_vembrane_config(wildcards, input):
