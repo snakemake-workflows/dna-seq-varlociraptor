@@ -120,8 +120,8 @@ calling:
       expression: "ANN['Gene'] in AUX['super_interesting_genes']"
   fdr-control:
     threshold: 0.05
-    # denote whether local or global FDR shall be controlled
-    local: true
+    # denote FDR control mode, see https://varlociraptor.github.io/docs/filtering
+    mode: local-smart
     events:
       # Add any number of events here to filter for.
       # The id of each event can be chosen freely, but needs to contain

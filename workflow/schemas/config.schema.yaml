@@ -214,6 +214,13 @@ properties:
             maximum: 1.0
           local:
             type: boolean
+          mode:
+            type: string
+            enum: 
+              - local-smart
+              - local-strict
+              - global-smart
+              - global-strict
           events:
             $ref: "#/definitions/evententry"
             description: "a map of <eventname: event> pairs"
