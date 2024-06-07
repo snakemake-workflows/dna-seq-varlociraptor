@@ -30,7 +30,6 @@ ref:
   pangenome: 
     activate: True
     link_to_pangenome_idx: "https://s3-us-west-2.amazonaws.com/human-pangenomics/pangenomes/freeze/freeze1/minigraph-cactus/hprc-v1.0-mc-grch38.xg"
-    pangenome_index: resources/pangenome/hprc-v1.0-mc-grch38.xg
   # Optionally, instead of downloading the whole reference from Ensembl via the
   # parameters above, specify a specific chromosome below and uncomment the line.
   # This is usually only relevant for testing.

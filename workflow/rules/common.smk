@@ -31,7 +31,7 @@ genome = f"{genome_prefix}.fasta"
 genome_fai = f"{genome}.fai"
 genome_dict = f"{genome_prefix}.dict"
 # in case pangenome is used
-pangenome_path=config["ref"]["pangenome"]["pangenome_index"]
+pangenome_path="resources/pangenome/vg_index.xg"
 pangenome =  f"{pangenome_path}"
 
 # cram variables
