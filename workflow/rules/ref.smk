@@ -147,6 +147,7 @@ rule get_vep_plugins:
     wrapper:
         "v3.3.5/bio/vep/plugins"
 
+
 rule get_vg_pangenome:
     output:
         pangenome,

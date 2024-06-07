@@ -31,8 +31,8 @@ genome = f"{genome_prefix}.fasta"
 genome_fai = f"{genome}.fai"
 genome_dict = f"{genome_prefix}.dict"
 # in case pangenome is used
-pangenome_path="resources/pangenome/vg_index.xg"
-pangenome =  f"{pangenome_path}"
+pangenome_path = "resources/pangenome/vg_index.xg"
+pangenome = f"{pangenome_path}"
 
 # cram variables
 use_cram = config.get("use_cram", False)
@@ -228,8 +228,10 @@ def get_control_fdr_input(wildcards):
     else:
         return "results/final-calls/{group}.{calling_type}.annotated.bcf"
 
+
 def get_aligner():
     return "vg" if is_activated("ref/pangenome") else "bwa"
+
 
 def get_recalibrate_quality_input(wildcards, bai=False):
     ext = "bai" if bai else "bam"
@@ -245,7 +247,9 @@ def get_recalibrate_quality_input(wildcards, bai=False):
         return "results/dedup/{{sample}}.{ext}".format(ext=ext)
     else:
         aligner = get_aligner()
-        return (f"results/mapped/{aligner}/{{sample}}_rg_added.{ext}".format(aligner, ext))
+        return f"results/mapped/{aligner}/{{sample}}_rg_added.{ext}".format(
+            aligner, ext
+        )
 
 
 def get_cutadapt_input(wildcards):
