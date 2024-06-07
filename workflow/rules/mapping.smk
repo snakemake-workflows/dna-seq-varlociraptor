@@ -219,7 +219,7 @@ rule apply_bqsr:
 rule map_reads_vg_giraffe:
     input:
         reads=get_map_reads_input,
-        idx="resources/pangenome/hprc-v1.0-mc-grch38.xg",
+        idx=pangenome,
     output:
         "results/mapped/vg/{sample}_mapped.bam",
     log:
@@ -232,7 +232,7 @@ rule map_reads_vg_giraffe:
     params:
         lambda wc, input: " -f ".join(input.reads),  # potential issue: in case of single end reads, get map_reads_input() returns a string and join() could create a problem.
     shell:
-        "vg giraffe -x {input.idx} -f {params} --output-format BAM -t {threads}  > {output} 2> {log}"
+        "vg giraffe -x {input.idx} -f {params} --output-format BAM -t {threads}  > {output} 2> {log}" #read groups for samples can be added with: --sample {wildcards.sample} --read-group {wildcards.sample}
 
 
 rule sort_mapped_vg:
