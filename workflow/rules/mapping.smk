@@ -211,6 +211,6 @@ rule apply_bqsr:
         "logs/gatk/gatk_applybqsr/{sample}.log",
     params:
         extra=config["params"]["gatk"]["applyBQSR"],  # optional
-        java_opts="",  # optional
+        java_opts="-Dsamjdk.compression_level=9",  # optional
     wrapper:
         "v2.3.2/bio/gatk/applybqsr"

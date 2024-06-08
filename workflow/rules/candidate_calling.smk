@@ -68,6 +68,101 @@ rule filter_offtarget_variants:
     wrapper:
         "v2.3.2/bio/bcftools/filter"
 
+###############
+### ScanITD ###
+###############
+
+ruleorder: bam_index > split_bam_by_chromosome
+rule split_bam_by_chromosome:
+    input:
+        "results/recal/{sample}.bam",
+    output:
+        bam=temp(config["calling"]["ScanITD"]["tmpDIR"]+"/{sample}_chr{chr}.bam"),
+        idx=config["calling"]["ScanITD"]["tmpDIR"]+"/{sample}_chr{chr}.bai",
+    log:
+        "logs/samtools/split_bam_by_chromosome/{sample}_chr{chr}.log",
+    params:
+        extra="",  # optional params string
+        region="{chr}",  # optional region string
+    threads: 2
+    wrapper:
+        "v3.0.3/bio/samtools/view"
+
+
+rule ScanITD:
+    input:
+        ref=genome,
+        ref_idx=genome_fai,
+        regions=get_itd_regions,
+        bam=config["calling"]["ScanITD"]["tmpDIR"]+"/{sample}_chr{chr}.bam",
+    output:
+        temp(config["calling"]["ScanITD"]["tmpDIR"]+"/{sample}_chr{chr}.ITD.vcf"),
+    log:
+        "logs/ScanITD/{sample}_chr{chr}.log",
+    conda:
+        "../envs/scanitd.yaml"
+    params:
+        out_name=config["calling"]["ScanITD"]["tmpDIR"]+"/{sample}_chr{chr}",
+        extra=config["params"]["ScanITD"]["extra"]
+    threads: 2
+    benchmark:
+        "benchmarks/ScanITD/{sample}_chr{chr}.tsv"
+    shell:
+        "(python workflow/scripts/ScanITD.py -i {input.bam} -r {input.ref} -t {input.regions} "
+        "-o {params.out_name} {params.extra}) 2> {log}"
+
+
+rule make_itd_bcf:
+    input:
+        vcf=config["calling"]["ScanITD"]["tmpDIR"]+"/{sample}_chr{chr}.ITD.vcf",
+        ref_idx=genome_fai,        
+    output:
+        "results/candidate-calls/ScanITD/{sample}_chr{chr}.ITD.bcf"
+    log:
+        "logs/bcftools/reheader/ScanITD/{sample}_chr{chr}.log",
+    conda:
+        "../envs/bcftools.yaml"
+    params:
+        itd_max_length_bp=config["params"]["ScanITD"]["itd_max_length_bp"]
+    resources:
+        mem_mb=8000,
+    threads: 2
+    shell:
+        "(bcftools reheader -f {input.ref_idx} {input.vcf} | bcftools sort --max-mem {resources.mem_mb}M | "
+        "bcftools view -e 'SVLEN > {params.itd_max_length_bp}' -Ob > {output}) 2> {log}"
+
+
+rule bcftools_gather_ScanITD:
+    input:
+        calls=expand("results/candidate-calls/ScanITD/{{sample}}_chr{chr}.ITD.bcf",chr=[str(i) for i in range(1, 23)] + ["X", "Y", "MT"]),
+        ind=expand("results/candidate-calls/ScanITD/{{sample}}_chr{chr}.ITD.bcf.csi", chr=[str(i) for i in range(1, 23)] + ["X", "Y", "MT"])
+    output:
+        "results/candidate-calls/ScanITD/{sample}.ITD.bcf",
+    log:
+        "logs/bcf-merge/samples/{sample}.log",
+    conda:
+        "../envs/bcftools.yaml"
+    shell:
+        "(bcftools merge -m none {input.calls} | bcftools view -Ob > {output}) 2> {log}"
+
+
+rule bcftools_merge_ScanITD:
+    input:
+        calls=get_itd_bcfs,
+        ind=get_itd_bcfs_index,
+    output:
+        "results/candidate-calls/{group}.ScanITD.bcf",
+    log:
+        "logs/bcf-merge/{group}.log",
+    conda:
+        "../envs/bcftools.yaml"
+    shell:
+        "(bcftools merge -m none {input.calls} | bcftools view -Ob > {output}) 2> {log}"
+
+###############
+###############
+###############
+
 
 rule scatter_candidates:
     input:

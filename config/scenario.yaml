@@ -1,34 +1,53 @@
-# This scenario is templated with YTE (https://yte-template-engine.github.io)
-# and rendered for each group (see sample sheet).
+# This scenario is templated with Jinja2 and rendered for each group (see sample sheet).
 # A variable `samples` is available, holding the dataframe of
 # the sample sheet, filtered to those samples contained in the group to be rendered.
 # For example, this can be used to pass arbitrary column values (like the purity below),
 # to the sample definitions.
 # Note that sample names here must correspond to the alias column in the sample sheet.
-# In addition, a variable `group_annotation` is available, which holds the row of the group
-# from the group annotation table (if specified in the config) as a pandas Series.
 
 __definitions__:
   - samples = params.samples.set_index("alias")
+  - sex = samples.loc["tumor", "sex"]
   - |
     def contamination():
       return 1.0 - float(samples.loc["tumor", "purity"])
 
+
+species:
+  heterozygosity: 0.001
+  germline-mutation-rate: 1e-3
+  ploidy:
+    male:
+      all: 2
+      X: 1
+      Y: 1
+    female:
+      all: 2
+      X: 2
+      Y: 0
+  genome-size: 3.5e9
+
 samples:
   tumor:
-    resolution: 0.01
-    universe: "[0.0,1.0]"
+    sex: ?sex
+    somatic-effective-mutation-rate: 1e-6
+    inheritance:
+      clonal:
+        from: normal
+        somatic: true
     contamination:
       by: normal
       fraction: ?contamination()
   normal:
-    resolution: 0.1
-    universe: "0.0 | 0.5 | 1.0 | ]0.0,0.5["
+    sex: ?sex
+    somatic-effective-mutation-rate: 1e-6
+    contamination:
+      by: tumor
+      fraction: 0.01
 
 events:
-  somatic_tumor_low: "tumor:]0.0,0.1[ & normal:0.0"
-  somatic_tumor_medium: "tumor:[0.1,0.3[ & normal:0.0"
-  somatic_tumor_high: "tumor:[0.3,1.0] & normal:0.0"
+  somatic_tumor_high: "normal:0.0 & tumor:[0.25,1.0]"
+  somatic_tumor_medium: "normal:0.0 & tumor:]0.1,0.25["
+  somatic_tumor_low: "normal:0.0 & tumor:]0.0,0.1["
   somatic_normal: "normal:]0.0,0.5["
-  germline_hom: "normal:1.0"
-  germline_het: "normal:0.5"
+  germline: "normal:0.5 | normal:1.0"
