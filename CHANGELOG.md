@@ -1,5 +1,19 @@
 # Changelog
 
+## [5.7.0](https://github.com/snakemake-workflows/dna-seq-varlociraptor/compare/v5.6.0...v5.7.0) (2024-06-07)
+
+
+### Features
+
+* Add improved visualization for clinical significance ([#301](https://github.com/snakemake-workflows/dna-seq-varlociraptor/issues/301)) ([82eb4dd](https://github.com/snakemake-workflows/dna-seq-varlociraptor/commit/82eb4dd193db0fd228a286534e91a4eb69476b62))
+* add linkouts to non-coding tables ([#302](https://github.com/snakemake-workflows/dna-seq-varlociraptor/issues/302)) ([15ce609](https://github.com/snakemake-workflows/dna-seq-varlociraptor/commit/15ce6095fcdbdc70927cb5a17db53f17b221686d))
+* support selecting the fdr control mode via the config ([#306](https://github.com/snakemake-workflows/dna-seq-varlociraptor/issues/306)) ([ac27206](https://github.com/snakemake-workflows/dna-seq-varlociraptor/commit/ac2720665906b4de0d24e11347d079375e0f60d2))
+
+
+### Bug Fixes
+
+* download sra ([#304](https://github.com/snakemake-workflows/dna-seq-varlociraptor/issues/304)) ([f77b6be](https://github.com/snakemake-workflows/dna-seq-varlociraptor/commit/f77b6be8590b6859c018ed5826e0afa010fba2e9))
+
 ## [5.6.0](https://github.com/snakemake-workflows/dna-seq-varlociraptor/compare/v5.5.0...v5.6.0) (2024-05-04)
 
 

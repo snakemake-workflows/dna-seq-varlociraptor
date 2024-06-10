@@ -150,7 +150,7 @@ views:
                 ticks:
                   scale: linear
               optional: true
-    
+
     ?for gene, path in params.variant_oncoprints:
       ?f"overview-{gene}":
         desc: ?f"Variants found in gene {gene}."
@@ -200,6 +200,9 @@ views:
             link-to-url:
               ensembl:
                 url: https://www.ensembl.org/Homo_sapiens/Transcript/Summary?t={feature}
+          'clinical significance':
+            optional: true
+            custom: ?read_file(input.clin_sig)
           hgvsp:
             custom: ?hgvs_content
           hgvsc:

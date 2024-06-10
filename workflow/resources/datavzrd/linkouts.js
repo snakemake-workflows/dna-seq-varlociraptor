@@ -67,4 +67,5 @@ function hgvsc_dropdown(value, row) {
     `;
     return dropdown;
   }
+  return ``
 }

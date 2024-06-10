@@ -750,8 +750,30 @@ def get_fdr_control_params(wildcards):
         "threshold", config["calling"]["fdr-control"].get("threshold", 0.05)
     )
     events = query["varlociraptor"]
-    local = query.get("local", config["calling"]["fdr-control"].get("local", False))
-    mode = "--mode local-smart" if local else "--mode global-smart"
+
+    # local is a formerly supported key which we support as a fallback now
+    # in order to a avoid a breaking change in the config.
+    local = lookup(
+        dpath="local",
+        within=query,
+        default=lookup(
+            dpath="calling/fdr-control/local",
+            within=config,
+            default=True,
+        ),
+    )
+    mode = lookup(
+        dpath="mode",
+        within=query,
+        default=lookup(
+            dpath="calling/fdr-control/mode",
+            within=config,
+            default="local-smart" if local else "global-smart",
+        ),
+    )
+
+    mode = f"--mode {mode}"
+
     return {
         "threshold": threshold,
         "events": events,
@@ -993,7 +1015,11 @@ def get_trimmed_fastqs(wc):
         )
     else:
         fq = "fq1" if wc.read == "R1" or wc.read == "single" else "fq2"
-        return units.loc[units.sample_name == wc.sample, fq]
+        return [
+            read
+            for unit in units.loc[wc.sample, "unit_name"]
+            for read in get_raw_reads(wc.sample, unit, fq)
+        ]
 
 
 def get_vembrane_config(wildcards, input):
@@ -1169,7 +1195,7 @@ def get_primer_extra(wc, input):
     min_primer_len = get_shortest_primer_length(input.reads)
     # Check if shortest primer is below default values
     if min_primer_len < 32:
-        extra += f" -T {min_primer_len - 2}"
+        extra += f" -T {min_primer_len-2}"
     if min_primer_len < 19:
         extra += f" -k {min_primer_len}"
     return extra
