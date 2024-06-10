@@ -986,25 +986,26 @@ def get_tabix_params(wildcards):
 
 
 def get_tabix_plugin_params(plugin):
-    if plugin == "revel"
+    if plugin == "revel":
         # Indexing of REVEL-score file where the column depends on the reference
         column = 2 if config["ref"]["build"] == "GRCh37" else 3
         return f"-f -s 1 -b {column} -e {column}"
-    else if plugin == "alphamissense":
+    elif plugin == "alphamissense":
         return "-f -s 1 -b 2 -e 2 -f -S 1"
     else:
         WorkflowError("Unsupported plugin for obtaining tabix parameteres")
 
+
 def get_alphamissense_url():
     if config["ref"]["build"] == "GRCh37":
         build = "hg19"
-    else if config["ref"]["build"] == "GRCh38"
+    elif config["ref"]["build"] == "GRCh38":
         build = "hg38"
     else:
-        WorkflowError("Invalid reference for AlphaMissense annotation. Only GRCh37 and GRCh38 supported.")
+        WorkflowError(
+            "Invalid reference for AlphaMissense annotation. Only GRCh37 and GRCh38 supported."
+        )
     return f"https://zenodo.org/records/10813168/files/AlphaMissense_{build}.tsv.gz"
-
-
 
 
 def get_untrimmed_fastqs(wc):
