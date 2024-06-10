@@ -35,12 +35,25 @@ rule process_revel_scores:
         """
 
 
-use rule tabix_known_variants as tabix_revel_scores with:
-    input:
-        "resources/revel_scores.tsv.gz",
+rule download_alphamissense_scores:
     output:
-        "resources/revel_scores.tsv.gz.tbi",
+        "resources/alphamissense_scores.tsv.gz",
     params:
-        get_tabix_revel_params(),
+        url=get_alphamissense_url(),
+    conda:
+        "../envs/curl.yaml"
+    shell:
+        """
+        curl {params.url} -o {output} &> {log}
+        """
+
+
+use rule tabix_known_variants as tabix_plugin_scores with:
+    input:
+        "resources/{plugin}_scores.tsv.gz",
+    output:
+        "resources/{plugin}_scores.tsv.gz.tbi",
+    params:
+        lambda wc: get_tabix_plugin_params(wc.plugin),
     log:
-        "logs/tabix/revel.log",
+        "logs/tabix/{plugin}.log",
