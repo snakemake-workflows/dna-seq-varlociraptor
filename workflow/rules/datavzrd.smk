@@ -54,85 +54,30 @@ rule prepare_oncoprint:
         "../scripts/oncoprint.py"
 
 
-rule render_datavzrd_variant_config:
-    input:
-        template=workflow.source_path(
-            "../resources/datavzrd/variant-calls-template.datavzrd.yaml"
-        ),
-        variant_oncoprints=get_oncoprint("variant"),
-    output:
-        "resources/datavzrd/{batch}.{event}.variants.datavzrd.yaml",
-    params:
-        gene_oncoprint=get_oncoprint("gene"),
-        variant_oncoprints=get_variant_oncoprint_tables,
-        groups=get_report_batch("variants"),
-        coding_calls=get_datavzrd_data(impact="coding"),
-        noncoding_calls=get_datavzrd_data(impact="noncoding"),
-        spec_observations=workflow.source_path(
-            "../resources/datavzrd/spec_observations.json"
-        ),
-        spec_short_observations=workflow.source_path(
-            "../resources/datavzrd/spec_short_observations.json"
-        ),
-        data_observations=workflow.source_path(
-            "../resources/datavzrd/data_observations.js"
-        ),
-        data_short_observations=workflow.source_path(
-            "../resources/datavzrd/data_short_observations.js"
-        ),
-        build=config["ref"]["build"],
-        samples=samples,
-        group_annotations=group_annotation,
-        labels=get_heterogeneous_labels(),
-        oncoprint_sorted_datasets="results/tables/oncoprints/{batch}.{event}/label_sortings/",
-    log:
-        "logs/datavzrd_render/{batch}.{event}.variants.log",
-    template_engine:
-        "yte"
-
-
-rule render_datavzrd_fusions_config:
-    input:
-        template=workflow.source_path(
-            "../resources/datavzrd/fusion-calls-template.datavzrd.yaml"
-        ),
-    output:
-        "resources/datavzrd/{batch}.{event}.fusions.datavzrd.yaml",
-    params:
-        groups=get_report_batch("fusions"),
-        fusion_calls=get_datavzrd_data(impact="fusions"),
-        spec_observations=workflow.source_path(
-            "../resources/datavzrd/spec_observations.json"
-        ),
-        spec_short_observations=workflow.source_path(
-            "../resources/datavzrd/spec_short_observations.json"
-        ),
-        data_observations=workflow.source_path(
-            "../resources/datavzrd/data_observations.js"
-        ),
-        data_short_observations=workflow.source_path(
-            "../resources/datavzrd/data_short_observations.js"
-        ),
-        samples=samples,
-    log:
-        "logs/datavzrd_render/{batch}.{event}.fusions.log",
-    template_engine:
-        "yte"
-
-
 rule datavzrd_variants_calls:
     input:
         coding_calls=get_datavzrd_data(impact="coding"),
         noncoding_calls=get_datavzrd_data(impact="noncoding"),
+        linkouts=workflow.source_path("../resources/datavzrd/linkouts.js"),
         spec_observations=workflow.source_path(
             "../resources/datavzrd/spec_observations.json"
         ),
         data_observations=workflow.source_path(
             "../resources/datavzrd/data_observations.js"
         ),
-        config="resources/datavzrd/{batch}.{event}.variants.datavzrd.yaml",
+        spec_short_observations=workflow.source_path(
+            "../resources/datavzrd/spec_short_observations.json"
+        ),
+        clin_sig=workflow.source_path("../resources/datavzrd/clinical_significance.js"),
+        data_short_observations=workflow.source_path(
+            "../resources/datavzrd/data_short_observations.js"
+        ),
+        config=workflow.source_path(
+            "../resources/datavzrd/variant-calls-template.datavzrd.yaml"
+        ),
         gene_oncoprint=get_oncoprint("gene"),
         variant_oncoprints=get_oncoprint("variant"),
+        oncoprint_sorted_datasets="results/tables/oncoprints/{batch}.{event}/label_sortings/",
     output:
         report(
             directory(
@@ -146,8 +91,20 @@ rule datavzrd_variants_calls:
         ),
     log:
         "logs/datavzrd_report/{batch}.{event}.log",
+    params:
+        variant_oncoprints=get_variant_oncoprint_tables,
+        groups=get_report_batch("variants"),
+        coding_calls=get_datavzrd_data(impact="coding"),
+        noncoding_calls=get_datavzrd_data(impact="noncoding"),
+        build=config["ref"]["build"],
+        samples=samples,
+        group_annotations=group_annotation,
+        labels=get_heterogeneous_labels(),
+        event_desc=lookup(
+            dpath="calling/fdr-control/events/{event}/desc", within=config
+        ),
     wrapper:
-        "v3.5.2-1-gefb4337/utils/datavzrd"
+        "v3.10.1/utils/datavzrd"
 
 
 rule datavzrd_fusion_calls:
@@ -159,7 +116,15 @@ rule datavzrd_fusion_calls:
         data_observations=workflow.source_path(
             "../resources/datavzrd/data_observations.js"
         ),
-        config="resources/datavzrd/{batch}.{event}.fusions.datavzrd.yaml",
+        spec_short_observations=workflow.source_path(
+            "../resources/datavzrd/spec_short_observations.json"
+        ),
+        data_short_observations=workflow.source_path(
+            "../resources/datavzrd/data_short_observations.js"
+        ),
+        config=workflow.source_path(
+            "../resources/datavzrd/fusion-calls-template.datavzrd.yaml"
+        ),
     output:
         report(
             directory(
@@ -173,8 +138,11 @@ rule datavzrd_fusion_calls:
         ),
     log:
         "logs/datavzrd_report/{batch}.{event}.log",
+    params:
+        groups=get_report_batch("fusions"),
+        samples=samples,
     wrapper:
-        "v3.5.2-1-gefb4337/utils/datavzrd"
+        "v3.10.1/utils/datavzrd"
 
 
 rule bedtools_merge:
@@ -210,26 +178,12 @@ rule coverage_table:
         "../scripts/coverage_table.py"
 
 
-rule render_datavzrd_gene_coverage_template:
-    input:
-        template=workflow.source_path(
-            "../resources/datavzrd/gene-coverage-template.datavzrd.yaml"
-        ),
-        csv="results/coverage/{group}.csv",
-    output:
-        "resources/datavzrd/{group}.coverage.yaml",
-    params:
-        samples=lambda wc: get_group_samples(wc.group),
-    log:
-        "logs/datavzrd_render/{group}.coverage.log",
-    template_engine:
-        "yte"
-
-
 rule datavzrd_coverage:
     input:
         csv="results/coverage/{group}.csv",
-        config="resources/datavzrd/{group}.coverage.yaml",
+        config=workflow.source_path(
+            "../resources/datavzrd/gene-coverage-template.datavzrd.yaml"
+        ),
     output:
         report(
             directory("results/datavzrd-report/{group}.coverage"),
@@ -239,5 +193,7 @@ rule datavzrd_coverage:
         ),
     log:
         "logs/datavzrd_report/{group}.coverage.log",
+    params:
+        samples=lambda wc: get_group_samples(wc.group),
     wrapper:
-        "v3.5.2-1-gefb4337/utils/datavzrd"
+        "v3.10.1/utils/datavzrd"

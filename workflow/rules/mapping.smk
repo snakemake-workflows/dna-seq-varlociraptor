@@ -8,11 +8,11 @@ rule map_reads:
         "logs/bwa_mem/{sample}.log",
     params:
         extra=get_read_group,
-        sorting="samtools",
-        sort_order="coordinate",
+        sorting=get_map_reads_sorting_params,
+        sort_order=lambda wc: get_map_reads_sorting_params(wc, ordering=True),
     threads: 8
     wrapper:
-        "v2.3.2/bio/bwa/mem"
+        "v3.8.0/bio/bwa/mem"
 
 
 rule merge_untrimmed_fastqs:
@@ -20,6 +20,8 @@ rule merge_untrimmed_fastqs:
         get_untrimmed_fastqs,
     output:
         temp("results/untrimmed/{sample}_{read}.fastq.gz"),
+    conda:
+        "../envs/fgbio.yaml"
     log:
         "logs/merge-fastqs/untrimmed/{sample}_{read}.log",
     wildcard_constraints:
@@ -28,20 +30,43 @@ rule merge_untrimmed_fastqs:
         "cat {input} > {output} 2> {log}"
 
 
+rule sort_untrimmed_fastqs:
+    input:
+        "results/untrimmed/{sample}_{read}.fastq.gz",
+    output:
+        temp("results/untrimmed/{sample}_{read}.sorted.fastq.gz"),
+    conda:
+        "../envs/fgbio.yaml"
+    log:
+        "logs/fgbio/sort_fastq/{sample}_{read}.log",
+    shell:
+        "fgbio SortFastq -i {input} -o {output} 2> {log}"
+
+
 rule annotate_umis:
     input:
         bam="results/mapped/{aligner}/{sample}.bam",
         umi=get_umi_fastq,
     output:
-        temp("results/mapped/{aligner}/{sample}.annotated.bam"),
+        pipe("pipe/{aligner}/{sample}.annotated.bam"),
     params:
-        extra=get_umi_read_structure,
-    resources:
-        mem_mb=lambda wc, input: 2.5 * input.size_mb,
+        extra=get_annotate_umis_params,
     log:
         "logs/fgbio/annotate_bam/{aligner}/{sample}.log",
     wrapper:
-        "v2.3.2/bio/fgbio/annotatebamwithumis"
+        "v3.7.0/bio/fgbio/annotatebamwithumis"
+
+
+rule sort_annotated_reads:
+    input:
+        "pipe/{aligner}/{sample}.annotated.bam",
+    output:
+        temp("results/mapped/{aligner}/{sample}.annotated.bam"),
+    log:
+        "logs/samtools_sort/{aligner}_{sample}.log",
+    threads: 8
+    wrapper:
+        "v3.7.0/bio/samtools/sort"
 
 
 rule mark_duplicates:

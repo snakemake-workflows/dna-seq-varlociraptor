@@ -603,6 +603,18 @@ def get_read_group(wildcards):
     )
 
 
+def get_map_reads_sorting_params(wildcards, ordering=False):
+    match (sample_has_umis(wildcards.sample), ordering):
+        case (True, True):
+            return "queryname"
+        case (True, False):
+            return "fgbio"
+        case (False, True):
+            return "coordinate"
+        case (False, False):
+            return "samtools"
+
+
 def get_mutational_burden_targets():
     mutational_burden_targets = []
     if is_activated("mutational_burden"):
@@ -739,8 +751,30 @@ def get_fdr_control_params(wildcards):
         "threshold", config["calling"]["fdr-control"].get("threshold", 0.05)
     )
     events = query["varlociraptor"]
-    local = query.get("local", config["calling"]["fdr-control"].get("local", False))
-    mode = "--mode local-smart" if local else "--mode global-smart"
+
+    # local is a formerly supported key which we support as a fallback now
+    # in order to a avoid a breaking change in the config.
+    local = lookup(
+        dpath="local",
+        within=query,
+        default=lookup(
+            dpath="calling/fdr-control/local",
+            within=config,
+            default=True,
+        ),
+    )
+    mode = lookup(
+        dpath="mode",
+        within=query,
+        default=lookup(
+            dpath="calling/fdr-control/mode",
+            within=config,
+            default="local-smart" if local else "global-smart",
+        ),
+    )
+
+    mode = f"--mode {mode}"
+
     return {
         "threshold": threshold,
         "events": events,
@@ -982,7 +1016,11 @@ def get_trimmed_fastqs(wc):
         )
     else:
         fq = "fq1" if wc.read == "R1" or wc.read == "single" else "fq2"
-        return units.loc[units.sample_name == wc.sample, fq]
+        return [
+            read
+            for unit in units.loc[wc.sample, "unit_name"]
+            for read in get_raw_reads(wc.sample, unit, fq)
+        ]
 
 
 def get_vembrane_config(wildcards, input):
@@ -1025,6 +1063,7 @@ def get_vembrane_config(wildcards, input):
             {"name": "protein position", "expr": "ANN['Protein_position'].raw"},
             {"name": "protein alteration (short)", "expr": "ANN['Amino_acids']"},
             "HGVSg",
+            "HGVSc",
             "Consequence",
             "CANONICAL",
             "MANE_PLUS_CLINICAL",
@@ -1098,12 +1137,14 @@ def get_vembrane_config(wildcards, input):
 def get_umi_fastq(wildcards):
     umi_read = extract_unique_sample_column_value(wildcards.sample, "umi_read")
     if umi_read in ["fq1", "fq2"]:
-        return "results/untrimmed/{S}_{R}.fastq.gz".format(
+        return "results/untrimmed/{S}_{R}.sorted.fastq.gz".format(
             S=wildcards.sample, R=umi_read
         )
     elif umi_read == "both":
         return expand(
-            "results/untrimmed/{S}_{R}.fastq.gz", S=wildcards.sample, R=["fq1", "fq2"]
+            "results/untrimmed/{S}_{R}.sorted.fastq.gz",
+            S=wildcards.sample,
+            R=["fq1", "fq2"],
         )
     else:
         return umi_read
@@ -1113,8 +1154,8 @@ def sample_has_umis(sample):
     return pd.notna(extract_unique_sample_column_value(sample, "umi_read"))
 
 
-def get_umi_read_structure(wildcards):
-    return "-r {}".format(
+def get_annotate_umis_params(wildcards):
+    return "--sorted=true -r {}".format(
         extract_unique_sample_column_value(wildcards.sample, "umi_read_structure")
     )
 
@@ -1155,7 +1196,7 @@ def get_primer_extra(wc, input):
     min_primer_len = get_shortest_primer_length(input.reads)
     # Check if shortest primer is below default values
     if min_primer_len < 32:
-        extra += f" -T {min_primer_len - 2}"
+        extra += f" -T {min_primer_len-2}"
     if min_primer_len < 19:
         extra += f" -k {min_primer_len}"
     return extra

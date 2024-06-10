@@ -13,7 +13,7 @@ rule filter_candidates_by_annotation:
         "../envs/vembrane.yaml"
     shell:
         "(bcftools norm -Ou --do-not-normalize --multiallelics -any {input} | "
-        'vembrane filter {params.aux} "{params.filter}" --output-fmt bcf --output {output}) &> {log}'
+        'vembrane filter {params.aux} "{params.filter}" | bcftools sort -Ob > {output}) &> {log}'
 
 
 rule filter_by_annotation:
