@@ -40,6 +40,8 @@ rule download_alphamissense_scores:
         "resources/alphamissense_scores.tsv.gz",
     params:
         url=get_alphamissense_url(),
+    log:
+        "logs/vep_plugins/download_alphamissense.log",
     conda:
         "../envs/curl.yaml"
     shell:
