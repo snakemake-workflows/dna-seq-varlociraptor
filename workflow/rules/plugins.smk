@@ -39,7 +39,7 @@ rule download_alphamissense_scores:
     output:
         "resources/alphamissense_scores.tsv.gz",
     params:
-        url=get_alphamissense_url(),
+        url=get_alphamissense_url,
     log:
         "logs/vep_plugins/download_alphamissense.log",
     conda:

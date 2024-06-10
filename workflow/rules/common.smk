@@ -5,6 +5,10 @@ import yaml
 import pandas as pd
 from snakemake.utils import validate
 
+
+ruleorder: tabix_plugin_scores > tabix_known_variants
+
+
 validate(config, schema="../schemas/config.schema.yaml")
 
 samples = (
@@ -516,7 +520,7 @@ def get_markduplicates_extra(wc):
 def get_group_bams(wildcards, bai=False):
     ext = "bai" if bai else "bam"
     if is_activated("primers/trimming") and not group_is_paired_end(wildcards.group):
-        WorkflowError("Primer trimming is only available for paired end data.")
+        raise WorkflowError("Primer trimming is only available for paired end data.")
     return expand(
         "results/recal/{sample}.{ext}",
         sample=get_group_samples(wildcards.group),
@@ -993,16 +997,16 @@ def get_tabix_plugin_params(plugin):
     elif plugin == "alphamissense":
         return "-f -s 1 -b 2 -e 2 -f -S 1"
     else:
-        WorkflowError("Unsupported plugin for obtaining tabix parameteres")
+        raise WorkflowError("Unsupported plugin for obtaining tabix parameteres")
 
 
-def get_alphamissense_url():
+def get_alphamissense_url(wc):
     if config["ref"]["build"] == "GRCh37":
         build = "hg19"
     elif config["ref"]["build"] == "GRCh38":
         build = "hg38"
     else:
-        WorkflowError(
+        raise WorkflowError(
             "Invalid reference for AlphaMissense annotation. Only GRCh37 and GRCh38 supported."
         )
     return f"https://zenodo.org/records/10813168/files/AlphaMissense_{build}.tsv.gz"
