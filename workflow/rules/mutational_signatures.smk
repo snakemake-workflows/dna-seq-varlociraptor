@@ -1,26 +1,41 @@
 
-rule download_mutational_signatures_reference:
+rule create_mutational_context_file:
+    input:
+        bcf="results/final-calls/{group}.{event}.variants.fdr-controlled.bcf",
+        ref=genome,
+        fai=genome_fai,
     output:
-        directory("resources/mutational_signatures_references/tsb")
-    params:
-        ref_path=lambda wc, output: output[0].rsplit("/", 1)[0],
-        build=config["ref"]["build"],
+        "results/mutational_signatures/context/{group}.{event}.tsv",
+    log:
+        "logs/mutational_signatures/context/{group}.{event}.log",
     conda:
-        "../envs/sigprofilerassignment.yaml"
+        "../envs/mutational_context.yaml"
     script:
-        "../scripts/download_mutational_signatures_reference.py"
+        "../scripts/create_mutational_context.py"
 
+rule download_cosmic_signatures:
+    output:
+        "resources/cosmic_signatures.txt",
+    params:
+        url=lambda wc: "https://cog.sanger.ac.uk/cosmic-signatures-production/documents/COSMIC_v3.4_SBS_{}.txt".format(config["ref"]["build"]),
+    log:
+        "logs/mutational_signatures/download_cosmic.log",
+    conda:
+        "../envs/curl.yaml"
+    envs:
+        "curl {url} -o {output} &> {log}"
 
 rule annotate_mutational_signatures:
     input:
-        "results/final-calls/{group}.{event}.variants.fdr-controlled.bcf",
+        cosmic_signatures="resources/cosmic_signatures.txt",
+        context="results/mutational_signatures/context/{group}.{event}.tsv",
     output:
-        directory("results/mutational_signatures/{group}.{event}")
+        "results/mutational_signatures/{group}.{event}.tsv",
     params:
         build=config["ref"]["build"],
     log:
-        "logs/mutational_signatures/annotate/{group}.{event}.log"
+        "logs/mutational_signatures/annotate/{group}.{event}.log",
     conda:
-        "../envs/sigprofilerassignment.yaml"
+        "../envs/siglasso.yaml"
     script:
-        "../scripts/annotate_mutational_signatures.py"
+        "../scripts/annotate_mutational_signatures.R"

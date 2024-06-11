@@ -2,4 +2,5 @@ channels:
   - conda-forge
   - bioconda
 dependencies:
-  - sigprofilerassignment =0.1
+  - biopython =1.70
+  - pysam =0.21
