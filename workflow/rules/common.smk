@@ -622,7 +622,8 @@ def get_mutational_signature_targets():
         for group in variants_groups:
             mutational_signature_targets.extend(
                 expand(
-                    "results/mutational-signatures/{event}.tsv",
+                    "results/plots/mutational-signatures/{group}.{event}.mutational-burden.svg",
+                    group=variants_groups,
                     events=config["mutational_signatures"].get("events"),
                 )
             )
