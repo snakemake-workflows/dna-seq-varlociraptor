@@ -4,7 +4,8 @@ rule create_mutational_context_file:
         ref=genome,
         fai=genome_fai,
     output:
-        "results/mutational_signatures/context/{group}.{event}.{vaf}.tsv",
+        context="results/mutational_signatures/context/{group}.{event}.{vaf}.tsv",
+        counts="results/mutational_signatures/counts/{group}.{event}.{vaf}.tsv",
     log:
         "logs/mutational_signatures/context/{group}.{event}.{vaf}.log",
     conda:
@@ -25,7 +26,7 @@ rule download_cosmic_signatures:
     conda:
         "../envs/curl.yaml"
     shell:
-        "curl {url} -o {output} &> {log}"
+        "curl {params.url} -o {output} &> {log}"
 
 
 rule annotate_mutational_signatures:
@@ -48,12 +49,14 @@ rule join_mutational_signatures:
     input:
         expand(
             "results/mutational_signatures/{{group}}.{{event}}.{vaf}.tsv",
-            vaf=range(10, 101, 10),
+            vaf=range(0, 101, 10),
         ),
     output:
         "results/mutational_signatures/{group}.{event}.tsv",
     log:
         "logs/mutational_signatures/join/{group}.{event}.log",
+    conda:
+        "../envs/pandas.yaml"
     script:
         "../scripts/join_mutational_signatures.py"
 
@@ -63,7 +66,7 @@ rule plot_mutational_signatures:
         "results/mutational_signatures/{group}.{event}.tsv",
     output:
         report(
-            "results/plots/mutational-signatures/{group}.{event}.mutational-burden.svg",
+            "results/plots/mutational-signatures/{group}.{event}.html",
             category="Mutational Signatures",
             subcategory="{group}",
             labels={"event": "{event}"},
@@ -71,6 +74,6 @@ rule plot_mutational_signatures:
     log:
         "logs/mutational_signatures/{group}.{event}.log",
     conda:
-        "../envs/plot_ms.yaml"
+        "../envs/altair.yaml"
     script:
-        "scripts/plot_mutational_signatures.py"
+        "../scripts/plot_mutational_signatures.py"
