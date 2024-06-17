@@ -4,7 +4,7 @@ rule create_mutational_context_file:
         ref=genome,
         fai=genome_fai,
     output:
-        contexts=expand("results/mutational_signatures/context/{{group}}.{{event}}.{vaf}.tsv", vaf=range(0, 101, 10)),
+        context="results/mutational_signatures/{group}.{event}.context.tsv",
         counts="results/mutational_signatures/{group}.{event}.counts.tsv",
     log:
         "logs/mutational_signatures/context/{group}.{event}.log",
@@ -32,13 +32,13 @@ rule download_cosmic_signatures:
 rule annotate_mutational_signatures:
     input:
         cosmic_signatures="resources/cosmic_signatures.txt",
-        context="results/mutational_signatures/context/{group}.{event}.{vaf}.tsv",
+        context="results/mutational_signatures/{group}.{event}.context.tsv",
     output:
-        "results/mutational_signatures/{group}.{event}.{vaf}.tsv",
+        expand("results/mutational_signatures/{{group}}.{{event}}.{vaf}.tsv", vaf=range(0, 101, 10)),
     params:
         build=config["ref"]["build"],
     log:
-        "logs/mutational_signatures/annotate/{group}.{event}.{vaf}.log",
+        "logs/mutational_signatures/annotate/{group}.{event}.log",
     conda:
         "../envs/siglasso.yaml"
     script:
@@ -55,10 +55,10 @@ rule join_mutational_signatures:
         "results/mutational_signatures/{group}.{event}.tsv",
     log:
         "logs/mutational_signatures/join/{group}.{event}.log",
-    conda:
-        "../envs/pandas.yaml"
-    script:
-        "../scripts/join_mutational_signatures.py"
+    shell:
+        """
+        cat <(echo "Signature\tFrequency\tmin_vaf") {input} >> {output} 2> {log}
+        """
 
 rule annotate_descriptions:
     input:
@@ -79,7 +79,7 @@ rule plot_mutational_signatures:
         counts="results/mutational_signatures/{group}.{event}.counts.tsv",
     output:
         report(
-            "results/plots/mutational-signatures/{group}.{event}.html",
+            "results/plots/mutational_signatures/{group}.{event}.html",
             category="Mutational Signatures",
             subcategory="{group}",
             labels={"event": "{event}"},

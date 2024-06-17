@@ -1,5 +1,6 @@
 import sys
 import pysam
+import numpy as np
 import pandas as pd
 from Bio import SeqIO
 
@@ -53,11 +54,12 @@ for bcf_record in bcf:
 df = pd.DataFrame(single_base_substitutions, columns=["Triplet", "Alt", "AF"])
 df["Sample"] = sample_name
 
-for context_output in snakemake.output.contexts:
-    min_vaf = float(context_output.split(".")[-2]) / 100
+df.to_csv(snakemake.output.context, sep="\t", index=False)
+
+# Count mutations
+for min_vaf in np.arange(0, 1.1, 0.1):
     temp_df = df[df["AF"] >= min_vaf]
-    temp_df.drop(columns=["AF"], inplace=True)
-    temp_df.to_csv(context_output, sep="\t", index=False, header=False)
     mutation_counts.append((min_vaf, len(temp_df.index)))
+    
 mutation_count_df = pd.DataFrame(mutation_counts, columns=["min_vaf", "Mutation Count"])
 mutation_count_df.to_csv(snakemake.output.counts, sep="\t", index=False)

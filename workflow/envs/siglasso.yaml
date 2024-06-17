@@ -8,3 +8,4 @@ dependencies:
   - r-nnls =1.5
   - r-rcolorbrewer =1.1
   - r-colorramps =2.3
+  - r-tidyverse =2.0
