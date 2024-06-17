@@ -34,7 +34,10 @@ rule annotate_mutational_signatures:
         cosmic_signatures="resources/cosmic_signatures.txt",
         context="results/mutational_signatures/{group}.{event}.context.tsv",
     output:
-        expand("results/mutational_signatures/{{group}}.{{event}}.{vaf}.tsv", vaf=range(0, 101, 10)),
+        expand(
+            "results/mutational_signatures/{{group}}.{{event}}.{vaf}.tsv",
+            vaf=range(0, 101, 10),
+        ),
     params:
         build=config["ref"]["build"],
     log:
@@ -60,10 +63,11 @@ rule join_mutational_signatures:
         cat <(echo "Signature\tFrequency\tmin_vaf") {input} >> {output} 2> {log}
         """
 
+
 rule annotate_descriptions:
     input:
         sig="results/mutational_signatures/{group}.{event}.tsv",
-        desc=workflow.source_path("../resources/cosmic_signature_desc_v3.4.tsv")
+        desc=workflow.source_path("../resources/cosmic_signature_desc_v3.4.tsv"),
     output:
         "results/mutational_signatures/{group}.{event}.annotated.tsv",
     log:
@@ -72,6 +76,7 @@ rule annotate_descriptions:
         "../envs/pandas.yaml"
     script:
         "../scripts/annotate_descriptions.py"
+
 
 rule plot_mutational_signatures:
     input:

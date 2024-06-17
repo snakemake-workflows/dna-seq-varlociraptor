@@ -12,7 +12,7 @@ signatures = (
         x=alt.X("min_vaf:Q", scale=alt.Scale(reverse=True)),
         y=f"Frequency:Q",
         color="Signature:N",
-        tooltip="Description:N"
+        tooltip="Description:N",
     )
 )
 
@@ -23,10 +23,10 @@ counts = (
     .mark_line(interpolate="basis")
     .encode(
         x=alt.X("min_vaf:Q", scale=alt.Scale(reverse=True)),
-        y='Mutation Count:Q',
+        y="Mutation Count:Q",
     )
 )
 
-final_chart = alt.layer(signatures, counts).resolve_scale(y='independent')
+final_chart = alt.layer(signatures, counts).resolve_scale(y="independent")
 
 final_chart.save(snakemake.output[0])
