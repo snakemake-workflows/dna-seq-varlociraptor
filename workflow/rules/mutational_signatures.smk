@@ -4,10 +4,10 @@ rule create_mutational_context_file:
         ref=genome,
         fai=genome_fai,
     output:
-        context="results/mutational_signatures/context/{group}.{event}.{vaf}.tsv",
-        counts="results/mutational_signatures/counts/{group}.{event}.{vaf}.tsv",
+        contexts=expand("results/mutational_signatures/context/{{group}}.{{event}}.{vaf}.tsv", vaf=range(0, 101, 10)),
+        counts="results/mutational_signatures/{group}.{event}.counts.tsv",
     log:
-        "logs/mutational_signatures/context/{group}.{event}.{vaf}.log",
+        "logs/mutational_signatures/context/{group}.{event}.log",
     conda:
         "../envs/mutational_context.yaml"
     script:
@@ -60,10 +60,23 @@ rule join_mutational_signatures:
     script:
         "../scripts/join_mutational_signatures.py"
 
+rule annotate_descriptions:
+    input:
+        sig="results/mutational_signatures/{group}.{event}.tsv",
+        desc=workflow.source_path("../resources/cosmic_signature_desc_v3.4.tsv")
+    output:
+        "results/mutational_signatures/{group}.{event}.annotated.tsv",
+    log:
+        "logs/mutational_signatures/annotate/{group}.{event}.log",
+    conda:
+        "../envs/pandas.yaml"
+    script:
+        "../scripts/annotate_descriptions.py"
 
 rule plot_mutational_signatures:
     input:
-        "results/mutational_signatures/{group}.{event}.tsv",
+        signatures="results/mutational_signatures/{group}.{event}.annotated.tsv",
+        counts="results/mutational_signatures/{group}.{event}.counts.tsv",
     output:
         report(
             "results/plots/mutational-signatures/{group}.{event}.html",

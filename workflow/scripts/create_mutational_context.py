@@ -10,7 +10,6 @@ def get_ref_triplet(ref_seq, variant_pos):
     right_idx = variant_pos + 2
     return ref_seq[left_idx:right_idx]
 
-min_vaf = int(snakemake.wildcards.vaf) / 100
 
 bcf_path = snakemake.input.bcf
 reference = SeqIO.parse(snakemake.input.ref, "fasta")
@@ -19,10 +18,9 @@ bcf = pysam.VariantFile(bcf_path)
 current_chrom_id = None
 current_chrom_seq = None
 single_base_substitutions = []
+mutation_counts = []
 
 for bcf_record in bcf:
-    if float(bcf_record.samples["tumor"]["AF"][0]) < min_vaf:
-        continue
     variant_chrom = bcf_record.chrom
     variant_pos = bcf_record.pos - 1
     ref_base = bcf_record.ref
@@ -49,11 +47,17 @@ for bcf_record in bcf:
             file=sys.stderr,
         )
         exit()
-    single_base_substitutions.append((ref_triplet, alt_bases[0]))
+    allele_frequency = float(bcf_record.samples["tumor"]["AF"][0])
+    single_base_substitutions.append((ref_triplet, alt_bases[0], allele_frequency))
 
-df = pd.DataFrame(single_base_substitutions)
-df[2] = sample_name
-mutation_count = len(df.index)
-df.to_csv(snakemake.output.context, sep="\t", index=False, header=False)
-with open(snakemake.output.counts, "w") as count_output:
-    print(f"{min_vaf}\t{mutation_count}", file=count_output)
+df = pd.DataFrame(single_base_substitutions, columns=["Triplet", "Alt", "AF"])
+df["Sample"] = sample_name
+
+for context_output in snakemake.output.contexts:
+    min_vaf = float(context_output.split(".")[-2]) / 100
+    temp_df = df[df["AF"] >= min_vaf]
+    temp_df.drop(columns=["AF"], inplace=True)
+    temp_df.to_csv(context_output, sep="\t", index=False, header=False)
+    mutation_counts.append((min_vaf, len(temp_df.index)))
+mutation_count_df = pd.DataFrame(mutation_counts, columns=["min_vaf", "Mutation Count"])
+mutation_count_df.to_csv(snakemake.output.counts, sep="\t", index=False)

@@ -3,16 +3,30 @@ import pandas as pd
 
 sys.stderr = open(snakemake.log[0], "w")
 
-df = pd.read_csv(snakemake.input[0], sep="\t")
+signatures_df = pd.read_csv(snakemake.input.signatures, sep="\t")
 
-chart = (
-    alt.Chart(df)
-    .mark_area(interpolate="basis")
+signatures = (
+    alt.Chart(signatures_df)
+    .mark_area(interpolate="monotone")
     .encode(
         x=alt.X("min_vaf:Q", scale=alt.Scale(reverse=True)),
         y=f"Frequency:Q",
-        color="Signature:N"
+        color="Signature:N",
+        tooltip="Description:N"
     )
 )
 
-chart.save(snakemake.output[0])
+mut_counts_df = pd.read_csv(snakemake.input.counts, sep="\t")
+
+counts = (
+    alt.Chart(mut_counts_df)
+    .mark_line(interpolate="basis")
+    .encode(
+        x=alt.X("min_vaf:Q", scale=alt.Scale(reverse=True)),
+        y='Mutation Count:Q',
+    )
+)
+
+final_chart = alt.layer(signatures, counts).resolve_scale(y='independent')
+
+final_chart.save(snakemake.output[0])
