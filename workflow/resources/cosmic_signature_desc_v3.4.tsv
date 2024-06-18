@@ -33,6 +33,7 @@ SBS23	Unknown
 SBS24	Aflatoxin exposure
 SBS25	Chemotherapy treatment
 SBS26	Defective DNA mismatch repair
+SBS27	Possible sequencing artefact
 SBS28	Unknown
 SBS29	Tobacco chewing
 SBS30	Defective DNA base excision repair due to NTHL1 mutations
@@ -50,7 +51,24 @@ SBS40b	Unknown
 SBS40c	Unknown
 SBS41	Unknown
 SBS42	Haloalkane exposure
+SBS43	Unknown. Possible sequencing artefact
 SBS44	Defective DNA mismatch repair
+SBS45	Possible artefact due to 8-oxo-guanine introduced during sequencing
+SBS46	Possible sequencing artefact
+SBS47	Possible sequencing artefact
+SBS48	Possible sequencing artefact
+SBS49	Possible sequencing artefact
+SBS50	Possible sequencing artefact
+SBS51	Possible sequencing artefact
+SBS52	Possible sequencing artefact
+SBS53	Possible sequencing artefact
+SBS54	Possible sequencing artefact. Possible contamination with germline variants
+SBS55	Possible sequencing artefact
+SBS56	Possible sequencing artefact
+SBS57	Possible sequencing artefact
+SBS58	Possible sequencing artefact
+SBS59	Possible sequencing artefact
+SBS60	Possible sequencing artefact
 SBS84	Activity of activation-induced cytidine deaminase (AID)
 SBS85	Indirect effects of activation-induced cytidine deaminase (AID)
 SBS86	Unknown chemotherapy treatment
@@ -62,6 +80,7 @@ SBS91	Unknown
 SBS92	Tobacco smoking
 SBS93	Unknown
 SBS94	Unknown
+SBS95	Possible sequencing artefact
 SBS96	Unknown
 SBS97	Unknown
 SBS98	Unknown

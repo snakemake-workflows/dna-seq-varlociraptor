@@ -616,6 +616,7 @@ def get_mutational_burden_targets():
             )
     return mutational_burden_targets
 
+
 def get_mutational_signature_targets():
     mutational_signature_targets = []
     if is_activated("mutational_signatures"):
