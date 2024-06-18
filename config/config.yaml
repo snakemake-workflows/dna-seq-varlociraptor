@@ -60,7 +60,7 @@ mutational_burden:
 mutational_signatures:
   activate: true
   events:
-    - somatic_tumor_high
+    - some_id
 
 # Sets the minimum average coverage for each gene.
 # Genes with lower average coverage will not be concidered in gene coverage datavzrd report

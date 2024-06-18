@@ -20,7 +20,7 @@ mut_counts_df = pd.read_csv(snakemake.input.counts, sep="\t")
 
 counts = (
     alt.Chart(mut_counts_df)
-    .mark_line(interpolate="basis")
+    .mark_line(interpolate="basis", color="black")
     .encode(
         x=alt.X("min_vaf:Q", scale=alt.Scale(reverse=True)),
         y="Mutation Count:Q",
