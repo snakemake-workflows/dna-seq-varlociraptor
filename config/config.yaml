@@ -61,6 +61,7 @@ mutational_burden:
 mutational_signatures:
   activate: false
   events:
+    # select events (callsets, defined under calling/fdr-control/events) to evaluate
     - some_id
 
 # Sets the minimum average coverage for each gene.
