@@ -625,7 +625,7 @@ def get_mutational_signature_targets():
                 expand(
                     "results/plots/mutational_signatures/{group}.{event}.svg",
                     group=variants_groups,
-                    events=config["mutational_signatures"].get("events"),
+                    event=config["mutational_signatures"].get("events"),
                 )
             )
     return mutational_signature_targets
