@@ -678,9 +678,9 @@ def get_gather_annotated_calls_input(ext="bcf"):
     return inner
 
 
-def get_candidate_calls():
+def get_candidate_calls(wc):
     filter = config["calling"]["filter"].get("candidates")
-    if filter:
+    if filter and wc.caller != "arriba":
         return "results/candidate-calls/{group}.{caller}.{scatteritem}.filtered.bcf"
     else:
         return "results/candidate-calls/{group}.{caller}.{scatteritem}.bcf"

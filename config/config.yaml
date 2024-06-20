@@ -57,8 +57,9 @@ mutational_burden:
     - somatic_tumor_medium
     - somatic_tumor_high
 
+# Plotting of known mutational signatures
 mutational_signatures:
-  activate: true
+  activate: false
   events:
     - some_id
 
