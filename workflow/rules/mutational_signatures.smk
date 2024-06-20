@@ -9,7 +9,7 @@ rule create_mutational_context_file:
     log:
         "logs/mutational_signatures/context/{group}.{event}.log",
     conda:
-        "../envs/mutational_context.yaml"
+        "../envs/pystats.yaml"
     script:
         "../scripts/create_mutational_context.py"
 
@@ -92,6 +92,6 @@ rule plot_mutational_signatures:
     log:
         "logs/mutational_signatures/{group}.{event}.log",
     conda:
-        "../envs/altair.yaml"
+        "../envs/pystats.yaml"
     script:
         "../scripts/plot_mutational_signatures.py"

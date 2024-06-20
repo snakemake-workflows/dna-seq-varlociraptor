@@ -1,6 +1,0 @@
-channels:
-  - conda-forge
-  - bioconda
-dependencies:
-  - altair =5.3
-  - vl-convert-python =1.3
