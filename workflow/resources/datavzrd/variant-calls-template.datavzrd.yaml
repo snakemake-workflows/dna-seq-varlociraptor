@@ -283,6 +283,7 @@ views:
           binned max vaf:
             display-mode: hidden
           swissprot:
+            optional: true
             display-mode: hidden
           hgvsg:
             display-mode: hidden
@@ -388,6 +389,7 @@ views:
               ensembl:
                 url: https://www.ensembl.org/Homo_sapiens/Transcript/Summary?t={feature}
           hgvsc:
+            optional: true
             custom: ?read_file(input.linkouts)
           consequence:
             plot:

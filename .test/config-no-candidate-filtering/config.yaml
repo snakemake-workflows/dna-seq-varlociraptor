@@ -29,6 +29,12 @@ mutational_burden:
     - SOMATIC_TUMOR_MEDIUM
     - SOMATIC_TUMOR_HIGH
 
+# Plotting of known mutational signatures
+mutational_signatures:
+  activate: false
+  events:
+    - some_id
+
 calling:
   delly:
     activate: true

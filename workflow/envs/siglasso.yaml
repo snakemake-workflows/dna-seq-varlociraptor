@@ -1,0 +1,11 @@
+channels:
+  - conda-forge
+  - bioconda
+dependencies:
+  - r-base =4.3
+  - r-devtools =2.4
+  - r-glmnet =4.1
+  - r-nnls =1.5
+  - r-rcolorbrewer =1.1
+  - r-colorramps =2.3
+  - r-tidyverse =2.0

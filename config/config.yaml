@@ -57,6 +57,13 @@ mutational_burden:
     - somatic_tumor_medium
     - somatic_tumor_high
 
+# Quantify known mutational signatures (human only)
+mutational_signatures:
+  activate: false
+  events:
+    # select events (callsets, defined under calling/fdr-control/events) to evaluate
+    - some_id
+
 # Sets the minimum average coverage for each gene.
 # Genes with lower average coverage will not be concidered in gene coverage datavzrd report
 # If not present min_avg_coverage will be set to 0 rendering all genes.
