@@ -87,7 +87,7 @@ rule plot_mutational_signatures:
         report(
             "results/plots/mutational_signatures/{group}.{event}.svg",
             category="Mutational Signatures",
-            subcategory="{group}",
+            subcategory="{event}",
             labels={"event": "{event}"},
         ),
     log:
