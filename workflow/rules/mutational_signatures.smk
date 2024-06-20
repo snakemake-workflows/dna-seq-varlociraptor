@@ -18,6 +18,7 @@ rule download_cosmic_signatures:
     output:
         "resources/cosmic_signatures.txt",
     params:
+        # when updating signature version here, also update workflow/resources/cosmic_signature_desc_v3.4.tsv
         url=lambda wc: "https://cog.sanger.ac.uk/cosmic-signatures-production/documents/COSMIC_v3.4_SBS_{}.txt".format(
             config["ref"]["build"]
         ),
