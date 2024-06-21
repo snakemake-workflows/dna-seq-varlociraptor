@@ -49,6 +49,12 @@ mutational_burden:
     - somatic_tumor_medium
     - somatic_tumor_low
 
+# Plotting of known mutational signatures
+mutational_signatures:
+  activate: false
+  events:
+    - some_id
+
 # printing of variants in a matrix, sorted by recurrence
 report:
   # if stratificatio is deactivated, one oncoprint for all

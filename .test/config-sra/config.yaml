@@ -26,6 +26,12 @@ mutational_burden:
   events:
     - changed_only
 
+# Plotting of known mutational signatures
+mutational_signatures:
+  activate: false
+  events:
+    - some_id
+
 calling:
   delly:
     activate: true
