@@ -143,7 +143,7 @@ def get_final_output(wildcards):
             final_output.extend(
                 expand(
                     "results/datavzrd-report/{batch}.{event}.{calling_type}.fdr-controlled",
-                    batch=get_report_batches(),
+                    batch=get_report_batches(calling_type),
                     event=get_calling_events(calling_type),
                     calling_type=calling_type,
                 )
@@ -706,10 +706,12 @@ def get_report_batch(calling_type):
     return inner
 
 
-def get_report_batches():
+def get_report_batches(calling_type):
     if is_activated("report/stratify"):
         yield "all"
-        yield from samples[config["report"]["stratify"]["by-column"]].unique()
+        yield from samples[samples["calling"].str.contains(calling_type)][
+            config["report"]["stratify"]["by-column"]
+        ].unique()
     else:
         yield "all"
 
