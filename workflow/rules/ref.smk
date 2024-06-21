@@ -146,3 +146,14 @@ rule get_vep_plugins:
         "logs/vep/plugins.log",
     wrapper:
         "v3.3.5/bio/vep/plugins"
+
+
+rule get_vg_pangenome:
+    output:
+        pangenome,
+    params:
+        link=config["ref"]["pangenome"]["link_to_pangenome_idx"],
+    log:
+        "logs/pangenome/get_reference.log",
+    shell:
+        "curl -o {output} {params} 2> {log}"
