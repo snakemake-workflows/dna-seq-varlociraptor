@@ -85,7 +85,7 @@ rule plot_mutational_signatures:
         counts="results/mutational_signatures/{group}.{event}.counts.tsv",
     output:
         report(
-            "results/plots/mutational_signatures/{group}.{event}.svg",
+            "results/plots/mutational_signatures/{group}.{event}.html",
             category="Mutational Signatures",
             subcategory="{event}",
             labels={"group": "{group}"},
