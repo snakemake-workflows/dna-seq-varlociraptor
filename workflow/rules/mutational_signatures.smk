@@ -5,7 +5,7 @@ rule create_mutational_context_file:
         fai=genome_fai,
     output:
         context=temp("results/mutational_signatures/{group}.{event}.context.tsv"),
-        counts=temp()"results/mutational_signatures/{group}.{event}.counts.tsv"),
+        counts=temp("results/mutational_signatures/{group}.{event}.counts.tsv"),
     log:
         "logs/mutational_signatures/context/{group}.{event}.log",
     conda:
