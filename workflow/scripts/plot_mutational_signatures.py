@@ -9,7 +9,7 @@ signatures = (
     alt.Chart(signatures_df)
     .mark_area(interpolate="monotone")
     .encode(
-        x=alt.X("min_vaf:Q", scale=alt.Scale(reverse=True)),
+        x=alt.X("Minimum VAF:Q", scale=alt.Scale(reverse=True)),
         y=f"Frequency:Q",
         color="Signature:N",
         tooltip="Description:N",
@@ -22,7 +22,7 @@ counts = (
     alt.Chart(mut_counts_df)
     .mark_line(interpolate="basis", color="black")
     .encode(
-        x=alt.X("min_vaf:Q", scale=alt.Scale(reverse=True)),
+        x=alt.X("Minumum VAF:Q", scale=alt.Scale(reverse=True)),
         y="Mutation Count:Q",
     )
 )

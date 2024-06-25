@@ -7,4 +7,3 @@ dependencies:
   - python =3.12
   - pandas =2.2
   - altair =5.3
-  - vl-convert-python =1.3

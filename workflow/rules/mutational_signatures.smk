@@ -4,8 +4,8 @@ rule create_mutational_context_file:
         ref=genome,
         fai=genome_fai,
     output:
-        context="results/mutational_signatures/{group}.{event}.context.tsv",
-        counts="results/mutational_signatures/{group}.{event}.counts.tsv",
+        context=temp("results/mutational_signatures/{group}.{event}.context.tsv"),
+        counts=temp()"results/mutational_signatures/{group}.{event}.counts.tsv"),
     log:
         "logs/mutational_signatures/context/{group}.{event}.log",
     conda:
@@ -35,9 +35,11 @@ rule annotate_mutational_signatures:
         cosmic_signatures="resources/cosmic_signatures.txt",
         context="results/mutational_signatures/{group}.{event}.context.tsv",
     output:
-        expand(
+        temp(
+            expand(
             "results/mutational_signatures/{{group}}.{{event}}.{vaf}.tsv",
             vaf=range(0, 101, 10),
+            )
         ),
     params:
         build=config["ref"]["build"],
@@ -56,12 +58,12 @@ rule join_mutational_signatures:
             vaf=range(0, 101, 10),
         ),
     output:
-        "results/mutational_signatures/{group}.{event}.tsv",
+        temp("results/mutational_signatures/{group}.{event}.tsv"),
     log:
         "logs/mutational_signatures/join/{group}.{event}.log",
     shell:
         """
-        cat <(echo "Signature\tFrequency\tmin_vaf") {input} >> {output} 2> {log}
+        cat <(echo "Signature\tFrequency\tMinimum VAF") {input} >> {output} 2> {log}
         """
 
 
