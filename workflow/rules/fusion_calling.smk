@@ -70,15 +70,13 @@ rule convert_fusions:
         fusions="results/arriba/{sample}.fusions.annotated.tsv",
     output:
         temp("results/candidate-calls/{sample}.arriba.vcf"),
-    params:
-        script_path=workflow.source_path("../scripts/convert_fusions_to_vcf.sh"),
     conda:
         "../envs/arriba.yaml"
     log:
         "logs/convert_fusions/{sample}.log",
     shell:
         """
-        bash {params.script_path} {input.fasta} {input.fusions} {output} 2> {log}
+        convert_fusions_to_vcf.sh {input.fasta} {input.fusions} {output} 2> {log}
         """
 
 
