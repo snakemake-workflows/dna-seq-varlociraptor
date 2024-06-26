@@ -39,6 +39,11 @@ use rule arriba from fusion_calling with:
     output:
         fusions="results/arriba/{sample}.fusions.tsv",
         discarded="results/arriba/{sample}.fusions.discarded.tsv",
+    params:
+        genome_build=config["ref"]["build"],
+        default_blacklist=True,
+        default_known_fusions=True,
+        extra="-f no_genomic_support,genomic_support,no_coverage,mismatches,homopolymer,low_entropy,duplicates,min_support",
 
 
 rule annotate_exons:
