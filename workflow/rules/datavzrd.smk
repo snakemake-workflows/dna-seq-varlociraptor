@@ -104,7 +104,7 @@ rule datavzrd_variants_calls:
             dpath="calling/fdr-control/events/{event}/desc", within=config
         ),
     wrapper:
-        "v3.10.1/utils/datavzrd"
+        "v3.12.1/utils/datavzrd"
 
 
 rule datavzrd_fusion_calls:
@@ -142,7 +142,7 @@ rule datavzrd_fusion_calls:
         groups=get_report_batch("fusions"),
         samples=samples,
     wrapper:
-        "v3.10.1/utils/datavzrd"
+        "v3.12.1/utils/datavzrd"
 
 
 rule bedtools_merge:
