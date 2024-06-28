@@ -43,7 +43,7 @@ use rule arriba from fusion_calling with:
         genome_build=config["ref"]["build"],
         default_blacklist=True,
         default_known_fusions=True,
-        extra="-f no_genomic_support,genomic_support,no_coverage,mismatches,homopolymer,low_entropy,duplicates,min_support",
+        extra="-u -f no_genomic_support,genomic_support,no_coverage,mismatches,homopolymer,low_entropy,duplicates,min_support",
 
 
 rule annotate_exons:
