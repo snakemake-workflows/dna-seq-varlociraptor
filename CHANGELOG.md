@@ -1,5 +1,17 @@
 # Changelog
 
+## [5.8.0](https://github.com/snakemake-workflows/dna-seq-varlociraptor/compare/v5.7.0...v5.8.0) (2024-07-01)
+
+
+### Features
+
+* mutational signatures ([#308](https://github.com/snakemake-workflows/dna-seq-varlociraptor/issues/308)) ([f037305](https://github.com/snakemake-workflows/dna-seq-varlociraptor/commit/f0373052750502832c94e6c2bfdc4f1328ef9634))
+
+
+### Bug Fixes
+
+* fusion sample selection ([#310](https://github.com/snakemake-workflows/dna-seq-varlociraptor/issues/310)) ([d817454](https://github.com/snakemake-workflows/dna-seq-varlociraptor/commit/d8174548d1a20dc9bc59150b606caec4d35831c5))
+
 ## [5.7.0](https://github.com/snakemake-workflows/dna-seq-varlociraptor/compare/v5.6.0...v5.7.0) (2024-06-07)
 
 
