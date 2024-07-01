@@ -143,7 +143,7 @@ def get_final_output(wildcards):
             final_output.extend(
                 expand(
                     "results/datavzrd-report/{batch}.{event}.{calling_type}.fdr-controlled",
-                    batch=get_report_batches(),
+                    batch=get_report_batches(calling_type),
                     event=get_calling_events(calling_type),
                     calling_type=calling_type,
                 )
@@ -623,7 +623,7 @@ def get_mutational_signature_targets():
         for group in variants_groups:
             mutational_signature_targets.extend(
                 expand(
-                    "results/plots/mutational_signatures/{group}.{event}.svg",
+                    "results/plots/mutational_signatures/{group}.{event}.html",
                     group=variants_groups,
                     event=config["mutational_signatures"].get("events"),
                 )
@@ -706,10 +706,12 @@ def get_report_batch(calling_type):
     return inner
 
 
-def get_report_batches():
+def get_report_batches(calling_type):
     if is_activated("report/stratify"):
         yield "all"
-        yield from samples[config["report"]["stratify"]["by-column"]].unique()
+        yield from samples[samples["calling"].str.contains(calling_type)][
+            config["report"]["stratify"]["by-column"]
+        ].unique()
     else:
         yield "all"
 
@@ -892,7 +894,7 @@ def get_varlociraptor_obs_args(wildcards, input):
 
 def get_varlociraptor_params(wildcards, params):
     if wildcards.caller == "arriba":
-        params += " --propagate-info-fields GENE_NAME GENE_ID EXON"
+        params += " --propagate-info-fields GENE_NAME GENE_ID EXON_NUMBER"
     return params
 
 
@@ -1051,7 +1053,7 @@ def get_vembrane_config(wildcards, input):
             {"name": "mateid", "expr": "INFO['MATEID'][0]"},
             {"name": "feature_name", "expr": "INFO['GENE_NAME']"},
             {"name": "feature_id", "expr": "INFO['GENE_ID']"},
-            "EXON",
+            "EXON_NUMBER",
         ]
         append_items(info_fields, "INFO['{}']".format, lambda x: x.lower())
     else:

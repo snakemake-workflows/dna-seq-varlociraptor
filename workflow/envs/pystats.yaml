@@ -4,7 +4,6 @@ channels:
 dependencies:
   - biopython =1.83
   - pysam =0.22
-  - python =3.7
+  - python =3.12
   - pandas =2.2
   - altair =5.3
-  - vl-convert-python =1.3
