@@ -1053,7 +1053,7 @@ def get_vembrane_config(wildcards, input):
             {"name": "mateid", "expr": "INFO['MATEID'][0]"},
             {"name": "feature_name", "expr": "INFO['GENE_NAME']"},
             {"name": "feature_id", "expr": "INFO['GENE_ID']"},
-            "EXON_NUMBER",
+            {"name": "exon", "expr": "INFO['EXON_NUMBER'][0]"},
         ]
         append_items(info_fields, "INFO['{}']".format, lambda x: x.lower())
     else:
