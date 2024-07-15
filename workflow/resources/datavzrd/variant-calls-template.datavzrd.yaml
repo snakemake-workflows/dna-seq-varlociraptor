@@ -114,7 +114,7 @@ views:
             """
         dataset: ?view
         render-table:
-          ?if labels:
+          ?if len(labels) > 0:
             headers:
               ?for i, annotation in enumerate(labels):
                 ?i + 1:
