@@ -56,6 +56,9 @@ mutational_signatures:
     - some_id
 
 # printing of variants in a matrix, sorted by recurrence
+maftools:
+  activate: false
+
 report:
   # if stratificatio is deactivated, one oncoprint for all
   # samples will be created.
