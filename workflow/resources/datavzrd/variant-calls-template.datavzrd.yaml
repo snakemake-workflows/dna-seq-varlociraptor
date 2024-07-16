@@ -97,7 +97,7 @@ views:
   ?if input.gene_oncoprint:
     ?for view in ["gene-oncoprint"] + list(params.labels.index.values):
       __variables__:
-        labels: ?params.group_annotations.columns.values if view == "gene-oncoprint" else [view]
+        labels: ?params.group_annotations.columns.values.tolist() if view == "gene-oncoprint" else [view]
       ?"overview" if view == "gene-oncoprint" else f"by {view}":
         ?if view == "gene-oncoprint":
           desc: |
