@@ -1,5 +1,14 @@
 # Changelog
 
+## [5.8.1](https://github.com/snakemake-workflows/dna-seq-varlociraptor/compare/v5.8.0...v5.8.1) (2024-07-17)
+
+
+### Bug Fixes
+
+* always use the same type for label list in datavzrd config ([#312](https://github.com/snakemake-workflows/dna-seq-varlociraptor/issues/312)) ([9d20f50](https://github.com/snakemake-workflows/dna-seq-varlociraptor/commit/9d20f5003da40cfc8414b4877eaab8f2eceaa6dd))
+* fix typo in description of variant calls tables ([9d02274](https://github.com/snakemake-workflows/dna-seq-varlociraptor/commit/9d02274cc722bc55980c7bde303fef42a36ad88e))
+* minor fixes ([#311](https://github.com/snakemake-workflows/dna-seq-varlociraptor/issues/311)) ([a96e071](https://github.com/snakemake-workflows/dna-seq-varlociraptor/commit/a96e07146aef1a2bc2fd3b85bda3c3ebe48aa0d5))
+
 ## [5.8.0](https://github.com/snakemake-workflows/dna-seq-varlociraptor/compare/v5.7.0...v5.8.0) (2024-07-01)
 
 
