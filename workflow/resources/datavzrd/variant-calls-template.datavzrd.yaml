@@ -157,7 +157,7 @@ views:
         dataset: ?f"variant-oncoprint-{gene}"
         hidden: true
         render-table:
-          ?if params.group_annotations.columns.values:
+          ?if params.group_annotations.columns.values.tolist():
             headers:
               ?for i, annotation in enumerate(params.group_annotations.columns.values):
                 ?i + 1:
