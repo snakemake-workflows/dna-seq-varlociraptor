@@ -1,5 +1,12 @@
 # Changelog
 
+## [5.8.2](https://github.com/snakemake-workflows/dna-seq-varlociraptor/compare/v5.8.1...v5.8.2) (2024-07-18)
+
+
+### Bug Fixes
+
+* update to latest datavzrd ([b8bd1fc](https://github.com/snakemake-workflows/dna-seq-varlociraptor/commit/b8bd1fcf54ff2e160922b91169c7aa8fcc1aa328))
+
 ## [5.8.1](https://github.com/snakemake-workflows/dna-seq-varlociraptor/compare/v5.8.0...v5.8.1) (2024-07-17)
 
 
