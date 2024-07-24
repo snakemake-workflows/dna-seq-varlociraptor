@@ -1,5 +1,12 @@
 # Changelog
 
+## [5.8.3](https://github.com/snakemake-workflows/dna-seq-varlociraptor/compare/v5.8.2...v5.8.3) (2024-07-24)
+
+
+### Miscellaneous Chores
+
+* release 5.8.3 ([2fc6a49](https://github.com/snakemake-workflows/dna-seq-varlociraptor/commit/2fc6a49415ad4650c0873d1036562505a0d6770c))
+
 ## [5.8.2](https://github.com/snakemake-workflows/dna-seq-varlociraptor/compare/v5.8.1...v5.8.2) (2024-07-18)
 
 
