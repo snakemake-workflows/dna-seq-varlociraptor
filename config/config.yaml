@@ -25,6 +25,11 @@ ref:
   release: 111
   # Genome build
   build: GRCh38
+  # Pangenome alignment with vg instead of linear alignment with bwa is performed
+  # The path to the pangenome index should be placed in pangenome_index (for humans: it is downloaded from: https://github.com/human-pangenomics/hpp_pangenome_resources/tree/201b532d11e8ba75a97db5005b98a780f42feeb6)
+  pangenome: 
+    activate: True
+    link_to_pangenome_idx: "https://s3-us-west-2.amazonaws.com/human-pangenomics/pangenomes/freeze/freeze1/minigraph-cactus/hprc-v1.0-mc-grch38.xg"
   # Optionally, instead of downloading the whole reference from Ensembl via the
   # parameters above, specify a specific chromosome below and uncomment the line.
   # This is usually only relevant for testing.
@@ -119,7 +124,7 @@ calling:
     gene_list_filter:
       aux-files:
         super_interesting_genes: "config/super_interesting_genes.tsv"
-      expression: "ANN['GENE'] in AUX['super_interesting_genes']"
+      expression: "ANN['Gene'] in AUX['super_interesting_genes']"
   fdr-control:
     threshold: 0.05
     # denote FDR control mode, see https://varlociraptor.github.io/docs/filtering
@@ -146,6 +151,7 @@ calling:
           # Add varlociraptor events to aggregated over.
           # The probability for the union of these events is used for controlling
           # the FDR.
+          - present
           - somatic_tumor_high
           - somatic_tumor_medium
         filter: # myfilter
