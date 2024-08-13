@@ -119,7 +119,7 @@ calling:
     gene_list_filter:
       aux-files:
         super_interesting_genes: "config/super_interesting_genes.tsv"
-      expression: "ANN['GENE'] in AUX['super_interesting_genes']"
+      expression: "ANN['SYMBOL'] in AUX['super_interesting_genes']"
   fdr-control:
     threshold: 0.05
     # denote FDR control mode, see https://varlociraptor.github.io/docs/filtering
