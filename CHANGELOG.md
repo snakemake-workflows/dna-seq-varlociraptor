@@ -1,5 +1,12 @@
 # Changelog
 
+## [5.8.4](https://github.com/snakemake-workflows/dna-seq-varlociraptor/compare/v5.8.3...v5.8.4) (2024-08-13)
+
+
+### Bug Fixes
+
+* make the `aux-files` example use the existing `ANN` field `SYMBOL` ([#320](https://github.com/snakemake-workflows/dna-seq-varlociraptor/issues/320)) ([0dd0c36](https://github.com/snakemake-workflows/dna-seq-varlociraptor/commit/0dd0c3673a98231292c1b8abb28c49a039b8dcfb))
+
 ## [5.8.3](https://github.com/snakemake-workflows/dna-seq-varlociraptor/compare/v5.8.2...v5.8.3) (2024-07-24)
 
 
