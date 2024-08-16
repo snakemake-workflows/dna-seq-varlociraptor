@@ -21,6 +21,10 @@ rule testcase:
     input:
         obs=get_all_group_observations,
         scenario="results/scenarios/{group}.yaml",
+        ref=genome,
+        ref_idx=genome_fai,
+        bams=get_group_bams,
+        bais=partial(get_group_bams, bai=True),
     output:
         directory("results/testcases/{group}/{caller}/{locus}"),
     log:
