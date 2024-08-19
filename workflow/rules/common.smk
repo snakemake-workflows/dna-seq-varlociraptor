@@ -1057,17 +1057,19 @@ def get_annotation_fields_for_tables(config_output):
             if plugin == "REVEL":
                 annotation_fields.append("REVEL")
             elif plugin == "SpliceAI":
-                annotation_fields.extend([
-                    "SpliceAI_pred_DS_AG",
-                    "SpliceAI_pred_DS_AL",
-                    "SpliceAI_pred_DS_DG",
-                    "SpliceAI_pred_DS_DL",
-                ])
+                annotation_fields.extend(
+                    [
+                        "SpliceAI_pred_DS_AG",
+                        "SpliceAI_pred_DS_AL",
+                        "SpliceAI_pred_DS_DG",
+                        "SpliceAI_pred_DS_DL",
+                    ]
+                )
             elif plugin == "AlphaMissense":
                 annotation_fields.append(
                     "am_pathogenicity",
                 )
-    
+
     return annotation_fields
 
 
@@ -1091,7 +1093,11 @@ def get_format_fields_for_tables(config_output):
         format_fields.extend(["SROBS", "SAOBS"])
 
     if config_output.get("observations", False):
-        format_fields.extend(["OBS", ])
+        format_fields.extend(
+            [
+                "OBS",
+            ]
+        )
 
     return format_fields
 
@@ -1139,7 +1145,7 @@ def get_vembrane_config(wildcards, input):
         "SAOBS": "short alt observations",
         "OBS": "observations",
     }
-    
+
     format_fields = get_format_fields_for_tables(config_output)
     aliases = get_group_sample_aliases(wildcards)
 
@@ -1148,16 +1154,12 @@ def get_vembrane_config(wildcards, input):
             aliases,
             dict(),
             f"FORMAT['{f}']['{{}}']".format,
-            f"{{}}: {format_fields_names[f] if f in format_fields_names else f}".format
+            f"{{}}: {format_fields_names[f] if f in format_fields_names else f}".format,
         )
-
 
     # INFO fields
     rename_info_fields = {
-        "MATEID": {
-            "name": "mateid",
-            "expr": "INFO['MATEID'][0]"
-        },
+        "MATEID": {"name": "mateid", "expr": "INFO['MATEID'][0]"},
         "GENE_NAME": {
             "name": "feature_name",
         },
@@ -1168,18 +1170,22 @@ def get_vembrane_config(wildcards, input):
 
     ## INFO fields holding varlociraptor probabilities
     info_prob_fields = get_info_prob_fields_for_tables(config_output)
-    append_items(info_prob_fields, rename_info_fields, "INFO['{}']".format, "prob: {}".format)
+    append_items(
+        info_prob_fields, rename_info_fields, "INFO['{}']".format, "prob: {}".format
+    )
 
     ## INFO fields relevant in fusion calling, only added for 'fusion' calling
     info_fusion_fields = get_info_fusion_fields_for_tables()
-    append_items(info_fusion_fields, rename_info_fields, "INFO['{}']".format, lambda x: x.lower())
-    
+    append_items(
+        info_fusion_fields, rename_info_fields, "INFO['{}']".format, lambda x: x.lower()
+    )
+
     ## INFO field annotations from the INFO['ANN'] field
     if wildcards.calling_type != "fusions":
         rename_ann_fields = {
             "Protein_position": {
                 "name": "protein position",
-                "expr": "ANN['Protein_position'].raw"
+                "expr": "ANN['Protein_position'].raw",
             },
             "Amino_acids": {
                 "name": "protein alteration (short)",
@@ -1193,24 +1199,25 @@ def get_vembrane_config(wildcards, input):
             "SpliceAI_pred_DS_AG": {
                 "name": "spliceai acceptor gain",
             },
-            "SpliceAI_pred_DS_AL":
-            {
+            "SpliceAI_pred_DS_AL": {
                 "name": "spliceai acceptor loss",
             },
-            "SpliceAI_pred_DS_DG":
-            {
+            "SpliceAI_pred_DS_DG": {
                 "name": "spliceai donor gain",
             },
-            "SpliceAI_pred_DS_DL":
-            {
+            "SpliceAI_pred_DS_DL": {
                 "name": "spliceai donor loss",
             },
-            "am_pathogenicity":
-            {
+            "am_pathogenicity": {
                 "name": "alphamissense",
-            }
+            },
         }
-        append_items(annotation_fields, rename_ann_fields, "ANN['{}']".format, lambda x: x.lower())
+        append_items(
+            annotation_fields,
+            rename_ann_fields,
+            "ANN['{}']".format,
+            lambda x: x.lower(),
+        )
 
     return {"expr": join_items(parts), "header": join_items(header)}
 
