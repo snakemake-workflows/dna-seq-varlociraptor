@@ -5,8 +5,6 @@ rule group_bcf_to_vcf:
         temp("results/maftools/{group}.{event}.{calling_type}.fdr-controlled.vcf"),
     log:
         "logs/maftools/{group}.{event}.{calling_type}.fdr-controlled.log",
-    params:
-        extra="",
     wrapper:
         "v3.8.0/bio/bcftools/view"
 
