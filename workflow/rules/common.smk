@@ -1168,7 +1168,7 @@ def get_vembrane_config(wildcards, input):
 
     ## INFO fields holding varlociraptor probabilities
     info_prob_fields = get_info_prob_fields_for_tables(config_output)
-    append_items(info_prob_fields, rename_info_fields, f"INFO['{}']".format, f"prob: {}".format)
+    append_items(info_prob_fields, rename_info_fields, "INFO['{}']".format, "prob: {}".format)
 
     ## INFO fields relevant in fusion calling, only added for 'fusion' calling
     info_fusion_fields = get_info_fusion_fields_for_tables()
@@ -1210,7 +1210,7 @@ def get_vembrane_config(wildcards, input):
                 "name": "alphamissense",
             }
         }
-        append_items(annotation_fields, rename_ann_fields, f"ANN['{}']".format, lambda x: x.lower())
+        append_items(annotation_fields, rename_ann_fields, "ANN['{}']".format, lambda x: x.lower())
 
     return {"expr": join_items(parts), "header": join_items(header)}
 
