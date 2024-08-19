@@ -1,0 +1,87 @@
+Signature	Description
+SBS1	Spontaneous deamination of 5-methylcytosine (clock-like signature)
+SBS2	Activity of APOBEC family of cytidine deaminases
+SBS3	Defective homologous recombination DNA damage repair
+SBS4	Tobacco smoking
+SBS5	Unknown (clock-like signature)
+SBS6	Defective DNA mismatch repair
+SBS7a	Ultraviolet light exposure
+SBS7b	Ultraviolet light exposure
+SBS7c	Ultraviolet light exposure
+SBS7d	Ultraviolet light exposure
+SBS8	Unknown
+SBS9	Polimerase eta somatic hypermutation activity
+SBS10a	Polymerase epsilon exonuclease domain mutations
+SBS10b	Polymerase epsilon exonuclease domain mutations
+SBS10c	Defective POLD1 proofreading
+SBS10d	Defective POLD1 proofreading
+SBS11	Temozolomide treatment
+SBS12	Unknown
+SBS13	Activity of APOBEC family of cytidine deaminases
+SBS14	Concurrent polymerase epsilon mutation and defective DNA mismatch repair
+SBS15	Defective DNA mismatch repair
+SBS16	Unknown
+SBS17a	Unknown
+SBS17b	Unknown
+SBS18	Damage by reactive oxygen species
+SBS19	Unknown
+SBS20	Concurrent POLD1 mutations and defective DNA mismatch repair
+SBS21	Defective DNA mismatch repair
+SBS22a	Aristolochic acid exposure
+SBS22b	Aristolochic acid exposure
+SBS23	Unknown
+SBS24	Aflatoxin exposure
+SBS25	Chemotherapy treatment
+SBS26	Defective DNA mismatch repair
+SBS27	Possible sequencing artefact
+SBS28	Unknown
+SBS29	Tobacco chewing
+SBS30	Defective DNA base excision repair due to NTHL1 mutations
+SBS31	Platinum chemotherapy treatment
+SBS32	Azathioprine treatment
+SBS33	Unknown
+SBS34	Unknown
+SBS35	Platinum chemotherapy treatment
+SBS36	Defective DNA base excision repair due to MUTYH mutations
+SBS37	Unknown
+SBS38	Indirect effect of ultraviolet light
+SBS39	Unknown
+SBS40a	Unknown
+SBS40b	Unknown
+SBS40c	Unknown
+SBS41	Unknown
+SBS42	Haloalkane exposure
+SBS43	Unknown. Possible sequencing artefact
+SBS44	Defective DNA mismatch repair
+SBS45	Possible artefact due to 8-oxo-guanine introduced during sequencing
+SBS46	Possible sequencing artefact
+SBS47	Possible sequencing artefact
+SBS48	Possible sequencing artefact
+SBS49	Possible sequencing artefact
+SBS50	Possible sequencing artefact
+SBS51	Possible sequencing artefact
+SBS52	Possible sequencing artefact
+SBS53	Possible sequencing artefact
+SBS54	Possible sequencing artefact. Possible contamination with germline variants
+SBS55	Possible sequencing artefact
+SBS56	Possible sequencing artefact
+SBS57	Possible sequencing artefact
+SBS58	Possible sequencing artefact
+SBS59	Possible sequencing artefact
+SBS60	Possible sequencing artefact
+SBS84	Activity of activation-induced cytidine deaminase (AID)
+SBS85	Indirect effects of activation-induced cytidine deaminase (AID)
+SBS86	Unknown chemotherapy treatment
+SBS87	Thiopurine chemotherapy treatment
+SBS88	Colibactin exposure (E.coli bacteria carrying pks pathogenicity island)
+SBS89	Unknown
+SBS90	Duocarmycin exposure
+SBS91	Unknown
+SBS92	Tobacco smoking
+SBS93	Unknown
+SBS94	Unknown
+SBS95	Possible sequencing artefact
+SBS96	Unknown
+SBS97	Unknown
+SBS98	Unknown
+SBS99	Melphalan exposure

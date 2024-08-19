@@ -1,6 +1,6 @@
 module fusion_calling:
     meta_wrapper:
-        "v3.3.3/meta/bio/star_arriba"
+        "v3.13.3/meta/bio/star_arriba"
     config:
         config
 
@@ -39,6 +39,11 @@ use rule arriba from fusion_calling with:
     output:
         fusions="results/arriba/{sample}.fusions.tsv",
         discarded="results/arriba/{sample}.fusions.discarded.tsv",
+    params:
+        genome_build=config["ref"]["build"],
+        default_blacklist=True,
+        default_known_fusions=True,
+        extra="-u -f no_genomic_support,genomic_support,no_coverage,mismatches,homopolymer,low_entropy,duplicates,min_support",
 
 
 rule annotate_exons:
@@ -65,15 +70,13 @@ rule convert_fusions:
         fusions="results/arriba/{sample}.fusions.annotated.tsv",
     output:
         temp("results/candidate-calls/{sample}.arriba.vcf"),
-    params:
-        script_path=workflow.source_path("../scripts/convert_fusions_to_vcf.sh"),
     conda:
         "../envs/arriba.yaml"
     log:
         "logs/convert_fusions/{sample}.log",
     shell:
         """
-        bash {params.script_path} {input.fasta} {input.fusions} {output} 2> {log}
+        convert_fusions_to_vcf.sh {input.fasta} {input.fusions} {output} 2> {log}
         """
 
 

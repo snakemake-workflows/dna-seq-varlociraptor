@@ -186,6 +186,14 @@ properties:
     required:
       - activate
 
+  mutational_signatures:
+    type: object
+    properties:
+      activate:
+        type: boolean
+    required:
+      - activate
+
 
   calling:
     type: object

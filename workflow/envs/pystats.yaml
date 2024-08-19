@@ -1,0 +1,9 @@
+channels:
+  - conda-forge
+  - bioconda
+dependencies:
+  - biopython =1.83
+  - pysam =0.22
+  - python =3.12
+  - pandas =2.2
+  - altair =5.3

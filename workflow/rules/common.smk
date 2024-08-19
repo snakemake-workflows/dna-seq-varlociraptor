@@ -143,7 +143,7 @@ def get_final_output(wildcards):
             final_output.extend(
                 expand(
                     "results/datavzrd-report/{batch}.{event}.{calling_type}.fdr-controlled",
-                    batch=get_report_batches(),
+                    batch=get_report_batches(calling_type),
                     event=get_calling_events(calling_type),
                     calling_type=calling_type,
                 )
@@ -203,6 +203,7 @@ def get_final_output(wildcards):
                     )
                 )
     final_output.extend(get_mutational_burden_targets())
+    final_output.extend(get_mutational_signature_targets())
 
     if is_activated("population/db"):
         final_output.append(lookup(dpath="population/db/path", within=config))
@@ -630,6 +631,20 @@ def get_mutational_burden_targets():
     return mutational_burden_targets
 
 
+def get_mutational_signature_targets():
+    mutational_signature_targets = []
+    if is_activated("mutational_signatures"):
+        for group in variants_groups:
+            mutational_signature_targets.extend(
+                expand(
+                    "results/plots/mutational_signatures/{group}.{event}.html",
+                    group=variants_groups,
+                    event=config["mutational_signatures"].get("events"),
+                )
+            )
+    return mutational_signature_targets
+
+
 def get_scattered_calls(ext="bcf"):
     def inner(wildcards):
         caller = "arriba" if wildcards.calling_type == "fusions" else variant_caller
@@ -677,9 +692,9 @@ def get_gather_annotated_calls_input(ext="bcf"):
     return inner
 
 
-def get_candidate_calls():
+def get_candidate_calls(wc):
     filter = config["calling"]["filter"].get("candidates")
-    if filter:
+    if filter and wc.caller != "arriba":
         return "results/candidate-calls/{group}.{caller}.{scatteritem}.filtered.bcf"
     else:
         return "results/candidate-calls/{group}.{caller}.{scatteritem}.bcf"
@@ -705,10 +720,12 @@ def get_report_batch(calling_type):
     return inner
 
 
-def get_report_batches():
+def get_report_batches(calling_type):
     if is_activated("report/stratify"):
         yield "all"
-        yield from samples[config["report"]["stratify"]["by-column"]].unique()
+        yield from samples[samples["calling"].str.contains(calling_type)][
+            config["report"]["stratify"]["by-column"]
+        ].unique()
     else:
         yield "all"
 
@@ -891,7 +908,7 @@ def get_varlociraptor_obs_args(wildcards, input):
 
 def get_varlociraptor_params(wildcards, params):
     if wildcards.caller == "arriba":
-        params += " --propagate-info-fields GENE_NAME GENE_ID EXON"
+        params += " --propagate-info-fields GENE_NAME GENE_ID EXON_NUMBER"
     return params
 
 

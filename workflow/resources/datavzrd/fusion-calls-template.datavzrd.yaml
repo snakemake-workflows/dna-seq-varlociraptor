@@ -19,7 +19,7 @@ datasets:
 views:
   ?for group in params.groups:
     ?f"{group}-fusions":
-          desc: ?f"Fusion calls.\n{config['calling']['fdr-control']['events'][wildcards.event]['desc']}"
+          desc: ?f"Fusion calls"
           dataset: ?f"{group}-fusions"
           render-table:
             columns:

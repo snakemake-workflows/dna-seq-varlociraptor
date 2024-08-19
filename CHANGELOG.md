@@ -1,5 +1,48 @@
 # Changelog
 
+## [5.8.4](https://github.com/snakemake-workflows/dna-seq-varlociraptor/compare/v5.8.3...v5.8.4) (2024-08-13)
+
+
+### Bug Fixes
+
+* make the `aux-files` example use the existing `ANN` field `SYMBOL` ([#320](https://github.com/snakemake-workflows/dna-seq-varlociraptor/issues/320)) ([0dd0c36](https://github.com/snakemake-workflows/dna-seq-varlociraptor/commit/0dd0c3673a98231292c1b8abb28c49a039b8dcfb))
+
+## [5.8.3](https://github.com/snakemake-workflows/dna-seq-varlociraptor/compare/v5.8.2...v5.8.3) (2024-07-24)
+
+
+### Miscellaneous Chores
+
+* release 5.8.3 ([2fc6a49](https://github.com/snakemake-workflows/dna-seq-varlociraptor/commit/2fc6a49415ad4650c0873d1036562505a0d6770c))
+* update datavzrd wrapper: [#316](https://github.com/snakemake-workflows/dna-seq-varlociraptor/pull/316)
+
+## [5.8.2](https://github.com/snakemake-workflows/dna-seq-varlociraptor/compare/v5.8.1...v5.8.2) (2024-07-18)
+
+
+### Bug Fixes
+
+* update to latest datavzrd ([b8bd1fc](https://github.com/snakemake-workflows/dna-seq-varlociraptor/commit/b8bd1fcf54ff2e160922b91169c7aa8fcc1aa328))
+
+## [5.8.1](https://github.com/snakemake-workflows/dna-seq-varlociraptor/compare/v5.8.0...v5.8.1) (2024-07-17)
+
+
+### Bug Fixes
+
+* always use the same type for label list in datavzrd config ([#312](https://github.com/snakemake-workflows/dna-seq-varlociraptor/issues/312)) ([9d20f50](https://github.com/snakemake-workflows/dna-seq-varlociraptor/commit/9d20f5003da40cfc8414b4877eaab8f2eceaa6dd))
+* fix typo in description of variant calls tables ([9d02274](https://github.com/snakemake-workflows/dna-seq-varlociraptor/commit/9d02274cc722bc55980c7bde303fef42a36ad88e))
+* minor fixes ([#311](https://github.com/snakemake-workflows/dna-seq-varlociraptor/issues/311)) ([a96e071](https://github.com/snakemake-workflows/dna-seq-varlociraptor/commit/a96e07146aef1a2bc2fd3b85bda3c3ebe48aa0d5))
+
+## [5.8.0](https://github.com/snakemake-workflows/dna-seq-varlociraptor/compare/v5.7.0...v5.8.0) (2024-07-01)
+
+
+### Features
+
+* mutational signatures ([#308](https://github.com/snakemake-workflows/dna-seq-varlociraptor/issues/308)) ([f037305](https://github.com/snakemake-workflows/dna-seq-varlociraptor/commit/f0373052750502832c94e6c2bfdc4f1328ef9634))
+
+
+### Bug Fixes
+
+* fusion sample selection ([#310](https://github.com/snakemake-workflows/dna-seq-varlociraptor/issues/310)) ([d817454](https://github.com/snakemake-workflows/dna-seq-varlociraptor/commit/d8174548d1a20dc9bc59150b606caec4d35831c5))
+
 ## [5.7.0](https://github.com/snakemake-workflows/dna-seq-varlociraptor/compare/v5.6.0...v5.7.0) (2024-06-07)
 
 

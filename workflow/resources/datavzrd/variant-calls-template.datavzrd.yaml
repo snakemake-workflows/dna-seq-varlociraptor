@@ -97,7 +97,7 @@ views:
   ?if input.gene_oncoprint:
     ?for view in ["gene-oncoprint"] + list(params.labels.index.values):
       __variables__:
-        labels: ?params.group_annotations.columns.values if view == "gene-oncoprint" else [view]
+        labels: ?params.group_annotations.columns.values.tolist() if view == "gene-oncoprint" else [view]
       ?"overview" if view == "gene-oncoprint" else f"by {view}":
         ?if view == "gene-oncoprint":
           desc: |
@@ -157,7 +157,7 @@ views:
         dataset: ?f"variant-oncoprint-{gene}"
         hidden: true
         render-table:
-          ?if params.group_annotations.columns.values:
+          ?if params.group_annotations.columns.values.tolist():
             headers:
               ?for i, annotation in enumerate(params.group_annotations.columns.values):
                 ?i + 1:
@@ -191,7 +191,7 @@ views:
         ?f"""
         Variants in coding regions.\n{params.event_desc}\n
         SpliceAI scores are probabilities of a variant being splice-altering.\n
-        AlphaMissense scores are classified as: likely benign (<0.34), ambiguous (0.34<=, <=0.564), likely pathogenic (0.564<).
+        AlphaMissense scores are classified as: likely benign (<0.34), ambiguous (0.34<=, <=0.564), likely pathogenic (<0.564).
         """
       dataset: ?f"{group}-coding"
       render-table:
@@ -283,6 +283,7 @@ views:
           binned max vaf:
             display-mode: hidden
           swissprot:
+            optional: true
             display-mode: hidden
           hgvsg:
             display-mode: hidden
@@ -388,6 +389,7 @@ views:
               ensembl:
                 url: https://www.ensembl.org/Homo_sapiens/Transcript/Summary?t={feature}
           hgvsc:
+            optional: true
             custom: ?read_file(input.linkouts)
           consequence:
             plot:
@@ -466,8 +468,10 @@ views:
             display-mode: hidden
           chromosome:
             display-mode: detail
+          end position:
+            display-mode: detail
           position:
-             display-mode: detail
+            display-mode: detail
           reference allele:
             display-mode: detail
           alternative allele:

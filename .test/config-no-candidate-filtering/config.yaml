@@ -29,6 +29,12 @@ mutational_burden:
     - SOMATIC_TUMOR_MEDIUM
     - SOMATIC_TUMOR_HIGH
 
+# Plotting of known mutational signatures
+mutational_signatures:
+  activate: false
+  events:
+    - some_id
+
 calling:
   delly:
     activate: true
@@ -42,7 +48,7 @@ calling:
     with_aux:
       aux-files: 
         super_interesting_genes: config-no-candidate-filtering/super_interesting_genes.tsv
-      expression: "ANN['GENE'] in AUX['super_interesting_genes']"
+      expression: "ANN['SYMBOL'] in AUX['super_interesting_genes']"
   fdr-control:
     threshold: 0.05
     events: 

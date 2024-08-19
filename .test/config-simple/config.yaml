@@ -28,6 +28,12 @@ mutational_burden:
   events:
     - present
 
+# Plotting of known mutational signatures
+mutational_signatures:
+  activate: false
+  events:
+    - some_id
+
 calling:
   delly:
     activate: true
