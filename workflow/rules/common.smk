@@ -162,10 +162,10 @@ def get_final_output(wildcards):
                 )
             )
 
-        if config["maftools"]["activate"]:
+        if config["maf"]["activate"]:
             final_output.extend(
                 expand(
-                    "results/maftools/{group}.{event}.{calling_type}.fdr-controlled.maf",
+                    "results/maf/{group}.{event}.{calling_type}.fdr-controlled.maf",
                     group=(
                         variants_groups
                         if calling_type == "variants"

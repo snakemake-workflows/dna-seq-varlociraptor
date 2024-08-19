@@ -2,7 +2,7 @@ rule group_bcf_to_vcf:
     input:
         "results/final-calls/{group}.{event}.{calling_type}.fdr-controlled.bcf",
     output:
-        temp("results/maftools/{group}.{event}.{calling_type}.fdr-controlled.vcf"),
+        temp("results/maf/{group}.{event}.{calling_type}.fdr-controlled.vcf"),
     log:
         "logs/maftools/{group}.{event}.{calling_type}.fdr-controlled.log",
     wrapper:
@@ -11,10 +11,10 @@ rule group_bcf_to_vcf:
 
 rule group_vcf_to_maf:
     input:
-        vcf="results/maftools/{group}.{event}.{calling_type}.fdr-controlled.vcf",
+        vcf="results/maf/{group}.{event}.{calling_type}.fdr-controlled.vcf",
         ref=genome,
     output:
-        maf="results/maftools/{group}.{event}.{calling_type}.fdr-controlled.maf",
+        maf="results/maf/{group}.{event}.{calling_type}.fdr-controlled.maf",
     log:
         "logs/maftools/{group}.{event}.{calling_type}.fdr-controlled.log",
     conda:
