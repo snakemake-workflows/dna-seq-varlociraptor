@@ -1118,7 +1118,7 @@ def get_format_fields_for_tables(config_output):
     return format_fields
 
 
-def get_info_prob_fields_for_tables(config_output):
+def get_info_prob_fields_for_tables(config_output, input):
     if config_output.get("event_prob", False):
         with open(input.scenario, "r") as scenario_file:
             scenario = yaml.load(scenario_file, Loader=yaml.SafeLoader)
@@ -1185,7 +1185,7 @@ def get_vembrane_config(wildcards, input):
     }
 
     ## INFO fields holding varlociraptor probabilities
-    info_prob_fields = get_info_prob_fields_for_tables(config_output)
+    info_prob_fields = get_info_prob_fields_for_tables(config_output, input)
     append_items(
         info_prob_fields, rename_info_fields, "INFO['{}']".format, "prob: {}".format
     )
