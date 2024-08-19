@@ -1079,7 +1079,7 @@ def get_info_fusion_fields_for_tables():
             "MATEID",
             "GENE_NAME",
             "GENE_ID",
-            "EXON",
+            "EXON_NUMBER",
         ]
     else:
         return []
@@ -1166,6 +1166,7 @@ def get_vembrane_config(wildcards, input):
         "GENE_ID": {
             "name": "feature_id",
         },
+        "EXON_NUMBER": {"name": "exon", "expr": "INFO['EXON_NUMBER'][0]"},
     }
 
     ## INFO fields holding varlociraptor probabilities
