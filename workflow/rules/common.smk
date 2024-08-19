@@ -1023,9 +1023,92 @@ def get_trimmed_fastqs(wc):
         ]
 
 
+def get_annotation_fields_for_tables(config_output):
+    annotation_fields = [
+        "SYMBOL",
+        "Gene",
+        "Feature",
+        "IMPACT",
+        "HGVSp",
+        "Protein_position",
+        "Amino_acids",
+        "HGVSg",
+        "HGVSc",
+        "Consequence",
+        "CANONICAL",
+        "MANE_PLUS_CLINICAL",
+        "CLIN_SIG",
+        "gnomADg_AF",
+        "SWISSPROT",
+    ]
+
+    annotation_fields.extend(
+        [
+            field
+            for field in config_output.get("annotation_fields", [])
+            if field not in annotation_fields
+        ]
+    )
+    for plugin in ["REVEL", "SpliceAI", "AlphaMissense"]:
+        if any(
+            entry.startswith(plugin)
+            for entry in config["annotations"]["vep"]["final_calls"]["plugins"]
+        ):
+            if plugin == "REVEL":
+                annotation_fields.append("REVEL")
+            elif plugin == "SpliceAI":
+                annotation_fields.extend([
+                    "SpliceAI_pred_DS_AG",
+                    "SpliceAI_pred_DS_AL",
+                    "SpliceAI_pred_DS_DG",
+                    "SpliceAI_pred_DS_DL",
+                ])
+            elif plugin == "AlphaMissense":
+                annotation_fields.append(
+                    "am_pathogenicity",
+                )
+    
+    return annotation_fields
+
+
+def get_info_fusion_fields_for_tables():
+    if wildcards.calling_type == "fusions":
+        return [
+            "MATEID",
+            "GENE_NAME",
+            "GENE_ID",
+            "EXON",
+        ]
+    else:
+        return []
+
+
+def get_format_fields_for_tables(config_output):
+
+    format_fields = ["AF", "DP"]
+
+    if config_output.get("short_observations", False):
+        format_fields.extend(["SROBS", "SAOBS"])
+
+    if config_output.get("observations", False):
+        format_fields.extend(["OBS", ])
+
+    return format_fields
+
+
+def get_info_prob_fields_for_tables(config_output):
+
+    if config_output.get("event_prob", False):
+        with open(input.scenario, "r") as scenario_file:
+            scenario = yaml.load(scenario_file, Loader=yaml.SafeLoader)
+            events = list(scenario["events"].keys())
+            events += ["artifact", "absent"]
+            return [f"PROB_{e.upper()}" for e in events]
+    else:
+        return []
+
+
 def get_vembrane_config(wildcards, input):
-    with open(input.scenario, "r") as scenario_file:
-        scenario = yaml.load(scenario_file, Loader=yaml.SafeLoader)
     parts = ["CHROM, POS, REF, ALT, INFO['END'], INFO['EVENT'], ID"]
     header = [
         "chromosome, position, reference allele, alternative allele, end position, event, id"
@@ -1034,103 +1117,101 @@ def get_vembrane_config(wildcards, input):
 
     config_output = config["tables"].get("output", {})
 
-    def append_items(items, field_func, header_func=None):
+    def append_items(items, renames, field_func, header_func=None):
         for item in items:
-            if type(item) is dict:
-                parts_field = item["expr"]
-                header_name = item["name"]
+            if item in renames:
+                header_name = renames[item]["name"]
+                if "expr" in renames[item]:
+                    parts_field = renames[item]["expr"]
+                else:
+                    parts_field = field_func(item)
             else:
                 parts_field = field_func(item)
                 header_name = header_func(item) if header_func else item
             parts.append(parts_field)
             header.append(header_name)
 
-    if wildcards.calling_type == "fusions":
-        info_fields = [
-            {"name": "mateid", "expr": "INFO['MATEID'][0]"},
-            {"name": "feature_name", "expr": "INFO['GENE_NAME']"},
-            {"name": "feature_id", "expr": "INFO['GENE_ID']"},
-            "EXON",
-        ]
-        append_items(info_fields, "INFO['{}']".format, lambda x: x.lower())
-    else:
-        annotation_fields = [
-            "SYMBOL",
-            "Gene",
-            "Feature",
-            "IMPACT",
-            "HGVSp",
-            {"name": "protein position", "expr": "ANN['Protein_position'].raw"},
-            {"name": "protein alteration (short)", "expr": "ANN['Amino_acids']"},
-            "HGVSg",
-            "HGVSc",
-            "Consequence",
-            "CANONICAL",
-            "MANE_PLUS_CLINICAL",
-            {"name": "clinical significance", "expr": "ANN['CLIN_SIG']"},
-            {"name": "gnomad genome af", "expr": "ANN['gnomADg_AF']"},
-            "SWISSPROT",
-        ]
+    # FORMAT fields
+    format_fields_names = {
+        "AF": "allele frequency",
+        "DP": "read depth",
+        "SROBS": "short ref observations",
+        "SAOBS": "short alt observations",
+        "OBS": "observations",
+    }
+    
+    format_fields = get_format_fields_for_tables(config_output)
+    aliases = get_group_sample_aliases(wildcards)
 
-        annotation_fields.extend(
-            [
-                field
-                for field in config_output.get("annotation_fields", [])
-                if field not in annotation_fields
-            ]
-        )
-        for plugin in ["REVEL", "SpliceAI", "AlphaMissense"]:
-            if any(
-                entry.startswith(plugin)
-                for entry in config["annotations"]["vep"]["final_calls"]["plugins"]
-            ):
-                if plugin == "REVEL":
-                    annotation_fields.append("REVEL")
-                elif plugin == "SpliceAI":
-                    annotation_fields += [
-                        {
-                            "name": "spliceai acceptor gain",
-                            "expr": "ANN['SpliceAI_pred_DS_AG']",
-                        },
-                        {
-                            "name": "spliceai acceptor loss",
-                            "expr": "ANN['SpliceAI_pred_DS_AL']",
-                        },
-                        {
-                            "name": "spliceai donor gain",
-                            "expr": "ANN['SpliceAI_pred_DS_DG']",
-                        },
-                        {
-                            "name": "spliceai donor loss",
-                            "expr": "ANN['SpliceAI_pred_DS_DL']",
-                        },
-                    ]
-                elif plugin == "AlphaMissense":
-                    annotation_fields.append(
-                        {"name": "alphamissense", "expr": "ANN['am_pathogenicity']"}
-                    )
-
-        append_items(annotation_fields, "ANN['{}']".format, lambda x: x.lower())
-
-    samples = get_group_sample_aliases(wildcards)
-
-    def append_format_field(field, name):
+    for f in format_fields:
         append_items(
-            samples, f"FORMAT['{field}']['{{}}']".format, f"{{}}: {name}".format
+            aliases,
+            dict(),
+            f"FORMAT['{f}']['{{}}']".format,
+            f"{{}}: {format_fields_names[f] if f in format_fields_names else f}".format
         )
 
-    if config_output.get("event_prob", False):
-        events = list(scenario["events"].keys())
-        events += ["artifact", "absent"]
-        append_items(events, lambda x: f"INFO['PROB_{x.upper()}']", "prob: {}".format)
-    append_format_field("AF", "allele frequency")
-    append_format_field("DP", "read depth")
-    if config_output.get("short_observations", False):
-        append_format_field("SROBS", "short ref observations")
-        append_format_field("SAOBS", "short alt observations")
 
-    if config_output.get("observations", False):
-        append_format_field("OBS", "observations")
+    # INFO fields
+    rename_info_fields = {
+        "MATEID": {
+            "name": "mateid",
+            "expr": "INFO['MATEID'][0]"
+        },
+        "GENE_NAME": {
+            "name": "feature_name",
+        },
+        "GENE_ID": {
+            "name": "feature_id",
+        },
+    }
+
+    ## INFO fields holding varlociraptor probabilities
+    info_prob_fields = get_info_prob_fields_for_tables(config_output)
+    append_items(info_prob_fields, rename_info_fields, f"INFO['{}']".format, f"prob: {}".format)
+
+    ## INFO fields relevant in fusion calling, only added for 'fusion' calling
+    info_fusion_fields = get_info_fusion_fields_for_tables()
+    append_items(info_fusion_fields, rename_info_fields, "INFO['{}']".format, lambda x: x.lower())
+    
+    ## INFO field annotations from the INFO['ANN'] field
+    if wildcards.calling_type != "fusions":
+        rename_ann_fields = {
+            "Protein_position": {
+                "name": "protein position",
+                "expr": "ANN['Protein_position'].raw"
+            },
+            "Amino_acids": {
+                "name": "protein alteration (short)",
+            },
+            "CLIN_SIG": {
+                "name": "clinical significance",
+            },
+            "gnomADg_AF": {
+                "name": "gnomad genome af",
+            },
+            "SpliceAI_pred_DS_AG": {
+                "name": "spliceai acceptor gain",
+            },
+            "SpliceAI_pred_DS_AL":
+            {
+                "name": "spliceai acceptor loss",
+            },
+            "SpliceAI_pred_DS_DG":
+            {
+                "name": "spliceai donor gain",
+            },
+            "SpliceAI_pred_DS_DL":
+            {
+                "name": "spliceai donor loss",
+            },
+            "am_pathogenicity":
+            {
+                "name": "alphamissense",
+            }
+        }
+        append_items(annotation_fields, rename_ann_fields, f"ANN['{}']".format, lambda x: x.lower())
+
     return {"expr": join_items(parts), "header": join_items(header)}
 
 
