@@ -1103,7 +1103,6 @@ def get_info_fusion_fields_for_tables():
 
 
 def get_format_fields_for_tables(config_output):
-
     format_fields = ["AF", "DP"]
 
     if config_output.get("short_observations", False):
@@ -1120,7 +1119,6 @@ def get_format_fields_for_tables(config_output):
 
 
 def get_info_prob_fields_for_tables(config_output):
-
     if config_output.get("event_prob", False):
         with open(input.scenario, "r") as scenario_file:
             scenario = yaml.load(scenario_file, Loader=yaml.SafeLoader)
