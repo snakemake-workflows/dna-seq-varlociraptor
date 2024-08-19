@@ -1228,6 +1228,7 @@ def get_vembrane_config(wildcards, input):
                 "name": "alphamissense",
             },
         }
+        annotation_fields = get_annotation_fields_for_tables(config_output)
         append_items(
             annotation_fields,
             rename_ann_fields,
