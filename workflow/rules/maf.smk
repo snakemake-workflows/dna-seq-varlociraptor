@@ -4,7 +4,7 @@ rule group_bcf_to_vcf:
     output:
         temp("results/maf/{group}.{event}.{calling_type}.fdr-controlled.vcf"),
     log:
-        "logs/maftools/{group}.{event}.{calling_type}.fdr-controlled.log",
+        "logs/maf/{group}.{event}.{calling_type}.fdr-controlled.log",
     wrapper:
         "v3.8.0/bio/bcftools/view"
 
@@ -16,7 +16,7 @@ rule group_vcf_to_maf:
     output:
         maf="results/maf/{group}.{event}.{calling_type}.fdr-controlled.maf",
     log:
-        "logs/maftools/{group}.{event}.{calling_type}.fdr-controlled.log",
+        "logs/maf/{group}.{event}.{calling_type}.fdr-controlled.log",
     conda:
         "../envs/vcf2maf.yaml"
     params:
