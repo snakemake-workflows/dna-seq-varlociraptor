@@ -1090,7 +1090,7 @@ def get_annotation_fields_for_tables(config_output):
     return annotation_fields
 
 
-def get_info_fusion_fields_for_tables():
+def get_info_fusion_fields_for_tables(wildcards):
     if wildcards.calling_type == "fusions":
         return [
             "MATEID",
@@ -1191,7 +1191,7 @@ def get_vembrane_config(wildcards, input):
     )
 
     ## INFO fields relevant in fusion calling, only added for 'fusion' calling
-    info_fusion_fields = get_info_fusion_fields_for_tables()
+    info_fusion_fields = get_info_fusion_fields_for_tables(wildcards)
     append_items(
         info_fusion_fields, rename_info_fields, "INFO['{}']".format, lambda x: x.lower()
     )
