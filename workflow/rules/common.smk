@@ -1256,30 +1256,29 @@ def get_vembrane_config(wildcards, input):
     # MAIN variants columns
     sort_order = [
         # variants only
-        "SYMBOL",
-        "IMPACT",
-        "HGVSp",
-        "HGVSc",
+        "ANN['SYMBOL']",
+        "ANN['IMPACT']",
+        "ANN['HGVSp']",
+        "ANN['HGVSc']",
     ]
     sort_order.extend(
         [
             # variants only
-            "Consequence",
-            "CLIN_SIG",
-            "gnomAD_AF",
-            "EXON",
-            "REVEL",
+            "ANN['Consequence']",
+            "ANN['CLIN_SIG']",
+            "ANN['gnomAD_AF']",
+            "ANN['EXON']",
+            "ANN['REVEL']",
             # variants only, split-call-tables.py will select the column with the
             # highest score and will put it in the same place
-            "SpliceAI_pred_DS_AG",
-            "SpliceAI_pred_DS_AL",
-            "SpliceAI_pred_DS_DG",
-            "SpliceAI_pred_DS_DL",
+            "ANN['SpliceAI_pred_DS_AG']",
+            "ANN['SpliceAI_pred_DS_AL']",
+            "ANN['SpliceAI_pred_DS_DG']",
+            "ANN['SpliceAI_pred_DS_DL']",
             # variants only
-            "am_pathogenicity",
+            "ANN['am_pathogenicity']",
         ]
     )
-
     # COLLAPSED variants columns
     sort_order.extend(
         [
@@ -1289,13 +1288,13 @@ def get_vembrane_config(wildcards, input):
             # variants only
             "REF",
             "ALT",
-            "Protein_position",
-            "Amino_acids",
-            "CANONICAL",
-            "MANE_PLUS_CLINICAL",
+            "ANN['Protein_position'].raw",
+            "ANN['Amino_acids']",
+            "ANN['CANONICAL']",
+            "ANN['MANE_PLUS_CLINICAL']",
             # fusions only
-            "GENE_NAME",
-            "GENE_ID",
+            "INFO['GENE_NAME']",
+            "INFO['GENE_ID']",
         ]
     )
     sort_order.extend(
@@ -1322,15 +1321,15 @@ def get_vembrane_config(wildcards, input):
     )
     sort_order.extend(
         # variants & fusions
-        get_and_sort_multi_entry_fields("FORMAT", "SROBS")
+        get_and_sort_multi_entry_fields("FORMAT['SROBS']")
     )
     sort_order.extend(
         # variants & fusions
-        get_and_sort_multi_entry_fields("FORMAT", "SAOBS")
+        get_and_sort_multi_entry_fields("FORMAT['SAOBS']")
     )
     sort_order.extend(
         # variants & fusions
-        get_and_sort_multi_entry_fields("FORMAT", "OBS")
+        get_and_sort_multi_entry_fields("FORMAT['OBS']")
     )
     sort_order.extend(
         [
