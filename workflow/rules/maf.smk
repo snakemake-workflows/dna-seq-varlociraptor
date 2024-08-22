@@ -43,3 +43,5 @@ rule group_vcf_to_maf:
         " --ref-fasta {input.ref} "
         " --tumor-id {wildcards.group}_{params.vcf_tumor_alias} "
         " {params.normal_id} "
+        " 2>{log};"
+        ' ! grep "WARNING" {log} '
