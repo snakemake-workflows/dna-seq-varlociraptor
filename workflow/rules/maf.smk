@@ -13,6 +13,7 @@ rule group_vcf_to_maf:
     input:
         vcf="results/maf/{group}.{event}.{calling_type}.fdr-controlled.vcf",
         ref=genome,
+        scenario="results/scenarios/{group}.yaml", # needed for determining event probability INFO fields
     output:
         maf="results/maf/{group}.{event}.{calling_type}.fdr-controlled.maf",
     log:
@@ -22,13 +23,23 @@ rule group_vcf_to_maf:
     params:
         genome_build=config["ref"]["build"],
         species=config["ref"]["species"],
+        ann_fields=lambda wc, input: ",".join(get_annotation_fields_for_tables(wc)),
+        format_fields=lambda wc, input: ",".join(get_format_fields_for_tables(wc)),
+        info_fields=lambda wc, input: ",".join(get_info_prob_fields_for_tables(wc, input) + get_info_fusion_fields_for_tables(wc)),
+        vcf_tumor_alias=lookup(dpath="maf/tumor_alias", within=config),
+        vcf_normal_alias_option=f'--vcf-normal-id {lookup(dpath="maf/normal_alias", within=config, default="")}' if {lookup(dpath="maf/normal_alias", within=config, default="")} else "",
+        normal_id=lambda wc: f'--normal-id {wc.group}_{lookup(dpath="maf/normal_alias", within=config, default="")}' if {lookup(dpath="maf/normal_alias", within=config, default="")} else "",
     shell:
         "vcf2maf.pl --inhibit-vep "
-        " --retain-info PROB_ARTIFACT,PROB_ABSENT,PROB_SOMATIC,PROB_GERMLINE_HOM,PROB_GERMLINE_HET "
-        " --retain-fmt DP,AF "
+        " --retain-ann {params.ann_fields} "
+        " --retain-fmt {params.format_fields} "
+        " --retain-info {params.info_fields} "
         " --ncbi-build {params.genome_build} "
         " --species {params.species} "
-        " --vcf-tumor-id tumor --vcf-normal-id panel_of_normals "
-        " --input-vcf {input.vcf} --output-maf {output.maf} --ref-fasta {input.ref} "
-        " --tumor-id {wildcards.group}_tumor --normal-id {wildcards.group}_panel_of_normal "
-        " 2>{log}"
+        " --vcf-tumor-id {params.vcf_tumor_alias} "
+        " {params.vcf_normal_alias_option} "
+        " --input-vcf {input.vcf} "
+        " --output-maf {output.maf} "
+        " --ref-fasta {input.ref} "
+        " --tumor-id {wildcards.group}_{params.vcf_tumor_alias} "
+        " {params.normal_id} "
