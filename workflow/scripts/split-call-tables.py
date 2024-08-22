@@ -276,8 +276,6 @@ write(noncoding_calls, snakemake.output.noncoding)
 
 coding_calls = calls[coding & canonical_mane].drop(
     [
-        "end position",
-        "event",
         "id",
     ],
     axis="columns",

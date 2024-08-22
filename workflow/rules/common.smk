@@ -1130,11 +1130,21 @@ def get_info_prob_fields_for_tables(config_output, input):
 
 
 def get_vembrane_config(wildcards, input):
-    parts = ["CHROM, POS, REF, ALT, INFO['END'], INFO['EVENT'], ID"]
-    header = [
-        "chromosome, position, reference allele, alternative allele, end position, event, id"
-    ]
-    join_items = ", ".join
+    # map VCF field names (keys) to wanted column names in the vembrane
+    # output header (values)
+    columns_dict = {
+        "CHROM": "chromosome",
+        "POS": "position",
+        "REF": "reference allele",
+        "ALT": "alternative allele",
+        # TODO: remove completely if tests pass without this
+        # END and EVENT were previously included, but they seem to be dropped
+        # in both split-call-tables.py and join_fusion_partner.py, so I'll
+        # simply comment them out here for now
+        # "INFO['END']": "end position",
+        # "INFO['EVENT']": "event",
+        "ID": "id",
+    }
 
     config_output = config["tables"].get("output", {})
 
@@ -1149,8 +1159,7 @@ def get_vembrane_config(wildcards, input):
             else:
                 parts_field = field_func(item)
                 header_name = header_func(item) if header_func else item
-            parts.append(parts_field)
-            header.append(header_name)
+            columns_dict[parts_field] = header_name
 
     # FORMAT fields
     format_fields_names = {
@@ -1236,7 +1245,106 @@ def get_vembrane_config(wildcards, input):
             lambda x: x.lower(),
         )
 
-    return {"expr": join_items(parts), "header": join_items(header)}
+    # determine the sort order, downstream scripts split-call-tables.py and
+    # join_fusion_partner.py will remove columns they respectively don't need
+
+    def get_and_sort_multi_entry_fields(field_prefix):
+        fields = [k for k in columns_dict.keys() if k.startswith(field_prefix)]
+        return sorted(fields)
+
+    # MAIN variants columns
+    sort_order = [
+        # variants only
+        "SYMBOL",
+        "IMPACT",
+        "HGVSp",
+        "HGVSc",
+    ]
+    sort_order.extend(
+        [
+            # variants only
+            "Consequence",
+            "CLIN_SIG",
+            "gnomAD_AF",
+            "EXON",
+            "REVEL",
+            # variants only, split-call-tables.py will select the column with the
+            # highest score and will put it in the same place
+            "SpliceAI_pred_DS_AG",
+            "SpliceAI_pred_DS_AL",
+            "SpliceAI_pred_DS_DG",
+            "SpliceAI_pred_DS_DL",
+            # variants only
+            "am_pathogenicity",
+        ]
+    )
+
+    # COLLAPSED variants columns
+    sort_order.extend(
+        [
+            # variants & fusions
+            "CHROM",
+            "POS",
+            # variants only
+            "REF",
+            "ALT",
+            "Protein_position",
+            "Amino_acids",
+            "CANONICAL",
+            "MANE_PLUS_CLINICAL",
+            # fusions only
+            "GENE_NAME",
+            "GENE_ID",
+        ]
+    )
+    sort_order.extend(
+        # fusions only
+        get_and_sort_multi_entry_fields("INFO['EXON_NUMBER'][0]")
+    )
+    sort_order.extend(
+        # MAIN column for fusions, COLLAPSED column for variants
+        get_and_sort_multi_entry_fields("INFO['PROB_")
+    )
+    sort_order.extend(
+        # MAIN column for fusions & variants
+        # gets moved ahead of consequence column for variants
+        get_and_sort_multi_entry_fields("FORMAT['AF']")
+    )
+    sort_order.extend(
+        # MAIN column for fusions, COLLAPSED column for variants
+        get_and_sort_multi_entry_fields("FORMAT['DP']")
+    )
+    # COLLAPSED columns
+    sort_order.extend(
+        # fusions only, join key in join_fusion_partner.py
+        get_and_sort_multi_entry_fields("INFO['MATEID'][0]")
+    )
+    sort_order.extend(
+        # variants & fusions
+        get_and_sort_multi_entry_fields("FORMAT", "SROBS")
+    )
+    sort_order.extend(
+        # variants & fusions
+        get_and_sort_multi_entry_fields("FORMAT", "SAOBS")
+    )
+    sort_order.extend(
+        # variants & fusions
+        get_and_sort_multi_entry_fields("FORMAT", "OBS")
+    )
+    sort_order.extend(
+        [
+            # only needed for fusions, as a join key; dropped in
+            # split-call-tables.py
+            "ID",
+        ]
+    )
+    # sort columns, keeping only those in sort_order
+    sorted_columns_dict = {k: columns_dict[k] for k in sort_order}
+    join_items = ", ".join
+    return {
+        "expr": join_items(sorted_columns_dict.keys()),
+        "header": join_items(sorted_columns_dict.values()),
+    }
 
 
 def get_umi_fastq(wildcards):
