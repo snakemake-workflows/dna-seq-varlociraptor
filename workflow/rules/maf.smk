@@ -21,8 +21,8 @@ rule group_vcf_to_maf:
     conda:
         "../envs/vcf2maf.yaml"
     params:
-        genome_build=config["ref"]["build"],
-        species=config["ref"]["species"],
+        genome_build=lookup(dpath="ref/build", within=config),
+        species=lookup(dpath="ref/species", within=config),
         ann_fields=lambda wc, input: ",".join(get_annotation_fields_for_tables(wc)),
         format_fields=lambda wc, input: ",".join(get_format_fields_for_tables(wc)),
         info_fields=lambda wc, input: ",".join(get_info_prob_fields_for_tables(wc, input) + get_info_fusion_fields_for_tables(wc)),
