@@ -1138,11 +1138,11 @@ def get_vembrane_config(wildcards, input):
         "POS": "position",
         "REF": "reference allele",
         "ALT": "alternative allele",
+        "INFO['END']": "end position",
         # TODO: remove completely if tests pass without this
         # END and EVENT were previously included, but they seem to be dropped
         # in both split-call-tables.py and join_fusion_partner.py, so I'll
         # simply comment them out here for now
-        # "INFO['END']": "end position",
         # "INFO['EVENT']": "event",
         "ID": "id",
     }
@@ -1338,6 +1338,11 @@ def get_vembrane_config(wildcards, input):
             "ID",
             # only needed for indexing of variants in split-call-tables.py
             "ANN['Gene']",
+            # only needed for variants in oncoprint.py
+            "ANN['HGVSg']",
+            # only needed for variants in datavzrd_variants_calls
+            "ANN['Feature']",
+            "INFO['END']"
         ]
     )
     # sort columns, keeping only those in sort_order
