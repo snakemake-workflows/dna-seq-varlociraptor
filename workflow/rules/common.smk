@@ -1049,7 +1049,7 @@ def get_annotation_fields_for_tables(config_output):
         "EXON",
         "Feature",
         "Gene",
-        "gnomAD_AF",
+        "gnomADg_AF",
         "HGVSc",
         "HGVSg",
         "HGVSp",
@@ -1219,7 +1219,7 @@ def get_vembrane_config(wildcards, input):
             "CLIN_SIG": {
                 "name": "clinical significance",
             },
-            "gnomAD_AF": {
+            "gnomADg_AF": {
                 "name": "gnomad genome af",
             },
             "SpliceAI_pred_DS_AG": {
@@ -1266,7 +1266,7 @@ def get_vembrane_config(wildcards, input):
             # variants only
             "ANN['Consequence']",
             "ANN['CLIN_SIG']",
-            "ANN['gnomAD_AF']",
+            "ANN['gnomADg_AF']",
             "ANN['EXON']",
             "ANN['REVEL']",
             # variants only, split-call-tables.py will select the column with the
