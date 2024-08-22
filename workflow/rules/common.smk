@@ -1339,7 +1339,7 @@ def get_vembrane_config(wildcards, input):
         ]
     )
     # sort columns, keeping only those in sort_order
-    sorted_columns_dict = {k: columns_dict[k] for k in sort_order}
+    sorted_columns_dict = {k: columns_dict[k] for k in sort_order if k in columns_dict}
     join_items = ", ".join
     return {
         "expr": join_items(sorted_columns_dict.keys()),
