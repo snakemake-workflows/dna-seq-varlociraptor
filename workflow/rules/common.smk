@@ -1336,6 +1336,8 @@ def get_vembrane_config(wildcards, input):
             # only needed for fusions, as a join key; dropped in
             # split-call-tables.py
             "ID",
+            # only needed for indexing of variants in split-call-tables.py
+            "ANN['Gene']",
         ]
     )
     # sort columns, keeping only those in sort_order
