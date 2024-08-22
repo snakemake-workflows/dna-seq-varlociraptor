@@ -13,7 +13,7 @@ rule group_vcf_to_maf:
     input:
         vcf="results/maf/{group}.{event}.{calling_type}.fdr-controlled.vcf",
         ref=genome,
-        scenario="results/scenarios/{group}.yaml", # needed for determining event probability INFO fields
+        scenario="results/scenarios/{group}.yaml",  # needed for determining event probability INFO fields
     output:
         maf="results/maf/{group}.{event}.{calling_type}.fdr-controlled.maf",
     log:
@@ -25,10 +25,21 @@ rule group_vcf_to_maf:
         species=lookup(dpath="ref/species", within=config),
         ann_fields=lambda wc, input: ",".join(get_annotation_fields_for_tables(wc)),
         format_fields=lambda wc, input: ",".join(get_format_fields_for_tables(wc)),
-        info_fields=lambda wc, input: ",".join(get_info_prob_fields_for_tables(wc, input) + get_info_fusion_fields_for_tables(wc)),
+        info_fields=lambda wc, input: ",".join(
+            get_info_prob_fields_for_tables(wc, input)
+            + get_info_fusion_fields_for_tables(wc)
+        ),
         vcf_tumor_alias=lookup(dpath="maf/tumor_alias", within=config),
-        vcf_normal_alias_option=f'--vcf-normal-id {lookup(dpath="maf/normal_alias", within=config, default="")}' if {lookup(dpath="maf/normal_alias", within=config, default="")} else "",
-        normal_id=lambda wc: f'--normal-id {wc.group}_{lookup(dpath="maf/normal_alias", within=config, default="")}' if {lookup(dpath="maf/normal_alias", within=config, default="")} else "",
+        vcf_normal_alias_option=(
+            f'--vcf-normal-id {lookup(dpath= "maf/normal_alias", within= config, default= "")}'
+            if {lookup(dpath="maf/normal_alias", within=config, default="")}
+            else ""
+        ),
+        normal_id=lambda wc: (
+            f'--normal-id {wc.group}_{lookup(dpath= "maf/normal_alias", within= config, default= "")}'
+            if {lookup(dpath="maf/normal_alias", within=config, default="")}
+            else ""
+        ),
     shell:
         "vcf2maf.pl --inhibit-vep "
         " --retain-ann {params.ann_fields} "

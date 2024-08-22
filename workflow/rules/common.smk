@@ -1063,7 +1063,9 @@ def get_annotation_fields_for_tables(wildcards):
     annotation_fields.extend(
         [
             field
-            for field in lookup(dpath="tables/output/annotation_fields", within=config, default = [])
+            for field in lookup(
+                dpath="tables/output/annotation_fields", within=config, default=[]
+            )
             if field not in annotation_fields
         ]
     )
@@ -1106,10 +1108,10 @@ def get_info_fusion_fields_for_tables(wildcards):
 def get_format_fields_for_tables(wildcards):
     format_fields = ["AF", "DP"]
 
-    if lookup(dpath="tables/output/short_observations", within=config, default = False):
+    if lookup(dpath="tables/output/short_observations", within=config, default=False):
         format_fields.extend(["SROBS", "SAOBS"])
 
-    if lookup(dpath="tables/output/observations", within=config, default = False):
+    if lookup(dpath="tables/output/observations", within=config, default=False):
         format_fields.extend(
             [
                 "OBS",
@@ -1120,7 +1122,7 @@ def get_format_fields_for_tables(wildcards):
 
 
 def get_info_prob_fields_for_tables(wildcards, input):
-    if lookup(dpath="tables/output/event_prob", within=config, default = False):
+    if lookup(dpath="tables/output/event_prob", within=config, default=False):
         with open(input.scenario, "r") as scenario_file:
             scenario = yaml.load(scenario_file, Loader=yaml.SafeLoader)
             events = list(scenario["events"].keys())
