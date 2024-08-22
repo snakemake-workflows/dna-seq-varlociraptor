@@ -85,6 +85,12 @@ report:
 # https://bioconductor.org/packages/release/bioc/vignettes/maftools/inst/doc/maftools.html
 maf:
   activate: false
+  # sample alias from scenario.yaml for tumor sample;
+  # only necessary, if activate: true
+  tumor_alias: "tumor"
+  # optional: sample alias from scenario.yaml for normal sample
+  # normal_alias: "normal"
+
 
 calling:
   # Set to true to infer classical genotypes from Varlociraptor's VAF predictions
