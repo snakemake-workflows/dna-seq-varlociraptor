@@ -1042,21 +1042,22 @@ def get_trimmed_fastqs(wc):
 
 def get_annotation_fields_for_tables(config_output):
     annotation_fields = [
-        "SYMBOL",
-        "Gene",
-        "Feature",
-        "IMPACT",
-        "HGVSp",
-        "Protein_position",
         "Amino_acids",
-        "HGVSg",
-        "HGVSc",
-        "Consequence",
         "CANONICAL",
-        "MANE_PLUS_CLINICAL",
         "CLIN_SIG",
-        "gnomADg_AF",
+        "Consequence",
+        "EXON",
+        "Feature",
+        "Gene",
+        "gnomAD_AF",
+        "HGVSc",
+        "HGVSg",
+        "HGVSp",
+        "IMPACT",
+        "MANE_PLUS_CLINICAL",
+        "Protein_position",
         "SWISSPROT",
+        "SYMBOL",
     ]
 
     annotation_fields.extend(
