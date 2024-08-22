@@ -1040,7 +1040,7 @@ def get_trimmed_fastqs(wc):
         ]
 
 
-def get_annotation_fields_for_tables(config_output):
+def get_annotation_fields_for_tables(wildcards):
     annotation_fields = [
         "Amino_acids",
         "CANONICAL",
@@ -1063,7 +1063,7 @@ def get_annotation_fields_for_tables(config_output):
     annotation_fields.extend(
         [
             field
-            for field in config_output.get("annotation_fields", [])
+            for field in lookup(dpath="tables/output/annotation_fields", within=config, default = [])
             if field not in annotation_fields
         ]
     )
@@ -1103,13 +1103,13 @@ def get_info_fusion_fields_for_tables(wildcards):
         return []
 
 
-def get_format_fields_for_tables(config_output):
+def get_format_fields_for_tables(wildcards):
     format_fields = ["AF", "DP"]
 
-    if config_output.get("short_observations", False):
+    if lookup(dpath="tables/output/short_observations", within=config, default = False):
         format_fields.extend(["SROBS", "SAOBS"])
 
-    if config_output.get("observations", False):
+    if lookup(dpath="tables/output/observations", within=config, default = False):
         format_fields.extend(
             [
                 "OBS",
@@ -1119,8 +1119,8 @@ def get_format_fields_for_tables(config_output):
     return format_fields
 
 
-def get_info_prob_fields_for_tables(config_output, input):
-    if config_output.get("event_prob", False):
+def get_info_prob_fields_for_tables(wildcards, input):
+    if lookup(dpath="tables/output/event_prob", within=config, default = False):
         with open(input.scenario, "r") as scenario_file:
             scenario = yaml.load(scenario_file, Loader=yaml.SafeLoader)
             events = list(scenario["events"].keys())
@@ -1147,8 +1147,6 @@ def get_vembrane_config(wildcards, input):
         "ID": "id",
     }
 
-    config_output = config["tables"].get("output", {})
-
     def append_items(items, renames, field_func, header_func=None):
         for item in items:
             if item in renames:
@@ -1171,7 +1169,7 @@ def get_vembrane_config(wildcards, input):
         "OBS": "observations",
     }
 
-    format_fields = get_format_fields_for_tables(config_output)
+    format_fields = get_format_fields_for_tables(wildcards)
     aliases = get_group_sample_aliases(wildcards)
 
     for f in format_fields:
@@ -1195,7 +1193,7 @@ def get_vembrane_config(wildcards, input):
     }
 
     ## INFO fields holding varlociraptor probabilities
-    info_prob_fields = get_info_prob_fields_for_tables(config_output, input)
+    info_prob_fields = get_info_prob_fields_for_tables(wildcards, input)
     append_items(
         info_prob_fields, rename_info_fields, "INFO['{}']".format, "prob: {}".format
     )
@@ -1238,7 +1236,7 @@ def get_vembrane_config(wildcards, input):
                 "name": "alphamissense",
             },
         }
-        annotation_fields = get_annotation_fields_for_tables(config_output)
+        annotation_fields = get_annotation_fields_for_tables(wildcards)
         append_items(
             annotation_fields,
             rename_ann_fields,
