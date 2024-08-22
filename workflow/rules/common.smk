@@ -1209,7 +1209,7 @@ def get_vembrane_config(wildcards, input):
             "CLIN_SIG": {
                 "name": "clinical significance",
             },
-            "gnomADg_AF": {
+            "gnomAD_AF": {
                 "name": "gnomad genome af",
             },
             "SpliceAI_pred_DS_AG": {
