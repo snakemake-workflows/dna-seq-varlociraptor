@@ -108,10 +108,11 @@ def reorder_prob_cols(df):
 
 
 def reorder_vaf_cols(df):
-    split_index = df.columns.get_loc("consequence")
-    left_columns = df.iloc[:, 0:split_index].columns
     vaf_columns = df.filter(regex=": allele frequency$").columns
-    right_columns = df.iloc[:, split_index:].columns.drop(vaf_columns)
+    other_columns = df.drop(columns=vaf_columns).columns
+    split_index = other_columns.get_loc("consequence")
+    left_columns = other_columns[0:split_index]
+    right_columns = other_columns[split_index:]
     reordered_columns = left_columns.append([vaf_columns, right_columns])
     return df[reordered_columns]
 
