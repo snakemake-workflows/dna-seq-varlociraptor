@@ -1342,7 +1342,7 @@ def get_vembrane_config(wildcards, input):
             "ANN['HGVSg']",
             # only needed for variants in datavzrd_variants_calls
             "ANN['Feature']",
-            "INFO['END']"
+            "INFO['END']",
         ]
     )
     # sort columns, keeping only those in sort_order
