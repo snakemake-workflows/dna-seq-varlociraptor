@@ -162,7 +162,7 @@ def get_final_output(wildcards):
                 )
             )
 
-        if config["maf"]["activate"]:
+        if lookup(dpath="maf/activate", within=config, default=False):
             final_output.extend(
                 expand(
                     "results/maf/{group}.{event}.{calling_type}.fdr-controlled.maf",
