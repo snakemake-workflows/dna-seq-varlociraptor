@@ -176,8 +176,6 @@ tables:
 gene_coverage:
   min_avg_coverage: 5
 
-
-
 report:
   activate: false
   max_read_depth: 250
