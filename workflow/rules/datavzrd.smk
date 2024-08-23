@@ -104,8 +104,7 @@ rule datavzrd_variants_calls:
             dpath="calling/fdr-control/events/{event}/desc", within=config
         ),
     wrapper:
-        # TODO: update before merging
-        "v3.12.1/utils/datavzrd"
+        "v4.1.1/utils/datavzrd"
 
 
 rule datavzrd_fusion_calls:
@@ -143,8 +142,7 @@ rule datavzrd_fusion_calls:
         groups=get_report_batch("fusions"),
         samples=samples,
     wrapper:
-        # TODO: update before merging
-        "v3.12.1/utils/datavzrd"
+        "v4.1.1/utils/datavzrd"
 
 
 rule bedtools_merge:
@@ -198,4 +196,4 @@ rule datavzrd_coverage:
     params:
         samples=lambda wc: get_group_samples(wc.group),
     wrapper:
-        "v3.13.8-1-g9d47dd7/utils/datavzrd"
+        "v4.1.1/utils/datavzrd"
