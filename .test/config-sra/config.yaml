@@ -95,8 +95,7 @@ params:
 gene_coverage:
   min_avg_coverage: 8
 
-maf:
-  activate: false
+
 
 report:
   activate: false

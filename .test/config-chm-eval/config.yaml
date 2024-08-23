@@ -176,8 +176,7 @@ tables:
 gene_coverage:
   min_avg_coverage: 5
 
-maf:
-  activate: false
+
 
 report:
   activate: false
