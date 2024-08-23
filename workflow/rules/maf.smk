@@ -32,12 +32,12 @@ rule group_vcf_to_maf:
         vcf_tumor_alias=lookup(dpath="maf/tumor_alias", within=config, default="tumor"),
         vcf_normal_alias_option=(
             f'--vcf-normal-id {lookup(dpath= "maf/normal_alias", within= config, default= "")}'
-            if {lookup(dpath="maf/normal_alias", within=config, default="")}
+            if {lookup(dpath="maf/normal_alias", within=config, default=False)}
             else ""
         ),
         normal_id=lambda wc: (
             f'--normal-id {wc.group}_{lookup(dpath= "maf/normal_alias", within= config, default= "")}'
-            if {lookup(dpath="maf/normal_alias", within=config, default="")}
+            if {lookup(dpath="maf/normal_alias", within=config, default=False)}
             else ""
         ),
     shell:
