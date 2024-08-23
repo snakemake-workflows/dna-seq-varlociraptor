@@ -81,7 +81,7 @@ report:
     # select a sample sheet column for stratification
     by-column: condition
 
-# standardized mutation overview plots with maf:
+# optional: standardized mutation overview plots with maf:
 # https://bioconductor.org/packages/release/bioc/vignettes/maftools/inst/doc/maftools.html
 maf:
   activate: false
