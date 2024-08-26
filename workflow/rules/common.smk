@@ -1141,11 +1141,7 @@ def get_vembrane_config(wildcards, input):
         "REF": "reference allele",
         "ALT": "alternative allele",
         "INFO['END']": "end position",
-        # TODO: remove completely if tests pass without this
-        # END and EVENT were previously included, but they seem to be dropped
-        # in both split-call-tables.py and join_fusion_partner.py, so I'll
-        # simply comment them out here for now
-        # "INFO['EVENT']": "event",
+        "INFO['EVENT']": "event",
         "ID": "id",
     }
 
