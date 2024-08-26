@@ -55,4 +55,5 @@ rule group_vcf_to_maf:
         " --tumor-id {wildcards.group}_{params.vcf_tumor_alias} "
         " {params.normal_id} "
         " 2>{log};"
-        ' ! (grep -v "WARNING: No genotype column for NORMAL in VCF!" {log} | grep "WARNING" ) '
+        '! (grep -v "WARNING: No genotype column for NORMAL in VCF!" {log} | '
+        '   grep "WARNING: No genotype column for" ) '
