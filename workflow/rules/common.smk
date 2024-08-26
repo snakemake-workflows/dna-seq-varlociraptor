@@ -1134,7 +1134,10 @@ def get_info_prob_fields_for_tables(wildcards, input):
 
 def get_vembrane_config(wildcards, input):
     # map VCF field names (keys) to wanted column names in the vembrane
-    # output header (values)
+    # output header (values); as we add them in batches by field type, and
+    # not in the order we want them downstream, we explicitly order them
+    # before this function returns the fields in the vembrane expression
+    # and header format
     columns_dict = {
         "CHROM": "chromosome",
         "POS": "position",
@@ -1242,7 +1245,8 @@ def get_vembrane_config(wildcards, input):
             lambda x: x.lower(),
         )
 
-    # determine the sort order, downstream scripts split-call-tables.py and
+    # determine a stable sort order, to avoid implicit assumptions about field
+    # order; downstream scripts split-call-tables.py and
     # join_fusion_partner.py will remove columns they respectively don't need
 
     def get_and_sort_multi_entry_fields(field_prefix):
