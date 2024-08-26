@@ -1256,77 +1256,58 @@ def get_vembrane_config(wildcards, input):
         "ANN['IMPACT']",
         "ANN['HGVSp']",
         "ANN['HGVSc']",
-    ]
-    sort_order.extend(
-        [
-            # variants only
-            "ANN['Consequence']",
-            "ANN['CLIN_SIG']",
-            "ANN['gnomADg_AF']",
-            "ANN['EXON']",
-            "ANN['REVEL']",
-            # variants only, split-call-tables.py will select the column with the
-            # highest score and will put it in the same place
-            "ANN['SpliceAI_pred_DS_AG']",
-            "ANN['SpliceAI_pred_DS_AL']",
-            "ANN['SpliceAI_pred_DS_DG']",
-            "ANN['SpliceAI_pred_DS_DL']",
-            # variants only
-            "ANN['am_pathogenicity']",
-        ]
-    )
-    # COLLAPSED variants columns
-    sort_order.extend(
-        [
-            # variants & fusions
-            "CHROM",
-            "POS",
-            # variants only
-            "REF",
-            "ALT",
-            "ANN['Protein_position'].raw",
-            "ANN['Amino_acids']",
-            "ANN['CANONICAL']",
-            "ANN['MANE_PLUS_CLINICAL']",
-            # fusions only
-            "INFO['GENE_NAME']",
-            "INFO['GENE_ID']",
-        ]
-    )
-    sort_order.extend(
+        # variants only
+        "ANN['Consequence']",
+        "ANN['CLIN_SIG']",
+        "ANN['gnomADg_AF']",
+        "ANN['EXON']",
+        "ANN['REVEL']",
+        # variants only, split-call-tables.py will select the column with the
+        # highest score and will put it in the same place
+        "ANN['SpliceAI_pred_DS_AG']",
+        "ANN['SpliceAI_pred_DS_AL']",
+        "ANN['SpliceAI_pred_DS_DG']",
+        "ANN['SpliceAI_pred_DS_DL']",
+        # variants only
+        "ANN['am_pathogenicity']",
+        # variants & fusions
+        "CHROM",
+        "POS",
+        # variants only
+        "REF",
+        "ALT",
+        "ANN['Protein_position'].raw",
+        "ANN['Amino_acids']",
+        "ANN['CANONICAL']",
+        "ANN['MANE_PLUS_CLINICAL']",
         # fusions only
-        get_and_sort_multi_entry_fields("INFO['EXON_NUMBER'][0]")
-    )
-    sort_order.extend(
+        "INFO['GENE_NAME']",
+        "INFO['GENE_ID']",
+    ]
+    multi_entry_fields_prefix = [
+        # fusions only
+        "INFO['EXON_NUMBER'][0]",
         # MAIN column for fusions, COLLAPSED column for variants
-        get_and_sort_multi_entry_fields("INFO['PROB_")
-    )
-    sort_order.extend(
+        "INFO['PROB_",
         # MAIN column for fusions & variants
         # gets moved ahead of consequence column for variants
-        get_and_sort_multi_entry_fields("FORMAT['AF']")
-    )
-    sort_order.extend(
+        "FORMAT['AF']",
         # MAIN column for fusions, COLLAPSED column for variants
-        get_and_sort_multi_entry_fields("FORMAT['DP']")
-    )
-    # COLLAPSED columns
-    sort_order.extend(
+        "FORMAT['DP']",
+        # COLLAPSED columns
         # fusions only, join key in join_fusion_partner.py
-        get_and_sort_multi_entry_fields("INFO['MATEID'][0]")
-    )
-    sort_order.extend(
+        "INFO['MATEID'][0]",
         # variants & fusions
-        get_and_sort_multi_entry_fields("FORMAT['SROBS']")
-    )
-    sort_order.extend(
+        "FORMAT['SROBS']",
         # variants & fusions
-        get_and_sort_multi_entry_fields("FORMAT['SAOBS']")
-    )
-    sort_order.extend(
+        "FORMAT['SAOBS']",
         # variants & fusions
-        get_and_sort_multi_entry_fields("FORMAT['OBS']")
-    )
+        "FORMAT['OBS']",
+    ]
+    for p in multi_entry_fields_prefix:
+        sort_order.extend(
+            get_and_sort_multi_entry_fields(p)
+        )
     sort_order.extend(
         [
             # only needed for fusions, as a join key; dropped in
