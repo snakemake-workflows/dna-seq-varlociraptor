@@ -87,9 +87,9 @@ maf:
   activate: false
   # sample alias from scenario.yaml for tumor sample;
   # only necessary, if activate: true
-  tumor_alias: "tumor"
+  primary_alias: "tumor"
   # optional: sample alias from scenario.yaml for normal sample
-  # normal_alias: "normal"
+  # control_alias: "normal"
 
 
 calling:

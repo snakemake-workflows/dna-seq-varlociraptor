@@ -105,7 +105,7 @@ gene_coverage:
 
 maf:
   activate: true
-  tumor_alias: t
+  primary_alias: t
 
 report:
   activate: true

@@ -29,15 +29,15 @@ rule group_vcf_to_maf:
             get_info_prob_fields_for_tables(wc, input)
             + get_info_fusion_fields_for_tables(wc)
         ),
-        vcf_tumor_alias=lookup(dpath="maf/tumor_alias", within=config, default="tumor"),
-        vcf_normal_alias_option=(
-            f'--vcf-normal-id {lookup(dpath= "maf/normal_alias", within= config, default= "")}'
-            if lookup(dpath="maf/normal_alias", within=config, default=False)
+        vcf_primary_alias=lookup(dpath="maf/primary_alias", within=config, default="tumor"),
+        vcf_control_alias_option=(
+            f'--vcf-normal-id {lookup(dpath= "maf/control_alias", within= config, default= "")}'
+            if lookup(dpath="maf/control_alias", within=config, default=False)
             else ""
         ),
         normal_id=lambda wc: (
-            f'--normal-id {wc.group}_{lookup(dpath= "maf/normal_alias", within= config, default= "")}'
-            if lookup(dpath="maf/normal_alias", within=config, default=False)
+            f'--normal-id {wc.group}_{lookup(dpath= "maf/control_alias", within= config, default= "")}'
+            if lookup(dpath="maf/control_alias", within=config, default=False)
             else ""
         ),
     shell:
@@ -47,12 +47,12 @@ rule group_vcf_to_maf:
         " --retain-info {params.info_fields} "
         " --ncbi-build {params.genome_build} "
         " --species {params.species} "
-        " --vcf-tumor-id {params.vcf_tumor_alias} "
-        " {params.vcf_normal_alias_option} "
+        " --vcf-tumor-id {params.vcf_primary_alias} "
+        " {params.vcf_control_alias_option} "
         " --input-vcf {input.vcf} "
         " --output-maf {output.maf} "
         " --ref-fasta {input.ref} "
-        " --tumor-id {wildcards.group}_{params.vcf_tumor_alias} "
+        " --tumor-id {wildcards.group}_{params.vcf_primary_alias} "
         " {params.normal_id} "
         " 2>{log};"
         '! (grep -v "WARNING: No genotype column for NORMAL in VCF!" {log} | '

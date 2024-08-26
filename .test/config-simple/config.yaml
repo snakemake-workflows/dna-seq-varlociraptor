@@ -103,9 +103,9 @@ gene_coverage:
 maf:
   activate: true
   # sample alias from scenario.yaml for tumor sample
-  tumor_alias: "y"
+  primary_alias: "y"
   # optional: sample alias from scenario.yaml for normal sample
-  normal_alias: "x"
+  control_alias: "x"
 
 report:
   activate: true
