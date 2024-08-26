@@ -100,6 +100,13 @@ params:
 gene_coverage:
   min_avg_coverage: 0
 
+maf:
+  activate: true
+  # sample alias from scenario.yaml for tumor sample
+  primary_alias: "y"
+  # optional: sample alias from scenario.yaml for normal sample
+  control_alias: "x"
+
 report:
   activate: true
   max_read_depth: 250

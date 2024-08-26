@@ -81,6 +81,17 @@ report:
     # select a sample sheet column for stratification
     by-column: condition
 
+# optional: standardized mutation overview plots with maf:
+# https://bioconductor.org/packages/release/bioc/vignettes/maftools/inst/doc/maftools.html
+maf:
+  activate: false
+  # sample alias from scenario.yaml for tumor sample;
+  # only necessary, if activate: true
+  primary_alias: "tumor"
+  # optional: sample alias from scenario.yaml for normal sample
+  # control_alias: "normal"
+
+
 calling:
   # Set to true to infer classical genotypes from Varlociraptor's VAF predictions
   infer_genotypes: false
@@ -246,5 +257,7 @@ params:
     # Add extra arguments for varlociraptor preprocess. By default, we limit the depth to 200.
     # Increase this value for panel sequencing!
     preprocess: "--max-depth 200"
+  delly: ""
   freebayes:
     min_alternate_fraction: 0.05 # Reduce for calling variants with lower VAFs
+    extra: ""
