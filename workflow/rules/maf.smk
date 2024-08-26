@@ -29,7 +29,9 @@ rule group_vcf_to_maf:
             get_info_prob_fields_for_tables(wc, input)
             + get_info_fusion_fields_for_tables(wc)
         ),
-        vcf_primary_alias=lookup(dpath="maf/primary_alias", within=config, default="tumor"),
+        vcf_primary_alias=lookup(
+            dpath="maf/primary_alias", within=config, default="tumor"
+        ),
         vcf_control_alias_option=(
             f'--vcf-normal-id {lookup(dpath= "maf/control_alias", within= config, default= "")}'
             if lookup(dpath="maf/control_alias", within=config, default=False)

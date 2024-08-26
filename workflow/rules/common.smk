@@ -1309,9 +1309,7 @@ def get_vembrane_config(wildcards, input):
         "FORMAT['OBS']",
     ]
     for p in multi_entry_fields_prefix:
-        sort_order.extend(
-            get_and_sort_multi_entry_fields(p)
-        )
+        sort_order.extend(get_and_sort_multi_entry_fields(p))
     sort_order.extend(
         [
             # only needed for fusions, as a join key; dropped in
