@@ -103,6 +103,10 @@ params:
 gene_coverage:
   min_avg_coverage: 5
 
+maf:
+  activate: true
+  primary_alias: t
+
 report:
   activate: true
   max_read_depth: 250

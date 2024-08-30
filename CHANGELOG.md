@@ -1,5 +1,12 @@
 # Changelog
 
+## [5.9.0](https://github.com/snakemake-workflows/dna-seq-varlociraptor/compare/v5.8.4...v5.9.0) (2024-08-26)
+
+
+### Features
+
+* add maftools output ([#297](https://github.com/snakemake-workflows/dna-seq-varlociraptor/issues/297)) ([e749260](https://github.com/snakemake-workflows/dna-seq-varlociraptor/commit/e749260fcfc451a516771d2cbf0c0ac673acb41d))
+
 ## [5.8.4](https://github.com/snakemake-workflows/dna-seq-varlociraptor/compare/v5.8.3...v5.8.4) (2024-08-13)
 
 
