@@ -148,12 +148,8 @@ def get_final_output(wildcards):
                 ):
                     final_output.extend(
                         expand(
-                            "results/datavzrd-report/{group}.{event}.{calling_type}.fdr-controlled",
-                            group=(
-                                variants_groups
-                                if calling_type == "variants"
-                                else fusions_groups
-                            ),
+                            "results/datavzrd-report/{batch}.{event}.{calling_type}.fdr-controlled",
+                            batch=get_report_batches(calling_type),
                             event=get_calling_events(calling_type),
                             calling_type=calling_type,
                         )
