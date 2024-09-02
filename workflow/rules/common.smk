@@ -141,7 +141,11 @@ def get_final_output(wildcards):
     for calling_type in calling_types:
         if config["report"]["activate"]:
             for event in config["calling"]["fdr-control"]["events"]:
-                if lookup(dpath=f"calling/fdr-control/events/{event}/report", within=config, default=False):
+                if lookup(
+                    dpath=f"calling/fdr-control/events/{event}/report", 
+                    within=config, 
+                    default=False,
+                ):
                     final_output.extend(
                         expand(
                             "results/datavzrd-report/{group}.{event}.{calling_type}.fdr-controlled",
