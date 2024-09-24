@@ -3,10 +3,12 @@
   "params": [
     {
       "name": "orientation",
+      "value": "true",
       "bind": {"input": "checkbox"}
     },
     {
       "name": "mapping_quality",
+      "value": "true",
       "bind": {"input": "checkbox"}
     },
     {
@@ -16,6 +18,7 @@
     },
     {
       "name": "edit_distance",
+      "value": "true",
       "bind": {"input": "checkbox"}
     }
   ],
