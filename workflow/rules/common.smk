@@ -1169,10 +1169,12 @@ def get_vembrane_config(wildcards, input):
 
     def append_items(items, renames, field_func, header_func=None):
         for item in items:
-            if item in renames:
-                header_name = renames[item]["name"]
-                if "expr" in renames[item]:
-                    parts_field = renames[item]["expr"]
+            if type(item) == dict or item in renames:
+                entry = item if type(item) == dict else renames[item]
+                header_name = entry["name"]
+                if "expr" in entry:
+                    parts_field = entry["expr"]
+                # TODO How can this case be covered in the config file? 
                 else:
                     parts_field = field_func(item)
             else:

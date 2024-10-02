@@ -83,7 +83,7 @@ rule mark_duplicates:
         #https://broadinstitute.github.io/picard/faq.html
         mem_mb=3000,
     wrapper:
-        "v2.5.0/bio/picard/markduplicates"
+        "v4.2.0/bio/picard/markduplicates"
 
 
 rule calc_consensus_reads:

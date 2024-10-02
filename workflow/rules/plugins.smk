@@ -6,7 +6,7 @@ rule download_revel:
     conda:
         "../envs/curl.yaml"
     shell:
-        "curl https://rothsj06.dmz.hpc.mssm.edu/revel-v1.3_all_chromosomes.zip -o {output} &> {log}"
+        "curl https://zenodo.org/records/7072866/files/revel-v1.3_all_chromosomes.zip -o {output} &> {log}"
 
 
 rule process_revel_scores:
