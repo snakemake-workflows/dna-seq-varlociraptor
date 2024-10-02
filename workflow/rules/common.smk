@@ -1174,7 +1174,7 @@ def get_vembrane_config(wildcards, input):
                 header_name = entry["name"]
                 if "expr" in entry:
                     parts_field = entry["expr"]
-                # TODO How can this case be covered in the config file? 
+                # TODO How can this case be covered in the config file?
                 else:
                     parts_field = field_func(item)
             else:
