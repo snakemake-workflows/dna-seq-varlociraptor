@@ -2,5 +2,4 @@ channels:
   - conda-forge
   - bioconda
 dependencies:
-  - vembrane =1.0.7
-  - bcftools =1.15
+  - vcf2maf =1.6

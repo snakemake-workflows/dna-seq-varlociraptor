@@ -48,7 +48,7 @@ calling:
     with_aux:
       aux-files: 
         super_interesting_genes: config-no-candidate-filtering/super_interesting_genes.tsv
-      expression: "ANN['GENE'] in AUX['super_interesting_genes']"
+      expression: "ANN['SYMBOL'] in AUX['super_interesting_genes']"
   fdr-control:
     threshold: 0.05
     events: 
@@ -111,6 +111,9 @@ params:
 
 gene_coverage:
   min_avg_coverage: 5
+
+maf:
+  activate: false
 
 report:
   activate: true

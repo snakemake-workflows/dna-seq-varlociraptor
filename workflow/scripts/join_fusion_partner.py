@@ -62,9 +62,7 @@ calls = pd.read_csv(
 calls[["feature_name", "feature_id"]] = calls[["feature_id", "feature_name"]].fillna(
     "('intronic',)"
 )
-calls = calls.drop(
-    ["reference allele", "alternative allele", "end position", "event"], axis="columns"
-)
+calls = calls.drop(["reference allele", "alternative allele"], axis="columns")
 # Obtain first entry of columns annotated as tuple by arriba
 for col in ["feature_id", "feature_name"]:
     calls[col] = calls[col].apply(eval).apply(lambda x: x[0])

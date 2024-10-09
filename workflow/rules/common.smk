@@ -143,18 +143,51 @@ def get_final_output(wildcards):
 
     for calling_type in calling_types:
         if config["report"]["activate"]:
-            final_output.extend(
-                expand(
-                    "results/datavzrd-report/{batch}.{event}.{calling_type}.fdr-controlled",
-                    batch=get_report_batches(),
-                    event=get_calling_events(calling_type),
-                    calling_type=calling_type,
-                )
-            )
+            for event in config["calling"]["fdr-control"]["events"]:
+                if lookup(
+                    dpath=f"calling/fdr-control/events/{event}/report",
+                    within=config,
+                    default=False,
+                ):
+                    final_output.extend(
+                        expand(
+                            "results/datavzrd-report/{batch}.{event}.{calling_type}.fdr-controlled",
+                            batch=get_report_batches(calling_type),
+                            event=get_calling_events(calling_type),
+                            calling_type=calling_type,
+                        )
+                    )
+                else:
+                    final_output.extend(
+                        expand(
+                            "results/final-calls/{group}.{event}.{calling_type}.fdr-controlled.bcf",
+                            group=(
+                                variants_groups
+                                if calling_type == "variants"
+                                else fusions_groups
+                            ),
+                            event=get_calling_events(calling_type),
+                            calling_type=calling_type,
+                        )
+                    )
         else:
             final_output.extend(
                 expand(
                     "results/final-calls/{group}.{event}.{calling_type}.fdr-controlled.bcf",
+                    group=(
+                        variants_groups
+                        if calling_type == "variants"
+                        else fusions_groups
+                    ),
+                    event=get_calling_events(calling_type),
+                    calling_type=calling_type,
+                )
+            )
+
+        if lookup(dpath="maf/activate", within=config, default=False):
+            final_output.extend(
+                expand(
+                    "results/maf/{group}.{event}.{calling_type}.fdr-controlled.maf",
                     group=(
                         variants_groups
                         if calling_type == "variants"
@@ -650,7 +683,7 @@ def get_mutational_signature_targets():
         for group in variants_groups:
             mutational_signature_targets.extend(
                 expand(
-                    "results/plots/mutational_signatures/{group}.{event}.svg",
+                    "results/plots/mutational_signatures/{group}.{event}.html",
                     group=variants_groups,
                     event=config["mutational_signatures"].get("events"),
                 )
@@ -737,10 +770,12 @@ def get_report_batch(calling_type):
     return inner
 
 
-def get_report_batches():
+def get_report_batches(calling_type):
     if is_activated("report/stratify"):
         yield "all"
-        yield from samples[config["report"]["stratify"]["by-column"]].unique()
+        yield from samples[samples["calling"].str.contains(calling_type)][
+            config["report"]["stratify"]["by-column"]
+        ].unique()
     else:
         yield "all"
 
@@ -923,7 +958,7 @@ def get_varlociraptor_obs_args(wildcards, input):
 
 def get_varlociraptor_params(wildcards, params):
     if wildcards.caller == "arriba":
-        params += " --propagate-info-fields GENE_NAME GENE_ID EXON"
+        params += " --propagate-info-fields GENE_NAME GENE_ID EXON_NUMBER"
     return params
 
 
@@ -1055,115 +1090,297 @@ def get_trimmed_fastqs(wc):
         ]
 
 
-def get_vembrane_config(wildcards, input):
-    with open(input.scenario, "r") as scenario_file:
-        scenario = yaml.load(scenario_file, Loader=yaml.SafeLoader)
-    parts = ["CHROM, POS, REF, ALT, INFO['END'], INFO['EVENT'], ID"]
-    header = [
-        "chromosome, position, reference allele, alternative allele, end position, event, id"
+def get_annotation_fields_for_tables(wildcards):
+    annotation_fields = [
+        "Amino_acids",
+        "CANONICAL",
+        "CLIN_SIG",
+        "Consequence",
+        "EXON",
+        "Feature",
+        "Gene",
+        "gnomADg_AF",
+        "HGVSc",
+        "HGVSg",
+        "HGVSp",
+        "IMPACT",
+        "MANE_PLUS_CLINICAL",
+        "Protein_position",
+        "SWISSPROT",
+        "SYMBOL",
     ]
-    join_items = ", ".join
 
-    config_output = config["tables"].get("output", {})
+    annotation_fields.extend(
+        [
+            field
+            for field in lookup(
+                dpath="tables/output/annotation_fields", within=config, default=[]
+            )
+            if field not in annotation_fields
+        ]
+    )
+    for plugin in ["REVEL", "SpliceAI", "AlphaMissense"]:
+        if any(
+            entry.startswith(plugin)
+            for entry in config["annotations"]["vep"]["final_calls"]["plugins"]
+        ):
+            if plugin == "REVEL":
+                annotation_fields.append("REVEL")
+            elif plugin == "SpliceAI":
+                annotation_fields.extend(
+                    [
+                        "SpliceAI_pred_DS_AG",
+                        "SpliceAI_pred_DS_AL",
+                        "SpliceAI_pred_DS_DG",
+                        "SpliceAI_pred_DS_DL",
+                    ]
+                )
+            elif plugin == "AlphaMissense":
+                annotation_fields.append(
+                    "am_pathogenicity",
+                )
 
-    def append_items(items, field_func, header_func=None):
+    return annotation_fields
+
+
+def get_info_fusion_fields_for_tables(wildcards):
+    if wildcards.calling_type == "fusions":
+        return [
+            "MATEID",
+            "GENE_NAME",
+            "GENE_ID",
+            "EXON_NUMBER",
+        ]
+    else:
+        return []
+
+
+def get_format_fields_for_tables(wildcards):
+    format_fields = ["AF", "DP"]
+
+    if lookup(dpath="tables/output/short_observations", within=config, default=False):
+        format_fields.extend(["SROBS", "SAOBS"])
+
+    if lookup(dpath="tables/output/observations", within=config, default=False):
+        format_fields.extend(
+            [
+                "OBS",
+            ]
+        )
+
+    return format_fields
+
+
+def get_info_prob_fields_for_tables(wildcards, input):
+    if lookup(dpath="tables/output/event_prob", within=config, default=False):
+        with open(input.scenario, "r") as scenario_file:
+            scenario = yaml.load(scenario_file, Loader=yaml.SafeLoader)
+            events = list(scenario["events"].keys())
+            events += ["artifact", "absent"]
+            return [f"PROB_{e.upper()}" for e in events]
+    else:
+        return []
+
+
+def get_vembrane_config(wildcards, input):
+    # map VCF field names (keys) to wanted column names in the vembrane
+    # output header (values); as we add them in batches by field type, and
+    # not in the order we want them downstream, we explicitly order them
+    # before this function returns the fields in the vembrane expression
+    # and header format
+    columns_dict = {
+        "CHROM": "chromosome",
+        "POS": "position",
+        "REF": "reference allele",
+        "ALT": "alternative allele",
+        "INFO['END']": "end position",
+        "INFO['EVENT']": "event",
+        "ID": "id",
+    }
+
+    def append_items(items, renames, field_func, header_func=None):
         for item in items:
-            if type(item) is dict:
-                parts_field = item["expr"]
-                header_name = item["name"]
+            if item in renames:
+                header_name = renames[item]["name"]
+                if "expr" in renames[item]:
+                    parts_field = renames[item]["expr"]
+                else:
+                    parts_field = field_func(item)
             else:
                 parts_field = field_func(item)
                 header_name = header_func(item) if header_func else item
-            parts.append(parts_field)
-            header.append(header_name)
+            columns_dict[parts_field] = header_name
 
-    if wildcards.calling_type == "fusions":
-        info_fields = [
-            {"name": "mateid", "expr": "INFO['MATEID'][0]"},
-            {"name": "feature_name", "expr": "INFO['GENE_NAME']"},
-            {"name": "feature_id", "expr": "INFO['GENE_ID']"},
-            "EXON",
-        ]
-        append_items(info_fields, "INFO['{}']".format, lambda x: x.lower())
-    else:
-        annotation_fields = [
-            "SYMBOL",
-            "Gene",
-            "Feature",
-            "IMPACT",
-            "HGVSp",
-            {"name": "protein position", "expr": "ANN['Protein_position'].raw"},
-            {"name": "protein alteration (short)", "expr": "ANN['Amino_acids']"},
-            "HGVSg",
-            "HGVSc",
-            "Consequence",
-            "CANONICAL",
-            "MANE_PLUS_CLINICAL",
-            {"name": "clinical significance", "expr": "ANN['CLIN_SIG']"},
-            {"name": "gnomad genome af", "expr": "ANN['gnomADg_AF']"},
-            "SWISSPROT",
-        ]
+    # FORMAT fields
+    format_fields_names = {
+        "AF": "allele frequency",
+        "DP": "read depth",
+        "SROBS": "short ref observations",
+        "SAOBS": "short alt observations",
+        "OBS": "observations",
+    }
 
-        annotation_fields.extend(
-            [
-                field
-                for field in config_output.get("annotation_fields", [])
-                if field not in annotation_fields
-            ]
-        )
-        for plugin in ["REVEL", "SpliceAI", "AlphaMissense"]:
-            if any(
-                entry.startswith(plugin)
-                for entry in config["annotations"]["vep"]["final_calls"]["plugins"]
-            ):
-                if plugin == "REVEL":
-                    annotation_fields.append("REVEL")
-                elif plugin == "SpliceAI":
-                    annotation_fields += [
-                        {
-                            "name": "spliceai acceptor gain",
-                            "expr": "ANN['SpliceAI_pred_DS_AG']",
-                        },
-                        {
-                            "name": "spliceai acceptor loss",
-                            "expr": "ANN['SpliceAI_pred_DS_AL']",
-                        },
-                        {
-                            "name": "spliceai donor gain",
-                            "expr": "ANN['SpliceAI_pred_DS_DG']",
-                        },
-                        {
-                            "name": "spliceai donor loss",
-                            "expr": "ANN['SpliceAI_pred_DS_DL']",
-                        },
-                    ]
-                elif plugin == "AlphaMissense":
-                    annotation_fields.append(
-                        {"name": "alphamissense", "expr": "ANN['am_pathogenicity']"}
-                    )
+    format_fields = get_format_fields_for_tables(wildcards)
+    aliases = get_group_sample_aliases(wildcards)
 
-        append_items(annotation_fields, "ANN['{}']".format, lambda x: x.lower())
-
-    samples = get_group_sample_aliases(wildcards)
-
-    def append_format_field(field, name):
+    for f in format_fields:
         append_items(
-            samples, f"FORMAT['{field}']['{{}}']".format, f"{{}}: {name}".format
+            aliases,
+            dict(),
+            f"FORMAT['{f}']['{{}}']".format,
+            f"{{}}: {format_fields_names[f] if f in format_fields_names else f}".format,
         )
 
-    if config_output.get("event_prob", False):
-        events = list(scenario["events"].keys())
-        events += ["artifact", "absent"]
-        append_items(events, lambda x: f"INFO['PROB_{x.upper()}']", "prob: {}".format)
-    append_format_field("AF", "allele frequency")
-    append_format_field("DP", "read depth")
-    if config_output.get("short_observations", False):
-        append_format_field("SROBS", "short ref observations")
-        append_format_field("SAOBS", "short alt observations")
+    # INFO fields
+    rename_info_fields = {
+        "MATEID": {"name": "mateid", "expr": "INFO['MATEID'][0]"},
+        "GENE_NAME": {
+            "name": "feature_name",
+        },
+        "GENE_ID": {
+            "name": "feature_id",
+        },
+        "EXON_NUMBER": {"name": "exon", "expr": "INFO['EXON_NUMBER'][0]"},
+    }
 
-    if config_output.get("observations", False):
-        append_format_field("OBS", "observations")
-    return {"expr": join_items(parts), "header": join_items(header)}
+    ## INFO fields holding varlociraptor probabilities
+    info_prob_fields = get_info_prob_fields_for_tables(wildcards, input)
+    append_items(
+        info_prob_fields, rename_info_fields, "INFO['{}']".format, "prob: {}".format
+    )
+
+    ## INFO fields relevant in fusion calling, only added for 'fusion' calling
+    info_fusion_fields = get_info_fusion_fields_for_tables(wildcards)
+    append_items(
+        info_fusion_fields, rename_info_fields, "INFO['{}']".format, lambda x: x.lower()
+    )
+
+    ## INFO field annotations from the INFO['ANN'] field
+    if wildcards.calling_type != "fusions":
+        rename_ann_fields = {
+            "Protein_position": {
+                "name": "protein position",
+                "expr": "ANN['Protein_position'].raw",
+            },
+            "Amino_acids": {
+                "name": "protein alteration (short)",
+            },
+            "CLIN_SIG": {
+                "name": "clinical significance",
+            },
+            "gnomADg_AF": {
+                "name": "gnomad genome af",
+            },
+            "SpliceAI_pred_DS_AG": {
+                "name": "spliceai acceptor gain",
+            },
+            "SpliceAI_pred_DS_AL": {
+                "name": "spliceai acceptor loss",
+            },
+            "SpliceAI_pred_DS_DG": {
+                "name": "spliceai donor gain",
+            },
+            "SpliceAI_pred_DS_DL": {
+                "name": "spliceai donor loss",
+            },
+            "am_pathogenicity": {
+                "name": "alphamissense",
+            },
+        }
+        annotation_fields = get_annotation_fields_for_tables(wildcards)
+        append_items(
+            annotation_fields,
+            rename_ann_fields,
+            "ANN['{}']".format,
+            lambda x: x.lower(),
+        )
+
+    # determine a stable sort order, to avoid implicit assumptions about field
+    # order; downstream scripts split-call-tables.py and
+    # join_fusion_partner.py will remove columns they respectively don't need
+
+    def get_and_sort_multi_entry_fields(field_prefix):
+        fields = [k for k in columns_dict.keys() if k.startswith(field_prefix)]
+        return sorted(fields)
+
+    # MAIN variants columns
+    sort_order = [
+        # variants only
+        "ANN['SYMBOL']",
+        "ANN['IMPACT']",
+        "ANN['HGVSp']",
+        "ANN['HGVSc']",
+        # variants only
+        "ANN['Consequence']",
+        "ANN['CLIN_SIG']",
+        "ANN['gnomADg_AF']",
+        "ANN['EXON']",
+        "ANN['REVEL']",
+        # variants only, split-call-tables.py will select the column with the
+        # highest score and will put it in the same place
+        "ANN['SpliceAI_pred_DS_AG']",
+        "ANN['SpliceAI_pred_DS_AL']",
+        "ANN['SpliceAI_pred_DS_DG']",
+        "ANN['SpliceAI_pred_DS_DL']",
+        # variants only
+        "ANN['am_pathogenicity']",
+        # variants & fusions
+        "CHROM",
+        "POS",
+        # variants only
+        "REF",
+        "ALT",
+        "ANN['Protein_position'].raw",
+        "ANN['Amino_acids']",
+        "ANN['CANONICAL']",
+        "ANN['MANE_PLUS_CLINICAL']",
+        # fusions only
+        "INFO['GENE_NAME']",
+        "INFO['GENE_ID']",
+    ]
+    multi_entry_fields_prefix = [
+        # fusions only
+        "INFO['EXON_NUMBER'][0]",
+        # MAIN column for fusions, COLLAPSED column for variants
+        "INFO['PROB_",
+        # MAIN column for fusions & variants
+        # gets moved ahead of consequence column for variants
+        "FORMAT['AF']",
+        # MAIN column for fusions, COLLAPSED column for variants
+        "FORMAT['DP']",
+        # COLLAPSED columns
+        # fusions only, join key in join_fusion_partner.py
+        "INFO['MATEID'][0]",
+        # variants & fusions
+        "FORMAT['SROBS']",
+        # variants & fusions
+        "FORMAT['SAOBS']",
+        # variants & fusions
+        "FORMAT['OBS']",
+    ]
+    for p in multi_entry_fields_prefix:
+        sort_order.extend(get_and_sort_multi_entry_fields(p))
+    sort_order.extend(
+        [
+            # only needed for fusions, as a join key; dropped in
+            # split-call-tables.py
+            "ID",
+            # only needed for indexing of variants in split-call-tables.py
+            "ANN['Gene']",
+            # only needed for variants in oncoprint.py
+            "ANN['HGVSg']",
+            # only needed for variants in datavzrd_variants_calls
+            "ANN['Feature']",
+            "INFO['END']",
+        ]
+    )
+    # sort columns, keeping only those in sort_order
+    sorted_columns_dict = {k: columns_dict[k] for k in sort_order if k in columns_dict}
+    join_items = ", ".join
+    return {
+        "expr": join_items(sorted_columns_dict.keys()),
+        "header": join_items(sorted_columns_dict.values()),
+    }
 
 
 def get_umi_fastq(wildcards):
