@@ -25,11 +25,13 @@ ref:
   release: 111
   # Genome build
   build: GRCh38
-  # Pangenome alignment with vg instead of linear alignment with bwa is performed
-  # The path to the pangenome index should be placed in pangenome_index (for humans: it is downloaded from: https://github.com/human-pangenomics/hpp_pangenome_resources/tree/201b532d11e8ba75a97db5005b98a780f42feeb6)
   pangenome: 
+    # if active, reads will be aligned to given pangenome instead of to the linear reference genome
+    # Important: this is only supported for homo_sapiens so far
     activate: True
-    link_to_pangenome_idx: "https://s3-us-west-2.amazonaws.com/human-pangenomics/pangenomes/freeze/freeze1/minigraph-cactus/hprc-v1.0-mc-grch38.xg"
+    # URL to pangenome index (xg format)
+    # Important: ensure that the pangenome index is built against the same reference genome as specified above under build
+    index: "https://s3-us-west-2.amazonaws.com/human-pangenomics/pangenomes/freeze/freeze1/minigraph-cactus/hprc-v1.0-mc-grch38.xg"
   # Optionally, instead of downloading the whole reference from Ensembl via the
   # parameters above, specify a specific chromosome below and uncomment the line.
   # This is usually only relevant for testing.
