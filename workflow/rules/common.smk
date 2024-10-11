@@ -281,9 +281,7 @@ def get_recalibrate_quality_input(wildcards, bai=False):
         return "results/dedup/{{sample}}.{ext}".format(ext=ext)
     else:
         aligner = get_aligner()
-        return f"results/mapped/{aligner}/{{sample}}_rg_added.{ext}".format(
-            aligner, ext
-        )
+        return f"results/mapped/{aligner}/{{sample}}_rg_added.{ext}"
 
 
 def get_cutadapt_input(wildcards):
