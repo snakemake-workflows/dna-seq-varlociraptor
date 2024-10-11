@@ -230,7 +230,9 @@ rule map_reads_vg_giraffe:
         "../envs/vg.yaml"
     threads: 40
     params:
-        lambda wc, input: input.reads if isinstance(input.reads, str) else " -f ".join(input.reads),
+        lambda wc, input: (
+            input.reads if isinstance(input.reads, str) else " -f ".join(input.reads)
+        ),
     shell:
         "vg giraffe -x {input.idx} -f {params} --output-format BAM --sample {wildcards.sample} --read-group {wildcards.sample} -t {threads}  > {output} 2> {log}"  #read groups for samples can be added with: --sample {wildcards.sample} --read-group {wildcards.sample}
 
