@@ -1,5 +1,18 @@
 # Changelog
 
+## [5.10.0](https://github.com/snakemake-workflows/dna-seq-varlociraptor/compare/v5.9.0...v5.10.0) (2024-09-26)
+
+
+### Features
+
+* allow excluding events from the report ([#324](https://github.com/snakemake-workflows/dna-seq-varlociraptor/issues/324)) ([b5d1966](https://github.com/snakemake-workflows/dna-seq-varlociraptor/commit/b5d196642f7fc56210b8acec4c9379a854e86d88))
+
+
+### Bug Fixes
+
+* fix testcase rule for remote storage ([#322](https://github.com/snakemake-workflows/dna-seq-varlociraptor/issues/322)) ([1f2f3b2](https://github.com/snakemake-workflows/dna-seq-varlociraptor/commit/1f2f3b25b41cfabfd42cfa76430ffda22f7247db))
+* update to latest datavzrd and vembrane ([#329](https://github.com/snakemake-workflows/dna-seq-varlociraptor/issues/329)) ([6c5cc97](https://github.com/snakemake-workflows/dna-seq-varlociraptor/commit/6c5cc97f9c033a7422b41c6108c2a4e608a55b0b))
+
 ## [5.9.0](https://github.com/snakemake-workflows/dna-seq-varlociraptor/compare/v5.8.4...v5.9.0) (2024-08-26)
 
 
