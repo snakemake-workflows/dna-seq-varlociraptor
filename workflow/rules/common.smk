@@ -1216,7 +1216,10 @@ def get_vembrane_config(wildcards, input):
     ## INFO fields holding varlociraptor probabilities
     info_prob_fields = get_info_prob_fields_for_tables(wildcards, input)
     append_items(
-        info_prob_fields, rename_info_fields, lambda x: f"INFO['PROB_{x.upper()}']", "prob: {}".format
+        info_prob_fields,
+        rename_info_fields,
+        lambda x: f"INFO['PROB_{x.upper()}']",
+        "prob: {}".format
     )
 
     ## INFO fields relevant in fusion calling, only added for 'fusion' calling
