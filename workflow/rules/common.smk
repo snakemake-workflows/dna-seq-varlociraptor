@@ -1219,7 +1219,7 @@ def get_vembrane_config(wildcards, input):
         info_prob_fields,
         rename_info_fields,
         lambda x: f"INFO['PROB_{x.upper()}']",
-        "prob: {}".format
+        "prob: {}".format,
     )
 
     ## INFO fields relevant in fusion calling, only added for 'fusion' calling
