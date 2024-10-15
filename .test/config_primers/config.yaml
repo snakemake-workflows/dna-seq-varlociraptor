@@ -13,7 +13,8 @@ ref:
   snpeff_release: 86
   # Genome build
   build: R64-1-1
-
+  pangenome:
+    activate: false
 primers:
   trimming:
     activate: true
