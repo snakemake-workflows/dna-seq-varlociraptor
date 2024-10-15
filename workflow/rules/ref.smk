@@ -156,4 +156,4 @@ rule get_vg_pangenome:
     log:
         "logs/pangenome/get_reference.log",
     shell:
-        "curl -o {output} {params} 2> {log}"
+        "curl -o {output} {params.link} 2> {log}"
