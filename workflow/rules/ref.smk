@@ -152,7 +152,7 @@ rule get_vg_pangenome:
     output:
         pangenome,
     params:
-        link=config["ref"]["pangenome"]["link_to_pangenome_idx"],
+        link=config["ref"]["pangenome"]["index"],
     log:
         "logs/pangenome/get_reference.log",
     shell:
