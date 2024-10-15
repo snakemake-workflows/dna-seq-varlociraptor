@@ -15,7 +15,7 @@ ref:
   chromosome: 1
   pangenome:
     activate: false
-
+    index: ""
 primers:
   trimming:
     activate: false

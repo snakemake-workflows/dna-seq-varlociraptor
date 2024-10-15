@@ -14,6 +14,7 @@ ref:
   build: GRCh38
   pangenome:
     activate: false  
+    index: ""
 
 primers:
   trimming:

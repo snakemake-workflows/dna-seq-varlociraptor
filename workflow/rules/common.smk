@@ -284,8 +284,8 @@ def get_recalibrate_quality_input(wildcards, bai=False):
     elif is_activated("remove_duplicates"):
         return "results/dedup/{{sample}}.{ext}".format(ext=ext)
     else:
-        return f"results/mapped/{aligner}/{{sample}}_rg_added.{ext}".format(
-            get_aligner(wildcards), ext
+        return "results/mapped/{aligner}/{{sample}}.{ext}".format(
+            aligner=get_aligner(wildcards), ext=ext
         )
 
 

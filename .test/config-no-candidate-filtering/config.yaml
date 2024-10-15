@@ -14,6 +14,7 @@ ref:
   build: R64-1-1
   pangenome:
     activate: false
+    index: ""
     
 primers:
   trimming:
