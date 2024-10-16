@@ -150,7 +150,7 @@ rule get_vep_plugins:
 
 rule get_vg_pangenome:
     output:
-        pangenome,
+        "resources/pangenome/vg_index.xg",
     params:
         link=config["ref"]["pangenome"]["index"],
     log:

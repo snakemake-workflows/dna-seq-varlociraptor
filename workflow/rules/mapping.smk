@@ -1,4 +1,4 @@
-rule map_reads:
+rule map_reads_bwa:
     input:
         reads=get_map_reads_input,
         idx=rules.bwa_index.output,
@@ -15,13 +15,108 @@ rule map_reads:
         "v3.8.0/bio/bwa/mem"
 
 
+rule map_reads_vg:
+    input:
+        reads=get_map_reads_input,
+        ref="resources/pangenome/vg_index.xg",
+    output:
+        "results/mapped/vg/{sample}.preprocessed.bam",
+    log:
+        "logs/mapped/vg/{sample}.log",
+    benchmark:
+        "benchmarks/vg_giraffe/{sample}.tsv"
+    params:
+        extra="",
+        sorting=get_map_reads_sorting_params,
+        sort_order=lambda wc: get_map_reads_sorting_params(wc, ordering=True),
+    threads: 8
+    wrapper:
+        "v3.0.0/bio/vg/giraffe"
+
+
+# keep only primary chromosomes
+# use -f 2 to keep only properly paired reads, the mate of a read that's on a nonprimary chromosome is problematic for AddOrReplaceReadGroups, because we remove
+# all the other nonprimary chromosome from the header.
+
+
+# TODO This is only working for GRCh38 for now
+rule filter_primary_chr:
+    input:
+        lambda wc: get_filter_chr_input(wc),
+        lambda wc: get_filter_chr_input(wc, True),
+    output:
+        bam="results/mapped/vg/{sample}_extracted.bam",
+        idx="results/mapped/vg/{sample}_extracted.bai",
+    log:
+        "logs/samtools_view_primary_chr/{sample}.log",
+    benchmark:
+        "benchmarks/samtools_view_primary_chr/{sample}.tsv"
+    params:
+        #region =", ".join(map(lambda num: f"chr{num}", [1, 2, 3, 4, 5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,"X", "Y", "M"]))
+        region="GRCh38.chr1 GRCh38.chr2 GRCh38.chr3 GRCh38.chr4 GRCh38.chr5 GRCh38.chr6 GRCh38.chr7 GRCh38.chr8 GRCh38.chr9 GRCh38.chr10 GRCh38.chr11 GRCh38.chr12 GRCh38.chr13 GRCh38.chr14 GRCh38.chr15 GRCh38.chr16 GRCh38.chr17 GRCh38.chr18 GRCh38.chr19 GRCh38.chr20 GRCh38.chr21 GRCh38.chr22 GRCh38.chrX GRCh38.chrY GRCh38.chrM",
+        extra="-f 2",
+    wrapper:
+        "v2.0.0/bio/samtools/view"
+
+
+# modify the header for chromosome names to be compatible with the reference genome that are acquired from ensembl
+# first delete all non classical chromosomes including unlocalized, unplaced and EBV chromosomes (delly complains about them being found in the header)
+# second remove GRCh38.chr and third convert M to MT (MT in pangenome reference and M in fasta sequence dict)
+# the following sed command replaces the first "M" it finds and replaces it with "MT"
+
+
+rule reheader:
+    input:
+        "results/mapped/vg/{sample}_extracted.bam",
+    output:
+        "results/mapped/vg/{sample}_reheadered.bam",
+    log:
+        "logs/samtools_reheader/{sample}.log",
+    benchmark:
+        "benchmarks/samtools_reheader/{sample}.tsv"
+    conda:
+        "../envs/samtools.yaml"
+    shell:
+        "samtools view -H {input} | sed '/random/d;/chrUn/d;/EBV/d;s/GRCh38.chr//g;0,/M/s//MT/' | samtools reheader - {input} > {output} 2> {log}"
+
+
+# rule samtools_index_after_reheader:
+#     input:
+#         "results/vg_mapped/{sample}_reheadered.bam",
+#     output:
+#         "results/vg_mapped/{sample}_reheadered.bai",
+#     log:
+#         "logs/samtools_index_after_reheader/{sample}.log",
+#     benchmark:
+#         "benchmarks/samtools_index_after_reheader/{sample}.tsv"
+#     threads: 40
+#     wrapper:
+#         "v2.3.2/bio/samtools/index"
+
+# adding read groups is necessary because base recalibration throws errors
+# for not being able to find read group information
+
+
+rule add_rg:
+    input:
+        "results/mapped/vg/{sample}_reheadered.bam",
+    output:
+        "results/mapped/vg/{sample}.bam",
+    log:
+        "logs/picard/add_rg/{sample}.log",
+    params:
+        extra="--RGLB lib1 --RGPL illumina --RGPU {sample} --RGSM {sample}",
+    resources:
+        mem_mb=60000,
+    wrapper:
+        "v2.3.2/bio/picard/addorreplacereadgroups"
+
+
 rule merge_untrimmed_fastqs:
     input:
         get_untrimmed_fastqs,
     output:
         temp("results/untrimmed/{sample}_{read}.fastq.gz"),
-    conda:
-        "../envs/fgbio.yaml"
     log:
         "logs/merge-fastqs/untrimmed/{sample}_{read}.log",
     wildcard_constraints:
@@ -43,9 +138,18 @@ rule sort_untrimmed_fastqs:
         "fgbio SortFastq -i {input} -o {output} 2> {log}"
 
 
+# AnnotatedUMIs requires querynamed sorted fastqs and bams
+# Else only sorted=False works but consumes a lot of memory not scaling well (see https://github.com/snakemake-workflows/dna-seq-varlociraptor/pull/296)
+# Annotation does not work with vg as keep_only_primary_chr removed reads still being present in fastq files
+# This causes annotation to fail
+# Workaround could be annotation of umis before filtering primary chromosomes, this requires a lot of case handling between bwa and vg
 rule annotate_umis:
     input:
-        bam="results/mapped/{aligner}/{sample}.bam",
+        bam=lambda wc: (
+            "results/mapped/{aligner}/{sample}.preprocessed.bam"
+            if wc.aligner == "vg"
+            else "results/mapped/{aligner}/{sample}.bam"
+        ),
         umi=get_umi_fastq,
     output:
         pipe("pipe/{aligner}/{sample}.annotated.bam"),
@@ -216,126 +320,26 @@ rule apply_bqsr:
         "v2.3.2/bio/gatk/applybqsr"
 
 
-rule map_reads_vg_giraffe:
-    input:
-        reads=get_map_reads_input,
-        idx=pangenome,
-    output:
-        "results/mapped/vg/{sample}_mapped.bam",
-    log:
-        "logs/mapped/vg/{sample}.log",
-    benchmark:
-        "benchmarks/vg_giraffe/{sample}.tsv"
-    conda:
-        "../envs/vg.yaml"
-    threads: 40
-    params:
-        lambda wc, input: (
-            input.reads if isinstance(input.reads, str) else " -f ".join(input.reads)
-        ),
-    shell:
-        "vg giraffe -x {input.idx} -f {params} --output-format BAM --sample {wildcards.sample} --read-group {wildcards.sample} -t {threads}  > {output} 2> {log}"  #read groups for samples can be added with: --sample {wildcards.sample} --read-group {wildcards.sample}
-
-
-rule sort_mapped_vg:
-    input:
-        "results/mapped/vg/{sample}_mapped.bam",
-    output:
-        "results/mapped/vg/{sample}_sorted.bam",
-    log:
-        "logs/samtools_sort_vg/{sample}.log",
-    threads: 8
-    wrapper:
-        "v2.3.2/bio/samtools/sort"
-
-
-# keep only primary chromosomes
-# use -f 2 to keep only properly paired reads, the mate of a read that's on a nonprimary chromosome is problematic for AddOrReplaceReadGroups, because we remove
-# all the other nonprimary chromosome from the header.
-
-
-rule keep_only_primary_chr:
-    input:
-        "results/mapped/vg/{sample}_sorted.bam",
-        "results/mapped/vg/{sample}_sorted.bai",
-    output:
-        bam="results/mapped/vg/{sample}_extracted.bam",
-        idx="results/mapped/vg/{sample}_extracted.bai",
-    log:
-        "logs/samtools_view_primary_chr/{sample}.log",
-    benchmark:
-        "benchmarks/samtools_view_primary_chr/{sample}.tsv"
-    params:
-        region="GRCh38.chr1 GRCh38.chr2 GRCh38.chr3 GRCh38.chr4 GRCh38.chr5 GRCh38.chr6 GRCh38.chr7 GRCh38.chr8 GRCh38.chr9 GRCh38.chr10 GRCh38.chr11 GRCh38.chr12 GRCh38.chr13 GRCh38.chr14 GRCh38.chr15 GRCh38.chr16 GRCh38.chr17 GRCh38.chr18 GRCh38.chr19 GRCh38.chr20 GRCh38.chr21 GRCh38.chr22 GRCh38.chrX GRCh38.chrY GRCh38.chrM",
-        extra="-f 2",
-    threads: 40
-    wrapper:
-        "v2.0.0/bio/samtools/view"
-
-
-# modify the header for chromosome names to be compatible with the reference genome that are acquired from ensembl
-# first delete all non classical chromosomes including unlocalized, unplaced and EBV chromosomes (delly complains about them being found in the header)
-# second remove GRCh38.chr and third convert M to MT (MT in pangenome reference and M in fasta sequence dict)
-# the following sed command replaces the first "M" it finds and replaces it with "MT"
-
-
-rule reheader:
-    input:
-        "results/mapped/vg/{sample}_extracted.bam",
-    output:
-        "results/mapped/vg/{sample}_reheadered.bam",
-    log:
-        "logs/samtools_reheader/{sample}.log",
-    benchmark:
-        "benchmarks/samtools_reheader/{sample}.tsv"
-    conda:
-        "../envs/samtools.yaml"
-    threads: 40
-    shell:
-        "samtools view -H {input} | sed '/random/d;/chrUn/d;/EBV/d;s/GRCh38.chr//g;0,/M/s//MT/' | samtools reheader - {input} > {output} 2> {log}"
-
-
-# rule samtools_index_after_reheader:
+# rule sort_mapped_vg:
+#    input:
+#        "results/mapped/vg/{sample}_mapped.bam",
+#    output:
+#        "results/mapped/vg/{sample}_sorted.bam",
+#    log:
+#        "logs/samtools_sort_vg/{sample}.log",
+#    threads: 8
+#    wrapper:
+#        "v2.3.2/bio/samtools/sort"
+# TODO Not required as there is already a bam_index rule
+# rule samtools_index_after_rg_addition:
 #     input:
-#         "results/vg_mapped/{sample}_reheadered.bam",
+#         "results/mapped/vg/{sample}.bam",
 #     output:
-#         "results/vg_mapped/{sample}_reheadered.bai",
+#         "results/mapped/vg/{sample}.bai",
 #     log:
-#         "logs/samtools_index_after_reheader/{sample}.log",
+#         "logs/samtools_index_after_vg_addition/{sample}.log",
 #     benchmark:
-#         "benchmarks/samtools_index_after_reheader/{sample}.tsv"
+#         "benchmarks/samtools_index_after_vg_addition/{sample}.tsv"
 #     threads: 40
 #     wrapper:
 #         "v2.3.2/bio/samtools/index"
-
-# adding read groups is necessary because base recalibration throws errors
-# for not being able to find read group information
-
-
-rule add_rg:
-    input:
-        "results/mapped/vg/{sample}_reheadered.bam",
-    output:
-        "results/mapped/vg/{sample}.bam",
-    log:
-        "logs/picard/add_rg/{sample}.log",
-    params:
-        extra="--RGLB lib1 --RGPL illumina --RGPU {sample} --RGSM {sample}",
-    resources:
-        mem_mb=60000,
-    wrapper:
-        "v2.3.2/bio/picard/addorreplacereadgroups"
-
-
-rule samtools_index_after_rg_addition:
-    input:
-        "results/mapped/vg/{sample}.bam",
-    output:
-        "results/mapped/vg/{sample}.bai",
-    log:
-        "logs/samtools_index_after_vg_addition/{sample}.log",
-    benchmark:
-        "benchmarks/samtools_index_after_vg_addition/{sample}.tsv"
-    threads: 40
-    wrapper:
-        "v2.3.2/bio/samtools/index"

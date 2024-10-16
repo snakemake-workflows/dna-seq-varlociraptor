@@ -30,8 +30,7 @@ genome_prefix = f"resources/{genome_name}"
 genome = f"{genome_prefix}.fasta"
 genome_fai = f"{genome}.fai"
 genome_dict = f"{genome_prefix}.dict"
-# in case pangenome is used
-pangenome = "resources/pangenome/vg_index.xg"
+
 
 # cram variables
 use_cram = config.get("use_cram", False)
@@ -450,9 +449,14 @@ def get_markduplicates_input(wildcards):
     else:
         aligner = "bwa"
     if sample_has_umis(wildcards.sample):
-        return "results/mapped/{aligner}/{{sample}}.annotated.bam".format(
-            aligner=aligner
-        )
+        # Special case for vg as umi annotation (if active) is done before finalizing bam output
+        # Could also directly go to else-branch if aligner != "vg"
+        if aligner == "vg":
+            return "results/mapped/{aligner}/{{sample}}.bam".format(aligner=aligner)
+        else:
+            return "results/mapped/{aligner}/{{sample}}.annotated.bam".format(
+                aligner=aligner
+            )
     else:
         return "results/mapped/{aligner}/{{sample}}.bam".format(aligner=aligner)
 
@@ -660,6 +664,14 @@ def get_map_reads_sorting_params(wildcards, ordering=False):
             return "coordinate"
         case (False, False):
             return "samtools"
+
+
+def get_filter_chr_input(wildcards, index=False):
+    ext = ".bai" if index else ".bam"
+    if sample_has_umis(wildcards.sample):
+        return "results/mapped/vg/{{sample}}.annotated{ext}".format(ext=ext)
+    else:
+        return "results/mapped/vg/{{sample}}.preprocessed{ext}".format(ext=ext)
 
 
 def get_mutational_burden_targets():
@@ -1445,7 +1457,7 @@ def get_primer_extra(wc, input):
     min_primer_len = get_shortest_primer_length(input.reads)
     # Check if shortest primer is below default values
     if min_primer_len < 32:
-        extra += f" -T {min_primer_len-2}"
+        extra += f" -T {min_primer_len - 2}"
     if min_primer_len < 19:
         extra += f" -k {min_primer_len}"
     return extra
