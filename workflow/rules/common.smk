@@ -31,6 +31,7 @@ genome = f"{genome_prefix}.fasta"
 genome_fai = f"{genome}.fai"
 genome_dict = f"{genome_prefix}.dict"
 
+
 # cram variables
 use_cram = config.get("use_cram", False)
 alignmend_ending = "cram" if use_cram else "bam"
@@ -260,6 +261,15 @@ def get_control_fdr_input(wildcards):
         return "results/final-calls/{group}.{calling_type}.annotated.bcf"
 
 
+def get_aligner(wildcards):
+    if get_sample_datatype(wildcards.sample) == "rna":
+        return "star"
+    elif is_activated("ref/pangenome"):
+        return "vg"
+    else:
+        return "bwa"
+
+
 def get_recalibrate_quality_input(wildcards, bai=False):
     ext = "bai" if bai else "bam"
     datatype = get_sample_datatype(wildcards.sample)
@@ -273,7 +283,9 @@ def get_recalibrate_quality_input(wildcards, bai=False):
     elif is_activated("remove_duplicates"):
         return "results/dedup/{{sample}}.{ext}".format(ext=ext)
     else:
-        return "results/mapped/bwa/{{sample}}.{ext}".format(ext=ext)
+        return "results/mapped/{aligner}/{{sample}}.{ext}".format(
+            aligner=get_aligner(wildcards), ext=ext
+        )
 
 
 def get_cutadapt_input(wildcards):
@@ -428,11 +440,23 @@ def get_sample_datatype(sample):
 
 
 def get_markduplicates_input(wildcards):
-    aligner = "star" if get_sample_datatype(wildcards.sample) == "rna" else "bwa"
+    if get_sample_datatype(wildcards.sample) == "rna":
+        aligner = "star"
+    elif get_sample_datatype(wildcards.sample) == "dna" and is_activated(
+        "ref/pangenome"
+    ):
+        aligner = "vg"
+    else:
+        aligner = "bwa"
     if sample_has_umis(wildcards.sample):
-        return "results/mapped/{aligner}/{{sample}}.annotated.bam".format(
-            aligner=aligner
-        )
+        # Special case for vg as umi annotation (if active) is done before finalizing bam output
+        # Could also directly go to else-branch if aligner != "vg"
+        if aligner == "vg":
+            return "results/mapped/{aligner}/{{sample}}.bam".format(aligner=aligner)
+        else:
+            return "results/mapped/{aligner}/{{sample}}.annotated.bam".format(
+                aligner=aligner
+            )
     else:
         return "results/mapped/{aligner}/{{sample}}.bam".format(aligner=aligner)
 
@@ -443,7 +467,14 @@ def get_consensus_input(wildcards):
     elif is_activated("remove_duplicates"):
         return "results/dedup/{sample}.bam"
     else:
-        aligner = "star" if get_sample_datatype(wildcards.sample) == "rna" else "bwa"
+        if get_sample_datatype(wildcards.sample) == "rna":
+            aligner = "star"
+        elif get_sample_datatype(wildcards.sample) == "dna" & is_activated(
+            "ref/pangenome"
+        ):
+            aligner = "vg"
+        else:
+            aligner = "bwa"
         return "results/mapped/{aligner}/{{sample}}.bam".format(aligner=aligner)
 
 
@@ -451,7 +482,7 @@ def get_trimming_input(wildcards):
     if is_activated("remove_duplicates"):
         return "results/dedup/{sample}.bam"
     else:
-        aligner = "star" if get_sample_datatype(wildcards.sample) == "rna" else "bwa"
+        aligner = get_aligner(wildcards)
         return "results/mapped/{aligner}/{{sample}}.bam".format(aligner=aligner)
 
 
@@ -635,6 +666,14 @@ def get_map_reads_sorting_params(wildcards, ordering=False):
             return "samtools"
 
 
+def get_filter_chr_input(wildcards, index=False):
+    ext = ".bai" if index else ".bam"
+    if sample_has_umis(wildcards.sample):
+        return "results/mapped/vg/{{sample}}.annotated{ext}".format(ext=ext)
+    else:
+        return "results/mapped/vg/{{sample}}.mate_fixed.sorted{ext}".format(ext=ext)
+
+
 def get_mutational_burden_targets():
     mutational_burden_targets = []
     if is_activated("mutational_burden"):
@@ -685,15 +724,19 @@ def get_selected_annotations():
     return selection
 
 
-def get_annotated_bcf(wildcards):
+def get_annotated_bcf(wildcards, index=False):
+    ext = ".csi" if index else ""
     selection = (
         get_selected_annotations() if wildcards.calling_type == "variants" else ""
     )
-    return "results/calls/{group}.{calling_type}.{scatteritem}{selection}.bcf".format(
-        group=wildcards.group,
-        calling_type=wildcards.calling_type,
-        selection=selection,
-        scatteritem=wildcards.scatteritem,
+    return (
+        "results/calls/{group}.{calling_type}.{scatteritem}{selection}.bcf{ext}".format(
+            group=wildcards.group,
+            calling_type=wildcards.calling_type,
+            selection=selection,
+            scatteritem=wildcards.scatteritem,
+            ext=ext,
+        )
     )
 
 

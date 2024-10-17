@@ -1,4 +1,4 @@
-rule map_reads:
+rule map_reads_bwa:
     input:
         reads=get_map_reads_input,
         idx=rules.bwa_index.output,
@@ -15,13 +15,102 @@ rule map_reads:
         "v3.8.0/bio/bwa/mem"
 
 
+rule map_reads_vg:
+    input:
+        reads=get_map_reads_input,
+        ref="resources/pangenome/vg_index.xg",
+    output:
+        "results/mapped/vg/{sample}.preprocessed.bam",
+    log:
+        "logs/mapped/vg/{sample}.log",
+    benchmark:
+        "benchmarks/vg_giraffe/{sample}.tsv"
+    params:
+        extra="",
+        sorting="fgbio",
+        sort_order="queryname",
+    threads: 8
+    wrapper:
+        "file:///media/HDD/workspace/snakemake-wrappers/bio/vg/giraffe"
+
+
+# samtools fixmate requires querysorted input
+rule fix_mate:
+    input:
+        "results/mapped/vg/{sample}.preprocessed.bam",
+    output:
+        "results/mapped/vg/{sample}.mate_fixed.bam",
+    log:
+        "logs/samtools/fix_mate/{sample}.log",
+    threads: 1
+    params:
+        extra="",
+    wrapper:
+        "v4.7.2/bio/samtools/fixmate"
+
+
+# keep only primary chromosomes
+# use -f 2 to keep only properly paired reads, the mate of a read that's on a nonprimary chromosome is problematic for AddOrReplaceReadGroups, because we remove
+# all the other nonprimary chromosome from the header.
+rule filter_primary_chr:
+    input:
+        lambda wc: get_filter_chr_input(wc),
+        lambda wc: get_filter_chr_input(wc, True),
+    output:
+        bam="results/mapped/vg/{sample}_extracted.bam",
+        idx="results/mapped/vg/{sample}_extracted.bai",
+    log:
+        "logs/samtools_view_primary_chr/{sample}.log",
+    benchmark:
+        "benchmarks/samtools_view_primary_chr/{sample}.tsv"
+    params:
+        region="GRCh38.chr1 GRCh38.chr2 GRCh38.chr3 GRCh38.chr4 GRCh38.chr5 GRCh38.chr6 GRCh38.chr7 GRCh38.chr8 GRCh38.chr9 GRCh38.chr10 GRCh38.chr11 GRCh38.chr12 GRCh38.chr13 GRCh38.chr14 GRCh38.chr15 GRCh38.chr16 GRCh38.chr17 GRCh38.chr18 GRCh38.chr19 GRCh38.chr20 GRCh38.chr21 GRCh38.chr22 GRCh38.chrX GRCh38.chrY GRCh38.chrM",
+        extra="-f 2",
+    wrapper:
+        "v2.0.0/bio/samtools/view"
+
+
+# modify the header for chromosome names to be compatible with the reference genome that are acquired from ensembl
+# first delete all non classical chromosomes including unlocalized, unplaced and EBV chromosomes (delly complains about them being found in the header)
+# second remove GRCh38.chr and third convert M to MT (MT in pangenome reference and M in fasta sequence dict)
+# the following sed command replaces the first "M" it finds and replaces it with "MT"
+rule reheader:
+    input:
+        "results/mapped/vg/{sample}_extracted.bam",
+    output:
+        "results/mapped/vg/{sample}_reheadered.bam",
+    log:
+        "logs/samtools_reheader/{sample}.log",
+    benchmark:
+        "benchmarks/samtools_reheader/{sample}.tsv"
+    conda:
+        "../envs/samtools.yaml"
+    shell:
+        "samtools view -H {input} | sed '/random/d;/chrUn/d;/EBV/d;s/GRCh38.chr//g;0,/M/s//MT/' | samtools reheader - {input} > {output} 2> {log}"
+
+
+# adding read groups is necessary because base recalibration throws errors
+# for not being able to find read group information
+rule add_rg:
+    input:
+        "results/mapped/vg/{sample}_reheadered.bam",
+    output:
+        "results/mapped/vg/{sample}.bam",
+    log:
+        "logs/picard/add_rg/{sample}.log",
+    params:
+        extra="--RGLB lib1 --RGPL ILLUMINA --RGPU {sample} --RGSM {sample} --RGID {sample}",
+    resources:
+        mem_mb=60000,
+    wrapper:
+        "v2.3.2/bio/picard/addorreplacereadgroups"
+
+
 rule merge_untrimmed_fastqs:
     input:
         get_untrimmed_fastqs,
     output:
         temp("results/untrimmed/{sample}_{read}.fastq.gz"),
-    conda:
-        "../envs/fgbio.yaml"
     log:
         "logs/merge-fastqs/untrimmed/{sample}_{read}.log",
     wildcard_constraints:
@@ -43,9 +132,14 @@ rule sort_untrimmed_fastqs:
         "fgbio SortFastq -i {input} -o {output} 2> {log}"
 
 
+# fgbio AnnotateBamsWithUmis requires querynamed sorted fastqs and bams
 rule annotate_umis:
     input:
-        bam="results/mapped/{aligner}/{sample}.bam",
+        bam=lambda wc: (
+            "results/mapped/{aligner}/{sample}.mate_fixed.bam"
+            if wc.aligner == "vg"
+            else "results/mapped/{aligner}/{sample}.bam"
+        ),
         umi=get_umi_fastq,
     output:
         pipe("pipe/{aligner}/{sample}.annotated.bam"),

@@ -25,6 +25,13 @@ ref:
   release: 111
   # Genome build
   build: GRCh38
+  pangenome: 
+    # if active, reads will be aligned to given pangenome instead of to the linear reference genome
+    # Important: this is only supported for homo_sapiens so far
+    activate: True
+    # URL to pangenome index (xg format)
+    # Important: ensure that the pangenome index is built against the same reference genome as specified above under build
+    index: "https://s3-us-west-2.amazonaws.com/human-pangenomics/pangenomes/freeze/freeze1/minigraph-cactus/hprc-v1.0-mc-grch38.xg"
   # Optionally, instead of downloading the whole reference from Ensembl via the
   # parameters above, specify a specific chromosome below and uncomment the line.
   # This is usually only relevant for testing.
@@ -157,6 +164,7 @@ calling:
           # Add varlociraptor events to aggregated over.
           # The probability for the union of these events is used for controlling
           # the FDR.
+          - present
           - somatic_tumor_high
           - somatic_tumor_medium
         filter: # myfilter
