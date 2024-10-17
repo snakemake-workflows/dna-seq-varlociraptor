@@ -1065,7 +1065,6 @@ def get_annotation_fields_for_tables(wildcards):
         "CANONICAL",
         "CLIN_SIG",
         "Consequence",
-        "EXON",
         "Feature",
         "Gene",
         "gnomADg_AF",
@@ -1146,7 +1145,7 @@ def get_info_prob_fields_for_tables(wildcards, input):
             scenario = yaml.load(scenario_file, Loader=yaml.SafeLoader)
             events = list(scenario["events"].keys())
             events += ["artifact", "absent"]
-            return [f"PROB_{e.upper()}" for e in events]
+            return events
     else:
         return []
 
@@ -1215,7 +1214,10 @@ def get_vembrane_config(wildcards, input):
     ## INFO fields holding varlociraptor probabilities
     info_prob_fields = get_info_prob_fields_for_tables(wildcards, input)
     append_items(
-        info_prob_fields, rename_info_fields, "INFO['{}']".format, "prob: {}".format
+        info_prob_fields,
+        rename_info_fields,
+        lambda x: f"INFO['PROB_{x.upper()}']",
+        "prob: {}".format,
     )
 
     ## INFO fields relevant in fusion calling, only added for 'fusion' calling
@@ -1240,6 +1242,10 @@ def get_vembrane_config(wildcards, input):
             "gnomADg_AF": {
                 "name": "gnomad genome af",
             },
+            "EXON": {
+                "name": "exon",
+                "expr": "ANN['EXON'].raw",
+            },
             "SpliceAI_pred_DS_AG": {
                 "name": "spliceai acceptor gain",
             },
@@ -1263,7 +1269,6 @@ def get_vembrane_config(wildcards, input):
             "ANN['{}']".format,
             lambda x: x.lower(),
         )
-
     # determine a stable sort order, to avoid implicit assumptions about field
     # order; downstream scripts split-call-tables.py and
     # join_fusion_partner.py will remove columns they respectively don't need
@@ -1283,7 +1288,7 @@ def get_vembrane_config(wildcards, input):
         "ANN['Consequence']",
         "ANN['CLIN_SIG']",
         "ANN['gnomADg_AF']",
-        "ANN['EXON']",
+        "ANN['EXON'].raw",
         "ANN['REVEL']",
         # variants only, split-call-tables.py will select the column with the
         # highest score and will put it in the same place
@@ -1414,7 +1419,7 @@ def get_primer_extra(wc, input):
     min_primer_len = get_shortest_primer_length(input.reads)
     # Check if shortest primer is below default values
     if min_primer_len < 32:
-        extra += f" -T {min_primer_len-2}"
+        extra += f" -T {min_primer_len - 2}"
     if min_primer_len < 19:
         extra += f" -k {min_primer_len}"
     return extra
