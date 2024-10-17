@@ -671,7 +671,7 @@ def get_filter_chr_input(wildcards, index=False):
     if sample_has_umis(wildcards.sample):
         return "results/mapped/vg/{{sample}}.annotated{ext}".format(ext=ext)
     else:
-        return "results/mapped/vg/{{sample}}.preprocessed{ext}".format(ext=ext)
+        return "results/mapped/vg/{{sample}}.mate_fixed.sorted{ext}".format(ext=ext)
 
 
 def get_mutational_burden_targets():

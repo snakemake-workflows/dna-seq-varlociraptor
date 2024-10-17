@@ -27,11 +27,29 @@ rule map_reads_vg:
         "benchmarks/vg_giraffe/{sample}.tsv"
     params:
         extra="",
-        sorting=get_map_reads_sorting_params,
-        sort_order=lambda wc: get_map_reads_sorting_params(wc, ordering=True),
+        sorting="fgbio",
+        sort_order="queryname",
     threads: 8
     wrapper:
-        "v3.0.0/bio/vg/giraffe"
+        "file:///media/HDD/workspace/snakemake-wrappers/bio/vg/giraffe"
+
+
+# TODO Coordinate sort output
+
+
+# samtools fixmate requires querysorted input
+rule fix_mate:
+    input:
+        "results/mapped/vg/{sample}.preprocessed.bam",
+    output:
+        "results/mapped/vg/{sample}.mate_fixed.bam",
+    log:
+        "logs/samtools/fix_mate/{sample}.log",
+    threads: 1
+    params:
+        extra="",
+    wrapper:
+        "v4.7.2/bio/samtools/fixmate"
 
 
 # keep only primary chromosomes
@@ -138,15 +156,11 @@ rule sort_untrimmed_fastqs:
         "fgbio SortFastq -i {input} -o {output} 2> {log}"
 
 
-# AnnotatedUMIs requires querynamed sorted fastqs and bams
-# Else only sorted=False works but consumes a lot of memory not scaling well (see https://github.com/snakemake-workflows/dna-seq-varlociraptor/pull/296)
-# Annotation does not work with vg as keep_only_primary_chr removed reads still being present in fastq files
-# This causes annotation to fail
-# Workaround could be annotation of umis before filtering primary chromosomes, this requires a lot of case handling between bwa and vg
+# fgbio AnnotateBamsWithUmis requires querynamed sorted fastqs and bams
 rule annotate_umis:
     input:
         bam=lambda wc: (
-            "results/mapped/{aligner}/{sample}.preprocessed.bam"
+            "results/mapped/{aligner}/{sample}.mate_fixed.bam"
             if wc.aligner == "vg"
             else "results/mapped/{aligner}/{sample}.bam"
         ),
