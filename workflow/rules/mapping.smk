@@ -123,7 +123,7 @@ rule add_rg:
     log:
         "logs/picard/add_rg/{sample}.log",
     params:
-        extra="--RGLB lib1 --RGPL illumina --RGPU {sample} --RGSM {sample}",
+        extra="--RGLB lib1 --RGPL ILLUMINA --RGPU {sample} --RGSM {sample} --RGID {sample}",
     resources:
         mem_mb=60000,
     wrapper:
