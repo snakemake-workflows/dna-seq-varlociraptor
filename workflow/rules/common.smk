@@ -1243,8 +1243,8 @@ def get_vembrane_config(wildcards, input):
                 "name": "gnomad genome af",
             },
             "EXON": {
-                    "name": "exon",
-                    "expr": "ANN['EXON'].raw",
+                "name": "exon",
+                "expr": "ANN['EXON'].raw",
             },
             "SpliceAI_pred_DS_AG": {
                 "name": "spliceai acceptor gain",
@@ -1419,7 +1419,7 @@ def get_primer_extra(wc, input):
     min_primer_len = get_shortest_primer_length(input.reads)
     # Check if shortest primer is below default values
     if min_primer_len < 32:
-        extra += f" -T {min_primer_len-2}"
+        extra += f" -T {min_primer_len - 2}"
     if min_primer_len < 19:
         extra += f" -k {min_primer_len}"
     return extra
