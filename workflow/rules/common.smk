@@ -140,7 +140,7 @@ def get_final_output(wildcards):
 
     for calling_type in calling_types:
         if config["report"]["activate"]:
-            for event in config["calling"]["fdr-control"]["events"]:
+            for event in get_calling_events(calling_type):
                 if lookup(
                     dpath=f"calling/fdr-control/events/{event}/report",
                     within=config,
@@ -150,7 +150,7 @@ def get_final_output(wildcards):
                         expand(
                             "results/datavzrd-report/{batch}.{event}.{calling_type}.fdr-controlled",
                             batch=get_report_batches(calling_type),
-                            event=get_calling_events(calling_type),
+                            event=event,
                             calling_type=calling_type,
                         )
                     )
@@ -163,7 +163,7 @@ def get_final_output(wildcards):
                                 if calling_type == "variants"
                                 else fusions_groups
                             ),
-                            event=get_calling_events(calling_type),
+                            event=event,
                             calling_type=calling_type,
                         )
                     )
