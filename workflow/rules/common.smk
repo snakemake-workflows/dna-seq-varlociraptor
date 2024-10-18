@@ -154,6 +154,19 @@ def get_final_output(wildcards):
                             calling_type=calling_type,
                         )
                     )
+                else:
+                    final_output.extend(
+                        expand(
+                            "results/final-calls/{group}.{event}.{calling_type}.fdr-controlled.bcf",
+                            group=(
+                                variants_groups
+                                if calling_type == "variants"
+                                else fusions_groups
+                            ),
+                            event=event,
+                            calling_type=calling_type,
+                        )
+                    )
         else:
             final_output.extend(
                 expand(
