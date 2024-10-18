@@ -1,1 +1,2 @@
 sample_name	unit_name	fq1	fq2	sra	adapters
+SRR702070	lane1	/projects/koesterlab/orthanq/HapMap_data/SRR702070_1.fastq.gz	/projects/koesterlab/orthanq/HapMap_data/SRR702070_2.fastq.gz

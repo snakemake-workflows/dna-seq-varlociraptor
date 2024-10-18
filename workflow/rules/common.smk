@@ -30,6 +30,8 @@ genome_prefix = f"resources/{genome_name}"
 genome = f"{genome_prefix}.fasta"
 genome_fai = f"{genome}.fai"
 genome_dict = f"{genome_prefix}.dict"
+pangenome_prefix = f"resources/pangenome.{species}.{build}"
+# pangenome = f"{pangenome_prefix}.gbz"
 
 # cram variables
 use_cram = config.get("use_cram", False)
@@ -108,6 +110,15 @@ primer_panels = (
     if config["primers"]["trimming"].get("tsv", "")
     else None
 )
+
+
+def get_pangenome_url(wildcards):
+    if wildcards.ext == "xg":
+        return config["ref"]["pangenome"]["graph"]
+    elif wildcards.ext == "dist":
+        return config["ref"]["pangenome"]["dist_index"]
+    else:
+        return config["ref"]["pangenome"]["minimizer_index"]
 
 
 def get_calling_events(calling_type):
@@ -260,20 +271,13 @@ def get_control_fdr_input(wildcards):
         return "results/final-calls/{group}.{calling_type}.annotated.bcf"
 
 
-def get_recalibrate_quality_input(wildcards, bai=False):
-    ext = "bai" if bai else "bam"
-    datatype = get_sample_datatype(wildcards.sample)
-    if datatype == "rna":
-        return "results/split/{{sample}}.{ext}".format(ext=ext)
-    # Post-processing of DNA samples
-    if is_activated("calc_consensus_reads"):
-        return "results/consensus/{{sample}}.{ext}".format(ext=ext)
-    elif is_activated("primers/trimming"):
-        return "results/trimmed/{{sample}}.trimmed.{ext}".format(ext=ext)
-    elif is_activated("remove_duplicates"):
-        return "results/dedup/{{sample}}.{ext}".format(ext=ext)
+def get_aligner(wildcards):
+    if get_sample_datatype(wildcards.sample) == "rna":
+        return "star"
+    elif is_activated("ref/pangenome"):
+        return "vg"
     else:
-        return "results/mapped/bwa/{{sample}}.{ext}".format(ext=ext)
+        return "bwa"
 
 
 def get_cutadapt_input(wildcards):
@@ -428,31 +432,49 @@ def get_sample_datatype(sample):
 
 
 def get_markduplicates_input(wildcards):
-    aligner = "star" if get_sample_datatype(wildcards.sample) == "rna" else "bwa"
+    aligner = get_aligner(wildcards)
     if sample_has_umis(wildcards.sample):
-        return "results/mapped/{aligner}/{{sample}}.annotated.bam".format(
-            aligner=aligner
-        )
+        # Special case for vg as umi annotation (if active) is done before finalizing bam output
+        # Could also directly go to else-branch if aligner != "vg"
+        if aligner == "vg":
+            return "results/mapped/{aligner}/{{sample}}.bam".format(aligner=aligner)
+        else:
+            return "results/mapped/{aligner}/{{sample}}.annotated.bam".format(
+                aligner=aligner
+            )
     else:
         return "results/mapped/{aligner}/{{sample}}.bam".format(aligner=aligner)
 
 
-def get_consensus_input(wildcards):
+def get_recalibrate_quality_input(wildcards, bai=False):
+    ext = "bai" if bai else "bam"
+    datatype = get_sample_datatype(wildcards.sample)
+    if datatype == "rna":
+        return "results/split/{{sample}}.{ext}".format(ext=ext)
+    # Post-processing of DNA samples
+    if is_activated("calc_consensus_reads"):
+        return "results/consensus/{{sample}}.{ext}".format(ext=ext)
+    else:
+        return get_consensus_input(wildcards, bai)
+
+
+def get_consensus_input(wildcards, bai=False):
+    ext = "bai" if bai else "bam"
     if is_activated("primers/trimming"):
-        return "results/trimmed/{sample}.trimmed.bam"
-    elif is_activated("remove_duplicates"):
-        return "results/dedup/{sample}.bam"
+        return "results/trimmed/{{sample}}.trimmed.{ext}".format(ext=ext)
     else:
-        aligner = "star" if get_sample_datatype(wildcards.sample) == "rna" else "bwa"
-        return "results/mapped/{aligner}/{{sample}}.bam".format(aligner=aligner)
+        return get_trimming_input(wildcards, bai)
 
 
-def get_trimming_input(wildcards):
+def get_trimming_input(wildcards, bai=False):
+    ext = "bai" if bai else "bam"
     if is_activated("remove_duplicates"):
-        return "results/dedup/{sample}.bam"
+        return "results/dedup/{{sample}}.{ext}".format(ext=ext)
     else:
-        aligner = "star" if get_sample_datatype(wildcards.sample) == "rna" else "bwa"
-        return "results/mapped/{aligner}/{{sample}}.bam".format(aligner=aligner)
+        aligner = get_aligner(wildcards)
+        return "results/mapped/{aligner}/{{sample}}.{ext}".format(
+            aligner=aligner, ext=ext
+        )
 
 
 def get_primer_bed(wc):
@@ -623,6 +645,13 @@ def get_read_group(wildcards):
     )
 
 
+def get_vg_read_group(wildcards):
+    platform = extract_unique_sample_column_value(wildcards.sample, "platform")
+    return r"--RGLB lib1 --RGPL {platform} --RGPU {sample} --RGSM {sample} --RGID {sample}".format(
+        sample=wildcards.sample, platform=platform
+    )
+
+
 def get_map_reads_sorting_params(wildcards, ordering=False):
     match (sample_has_umis(wildcards.sample), ordering):
         case (True, True):
@@ -633,6 +662,14 @@ def get_map_reads_sorting_params(wildcards, ordering=False):
             return "coordinate"
         case (False, False):
             return "samtools"
+
+
+def get_filter_chr_input(wildcards, index=False):
+    ext = "bai" if index else "bam"
+    if sample_has_umis(wildcards.sample):
+        return "results/mapped/vg/{{sample}}.annotated.{ext}".format(ext=ext)
+    else:
+        return "results/mapped/vg/{{sample}}.mate_fixed.sorted.{ext}".format(ext=ext)
 
 
 def get_mutational_burden_targets():
@@ -685,15 +722,19 @@ def get_selected_annotations():
     return selection
 
 
-def get_annotated_bcf(wildcards):
+def get_annotated_bcf(wildcards, index=False):
+    ext = ".csi" if index else ""
     selection = (
         get_selected_annotations() if wildcards.calling_type == "variants" else ""
     )
-    return "results/calls/{group}.{calling_type}.{scatteritem}{selection}.bcf".format(
-        group=wildcards.group,
-        calling_type=wildcards.calling_type,
-        selection=selection,
-        scatteritem=wildcards.scatteritem,
+    return (
+        "results/calls/{group}.{calling_type}.{scatteritem}{selection}.bcf{ext}".format(
+            group=wildcards.group,
+            calling_type=wildcards.calling_type,
+            selection=selection,
+            scatteritem=wildcards.scatteritem,
+            ext=ext,
+        )
     )
 
 
