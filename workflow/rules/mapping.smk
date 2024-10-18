@@ -15,10 +15,14 @@ rule map_reads_bwa:
         "v3.8.0/bio/bwa/mem"
 
 
+# Create distance and minimizer index before mapping
+# Otherwise it will be performed on the first execution leading to race conditions for multiple samples
 rule map_reads_vg:
     input:
         reads=get_map_reads_input,
-        ref="resources/pangenome/vg_index.xg",
+        graph=f"{pangenome_prefix}.xg",
+        dist=f"{pangenome_prefix}.dist",
+        minimizer=f"{pangenome_prefix}.min",
     output:
         "results/mapped/vg/{sample}.preprocessed.bam",
     log:
@@ -42,7 +46,7 @@ rule fix_mate:
         "results/mapped/vg/{sample}.mate_fixed.bam",
     log:
         "logs/samtools/fix_mate/{sample}.log",
-    threads: 1
+    threads: 8
     params:
         extra="",
     wrapper:
@@ -64,7 +68,36 @@ rule filter_primary_chr:
     benchmark:
         "benchmarks/samtools_view_primary_chr/{sample}.tsv"
     params:
-        region="GRCh38.chr1 GRCh38.chr2 GRCh38.chr3 GRCh38.chr4 GRCh38.chr5 GRCh38.chr6 GRCh38.chr7 GRCh38.chr8 GRCh38.chr9 GRCh38.chr10 GRCh38.chr11 GRCh38.chr12 GRCh38.chr13 GRCh38.chr14 GRCh38.chr15 GRCh38.chr16 GRCh38.chr17 GRCh38.chr18 GRCh38.chr19 GRCh38.chr20 GRCh38.chr21 GRCh38.chr22 GRCh38.chrX GRCh38.chrY GRCh38.chrM",
+        region=lambda wc: " ".join(
+            "{build}.chr{x}".format(build=config["ref"]["build"], x=chr)
+            for chr in [
+                "1",
+                "2",
+                "3",
+                "4",
+                "5",
+                "6",
+                "7",
+                "8",
+                "9",
+                "10",
+                "11",
+                "12",
+                "13",
+                "14",
+                "15",
+                "16",
+                "17",
+                "18",
+                "19",
+                "20",
+                "21",
+                "22",
+                "X",
+                "Y",
+                "M",
+            ]
+        ),
         extra="-f 2",
     wrapper:
         "v2.0.0/bio/samtools/view"
@@ -79,6 +112,8 @@ rule reheader:
         "results/mapped/vg/{sample}_extracted.bam",
     output:
         "results/mapped/vg/{sample}_reheadered.bam",
+    params:
+        build=config["ref"]["build"],
     log:
         "logs/samtools_reheader/{sample}.log",
     benchmark:
@@ -86,7 +121,7 @@ rule reheader:
     conda:
         "../envs/samtools.yaml"
     shell:
-        "samtools view -H {input} | sed '/random/d;/chrUn/d;/EBV/d;s/GRCh38.chr//g;0,/M/s//MT/' | samtools reheader - {input} > {output} 2> {log}"
+        "samtools view -H {input} | sed '/random/d;/chrUn/d;/EBV/d;s/{params.build}.chr//g;0,/M/s//MT/' | samtools reheader - {input} > {output} 2> {log}"
 
 
 # adding read groups is necessary because base recalibration throws errors
@@ -99,7 +134,7 @@ rule add_rg:
     log:
         "logs/picard/add_rg/{sample}.log",
     params:
-        extra="--RGLB lib1 --RGPL ILLUMINA --RGPU {sample} --RGSM {sample} --RGID {sample}",
+        extra=get_vg_read_group,
     resources:
         mem_mb=60000,
     wrapper:

@@ -148,12 +148,40 @@ rule get_vep_plugins:
         "v3.3.5/bio/vep/plugins"
 
 
-rule get_vg_pangenome:
+rule get_pangenome:
     output:
-        "resources/pangenome/vg_index.xg",
+        f"{pangenome_prefix}.{{ext}}",
     params:
-        link=config["ref"]["pangenome"]["index"],
+        url=get_pangenome_url,
     log:
-        "logs/pangenome/get_reference.log",
+        "logs/pangenome/get_reference_{ext}.log",
+    cache: "omit-software"
     shell:
-        "curl -o {output} {params.link} 2> {log}"
+        "curl -o {output} {params.url} 2> {log}"
+
+
+## These rules create dist- and min-indexes when index graph is provided as bgz-file
+## gbz graph is available for hprc-v1.1 but mapped records file during post processing (probably because of CHM13 reference)
+# rule create_pangenome_dist_index:
+#     input:
+#         pangenome
+#     output:
+#         f"{pangenome_prefix}.dist"
+#     conda:
+#         "../envs/vg.yaml"
+#     threads: max(workflow.cores, 1)  # use all available cores
+#     shell:
+#         "vg index -t {threads} -j {output} {input}"
+# rule create_pangenome_minimizer_index:
+#     input:
+#         graph=pangenome,
+#         dist=f"{pangenome_prefix}.dist"
+#     output:
+#         f"{pangenome_prefix}.min"
+#     conda:
+#         "../envs/vg.yaml"
+#     threads: 16
+#     log:
+#         "logs/pangenome/minimizer_index.log"
+#     shell:
+#         "vg minimizer -t {threads} -d {input.dist} -o {output} {input.graph} 2> {log}"
