@@ -289,8 +289,10 @@ views:
             display-mode: hidden
           chromosome:
             display-mode: detail
+          end position:
+            display-mode: detail
           position:
-             display-mode: detail
+            display-mode: detail
           reference allele:
             display-mode: detail
           alternative allele:
