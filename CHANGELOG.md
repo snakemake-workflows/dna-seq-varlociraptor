@@ -1,5 +1,14 @@
 # Changelog
 
+## [5.10.1](https://github.com/snakemake-workflows/dna-seq-varlociraptor/compare/v5.10.0...v5.10.1) (2024-10-23)
+
+
+### Bug Fixes
+
+* fix excluding events from the report ([#332](https://github.com/snakemake-workflows/dna-seq-varlociraptor/issues/332)) ([acdd9e3](https://github.com/snakemake-workflows/dna-seq-varlociraptor/commit/acdd9e3a87f71e95ca359cf8650ec998f346ff7e))
+* more explicity pinning of varlociraptor version ([f66c6a5](https://github.com/snakemake-workflows/dna-seq-varlociraptor/commit/f66c6a5ef94b5c03878d20cde39ef8fd8688ad6c))
+* processing vembrane config ([#330](https://github.com/snakemake-workflows/dna-seq-varlociraptor/issues/330)) ([1629c6d](https://github.com/snakemake-workflows/dna-seq-varlociraptor/commit/1629c6d851dcc6336a0e6cb0ac084249c3d427dc))
+
 ## [5.10.0](https://github.com/snakemake-workflows/dna-seq-varlociraptor/compare/v5.9.0...v5.10.0) (2024-09-26)
 
 
