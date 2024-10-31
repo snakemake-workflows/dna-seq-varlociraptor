@@ -1,11 +1,11 @@
 {
-    "$schema": "https://vega.github.io/schema/vega-lite/v3.json",
+    "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
     "transform": [
         {
             "calculate": "indexof(['Very Strong (Alternative)', 'Strong (Alternative)', 'Positive (Alternative)', 'Barely (Alternative)', 'Equal', 'Barely (Reference)', 'Positive (Reference)', 'Strong (Reference)', 'Very Strong (Reference)'], datum.effect)",
             "as": "order"
         }
-      ],
+    ],
     "mark": "bar",
     "encoding": {
         "y": {
@@ -29,14 +29,17 @@
                 "range": ["#ff5555", "#ff6666", "#ff9999", "#ffcccc", "#999999", "#eaf7fb", "#afdfee", "#6cc5e0", "#2dacd2"]
             }
         },
-        "tooltip": [ {
-            "field": "effect",
-            "type": "nominative",
-            "title": "Evidence"
-        }, {
-            "field": "times",
-            "type": "quantitative",
-            "title": "Counts"
-        } ]
+        "tooltip": [
+            {
+                "field": "effect",
+                "type": "nominal",
+                "title": "Evidence"
+            },
+            {
+                "field": "times",
+                "type": "quantitative",
+                "title": "Counts"
+            }
+        ]
     }
 }
