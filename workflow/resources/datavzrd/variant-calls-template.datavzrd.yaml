@@ -482,8 +482,8 @@ views:
             spell:
             url: v1.1.3/logic/boolean
             with:
-              true_values: "true"
-              false_values: "false"
+              true_value: "true"
+              false_value: "false"
             custom-content: ?empty_content
           mane_plus_clinical:
             optional: true
