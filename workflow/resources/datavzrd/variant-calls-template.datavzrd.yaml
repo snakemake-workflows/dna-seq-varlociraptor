@@ -304,14 +304,12 @@ views:
           canonical:
             optional: true
             display-mode: detail
-            plot:
-              heatmap:
-                scale: "ordinal"
-                domain: ["", "True"]
-                range:
-                  - white
-                  - black
-                custom-content: ?empty_content
+            spell:
+            url: v1.1.3/logic/boolean
+            with:
+              true_value: "true"
+              false_value: "false"
+            custom-content: ?empty_content
           mane_plus_clinical:
             optional: true
             display-mode: detail
@@ -481,14 +479,12 @@ views:
           canonical:
             optional: true
             display-mode: detail
-            plot:
-              heatmap:
-                scale: "ordinal"
-                domain: ["", "True"]
-                range:
-                  - white
-                  - black
-                custom-content: ?empty_content
+            spell:
+            url: v1.1.3/logic/boolean
+            with:
+              true_values: "true"
+              false_values: "false"
+            custom-content: ?empty_content
           mane_plus_clinical:
             optional: true
             display-mode: detail
