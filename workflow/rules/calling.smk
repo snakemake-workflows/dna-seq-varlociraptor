@@ -34,7 +34,8 @@ rule varlociraptor_alignment_properties:
         "logs/varlociraptor/estimate-alignment-properties/{group}/{sample}.log",
     conda:
         "../envs/varlociraptor.yaml"
-    group: "calling"
+    group:
+        "calling"
     shell:
         "varlociraptor estimate alignment-properties {input.ref} --bam {input.bam} > {output} 2> {log}"
 
@@ -59,7 +60,8 @@ rule varlociraptor_preprocess:
         "benchmarks/varlociraptor/preprocess/{group}/{sample}.{caller}.{scatteritem}.tsv"
     conda:
         "../envs/varlociraptor.yaml"
-    group: "calling"
+    group:
+        "calling"
     shell:
         "varlociraptor preprocess variants --candidates {input.candidates} {params.extra} "
         "--alignment-properties {input.alignment_props} {input.ref} --bam {input.bam} --output {output} "
@@ -90,7 +92,8 @@ rule varlociraptor_call:
         "../envs/varlociraptor.yaml"
     benchmark:
         "benchmarks/varlociraptor/call/{group}.{caller}.{scatteritem}.tsv"
-    group: "calling"
+    group:
+        "calling"
     shell:
         "(varlociraptor call variants {params.extra} generic --obs {params.obs}"
         " --scenario {input.scenario} {params.postprocess} {output}) 2> {log}"

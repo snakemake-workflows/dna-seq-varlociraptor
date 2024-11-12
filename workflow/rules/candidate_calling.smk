@@ -83,6 +83,7 @@ rule scatter_candidates:
         "logs/scatter-candidates/{group}.{caller}.log",
     conda:
         "../envs/rbt.yaml"
-    group: "calling"
+    group:
+        "calling"
     shell:
         "rbt vcf-split {input} {output}"
