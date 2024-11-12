@@ -159,7 +159,7 @@ rule get_pangenome_haplotypes:
         "curl -o {output} {params.url} 2> {log}"
 
 
-rule create_chrom_replacment:
+rule create_chrom_replacement:
     input:
         f"resources/{pangenome_name}.vcf.gz",
     output:
