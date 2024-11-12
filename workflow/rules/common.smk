@@ -30,8 +30,7 @@ genome_prefix = f"resources/{genome_name}"
 genome = f"{genome_prefix}.fasta"
 genome_fai = f"{genome}.fai"
 genome_dict = f"{genome_prefix}.dict"
-pangenome_prefix = f"resources/pangenome.{species}.{build}"
-# pangenome = f"{pangenome_prefix}.gbz"
+pangenome_name = f"pangenome.{species}.{build}"
 
 # cram variables
 use_cram = config.get("use_cram", False)
@@ -110,15 +109,6 @@ primer_panels = (
     if config["primers"]["trimming"].get("tsv", "")
     else None
 )
-
-
-def get_pangenome_url(wildcards):
-    if wildcards.ext == "xg":
-        return config["ref"]["pangenome"]["graph"]
-    elif wildcards.ext == "dist":
-        return config["ref"]["pangenome"]["dist_index"]
-    else:
-        return config["ref"]["pangenome"]["minimizer_index"]
 
 
 def get_calling_events(calling_type):
@@ -436,12 +426,9 @@ def get_markduplicates_input(wildcards):
     if sample_has_umis(wildcards.sample):
         # Special case for vg as umi annotation (if active) is done before finalizing bam output
         # Could also directly go to else-branch if aligner != "vg"
-        if aligner == "vg":
-            return "results/mapped/{aligner}/{{sample}}.bam".format(aligner=aligner)
-        else:
-            return "results/mapped/{aligner}/{{sample}}.annotated.bam".format(
-                aligner=aligner
-            )
+        return "results/mapped/{aligner}/{{sample}}.annotated.bam".format(
+            aligner=aligner
+        )
     else:
         return "results/mapped/{aligner}/{{sample}}.bam".format(aligner=aligner)
 
@@ -664,12 +651,11 @@ def get_map_reads_sorting_params(wildcards, ordering=False):
             return "samtools"
 
 
-def get_filter_chr_input(wildcards, index=False):
-    ext = "bai" if index else "bam"
+def get_add_readgroup_input(wildcards):
     if sample_has_umis(wildcards.sample):
-        return "results/mapped/vg/{{sample}}.annotated.{ext}".format(ext=ext)
+        return "results/mapped/vg/{sample}.annotated.bam"
     else:
-        return "results/mapped/vg/{{sample}}.mate_fixed.sorted.{ext}".format(ext=ext)
+        return "results/mapped/vg/{sample}.mate_fixed.bam"
 
 
 def get_mutational_burden_targets():

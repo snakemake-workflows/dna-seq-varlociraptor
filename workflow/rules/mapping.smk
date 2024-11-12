@@ -20,9 +20,9 @@ rule map_reads_bwa:
 rule map_reads_vg:
     input:
         reads=get_map_reads_input,
-        graph=f"{pangenome_prefix}.xg",
-        dist=f"{pangenome_prefix}.dist",
-        minimizer=f"{pangenome_prefix}.min",
+        graph=f"resources/{pangenome_name}.giraffe.gbz",
+        dist=f"resources/{pangenome_name}.dist",
+        minimizer=f"resources/{pangenome_name}.min",
     output:
         "results/mapped/vg/{sample}.preprocessed.bam",
     log:
@@ -53,82 +53,11 @@ rule fix_mate:
         "v4.7.2/bio/samtools/fixmate"
 
 
-# keep only primary chromosomes
-# use -f 2 to keep only properly paired reads, the mate of a read that's on a nonprimary chromosome is problematic for AddOrReplaceReadGroups, because we remove
-# all the other nonprimary chromosome from the header.
-rule filter_primary_chr:
-    input:
-        lambda wc: get_filter_chr_input(wc),
-        lambda wc: get_filter_chr_input(wc, True),
-    output:
-        bam="results/mapped/vg/{sample}_extracted.bam",
-        idx="results/mapped/vg/{sample}_extracted.bai",
-    log:
-        "logs/samtools_view_primary_chr/{sample}.log",
-    benchmark:
-        "benchmarks/samtools_view_primary_chr/{sample}.tsv"
-    params:
-        region=lambda wc: " ".join(
-            "{build}.chr{x}".format(build=config["ref"]["build"], x=chr)
-            for chr in [
-                "1",
-                "2",
-                "3",
-                "4",
-                "5",
-                "6",
-                "7",
-                "8",
-                "9",
-                "10",
-                "11",
-                "12",
-                "13",
-                "14",
-                "15",
-                "16",
-                "17",
-                "18",
-                "19",
-                "20",
-                "21",
-                "22",
-                "X",
-                "Y",
-                "M",
-            ]
-        ),
-        extra="-f 2",
-    wrapper:
-        "v2.0.0/bio/samtools/view"
-
-
-# modify the header for chromosome names to be compatible with the reference genome that are acquired from ensembl
-# first delete all non classical chromosomes including unlocalized, unplaced and EBV chromosomes (delly complains about them being found in the header)
-# second remove GRCh38.chr and third convert M to MT (MT in pangenome reference and M in fasta sequence dict)
-# the following sed command replaces the first "M" it finds and replaces it with "MT"
-rule reheader:
-    input:
-        "results/mapped/vg/{sample}_extracted.bam",
-    output:
-        "results/mapped/vg/{sample}_reheadered.bam",
-    params:
-        build=config["ref"]["build"],
-    log:
-        "logs/samtools_reheader/{sample}.log",
-    benchmark:
-        "benchmarks/samtools_reheader/{sample}.tsv"
-    conda:
-        "../envs/samtools.yaml"
-    shell:
-        "samtools view -H {input} | sed '/random/d;/chrUn/d;/EBV/d;s/{params.build}.chr//g;0,/M/s//MT/' | samtools reheader - {input} > {output} 2> {log}"
-
-
 # adding read groups is necessary because base recalibration throws errors
 # for not being able to find read group information
-rule add_rg:
+rule add_read_group:
     input:
-        "results/mapped/vg/{sample}_reheadered.bam",
+        "results/mapped/vg/{sample}.mate_fixed.bam",
     output:
         "results/mapped/vg/{sample}.bam",
     log:
@@ -170,11 +99,7 @@ rule sort_untrimmed_fastqs:
 # fgbio AnnotateBamsWithUmis requires querynamed sorted fastqs and bams
 rule annotate_umis:
     input:
-        bam=lambda wc: (
-            "results/mapped/{aligner}/{sample}.mate_fixed.bam"
-            if wc.aligner == "vg"
-            else "results/mapped/{aligner}/{sample}.bam"
-        ),
+        bam="results/mapped/{aligner}/{sample}.bam",
         umi=get_umi_fastq,
     output:
         pipe("pipe/{aligner}/{sample}.annotated.bam"),

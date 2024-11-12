@@ -148,40 +148,59 @@ rule get_vep_plugins:
         "v3.3.5/bio/vep/plugins"
 
 
-rule get_pangenome:
+rule get_pangenome_haplotypes:
     output:
-        f"{pangenome_prefix}.{{ext}}",
+        temp(f"resources/{pangenome_name}.vcf.gz"),
     params:
-        url=get_pangenome_url,
+        url=config["ref"]["pangenome"]["vcf"],
     log:
-        "logs/pangenome/get_reference_{ext}.log",
-    cache: "omit-software"
+        "logs/pangenome/haplotypes.log",
     shell:
         "curl -o {output} {params.url} 2> {log}"
 
 
-## These rules create dist- and min-indexes when index graph is provided as bgz-file
-## gbz graph is available for hprc-v1.1 but mapped records file during post processing (probably because of CHM13 reference)
-# rule create_pangenome_dist_index:
-#     input:
-#         pangenome
-#     output:
-#         f"{pangenome_prefix}.dist"
-#     conda:
-#         "../envs/vg.yaml"
-#     threads: max(workflow.cores, 1)  # use all available cores
-#     shell:
-#         "vg index -t {threads} -j {output} {input}"
-# rule create_pangenome_minimizer_index:
-#     input:
-#         graph=pangenome,
-#         dist=f"{pangenome_prefix}.dist"
-#     output:
-#         f"{pangenome_prefix}.min"
-#     conda:
-#         "../envs/vg.yaml"
-#     threads: 16
-#     log:
-#         "logs/pangenome/minimizer_index.log"
-#     shell:
-#         "vg minimizer -t {threads} -d {input.dist} -o {output} {input.graph} 2> {log}"
+rule create_chrom_replacment:
+    input:
+        f"resources/{pangenome_name}.vcf.gz",
+    output:
+        temp("resources/chrom_renames.tsv"),
+    log:
+        "logs/pangenome/chrom_replacement.log",
+    conda:
+        "../envs/bcftools.yaml"
+    shell:
+        """
+        bcftools query -f '%CHROM\n' {input} | uniq | awk '{{if ($1 == "chrM") print $1 "\tMT"; else print $1 "\t" substr($1, 4)}}' > {output} 2> {log}
+        """
+
+
+rule rename_haplotype_chroms:
+    input:
+        vcf="resources/{pangenome}.vcf.gz",
+        tsv="resources/chrom_renames.tsv",
+    output:
+        temp("resources/{pangenome}.renamed.vcf.gz"),
+    log:
+        "logs/pangenome/{pangenome}_renamed.log",
+    conda:
+        "../envs/bcftools.yaml"
+    shell:
+        "bcftools annotate --rename-chrs {input.tsv} {input.vcf} -Oz -o {output} 2> {log}"
+
+
+rule vg_autoindex:
+    input:
+        ref=genome,
+        vcf="resources/{pangenome}.renamed.vcf.gz",
+    output:
+        multiext("resources/{pangenome}", ".giraffe.gbz", ".dist", ".min"),
+    params:
+        prefix=lambda wc: f"resources/{wc.pangenome}",
+    log:
+        "logs/vg/autoindex/{pangenome}.log",
+    cache: "omit-software"
+    conda:
+        "../envs/vg.yaml"
+    threads: max(workflow.cores, 1)
+    shell:
+        "vg autoindex -w giraffe -p {params.prefix} -r {input.ref} -v {input.vcf} -t {threads} 2> {log}"

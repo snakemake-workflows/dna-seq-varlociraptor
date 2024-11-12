@@ -2,4 +2,4 @@ name: vg
 channels:
    - bioconda
 dependencies:
-   - vg =1.59
+   - vg =1.60
