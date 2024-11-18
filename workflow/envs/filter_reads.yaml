@@ -1,6 +1,7 @@
 channels:
   - conda-forge
 dependencies:
+  # update rust-script to 0.35 once it is supported by snakemake
   - rust-script =0.22
   - rust >=1.58
   - cryptography >=36.0
