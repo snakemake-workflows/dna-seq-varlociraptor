@@ -224,10 +224,7 @@ annotations:
         # For integration of SpliceAI preprocessed snv and indel scores (including index files) are required. 
         # Scores are available on https://basespace.illumina.com/s/otSPW8hnhaZR
         #- SpliceAI,snv=<path/to/spliceai_scores.raw.snv.hg38.vcf.gz,indel=<path/to/spliceai_scores.raw.indel.hg38.vcf.gz>
-        # For annotation of AlphaMissense scores a tsv-file containing processed scores is required.
-        # Scores are available on https://zenodo.org/records/10813168
-        # A tabix index is required and can be created by calling `tabix -s 1 -b 2 -e 2 -f -S 1 AlphaMissense_hg38.tsv.gz`
-        #- AlphaMissense,file=<path/to/AlphaMissense_hg38.tsv.gz>
+        #- AlphaMissense
 
 # printing of variants in a table format (might be deprecated soon)
 tables:

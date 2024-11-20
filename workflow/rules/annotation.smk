@@ -29,6 +29,8 @@ rule annotate_variants:
         plugins="resources/vep/plugins",
         revel=lambda wc: get_plugin_aux("REVEL"),
         revel_tbi=lambda wc: get_plugin_aux("REVEL", True),
+        alphamissense=lambda wc: get_plugin_aux("AlphaMissense"),
+        alphamissense_tbi=lambda wc: get_plugin_aux("AlphaMissense", True),
         fasta=genome,
         fai=genome_fai,
     output:
