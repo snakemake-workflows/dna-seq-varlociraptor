@@ -79,7 +79,7 @@ datasets:
         headers: ?len(params.group_annotations.columns) + 1
         links:
           ?for group in params.groups:
-            ?group:
+            ?f"{group}":
               column: hgvsp
               table-row: ?f"{group}-coding/hgvsp"
               optional: true
@@ -134,12 +134,12 @@ views:
                   scale: ordinal
                   color-scheme: category20
             ?for group in params.groups:
-              ?group:
+              ?f"{group}":
                 plot:
                   heatmap:
                     scale: ordinal
                     color-scheme: paired
-                    aux-domain-columns: ?list(params.groups)
+                    aux-domain-columns: ?list(str(g) for g in params.groups)
             p-value dependency:
               plot:
                 ticks:
@@ -173,12 +173,12 @@ views:
                   scale: ordinal
                   color-scheme: category20
             ?for group in params.groups:
-              ?group:
+              ?f"{group}":
                 plot:
                   heatmap:
                     scale: ordinal
                     color-scheme: paired
-                    aux-domain-columns: ?list(params.groups)
+                    aux-domain-columns: ?list(str(g) for g in params.groups)
             hgvsg:
               display-mode: hidden
             hgvsc:
