@@ -304,25 +304,19 @@ views:
           canonical:
             optional: true
             display-mode: detail
-            plot:
-              heatmap:
-                scale: "ordinal"
-                domain: ["", "True"]
-                range:
-                  - white
-                  - black
-                custom-content: ?empty_content
+            spell:
+              url: v1.1.3/logic/boolean
+              with:
+                true_value: "True"
+                false_value: ""
           mane_plus_clinical:
             optional: true
             display-mode: detail
-            plot:
-              heatmap:
-                scale: "ordinal"
-                domain: ["", "True"]
-                range:
-                  - white
-                  - black
-                custom-content: ?empty_content
+            spell:
+              url: v1.1.3/logic/boolean
+              with:
+                true_value: "True"
+                false_value: ""
           ?for alias in params.samples.loc[params.samples["group"] == group, "alias"]:
             '?f"{alias}: short observations"':
               optional: true
@@ -481,25 +475,19 @@ views:
           canonical:
             optional: true
             display-mode: detail
-            plot:
-              heatmap:
-                scale: "ordinal"
-                domain: ["", "True"]
-                range:
-                  - white
-                  - black
-                custom-content: ?empty_content
+            spell:
+              url: v1.1.3/logic/boolean
+              with:
+                true_value: "True"
+                false_value: ""
           mane_plus_clinical:
             optional: true
             display-mode: detail
-            plot:
-              heatmap:
-                scale: "ordinal"
-                domain: ["", "True"]
-                range:
-                  - white
-                  - black
-                custom-content: ?empty_content
+            spell:
+              url: v1.1.3/logic/boolean
+              with:
+                true_value: "True"
+                false_value: ""
           ?for alias in params.samples.loc[params.samples["group"] == group, "alias"]:
             '?f"{alias}: short observations"':
               optional: true
