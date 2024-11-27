@@ -201,9 +201,6 @@ views:
               ensembl:
                 url: https://www.ensembl.org/Homo_sapiens/Transcript/Summary?t={feature}
           'clinical significance':
-            desc: |
-              optional: true
-              custom: ?read_file(input.clin_sig)
             optional: true
             spell:
               url: v1.2.1/med/clin_sig
