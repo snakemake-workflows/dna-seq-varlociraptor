@@ -1,5 +1,0 @@
-name: vg
-channels:
-   - bioconda
-dependencies:
-   - vg =1.60
