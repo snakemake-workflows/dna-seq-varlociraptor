@@ -5,7 +5,7 @@ rule get_sra:
     log:
         "logs/get-sra/{accession}.log",
     wrapper:
-        "v2.3.2/bio/sra-tools/fasterq-dump"
+        "v5.0.2/bio/sra-tools/fasterq-dump"
 
 
 rule cutadapt_pipe:
