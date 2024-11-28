@@ -20,9 +20,7 @@ rule map_reads_bwa:
 rule map_reads_vg:
     input:
         reads=get_map_reads_input,
-        graph=f"resources/{pangenome_name}.giraffe.gbz",
-        dist=f"resources/{pangenome_name}.dist",
-        minimizer=f"resources/{pangenome_name}.min",
+        index=rules.vg_autoindex.output,
     output:
         "results/mapped/vg/{sample}.preprocessed.bam",
     log:
@@ -35,7 +33,7 @@ rule map_reads_vg:
         sort_order="queryname",
     threads: 8
     wrapper:
-        "file:///media/HDD/workspace/snakemake-wrappers/bio/vg/giraffe"
+        "v5.3.0/bio/vg/giraffe"
 
 
 # samtools fixmate requires querysorted input

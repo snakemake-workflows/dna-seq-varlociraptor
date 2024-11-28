@@ -150,7 +150,7 @@ rule get_vep_plugins:
 
 rule get_pangenome_haplotypes:
     output:
-        temp(f"resources/{pangenome_name}.vcf.gz"),
+        temp(f"{pangenome_prefix}.vcf.gz"),
     params:
         url=config["ref"]["pangenome"]["vcf"],
     log:
@@ -161,7 +161,7 @@ rule get_pangenome_haplotypes:
 
 rule create_chrom_replacement:
     input:
-        f"resources/{pangenome_name}.vcf.gz",
+        f"{pangenome_prefix}.vcf.gz",
     output:
         temp("resources/chrom_renames.tsv"),
     log:
@@ -191,16 +191,12 @@ rule rename_haplotype_chroms:
 rule vg_autoindex:
     input:
         ref=genome,
-        vcf="resources/{pangenome}.renamed.vcf.gz",
+        vcf=f"{pangenome_prefix}.renamed.vcf.gz",
     output:
-        multiext("resources/{pangenome}", ".giraffe.gbz", ".dist", ".min"),
-    params:
-        prefix=lambda wc: f"resources/{wc.pangenome}",
+        multiext(pangenome_prefix, ".giraffe.gbz", ".dist", ".min"),
     log:
-        "logs/vg/autoindex/{pangenome}.log",
+        "logs/vg/autoindex/pangenome.log",
     cache: "omit-software"
-    conda:
-        "../envs/vg.yaml"
     threads: max(workflow.cores, 1)
-    shell:
-        "vg autoindex -w giraffe -p {params.prefix} -r {input.ref} -v {input.vcf} -t {threads} 2> {log}"
+    wrapper:
+        "v5.3.0/bio/vg/autoindex"

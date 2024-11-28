@@ -31,6 +31,7 @@ genome = f"{genome_prefix}.fasta"
 genome_fai = f"{genome}.fai"
 genome_dict = f"{genome_prefix}.dict"
 pangenome_name = f"pangenome.{species}.{build}"
+pangenome_prefix = f"resources/{pangenome_name}"
 
 # cram variables
 use_cram = config.get("use_cram", False)
