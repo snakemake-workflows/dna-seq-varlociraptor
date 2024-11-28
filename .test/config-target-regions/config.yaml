@@ -17,7 +17,7 @@ ref:
   pangenome:
     activate: false
     vcf: ""
-    
+
 primers:
   trimming:
     activate: false
