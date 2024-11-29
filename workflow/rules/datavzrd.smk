@@ -68,7 +68,6 @@ rule datavzrd_variants_calls:
         spec_short_observations=workflow.source_path(
             "../resources/datavzrd/spec_short_observations.json"
         ),
-        clin_sig=workflow.source_path("../resources/datavzrd/clinical_significance.js"),
         data_short_observations=workflow.source_path(
             "../resources/datavzrd/data_short_observations.js"
         ),
