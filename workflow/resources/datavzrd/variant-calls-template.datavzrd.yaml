@@ -203,7 +203,7 @@ views:
           'clinical significance':
             optional: true
             spell:
-              url: v1.2.1/med/clin_sig
+              url: v1.2.1/med/clin-sig
           hgvsp:
             custom: ?hgvs_content
           hgvsc:
