@@ -52,6 +52,10 @@ mutational_burden:
   mode:
     - curve
     - hist
+  # List of varlociraptor events (as they occur in the scenario)
+  # to calculate mutational burden for. Burden will be calculated
+  # considering the sum of the posterior probabilties of the
+  # given events.
   events:
     - somatic_tumor_low
     - somatic_tumor_medium
