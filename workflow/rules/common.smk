@@ -1369,13 +1369,9 @@ def get_umi_fastq(wildcards):
 
 
 def sample_has_primers(wildcards):
-    # Check global primers trimming configuration
-    if config["primers"]["trimming"].get("primers_fa1"):
-        return True
-
-    # Check for primers in the sample's panel
     sample_name = wildcards.sample
-    if (
+
+    if config["primers"]["trimming"].get("primers_fa1") or (
         "panel" in samples.columns
         and samples.loc[samples["sample_name"] == sample_name, "panel"].notna().any()
     ):
@@ -1384,7 +1380,6 @@ def sample_has_primers(wildcards):
                 f"Primer trimming is only available for paired-end data. Sample '{sample_name}' is not paired-end."
             )
         return True
-
     return False
 
 
