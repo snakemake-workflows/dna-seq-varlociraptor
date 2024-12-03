@@ -1373,7 +1373,6 @@ def sample_has_primers(wildcards):
     if config["primers"]["trimming"].get("primers_fa1"):
         return True
 
-   
     # Check for primers in the sample's panel
     sample_name = wildcards.sample
     if (
