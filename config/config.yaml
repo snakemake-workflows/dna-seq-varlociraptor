@@ -39,12 +39,13 @@ ref:
   # This is usually only relevant for testing.
   # chromosome: 21
 
+# Trimming will be applied if global primer sequences are
+# provided or primer panels are set in samplesheet
 primers:
   trimming:
-    activate: false
-    # path to fasta files containg primer sequences
-    primers_fa1: "path/to/primer-fa1"
-    primers_fa2: "path/to/primer-fa2"
+    # path to fasta files containing primer sequences
+    primers_fa1: ""
+    primers_fa2: ""
     # optional primer file allowing to define primers per sample
     # overwrites primers_fa1 and primers_fa2
     # the tsv file requires three fields: panel, fa1 and fa2 (optional)

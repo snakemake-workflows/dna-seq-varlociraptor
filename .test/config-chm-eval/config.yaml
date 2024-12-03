@@ -18,7 +18,6 @@ ref:
 
 primers:
   trimming:
-    activate: false
     primers_fa1: ""
     primers_fa2: ""
     library_length: 0
