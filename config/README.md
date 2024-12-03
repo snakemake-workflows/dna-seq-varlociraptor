@@ -46,6 +46,7 @@ Defining primers directly in the config file is prefered when all samples come f
 In case of different panels, primers have to be set panel-wise in a seperate tsv-file.
 For each panel the following columns need to be set: `panel`, `fa1` and `fa2` (optional).
 Additionally, for each sample the corresponding panel must be defined in `samples.tsv` (column `panel`).
+If a panel is not provided for a sample, trimming will not be performed on that sample. 
 For single primer trimming only, the first entry in the config (respective in the tsv file) needs to be defined.
 
 # Annotating UMIS

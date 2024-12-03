@@ -20,8 +20,6 @@ rule merge_untrimmed_fastqs:
         get_untrimmed_fastqs,
     output:
         temp("results/untrimmed/{sample}_{read}.fastq.gz"),
-    conda:
-        "../envs/fgbio.yaml"
     log:
         "logs/merge-fastqs/untrimmed/{sample}_{read}.log",
     wildcard_constraints:
