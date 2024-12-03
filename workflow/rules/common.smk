@@ -260,20 +260,11 @@ def get_control_fdr_input(wildcards):
         return "results/final-calls/{group}.{calling_type}.annotated.bcf"
 
 
-def get_recalibrate_quality_input(wildcards, bai=False):
-    ext = "bai" if bai else "bam"
-    datatype = get_sample_datatype(wildcards.sample)
-    if datatype == "rna":
-        return "results/split/{{sample}}.{ext}".format(ext=ext)
-    # Post-processing of DNA samples
-    if is_activated("calc_consensus_reads"):
-        return "results/consensus/{{sample}}.{ext}".format(ext=ext)
-    elif is_activated("primers/trimming"):
-        return "results/trimmed/{{sample}}.trimmed.{ext}".format(ext=ext)
-    elif is_activated("remove_duplicates"):
-        return "results/dedup/{{sample}}.{ext}".format(ext=ext)
+def get_aligner(wildcards):
+    if get_sample_datatype(wildcards.sample) == "rna":
+        return "star"
     else:
-        return "results/mapped/bwa/{{sample}}.{ext}".format(ext=ext)
+        return "bwa"
 
 
 def get_cutadapt_input(wildcards):
@@ -428,7 +419,7 @@ def get_sample_datatype(sample):
 
 
 def get_markduplicates_input(wildcards):
-    aligner = "star" if get_sample_datatype(wildcards.sample) == "rna" else "bwa"
+    aligner = get_aligner(wildcards)
     if sample_has_umis(wildcards.sample):
         return "results/mapped/{aligner}/{{sample}}.annotated.bam".format(
             aligner=aligner
@@ -437,22 +428,35 @@ def get_markduplicates_input(wildcards):
         return "results/mapped/{aligner}/{{sample}}.bam".format(aligner=aligner)
 
 
-def get_consensus_input(wildcards):
-    if is_activated("primers/trimming"):
-        return "results/trimmed/{sample}.trimmed.bam"
-    elif is_activated("remove_duplicates"):
-        return "results/dedup/{sample}.bam"
+def get_recalibrate_quality_input(wildcards, bai=False):
+    ext = "bai" if bai else "bam"
+    datatype = get_sample_datatype(wildcards.sample)
+    if datatype == "rna":
+        return "results/split/{{sample}}.{ext}".format(ext=ext)
+    # Post-processing of DNA samples
+    if is_activated("calc_consensus_reads"):
+        return "results/consensus/{{sample}}.{ext}".format(ext=ext)
     else:
-        aligner = "star" if get_sample_datatype(wildcards.sample) == "rna" else "bwa"
-        return "results/mapped/{aligner}/{{sample}}.bam".format(aligner=aligner)
+        return get_consensus_input(wildcards, bai)
 
 
-def get_trimming_input(wildcards):
+def get_consensus_input(wildcards, bai=False):
+    ext = "bai" if bai else "bam"
+    if is_activated("primers/trimming") and sample_has_primers(wildcards):
+        return "results/trimmed/{{sample}}.trimmed.{ext}".format(ext=ext)
+    else:
+        return get_trimming_input(wildcards, bai)
+
+
+def get_trimming_input(wildcards, bai=False):
+    ext = "bai" if bai else "bam"
     if is_activated("remove_duplicates"):
-        return "results/dedup/{sample}.bam"
+        return "results/dedup/{{sample}}.{ext}".format(ext=ext)
     else:
-        aligner = "star" if get_sample_datatype(wildcards.sample) == "rna" else "bwa"
-        return "results/mapped/{aligner}/{{sample}}.bam".format(aligner=aligner)
+        aligner = get_aligner(wildcards)
+        return "results/mapped/{aligner}/{{sample}}.{ext}".format(
+            aligner=aligner, ext=ext
+        )
 
 
 def get_primer_bed(wc):
@@ -1371,6 +1375,12 @@ def get_umi_fastq(wildcards):
         )
     else:
         return umi_read
+
+
+def sample_has_primers(wildcards):
+    return (
+        samples.loc[samples["sample_name"] == wildcards.sample, "panel"].notna().any()
+    )
 
 
 def sample_has_umis(sample):
