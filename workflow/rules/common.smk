@@ -367,11 +367,6 @@ def is_paired_end(sample):
     return all_paired
 
 
-def group_is_paired_end(group):
-    samples = get_group_samples(group)
-    return all([is_paired_end(sample) for sample in samples])
-
-
 def get_map_reads_input(wildcards):
     if is_paired_end(wildcards.sample):
         return [
@@ -421,11 +416,9 @@ def get_sample_datatype(sample):
 def get_markduplicates_input(wildcards):
     aligner = get_aligner(wildcards)
     if sample_has_umis(wildcards.sample):
-        return "results/mapped/{aligner}/{{sample}}.annotated.bam".format(
-            aligner=aligner
-        )
+        return f"results/mapped/{aligner}/{{sample}}.annotated.bam"
     else:
-        return "results/mapped/{aligner}/{{sample}}.bam".format(aligner=aligner)
+        return f"results/mapped/{aligner}/{{sample}}.bam"
 
 
 def get_recalibrate_quality_input(wildcards, bai=False):
@@ -442,7 +435,7 @@ def get_recalibrate_quality_input(wildcards, bai=False):
 
 def get_consensus_input(wildcards, bai=False):
     ext = "bai" if bai else "bam"
-    if is_activated("primers/trimming") and sample_has_primers(wildcards):
+    if sample_has_primers(wildcards):
         return "results/trimmed/{{sample}}.trimmed.{ext}".format(ext=ext)
     else:
         return get_trimming_input(wildcards, bai)
@@ -553,8 +546,6 @@ def get_markduplicates_extra(wc):
 
 def get_group_bams(wildcards, bai=False):
     ext = "bai" if bai else "bam"
-    if is_activated("primers/trimming") and not group_is_paired_end(wildcards.group):
-        WorkflowError("Primer trimming is only available for paired end data.")
     return expand(
         "results/recal/{sample}.{ext}",
         sample=get_group_samples(wildcards.group),
@@ -1378,9 +1369,24 @@ def get_umi_fastq(wildcards):
 
 
 def sample_has_primers(wildcards):
-    return (
-        samples.loc[samples["sample_name"] == wildcards.sample, "panel"].notna().any()
-    )
+    # Check global primers trimming configuration
+    if config["primers"]["trimming"].get("primers_fa1"):
+        return True
+
+   
+    # Check for primers in the sample's panel
+    sample_name = wildcards.sample
+    if (
+        "panel" in samples.columns
+        and samples.loc[samples["sample_name"] == sample_name, "panel"].notna().any()
+    ):
+        if not is_paired_end(sample_name):
+            raise WorkflowError(
+                f"Primer trimming is only available for paired-end data. Sample '{sample_name}' is not paired-end."
+            )
+        return True
+
+    return False
 
 
 def sample_has_umis(sample):

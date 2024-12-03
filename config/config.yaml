@@ -32,7 +32,6 @@ ref:
 
 primers:
   trimming:
-    activate: false
     # path to fasta files containg primer sequences
     primers_fa1: "path/to/primer-fa1"
     primers_fa2: "path/to/primer-fa2"
