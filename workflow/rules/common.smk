@@ -460,7 +460,7 @@ def get_vg_autoindex_vcf():
     if config["ref"]["pangenome"].get("rename_expressions"):
         return f"{pangenome_prefix}.renamed.vcf.gz"
     else:
-        f"{pangenome_prefix}.vcf.gz"
+        return f"{pangenome_prefix}.vcf.gz"
 
 
 def get_primer_bed(wc):
