@@ -159,25 +159,25 @@ rule get_pangenome_haplotypes:
         "curl -o {output} {params.url} 2> {log}"
 
 
-rule create_chrom_replacement:
+rule rename_haplotype_conftigs:
     input:
         f"{pangenome_prefix}.vcf.gz",
     output:
-        temp("resources/chrom_renames.tsv"),
+        temp("resources/haplotype_contigs_renamed.tsv"),
+    params:
+        expressions=config["ref"]["pangenome"].get("rename_expressions", []),
     log:
         "logs/pangenome/chrom_replacement.log",
     conda:
-        "../envs/bcftools.yaml"
-    shell:
-        """
-        bcftools query -f '%CHROM\n' {input} | uniq | awk '{{if ($1 == "chrM") print $1 "\tMT"; else print $1 "\t" substr($1, 4)}}' > {output} 2> {log}
-        """
+        "../envs/pysam.yaml"
+    script:
+        "../scripts/rename_contigs.py"
 
 
 rule rename_haplotype_chroms:
     input:
         vcf="resources/{pangenome}.vcf.gz",
-        tsv="resources/chrom_renames.tsv",
+        tsv="resources/haplotype_contigs_renamed.tsv",
     output:
         temp("resources/{pangenome}.renamed.vcf.gz"),
     log:
@@ -191,7 +191,7 @@ rule rename_haplotype_chroms:
 rule vg_autoindex:
     input:
         ref=genome,
-        vcf=f"{pangenome_prefix}.renamed.vcf.gz",
+        vcf=get_vg_autoindex_vcf(),
     output:
         multiext(pangenome_prefix, ".giraffe.gbz", ".dist", ".min"),
     log:
