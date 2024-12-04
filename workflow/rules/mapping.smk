@@ -22,7 +22,7 @@ rule map_reads_vg:
         reads=get_map_reads_input,
         index=rules.vg_autoindex.output,
     output:
-        "results/mapped/vg/{sample}.preprocessed.bam",
+        temp("results/mapped/vg/{sample}.preprocessed.bam"),
     log:
         "logs/mapped/vg/{sample}.log",
     benchmark:
@@ -41,7 +41,7 @@ rule fix_mate:
     input:
         "results/mapped/vg/{sample}.preprocessed.bam",
     output:
-        "results/mapped/vg/{sample}.mate_fixed.bam",
+        temp("results/mapped/vg/{sample}.mate_fixed.bam"),
     log:
         "logs/samtools/fix_mate/{sample}.log",
     threads: 8
@@ -57,13 +57,13 @@ rule add_read_group:
     input:
         "results/mapped/vg/{sample}.mate_fixed.bam",
     output:
-        "results/mapped/vg/{sample}.bam",
+        temp("results/mapped/vg/{sample}.bam"),
     log:
         "logs/picard/add_rg/{sample}.log",
     params:
         extra=get_vg_read_group,
     resources:
-        mem_mb=60000,
+        mem_mb=1024,
     wrapper:
         "v2.3.2/bio/picard/addorreplacereadgroups"
 
