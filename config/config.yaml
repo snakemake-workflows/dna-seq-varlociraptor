@@ -39,7 +39,7 @@ ref:
     # Contigs can be accessed by `contig`.
     # Each expression will be successively saved into `renamed_contig`
     rename_expressions:
-      - "MT" if contig == "chrM" else contig[3:]
+      - "'MT' if contig == 'chrM' else contig[3:]"
   # Optionally, instead of downloading the whole reference from Ensembl via the
   # parameters above, specify a specific chromosome below and uncomment the line.
   # This is usually only relevant for testing.
