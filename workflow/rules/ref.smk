@@ -159,7 +159,7 @@ rule get_pangenome_haplotypes:
         "curl -o {output} {params.url} 2> {log}"
 
 
-rule rename_haplotype_conftigs:
+rule rename_haplotype_contigs:
     input:
         f"{pangenome_prefix}.vcf.gz",
     output:
