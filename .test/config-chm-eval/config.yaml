@@ -12,6 +12,9 @@ ref:
   release: 100
   # Genome build
   build: GRCh38
+  pangenome:
+    activate: false  
+    vcf: ""
 
 primers:
   trimming:

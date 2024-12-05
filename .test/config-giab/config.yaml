@@ -13,6 +13,9 @@ ref:
   # Genome build
   build: GRCh38
   chromosome: 1
+  pangenome:
+    activate: false
+    vcf: ""
 
 primers:
   trimming:

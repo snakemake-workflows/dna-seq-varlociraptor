@@ -25,6 +25,21 @@ ref:
   release: 111
   # Genome build
   build: GRCh38
+  pangenome: 
+    # if active, reads will be aligned to given pangenome instead of to the linear reference genome
+    # Important: this is only supported for homo_sapiens so far
+    activate: true
+    # URL to pangenome haplotypes (vcf-file)
+    # Graph resources v1.1: https://github.com/human-pangenomics/hpp_pangenome_resources/
+    # Graph resources v1.0: https://github.com/human-pangenomics/hpp_pangenome_resources/blob/main/hprc-v1.0-mc.md
+    # Important: ensure that the haplotype vcf is built against the same reference genome as specified above under build
+    vcf: https://s3-us-west-2.amazonaws.com/human-pangenomics/pangenomes/freeze/freeze1/minigraph-cactus/hprc-v1.1-mc-grch38/hprc-v1.1-mc-grch38.raw.vcf.gz
+    # optional: In case contigs of the hoplotype vcf need to be renamed
+    # a list of python expressions can be defined.
+    # Contigs can be accessed by `contig`.
+    # Each expression will be successively saved into `renamed_contig`
+    rename_expressions:
+      - "'MT' if contig == 'chrM' else contig[3:]"
   # Optionally, instead of downloading the whole reference from Ensembl via the
   # parameters above, specify a specific chromosome below and uncomment the line.
   # This is usually only relevant for testing.
@@ -162,6 +177,7 @@ calling:
           # Add varlociraptor events to aggregated over.
           # The probability for the union of these events is used for controlling
           # the FDR.
+          - present
           - somatic_tumor_high
           - somatic_tumor_medium
         filter: # myfilter

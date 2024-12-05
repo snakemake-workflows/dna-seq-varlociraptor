@@ -1,4 +1,5 @@
-ruleorder: chm_eval_sample > map_reads
+# TODO Is this ruleorder of any use?!
+ruleorder: chm_eval_sample > map_reads_bwa
 
 
 rule gather_benchmark_calls:
