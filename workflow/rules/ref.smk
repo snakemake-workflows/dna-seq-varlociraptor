@@ -146,3 +146,57 @@ rule get_vep_plugins:
         "logs/vep/plugins.log",
     wrapper:
         "v3.3.5/bio/vep/plugins"
+
+
+rule get_pangenome_haplotypes:
+    output:
+        temp(f"{pangenome_prefix}.vcf.gz"),
+    params:
+        url=config["ref"]["pangenome"]["vcf"],
+    log:
+        "logs/pangenome/haplotypes.log",
+    shell:
+        "curl -o {output} {params.url} 2> {log}"
+
+
+rule rename_haplotype_contigs:
+    input:
+        f"{pangenome_prefix}.vcf.gz",
+    output:
+        temp("resources/haplotype_contigs_renamed.tsv"),
+    params:
+        expressions=config["ref"]["pangenome"].get("rename_expressions", []),
+    log:
+        "logs/pangenome/chrom_replacement.log",
+    conda:
+        "../envs/pysam.yaml"
+    script:
+        "../scripts/rename_contigs.py"
+
+
+rule rename_haplotype_chroms:
+    input:
+        vcf="resources/{pangenome}.vcf.gz",
+        tsv="resources/haplotype_contigs_renamed.tsv",
+    output:
+        temp("resources/{pangenome}.renamed.vcf.gz"),
+    log:
+        "logs/pangenome/{pangenome}_renamed.log",
+    conda:
+        "../envs/bcftools.yaml"
+    shell:
+        "bcftools annotate --rename-chrs {input.tsv} {input.vcf} -Oz -o {output} 2> {log}"
+
+
+rule vg_autoindex:
+    input:
+        ref=genome,
+        vcf=get_vg_autoindex_vcf(),
+    output:
+        multiext(pangenome_prefix, ".giraffe.gbz", ".dist", ".min"),
+    log:
+        "logs/vg/autoindex/pangenome.log",
+    cache: "omit-software"
+    threads: max(workflow.cores, 1)
+    wrapper:
+        "v5.3.0/bio/vg/autoindex"

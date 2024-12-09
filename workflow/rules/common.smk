@@ -30,6 +30,8 @@ genome_prefix = f"resources/{genome_name}"
 genome = f"{genome_prefix}.fasta"
 genome_fai = f"{genome}.fai"
 genome_dict = f"{genome_prefix}.dict"
+pangenome_name = f"pangenome.{species}.{build}"
+pangenome_prefix = f"resources/{pangenome_name}"
 
 # cram variables
 use_cram = config.get("use_cram", False)
@@ -263,6 +265,8 @@ def get_control_fdr_input(wildcards):
 def get_aligner(wildcards):
     if get_sample_datatype(wildcards.sample) == "rna":
         return "star"
+    elif is_activated("ref/pangenome"):
+        return "vg"
     else:
         return "bwa"
 
@@ -436,7 +440,7 @@ def get_recalibrate_quality_input(wildcards, bai=False):
 def get_consensus_input(wildcards, bai=False):
     ext = "bai" if bai else "bam"
     if sample_has_primers(wildcards):
-        return "results/trimmed/{{sample}}.trimmed.{ext}".format(ext=ext)
+        return f"results/trimmed/{{sample}}.trimmed.{ext}"
     else:
         return get_trimming_input(wildcards, bai)
 
@@ -450,6 +454,13 @@ def get_trimming_input(wildcards, bai=False):
         return "results/mapped/{aligner}/{{sample}}.{ext}".format(
             aligner=aligner, ext=ext
         )
+
+
+def get_vg_autoindex_vcf():
+    if config["ref"]["pangenome"].get("rename_expressions"):
+        return f"{pangenome_prefix}.renamed.vcf.gz"
+    else:
+        return f"{pangenome_prefix}.vcf.gz"
 
 
 def get_primer_bed(wc):
@@ -618,6 +629,13 @@ def get_read_group(wildcards):
     )
 
 
+def get_vg_read_group(wildcards):
+    platform = extract_unique_sample_column_value(wildcards.sample, "platform")
+    return r"--RGLB lib1 --RGPL {platform} --RGPU {sample} --RGSM {sample} --RGID {sample}".format(
+        sample=wildcards.sample, platform=platform
+    )
+
+
 def get_map_reads_sorting_params(wildcards, ordering=False):
     match (sample_has_umis(wildcards.sample), ordering):
         case (True, True):
@@ -628,6 +646,13 @@ def get_map_reads_sorting_params(wildcards, ordering=False):
             return "coordinate"
         case (False, False):
             return "samtools"
+
+
+def get_add_readgroup_input(wildcards):
+    if sample_has_umis(wildcards.sample):
+        return "results/mapped/vg/{sample}.annotated.bam"
+    else:
+        return "results/mapped/vg/{sample}.mate_fixed.bam"
 
 
 def get_mutational_burden_targets():
@@ -680,15 +705,19 @@ def get_selected_annotations():
     return selection
 
 
-def get_annotated_bcf(wildcards):
+def get_annotated_bcf(wildcards, index=False):
+    ext = ".csi" if index else ""
     selection = (
         get_selected_annotations() if wildcards.calling_type == "variants" else ""
     )
-    return "results/calls/{group}.{calling_type}.{scatteritem}{selection}.bcf".format(
-        group=wildcards.group,
-        calling_type=wildcards.calling_type,
-        selection=selection,
-        scatteritem=wildcards.scatteritem,
+    return (
+        "results/calls/{group}.{calling_type}.{scatteritem}{selection}.bcf{ext}".format(
+            group=wildcards.group,
+            calling_type=wildcards.calling_type,
+            selection=selection,
+            scatteritem=wildcards.scatteritem,
+            ext=ext,
+        )
     )
 
 

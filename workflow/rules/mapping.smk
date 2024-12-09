@@ -1,4 +1,4 @@
-rule map_reads:
+rule map_reads_bwa:
     input:
         reads=get_map_reads_input,
         idx=rules.bwa_index.output,
@@ -13,6 +13,59 @@ rule map_reads:
     threads: 8
     wrapper:
         "v3.8.0/bio/bwa/mem"
+
+
+# Create distance and minimizer index before mapping
+# Otherwise it will be performed on the first execution leading to race conditions for multiple samples
+rule map_reads_vg:
+    input:
+        reads=get_map_reads_input,
+        index=rules.vg_autoindex.output,
+    output:
+        temp("results/mapped/vg/{sample}.preprocessed.bam"),
+    log:
+        "logs/mapped/vg/{sample}.log",
+    benchmark:
+        "benchmarks/vg_giraffe/{sample}.tsv"
+    params:
+        extra="",
+        sorting="fgbio",
+        sort_order="queryname",
+    threads: 8
+    wrapper:
+        "v5.3.0/bio/vg/giraffe"
+
+
+# samtools fixmate requires querysorted input
+rule fix_mate:
+    input:
+        "results/mapped/vg/{sample}.preprocessed.bam",
+    output:
+        temp("results/mapped/vg/{sample}.mate_fixed.bam"),
+    log:
+        "logs/samtools/fix_mate/{sample}.log",
+    threads: 8
+    params:
+        extra="",
+    wrapper:
+        "v4.7.2/bio/samtools/fixmate"
+
+
+# adding read groups is necessary because base recalibration throws errors
+# for not being able to find read group information
+rule add_read_group:
+    input:
+        "results/mapped/vg/{sample}.mate_fixed.bam",
+    output:
+        temp("results/mapped/vg/{sample}.bam"),
+    log:
+        "logs/picard/add_rg/{sample}.log",
+    params:
+        extra=get_vg_read_group,
+    resources:
+        mem_mb=1024,
+    wrapper:
+        "v2.3.2/bio/picard/addorreplacereadgroups"
 
 
 rule merge_untrimmed_fastqs:
@@ -41,6 +94,7 @@ rule sort_untrimmed_fastqs:
         "fgbio SortFastq -i {input} -o {output} 2> {log}"
 
 
+# fgbio AnnotateBamsWithUmis requires querynamed sorted fastqs and bams
 rule annotate_umis:
     input:
         bam="results/mapped/{aligner}/{sample}.bam",
