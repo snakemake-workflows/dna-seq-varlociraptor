@@ -37,7 +37,7 @@ rule varlociraptor_alignment_properties:
     group:
         "calling"
     shell:
-        "varlociraptor estimate alignment-properties {input.ref} --bam {input.bam} > {output} 2> {log}"
+        "varlociraptor estimate alignment-properties {input.ref} --bams {input.bam} > {output} 2> {log}"
 
 
 rule varlociraptor_preprocess:
