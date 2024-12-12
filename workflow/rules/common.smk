@@ -111,6 +111,21 @@ primer_panels = (
     else None
 )
 
+custom_alignment_props = (
+    (
+        pd.read_csv(
+            config["custom_alignment_properties"]["tsv"],
+            sep="\t",
+            dtype={"name": str, "path": str},
+            comment="#",
+        )
+        .set_index(["name"], drop=False)
+        .sort_index()
+    )
+    if config["custom_alignment_properties"].get("tsv", "")
+    else None
+)
+
 
 def get_calling_events(calling_type):
     events = [
@@ -1591,3 +1606,18 @@ def get_delly_excluded_regions():
         )
     else:
         return []
+
+
+def get_alignment_props():
+    def inner(wildcards):
+        if is_activated("custom_alignment_properties"):
+            alignment_prop_column = config["custom_alignment_properties"]["column"]
+            prop_name = extract_unique_sample_column_value(
+                wildcards.sample, alignment_prop_column
+            )
+            print(prop_name)
+            if pd.notna(prop_name):
+                return custom_alignment_props.loc[prop_name, "path"]
+        return "results/alignment-properties/{group}/{sample}.json"
+
+    return inner
