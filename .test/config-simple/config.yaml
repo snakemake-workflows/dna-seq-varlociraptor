@@ -131,4 +131,4 @@ tables:
 custom_alignment_properties:
   activate: false
   column: "panel"
-  tsv: "config_alignment_properties.tsv"
+  tsv: ""

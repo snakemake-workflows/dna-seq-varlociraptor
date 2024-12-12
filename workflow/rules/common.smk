@@ -111,6 +111,14 @@ primer_panels = (
     else None
 )
 
+
+def is_activated(xpath):
+    c = config
+    for entry in xpath.split("/"):
+        c = c.get(entry, {})
+    return bool(c.get("activate", False))
+
+
 custom_alignment_props = (
     (
         pd.read_csv(
@@ -122,7 +130,7 @@ custom_alignment_props = (
         .set_index(["name"], drop=False)
         .sort_index()
     )
-    if config["custom_alignment_properties"].get("tsv", "")
+    if is_activated("custom_alignment_properties")
     else None
 )
 
@@ -619,13 +627,6 @@ def get_all_group_observations(wildcards):
         group=wildcards.group,
         sample=get_group_samples(wildcards.group),
     )
-
-
-def is_activated(xpath):
-    c = config
-    for entry in xpath.split("/"):
-        c = c.get(entry, {})
-    return bool(c.get("activate", False))
 
 
 def get_star_read_group(wildcards):

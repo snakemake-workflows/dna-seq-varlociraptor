@@ -284,10 +284,10 @@ params:
     extra: ""
 
 # If activated preprocessed alignment properties can be applied to each sample individually.
-# paths to the alignment properties json-files need to be set in a tsv-file containing a property name and path.
-# alignment properties will be derived from a customizable column in the sample sheet.
-# if not property name is set for a sample the alignment properties will be estimated best on the samples mapping
+# Paths to the alignment properties json-files need to be set in a tsv-file containing a property name and path.
+# Alignment properties will be derived from a customizable column in the sample sheet.
+# If not property name is set for a sample the alignment properties will be estimated best on the samples mapping.
 custom_alignment_properties:
   activate: false
   column: "panel"
-  tsv: "config_alignment_properties.tsv"
+  tsv: "config/alignment_properties.tsv"
