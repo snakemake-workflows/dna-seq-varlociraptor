@@ -126,3 +126,8 @@ tables:
     coverage: true
     event_prob: true
   generate_excel: true
+
+custom_alignment_properties:
+  activate: false
+  column: "panel"
+  tsv: ""

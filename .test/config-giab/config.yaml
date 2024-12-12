@@ -157,3 +157,8 @@ params:
 
 gene_coverage:
   min_avg_coverage: 5
+
+custom_alignment_properties:
+  activate: false
+  column: "panel"
+  tsv: ""
