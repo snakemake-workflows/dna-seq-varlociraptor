@@ -1616,7 +1616,6 @@ def get_alignment_props():
             prop_name = extract_unique_sample_column_value(
                 wildcards.sample, alignment_prop_column
             )
-            print(prop_name)
             if pd.notna(prop_name):
                 return custom_alignment_props.loc[prop_name, "path"]
         return "results/alignment-properties/{group}/{sample}.json"
