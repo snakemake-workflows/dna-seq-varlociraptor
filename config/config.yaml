@@ -153,7 +153,9 @@ calling:
       expression: "ANN['SYMBOL'] in AUX['super_interesting_genes']"
   fdr-control:
     threshold: 0.05
-    # denote FDR control mode, see https://varlociraptor.github.io/docs/filtering
+    # Denote FDR control mode.
+    # The default (local-smart) is recommended because it provides the most realistic and intuitive results.
+    # See see https://varlociraptor.github.io/docs/filtering for details.
     mode: local-smart
     events:
       # Add any number of events here to filter for.
