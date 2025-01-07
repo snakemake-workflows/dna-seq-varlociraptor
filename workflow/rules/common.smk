@@ -1609,15 +1609,12 @@ def get_delly_excluded_regions():
         return []
 
 
-def get_alignment_props():
-    def inner(wildcards):
-        if is_activated("custom_alignment_properties"):
-            alignment_prop_column = config["custom_alignment_properties"]["column"]
-            prop_name = extract_unique_sample_column_value(
-                wildcards.sample, alignment_prop_column
-            )
-            if pd.notna(prop_name):
-                return custom_alignment_props.loc[prop_name, "path"]
-        return "results/alignment-properties/{group}/{sample}.json"
-
-    return inner
+def get_alignment_props(wildcards):
+    if is_activated("custom_alignment_properties"):
+        alignment_prop_column = config["custom_alignment_properties"]["column"]
+        prop_name = extract_unique_sample_column_value(
+            wildcards.sample, alignment_prop_column
+        )
+        if pd.notna(prop_name):
+            return custom_alignment_props.loc[prop_name, "path"]
+    return f"results/alignment-properties/{wildcards.group}/{wildcards.sample}.json"

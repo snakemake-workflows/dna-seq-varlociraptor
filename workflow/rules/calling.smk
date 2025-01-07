@@ -47,7 +47,7 @@ rule varlociraptor_preprocess:
         candidates=get_candidate_calls,
         bam="results/recal/{sample}.bam",
         bai="results/recal/{sample}.bai",
-        alignment_props=get_alignment_props(),
+        alignment_props=get_alignment_props,
     output:
         "results/observations/{group}/{sample}.{caller}.{scatteritem}.bcf",
     params:

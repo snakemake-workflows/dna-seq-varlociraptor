@@ -15,8 +15,6 @@ rule map_reads_bwa:
         "v3.8.0/bio/bwa/mem"
 
 
-# Create distance and minimizer index before mapping
-# Otherwise it will be performed on the first execution leading to race conditions for multiple samples
 rule map_reads_vg:
     input:
         reads=get_map_reads_input,
@@ -31,7 +29,7 @@ rule map_reads_vg:
         extra="",
         sorting="fgbio",
         sort_order="queryname",
-    threads: 8
+    threads: 64
     wrapper:
         "v5.3.0/bio/vg/giraffe"
 
