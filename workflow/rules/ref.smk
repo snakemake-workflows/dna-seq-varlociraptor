@@ -181,7 +181,7 @@ rule rename_haplotype_chroms:
         vcf="resources/{pangenome}.vcf.gz",
         tsv="resources/haplotype_contigs_renamed.tsv",
     output:
-        "resources/{pangenome}.renamed.vcf.gz")
+        "resources/{pangenome}.renamed.vcf.gz",
     log:
         "logs/pangenome/{pangenome}_renamed.log",
     cache: "omit-software"
