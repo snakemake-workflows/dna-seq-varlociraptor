@@ -146,7 +146,7 @@ def get_final_output(wildcards):
                 if lookup(
                     dpath=f"calling/fdr-control/events/{event}/report",
                     within=config,
-                    default=False,
+                    default=True,
                 ):
                     final_output.extend(
                         expand(
