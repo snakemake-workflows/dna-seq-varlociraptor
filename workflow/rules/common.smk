@@ -112,6 +112,29 @@ primer_panels = (
 )
 
 
+def is_activated(xpath):
+    c = config
+    for entry in xpath.split("/"):
+        c = c.get(entry, {})
+    return bool(c.get("activate", False))
+
+
+custom_alignment_props = (
+    (
+        pd.read_csv(
+            config["custom_alignment_properties"]["tsv"],
+            sep="\t",
+            dtype={"name": str, "path": str},
+            comment="#",
+        )
+        .set_index(["name"], drop=False)
+        .sort_index()
+    )
+    if is_activated("custom_alignment_properties")
+    else None
+)
+
+
 def get_calling_events(calling_type):
     events = [
         event
@@ -604,13 +627,6 @@ def get_all_group_observations(wildcards):
         group=wildcards.group,
         sample=get_group_samples(wildcards.group),
     )
-
-
-def is_activated(xpath):
-    c = config
-    for entry in xpath.split("/"):
-        c = c.get(entry, {})
-    return bool(c.get("activate", False))
 
 
 def get_star_read_group(wildcards):
@@ -1591,3 +1607,14 @@ def get_delly_excluded_regions():
         )
     else:
         return []
+
+
+def get_alignment_props(wildcards):
+    if is_activated("custom_alignment_properties"):
+        alignment_prop_column = config["custom_alignment_properties"]["column"]
+        prop_name = extract_unique_sample_column_value(
+            wildcards.sample, alignment_prop_column
+        )
+        if pd.notna(prop_name):
+            return custom_alignment_props.loc[prop_name, "path"]
+    return f"results/alignment-properties/{wildcards.group}/{wildcards.sample}.json"
