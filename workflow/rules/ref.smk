@@ -150,11 +150,12 @@ rule get_vep_plugins:
 
 rule get_pangenome_haplotypes:
     output:
-        temp(f"{pangenome_prefix}.vcf.gz"),
+        f"{pangenome_prefix}.vcf.gz",
     params:
         url=config["ref"]["pangenome"]["vcf"],
     log:
         "logs/pangenome/haplotypes.log",
+    cache: "omit-software"
     shell:
         "curl -o {output} {params.url} 2> {log}"
 
@@ -163,11 +164,12 @@ rule rename_haplotype_contigs:
     input:
         f"{pangenome_prefix}.vcf.gz",
     output:
-        temp("resources/haplotype_contigs_renamed.tsv"),
+        "resources/haplotype_contigs_renamed.tsv",
     params:
         expressions=config["ref"]["pangenome"].get("rename_expressions", []),
     log:
         "logs/pangenome/chrom_replacement.log",
+    cache: "omit-software"
     conda:
         "../envs/pysam.yaml"
     script:
@@ -179,9 +181,10 @@ rule rename_haplotype_chroms:
         vcf="resources/{pangenome}.vcf.gz",
         tsv="resources/haplotype_contigs_renamed.tsv",
     output:
-        temp("resources/{pangenome}.renamed.vcf.gz"),
+        "resources/{pangenome}.renamed.vcf.gz",
     log:
         "logs/pangenome/{pangenome}_renamed.log",
+    cache: "omit-software"
     conda:
         "../envs/bcftools.yaml"
     shell:

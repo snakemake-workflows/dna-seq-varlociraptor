@@ -184,3 +184,8 @@ report:
   stratify:
     activate: false
     by-column: condition
+
+custom_alignment_properties:
+  activate: false
+  column: "panel"
+  tsv: ""
