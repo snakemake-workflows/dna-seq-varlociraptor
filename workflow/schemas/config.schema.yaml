@@ -347,6 +347,17 @@ properties:
       - freebayes
       - varlociraptor
 
+  custom_alignment_properties:
+    type: object
+    properties:
+      activate:
+        type: boolean
+      column:
+        type: string
+      tsv:
+        type: string
+
+
 required:
   - samples
   - units
@@ -355,3 +366,4 @@ required:
   - calling
   - params
   - annotations
+  - custom_alignment_properties

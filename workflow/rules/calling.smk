@@ -37,7 +37,7 @@ rule varlociraptor_alignment_properties:
     group:
         "calling"
     shell:
-        "varlociraptor estimate alignment-properties {input.ref} --bam {input.bam} > {output} 2> {log}"
+        "varlociraptor estimate alignment-properties {input.ref} --bams {input.bam} > {output} 2> {log}"
 
 
 rule varlociraptor_preprocess:
@@ -47,7 +47,7 @@ rule varlociraptor_preprocess:
         candidates=get_candidate_calls,
         bam="results/recal/{sample}.bam",
         bai="results/recal/{sample}.bai",
-        alignment_props="results/alignment-properties/{group}/{sample}.json",
+        alignment_props=get_alignment_props,
     output:
         "results/observations/{group}/{sample}.{caller}.{scatteritem}.bcf",
     params:
