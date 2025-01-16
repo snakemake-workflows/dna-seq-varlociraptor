@@ -139,7 +139,7 @@ views:
                   heatmap:
                     scale: ordinal
                     color-scheme: paired
-                    aux-domain-columns: ?list(params.groups)
+                    aux-domain-columns: ?list(str(g) for g in params.groups)
             p-value dependency:
               plot:
                 ticks:
@@ -178,7 +178,7 @@ views:
                   heatmap:
                     scale: ordinal
                     color-scheme: paired
-                    aux-domain-columns: ?list(params.groups)
+                    aux-domain-columns: ?list(str(g) for g in params.groups)
             hgvsg:
               display-mode: hidden
             hgvsc:
