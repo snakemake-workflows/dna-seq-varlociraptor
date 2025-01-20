@@ -470,11 +470,11 @@ def get_consensus_input(wildcards, bai=False):
 
 def get_trimming_input(wildcards, bai=False):
     ext = "bai" if bai else "bam"
+    aligner = get_aligner(wildcards)
+    ext = f"sorted.{ext}" if aligner == "vg" else ext
     if is_activated("remove_duplicates"):
-        ext = "sorted." + ext if get_aligner(wildcards) == "vg" else ext
         return "results/dedup/{{sample}}.{ext}".format(ext=ext)
     else:
-        aligner = get_aligner(wildcards)
         return "results/mapped/{aligner}/{{sample}}.{ext}".format(
             aligner=aligner, ext=ext
         )
