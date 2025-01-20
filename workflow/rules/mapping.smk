@@ -29,7 +29,7 @@ rule map_reads_vg:
         extra="",
         sorting="fgbio",
         sort_order="queryname",
-    threads: 60
+    threads: 64
     wrapper:
         "v5.3.0/bio/vg/giraffe"
 
