@@ -1,5 +1,31 @@
 # Changelog
 
+## [5.11.0](https://github.com/snakemake-workflows/dna-seq-varlociraptor/compare/v5.10.1...v5.11.0) (2025-01-20)
+
+
+### Features
+
+* add option to allow mapping to pangenome ([#274](https://github.com/snakemake-workflows/dna-seq-varlociraptor/issues/274)) ([e86cc81](https://github.com/snakemake-workflows/dna-seq-varlociraptor/commit/e86cc811b94d2947bf9e7a4ee0af3d634de36e00))
+* allow setting of custom alignment properties ([#346](https://github.com/snakemake-workflows/dna-seq-varlociraptor/issues/346)) ([2d2a05e](https://github.com/snakemake-workflows/dna-seq-varlociraptor/commit/2d2a05ebc671e471387b40bb33322f40f4020f69))
+* support for samples w/ and w/o primers ([#344](https://github.com/snakemake-workflows/dna-seq-varlociraptor/issues/344)) ([7c24fb8](https://github.com/snakemake-workflows/dna-seq-varlociraptor/commit/7c24fb88bf0020728e137f20ece11cb75bb67a53))
+* Update datavzrd-spells version for boolean spell and add clin_sig spell ([#342](https://github.com/snakemake-workflows/dna-seq-varlociraptor/issues/342)) ([185b2fe](https://github.com/snakemake-workflows/dna-seq-varlociraptor/commit/185b2fe4f7ff102722c01fcbe03a5337b8f091f8))
+
+
+### Bug Fixes
+
+* cache ref data ([#348](https://github.com/snakemake-workflows/dna-seq-varlociraptor/issues/348)) ([0cf0fa8](https://github.com/snakemake-workflows/dna-seq-varlociraptor/commit/0cf0fa833787a9d37a17195cfa342374625a165b))
+* fix datavzrd template for likely pathogenic interpretation ([#350](https://github.com/snakemake-workflows/dna-seq-varlociraptor/issues/350)) ([760f3b3](https://github.com/snakemake-workflows/dna-seq-varlociraptor/commit/760f3b32de3d010ef799c69017ad72abe3d98102))
+* fix filtering primerless reads by pinning rust-script ([#339](https://github.com/snakemake-workflows/dna-seq-varlociraptor/issues/339)) ([ff37174](https://github.com/snakemake-workflows/dna-seq-varlociraptor/commit/ff37174da5cf4787c6805ec235c8759b905f5daf))
+* fix short observation plot ([#334](https://github.com/snakemake-workflows/dna-seq-varlociraptor/issues/334)) ([0d8dba7](https://github.com/snakemake-workflows/dna-seq-varlociraptor/commit/0d8dba76c3fc2da4bb9e753f635c82ad15939da2))
+* sort order of marked duplicates ([#351](https://github.com/snakemake-workflows/dna-seq-varlociraptor/issues/351)) ([194357b](https://github.com/snakemake-workflows/dna-seq-varlociraptor/commit/194357be1f03835fe34dde499a5305804b28adc8))
+* update to varlociraptor 8.5.1 ([7cbd077](https://github.com/snakemake-workflows/dna-seq-varlociraptor/commit/7cbd077ac353a121c6fc680dbb36b19516827e5b))
+* update wrapper versions to fix yte template bug ([#349](https://github.com/snakemake-workflows/dna-seq-varlociraptor/issues/349)) ([d175726](https://github.com/snakemake-workflows/dna-seq-varlociraptor/commit/d17572657a808fbd5ff93e3aebe8ff1dc7d0cbdf))
+
+
+### Performance Improvements
+
+* group calling jobs per patient/sample-group such that they are submitted to the same cluster/cloud nodes in order to save I/O ([#338](https://github.com/snakemake-workflows/dna-seq-varlociraptor/issues/338)) ([aa583d3](https://github.com/snakemake-workflows/dna-seq-varlociraptor/commit/aa583d3ca610fb58c2b2953ea6742f83beb49a46))
+
 ## [5.10.1](https://github.com/snakemake-workflows/dna-seq-varlociraptor/compare/v5.10.0...v5.10.1) (2024-10-23)
 
 
