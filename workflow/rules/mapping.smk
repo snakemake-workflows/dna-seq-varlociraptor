@@ -29,7 +29,7 @@ rule map_reads_vg:
         extra="",
         sorting="fgbio",
         sort_order="queryname",
-    threads: 64
+    threads: 60
     wrapper:
         "v5.3.0/bio/vg/giraffe"
 
@@ -134,6 +134,18 @@ rule mark_duplicates:
         mem_mb=3000,
     wrapper:
         "v2.5.0/bio/picard/markduplicates"
+
+
+rule sort_duplicates:
+    input:
+        "results/dedup/{sample}.bam",
+    output:
+        temp("results/dedup/{sample}.sorted.bam"),
+    log:
+        "logs/samtools_sort/{sample}.log",
+    threads: 8
+    wrapper:
+        "v5.5.0/bio/samtools/sort"
 
 
 rule calc_consensus_reads:
