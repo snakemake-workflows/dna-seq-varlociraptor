@@ -136,6 +136,18 @@ rule mark_duplicates:
         "v2.5.0/bio/picard/markduplicates"
 
 
+rule sort_duplicates:
+    input:
+        "results/dedup/{sample}.bam",
+    output:
+        temp("results/dedup/{sample}.sorted.bam"),
+    log:
+        "logs/samtools_sort/{sample}.log",
+    threads: 8
+    wrapper:
+        "v5.5.0/bio/samtools/sort"
+
+
 rule calc_consensus_reads:
     input:
         get_consensus_input,
