@@ -52,44 +52,44 @@ jobs:
       matrix:
         case:
           - name: local input (dryrun)
-            args: >
+            args: >-
               --configfile .test/config-simple/config.yaml
               --show-failed-logs -j 10 --conda-cleanup-pkgs cache --dryrun
             report: false
             cleanup: false
           - name: local input
-            args: >
+            args: >-
               --configfile .test/config-simple/config.yaml
               --show-failed-logs -j 10 --conda-cleanup-pkgs cache
             report: true
             cleanup: false
           - name: testcase generation
-            args: >
+            args: >-
               results/testcases/one/freebayes/IX:314200 --configfile .test/config-simple/config.yaml
             report: false
             cleanup: false
           - name: target regions
-            args: >
+            args: >-
               --configfile .test/config-target-regions/config.yaml
             report: true
             cleanup: false
           - name: target regions, multiple BEDs
-            args: >
+            args: >-
               --configfile .test/config-target-regions/config_multiple_beds.yaml
             report: true
             cleanup: false
           - name: no candidate filtering
-            args: >
+            args: >-
               --configfile .test/config-no-candidate-filtering/config.yaml
             report: true
             cleanup: false
           - name: primers
-            args: >
+            args: >-
               --configfile .test/config_primers/config.yaml
             report: true
             cleanup: false
           - name: sra download
-            args: >
+            args: >-
               --configfile .test/config-sra/config.yaml
             report: true
             cleanup: false
