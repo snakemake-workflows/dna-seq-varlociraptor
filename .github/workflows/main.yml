@@ -4,7 +4,7 @@ on:
   push:
     branches: [ master ]
   pull_request:
-    branches_ignore: []
+    branches-ignore: []
 
 
 concurrency:
@@ -93,14 +93,14 @@ jobs:
               --configfile .test/config-sra/config.yaml
             report: true
             cleanup: false
-    name: test ${{ matrix.name }}
+    name: test ${{ matrix.case.name }}
 
     steps:
       - name: update apt
         run: sudo apt-get update
 
       - name: Free Disk Space (Ubuntu)
-        if: ${{ matrix.cleanup }}
+        if: ${{ matrix.case.cleanup }}
         uses: jlumbroso/free-disk-space@v1.3.0
         with:
           # this might remove tools that are actually needed,
@@ -124,16 +124,16 @@ jobs:
           directory: .test
           snakefile: workflow/Snakefile
           args: >
-            ${{ matrix.args }} --sdm conda --show-failed-logs --cores 10
+            ${{ matrix.case.args }} --sdm conda --cores 10
             --conda-cleanup-pkgs cache
           show-disk-usage-on-error: true
 
       - name: generate report
-        if: ${{ matrix.report }}
+        if: ${{ matrix.case.report }}
         uses: snakemake/snakemake-github-action@use-conda-instead-of-docker
         with:
           directory: .test
           snakefile: workflow/Snakefile
           args: >
-            ${{ matrix.args }} --sdm conda --report report.zip
+            ${{ matrix.case.args }} --sdm conda --report report.zip
           show-disk-usage-on-error: true
