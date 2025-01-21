@@ -53,13 +53,13 @@ jobs:
         case:
           - name: local input (dryrun)
             args: >
-              --configfile .test/config-simple/config.yaml --use-conda 
+              --configfile .test/config-simple/config.yaml
               --show-failed-logs -j 10 --conda-cleanup-pkgs cache --dryrun
             report: false
             cleanup: false
           - name: local input
             args: >
-              --configfile .test/config-simple/config.yaml --use-conda 
+              --configfile .test/config-simple/config.yaml
               --show-failed-logs -j 10 --conda-cleanup-pkgs cache
             report: true
             cleanup: false
@@ -124,8 +124,7 @@ jobs:
           directory: .test
           snakefile: workflow/Snakefile
           args: >
-            ${{ matrix.case.args }} --sdm conda --cores 10
-            --conda-cleanup-pkgs cache
+            --conda-cleanup-pkgs cache --sdm conda --cores 10 ${{ matrix.case.args }} 
           show-disk-usage-on-error: true
 
       - name: generate report
@@ -135,5 +134,5 @@ jobs:
           directory: .test
           snakefile: workflow/Snakefile
           args: >
-            ${{ matrix.case.args }} --sdm conda --report report.zip
+            --sdm conda --report report.zip ${{ matrix.case.args }}
           show-disk-usage-on-error: true
