@@ -116,7 +116,7 @@ jobs:
           docker-images: false
           swap-storage: true
 
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v2
 
       - name: run workflow
         uses: snakemake/snakemake-github-action@use-conda-instead-of-docker
