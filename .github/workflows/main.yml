@@ -116,10 +116,10 @@ jobs:
           docker-images: false
           swap-storage: true
 
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
 
       - name: run workflow
-        uses: snakemake/snakemake-github-action@use-conda-instead-of-docker
+        uses: snakemake/snakemake-github-action@v2
         with:
           directory: .test
           snakefile: workflow/Snakefile
@@ -129,7 +129,7 @@ jobs:
 
       - name: generate report
         if: ${{ matrix.case.report }}
-        uses: snakemake/snakemake-github-action@use-conda-instead-of-docker
+        uses: snakemake/snakemake-github-action@v2
         with:
           directory: .test
           snakefile: workflow/Snakefile
