@@ -136,7 +136,7 @@ rule mark_duplicates:
         "v2.5.0/bio/picard/markduplicates"
 
 
-rule sort_duplicates:
+rule sort_vg_reads:
     input:
         "results/{subdir}/{sample}.bam",
     output:
