@@ -12,7 +12,11 @@ cosmic_signatures <-  as.matrix(cosmic_signatures
                                 %>% column_to_rownames(var = "Type")
                     )
 
-sample_substitutions <- read_tsv(snakemake@input[[2]])
+# Add a Prefix to sample names for correct handling of numerical group names
+sample_substitutions <- (
+    read_tsv(snakemake@input[[2]])
+    %>% mutate(Sample = paste0("X_", Sample))
+    )
 if (nrow(sample_substitutions) == 0) {
     for (output_file in snakemake@output) {
         write_tsv(tibble(), output_file)
@@ -41,7 +45,7 @@ if (nrow(sample_substitutions) == 0) {
                 as.data.frame(siglasso(spectrum, cosmic_signatures, prior=prior, plot=FALSE)) 
                 %>% rownames_to_column(var="Signature")
                 %>% replace_dots()
-                %>% filter(!!sym(snakemake@wildcards[["group"]]) > 0)
+                %>% filter(!!sym(paste0("X_", snakemake@wildcards[["group"]])) > 0)
                 %>% add_column(Frequency = min_vaf)
             )
             write_tsv(sample_signatures, output_file, col_names=FALSE)
