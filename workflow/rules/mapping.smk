@@ -136,13 +136,13 @@ rule mark_duplicates:
         "v2.5.0/bio/picard/markduplicates"
 
 
-rule sort_duplicates:
+rule sort_vg_reads:
     input:
-        "results/dedup/{sample}.bam",
+        "results/{subdir}/{sample}.bam",
     output:
-        temp("results/dedup/{sample}.sorted.bam"),
+        temp("results/{subdir}/{sample}.sorted.bam"),
     log:
-        "logs/samtools_sort/{sample}.log",
+        "logs/samtools_sort/{subdir}_{sample}.log",
     threads: 8
     wrapper:
         "v5.5.0/bio/samtools/sort"
