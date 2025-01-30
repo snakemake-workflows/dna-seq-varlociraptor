@@ -1,5 +1,12 @@
 # Changelog
 
+## [5.11.1](https://github.com/snakemake-workflows/dna-seq-varlociraptor/compare/v5.11.0...v5.11.1) (2025-01-30)
+
+
+### Bug Fixes
+
+* generalize sorting for pangenome mapped reads ([#353](https://github.com/snakemake-workflows/dna-seq-varlociraptor/issues/353)) ([84b6aed](https://github.com/snakemake-workflows/dna-seq-varlociraptor/commit/84b6aeddac2e80808410ac6a1d2431861b24256a))
+
 ## [5.11.0](https://github.com/snakemake-workflows/dna-seq-varlociraptor/compare/v5.10.1...v5.11.0) (2025-01-20)
 
 
