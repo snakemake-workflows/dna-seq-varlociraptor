@@ -15,12 +15,51 @@ rule map_reads_bwa:
         "v3.8.0/bio/bwa/mem"
 
 
+rule count_sample_kmers:
+    input:
+        reads=get_map_reads_input,
+    output:
+        "results/pangenome/{sample}/kmers.kff",
+    params:
+        out_file=lambda w, output: os.path.splitext(output[0])[0],
+        out_dir=lambda w, output: os.path.dirname(output[0]),
+    conda:
+        "../envs/kmc.yaml"
+    log:
+        "logs/kmers/{sample}.log",
+    threads: 16
+    shell:
+        "kmc -k29 -m128 -okff -t{threads} -v @<(ls {input.reads}) {params.out_file} {params.out_dir} &> {log}"
+
+
+rule sample_pangenome_graph:
+    input:
+        graph=f"{pangenome_prefix}.gbz",
+        hapl=f"{pangenome_prefix}.hapl",
+        kmers="results/pangenome/{sample}/kmers.kff",
+    output:
+        temp("results/pangenome/{sample}/graph.gbz"),
+    log:
+        "logs/pangenome/sampling/{sample}.log",
+    threads: 1
+    wrapper:
+        "file:/media/HDD/workspace/snakemake-wrappers/bio/vg/haplotypes"
+
+
 rule map_reads_vg:
     input:
         reads=get_map_reads_input,
-        index=rules.vg_autoindex.output,
+        graph="results/pangenome/{sample}/graph.gbz",
     output:
-        temp("results/mapped/vg/{sample}.preprocessed.bam"),
+        indexes=temp(
+            multiext(
+                "results/pangenome/{sample}/graph",
+                ".dist",
+                ".shortread.withzip.min",
+                ".shortread.zipcodes",
+            )
+        ),
+        bam=temp("results/mapped/vg/{sample}.preprocessed.bam"),
     log:
         "logs/mapped/vg/{sample}.log",
     benchmark:
@@ -31,7 +70,7 @@ rule map_reads_vg:
         sort_order="queryname",
     threads: 64
     wrapper:
-        "v5.3.0/bio/vg/giraffe"
+        "file:/media/HDD/workspace/snakemake-wrappers/bio/vg/giraffe"
 
 
 # samtools fixmate requires querysorted input
