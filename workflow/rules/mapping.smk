@@ -73,7 +73,7 @@ rule map_reads_vg:
         sort_order="queryname",
     threads: 64
     wrapper:
-        "file:/media/HDD/workspace/snakemake-wrappers/bio/vg/giraffe"
+        "v5.7.0/bio/vg/giraffe"
 
 
 rule reheader_mapped_reads:
