@@ -480,13 +480,6 @@ def get_trimming_input(wildcards, bai=False):
         )
 
 
-def get_vg_autoindex_vcf():
-    if config["ref"]["pangenome"].get("rename_expressions"):
-        return f"{pangenome_prefix}.renamed.vcf.gz"
-    else:
-        return f"{pangenome_prefix}.vcf.gz"
-
-
 def get_primer_bed(wc):
     if isinstance(primer_panels, pd.DataFrame):
         if not pd.isna(primer_panels.loc[wc.panel, "fa2"]):
