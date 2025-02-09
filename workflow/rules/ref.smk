@@ -157,6 +157,6 @@ rule get_pangenome:
         ext="hapl|gbz",
     log:
         "logs/pangenome/{ext}.log",
-    # cache: "omit-software"
+    cache: "omit-software"
     shell:
         "curl -o {output} {params.url} 2> {log}"
