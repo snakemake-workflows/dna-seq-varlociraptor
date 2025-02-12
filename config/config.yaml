@@ -29,9 +29,10 @@ ref:
     # if active, reads will be aligned to given pangenome instead of to the linear reference genome
     # Important: this is only supported for homo_sapiens so far
     activate: true
-    # Version of Human Pangenome Reference Consortium (https://github.com/human-pangenomics/hpp_pangenome_resources/?tab=readme-ov-file#minigraph-cactus)
-    # Only version 1.1 is supported for now.
-    hprc_version: 1.1
+    # Pangenome source and version: Only 'hprc' and v1.1 are supported for now. 
+    # see https://github.com/human-pangenomics/hpp_pangenome_resources/?tab=readme-ov-file#minigraph-cactus for details
+    source: hprc
+    version: 1.1
   # Optionally, instead of downloading the whole reference from Ensembl via the
   # parameters above, specify a specific chromosome below and uncomment the line.
   # This is usually only relevant for testing.

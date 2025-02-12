@@ -1616,9 +1616,14 @@ def get_alignment_props(wildcards):
 
 def get_pangenome_url(datatype):
     build = config["ref"]["build"].lower()
+    source = config["ref"]["pangenome"]["source"]
+    version = config["ref"]["pangenome"]["version"]
     if config["ref"]["species"] != "homo_sapiens" or build not in ["grch37", "grch38"]:
         raise ValueError(
             "Unsupported combination of species and build. Only homo_sapiens and GRCh37/GRCh38 are supported for pangenome mapping."
         )
-    hprc_version = config["ref"]["pangenome"]["hprc_version"]
-    return f"https://s3-us-west-2.amazonaws.com/human-pangenomics/pangenomes/freeze/freeze1/minigraph-cactus/hprc-v{hprc_version}-mc-{build}/hprc-v{hprc_version}-mc-{build}.{datatype}"
+    if source != "hprc":
+        raise ValueError(
+            "Unsupported pangenome source. Only 'hprc' is currently supported."
+        )
+    return f"https://s3-us-west-2.amazonaws.com/human-pangenomics/pangenomes/freeze/freeze1/minigraph-cactus/hprc-v{version}-mc-{build}/hprc-v{version}-mc-{build}.{datatype}"
