@@ -1612,3 +1612,13 @@ def get_alignment_props(wildcards):
         if pd.notna(prop_name):
             return custom_alignment_props.loc[prop_name, "path"]
     return f"results/alignment-properties/{wildcards.group}/{wildcards.sample}.json"
+
+
+def get_pangenome_url(datatype):
+    build = config["ref"]["build"].lower()
+    if config["ref"]["species"] != "homo_sapiens" or build not in ["grch37", "grch38"]:
+        raise ValueError(
+            "Unsupported combination of species and build. Only homo_sapiens and GRCh37/GRCh38 are supported for pangenome mapping."
+        )
+    hprc_version = config["ref"]["pangenome"]["hprc_version"]
+    return f"https://s3-us-west-2.amazonaws.com/human-pangenomics/pangenomes/freeze/freeze1/minigraph-cactus/hprc-v{hprc_version}-mc-{build}/hprc-v{hprc_version}-mc-{build}.{datatype}"

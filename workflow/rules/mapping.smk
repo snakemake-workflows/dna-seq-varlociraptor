@@ -15,6 +15,8 @@ rule map_reads_bwa:
         "v3.8.0/bio/bwa/mem"
 
 
+# Perform kmer counting for haplotype sampling:
+# https://github.com/vgteam/vg/wiki/Haplotype-Sampling#haplotype-sampling
 rule count_sample_kmers:
     input:
         reads=get_map_reads_input,

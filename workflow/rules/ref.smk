@@ -152,7 +152,7 @@ rule get_pangenome:
     output:
         f"{pangenome_prefix}.{{ext}}",
     params:
-        url=lambda wc: config["ref"]["pangenome"][wc.ext],
+        url=lambda wc: get_pangenome_url(wc.ext),
     wildcard_constraints:
         ext="hapl|gbz",
     log:
