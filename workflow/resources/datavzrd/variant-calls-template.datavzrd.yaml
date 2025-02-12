@@ -203,7 +203,7 @@ views:
           'clinical significance':
             optional: true
             spell:
-              url: v1.2.1/med/clin-sig
+              url: v1.2.2/med/clin-sig
           hgvsp:
             custom: ?hgvs_content
           hgvsc:
@@ -306,7 +306,7 @@ views:
             optional: true
             display-mode: detail
             spell:
-              url: v1.2.1/logic/boolean
+              url: v1.2.2/logic/boolean
               with:
                 true_value: "True"
                 false_value: "False"
@@ -314,7 +314,7 @@ views:
             optional: true
             display-mode: detail
             spell:
-              url: v1.2.1/logic/boolean
+              url: v1.2.2/logic/boolean
               with:
                 true_value: "True"
                 false_value: "False"

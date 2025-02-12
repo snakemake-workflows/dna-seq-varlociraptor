@@ -15,29 +15,88 @@ rule map_reads_bwa:
         "v3.8.0/bio/bwa/mem"
 
 
+# Perform kmer counting for haplotype sampling:
+# https://github.com/vgteam/vg/wiki/Haplotype-Sampling#haplotype-sampling
+rule count_sample_kmers:
+    input:
+        reads=get_map_reads_input,
+    output:
+        "results/kmers/{sample}.kff",
+    params:
+        out_file=lambda w, output: os.path.splitext(output[0])[0],
+        out_dir=lambda w, output: os.path.dirname(output[0]),
+    conda:
+        "../envs/kmc.yaml"
+    shadow:
+        "minimal"
+    log:
+        "logs/kmers/{sample}.log",
+    threads: 16
+    shell:
+        "kmc -k29 -m128 -okff -t{threads} -v @<(ls {input.reads}) {params.out_file} {params.out_dir} &> {log}"
+
+
+rule create_reference_paths:
+    output:
+        "resources/reference_paths.txt",
+    params:
+        build=config["ref"]["build"],
+    log:
+        "logs/reference/paths.log",
+    shell:
+        'for chrom in {{1..22}} X Y M; do echo "{params.build}#0#chr$chrom"; done > {output} 2> {log}'
+
+
 rule map_reads_vg:
     input:
         reads=get_map_reads_input,
-        index=rules.vg_autoindex.output,
+        graph=f"{pangenome_prefix}.gbz",
+        kmers="results/kmers/{sample}.kff",
+        hapl=f"{pangenome_prefix}.hapl",
+        paths="resources/reference_paths.txt",
     output:
-        temp("results/mapped/vg/{sample}.preprocessed.bam"),
+        bam=temp("results/mapped/vg/{sample}.preprocessed.bam"),
+        indexes=temp(
+            multiext(
+                f"{pangenome_prefix}.{{sample}}",
+                ".gbz",
+                ".dist",
+                ".shortread.withzip.min",
+                ".shortread.zipcodes",
+            )
+        ),
     log:
         "logs/mapped/vg/{sample}.log",
     benchmark:
         "benchmarks/vg_giraffe/{sample}.tsv"
     params:
-        extra="",
+        extra=lambda wc, input: f"--ref-paths {input.paths}",
         sorting="fgbio",
         sort_order="queryname",
     threads: 64
     wrapper:
-        "v5.3.0/bio/vg/giraffe"
+        "v5.7.0/bio/vg/giraffe"
+
+
+rule reheader_mapped_reads:
+    input:
+        "results/mapped/vg/{sample}.preprocessed.bam",
+    output:
+        temp("results/mapped/vg/{sample}.reheadered.bam"),
+    params:
+        build=config["ref"]["build"],
+    conda:
+        "../envs/samtools.yaml"
+    log:
+        "logs/reheader/{sample}.log",
+    shell:
+        "samtools view {input} -H | sed -E 's/(SN:{params.build}#0#chr)/SN:/; s/SN:M/SN:MT/' | samtools reheader - {input} > {output} 2> {log}"
 
 
 # samtools fixmate requires querysorted input
 rule fix_mate:
     input:
-        "results/mapped/vg/{sample}.preprocessed.bam",
+        "results/mapped/vg/{sample}.reheadered.bam",
     output:
         temp("results/mapped/vg/{sample}.mate_fixed.bam"),
     log:
