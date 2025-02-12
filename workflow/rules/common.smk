@@ -1626,4 +1626,4 @@ def get_pangenome_url(datatype):
         raise ValueError(
             "Unsupported pangenome source. Only 'hprc' is currently supported."
         )
-    return f"https://s3-us-west-2.amazonaws.com/human-pangenomics/pangenomes/freeze/freeze1/minigraph-cactus/hprc-v{version}-mc-{build}/hprc-v{version}-mc-{build}.{datatype}"
+    return f"https://s3-us-west-2.amazonaws.com/human-pangenomics/pangenomes/freeze/freeze1/minigraph-cactus/hprc-{version}-mc-{build}/hprc-{version}-mc-{build}.{datatype}"
