@@ -480,13 +480,6 @@ def get_trimming_input(wildcards, bai=False):
         )
 
 
-def get_vg_autoindex_vcf():
-    if config["ref"]["pangenome"].get("rename_expressions"):
-        return f"{pangenome_prefix}.renamed.vcf.gz"
-    else:
-        return f"{pangenome_prefix}.vcf.gz"
-
-
 def get_primer_bed(wc):
     if isinstance(primer_panels, pd.DataFrame):
         if not pd.isna(primer_panels.loc[wc.panel, "fa2"]):
@@ -1619,3 +1612,18 @@ def get_alignment_props(wildcards):
         if pd.notna(prop_name):
             return custom_alignment_props.loc[prop_name, "path"]
     return f"results/alignment-properties/{wildcards.group}/{wildcards.sample}.json"
+
+
+def get_pangenome_url(datatype):
+    build = config["ref"]["build"].lower()
+    source = config["ref"]["pangenome"]["source"]
+    version = config["ref"]["pangenome"]["version"]
+    if config["ref"]["species"] != "homo_sapiens" or build not in ["grch37", "grch38"]:
+        raise ValueError(
+            "Unsupported combination of species and build. Only homo_sapiens and GRCh37/GRCh38 are supported for pangenome mapping."
+        )
+    if source != "hprc":
+        raise ValueError(
+            "Unsupported pangenome source. Only 'hprc' is currently supported."
+        )
+    return f"https://s3-us-west-2.amazonaws.com/human-pangenomics/pangenomes/freeze/freeze1/minigraph-cactus/hprc-{version}-mc-{build}/hprc-{version}-mc-{build}.{datatype}"
