@@ -224,7 +224,14 @@ def select_spliceai_effect(calls):
     return calls
 
 
-calls = pd.read_csv(snakemake.input[0], sep="\t")
+calls = pd.read_csv(
+    snakemake.input[0],
+    sep="\t",
+    #The default pandas `NaN` value `NA` is a valid REF allele that we have seen in the
+    # wild, so we have to protect against mis-parsing things as `nan` here. Also, vembrane
+    # as the tool producing the input should encode actual `NA` as empty column entries.
+    keep_default_na=False,
+)
 calls["clinical significance"] = (
     calls["clinical significance"]
     .apply(eval)
