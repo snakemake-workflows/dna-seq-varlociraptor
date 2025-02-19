@@ -1,5 +1,12 @@
 # Changelog
 
+## [5.12.0](https://github.com/snakemake-workflows/dna-seq-varlociraptor/compare/v5.11.1...v5.12.0) (2025-02-19)
+
+
+### Features
+
+* refactor pangenome mapping ([#357](https://github.com/snakemake-workflows/dna-seq-varlociraptor/issues/357)) ([412e361](https://github.com/snakemake-workflows/dna-seq-varlociraptor/commit/412e36185f670041f133d9556c8a395a416c032d))
+
 ## [5.11.1](https://github.com/snakemake-workflows/dna-seq-varlociraptor/compare/v5.11.0...v5.11.1) (2025-02-07)
 
 
