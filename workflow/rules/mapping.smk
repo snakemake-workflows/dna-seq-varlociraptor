@@ -33,9 +33,11 @@ rule count_sample_kmers:
         "logs/kmers/{sample}.log",
     threads: max(workflow.cores, 1)
     resources:
-        mem_gb: 64
+        mem="64GB",
+    params:
+        mem=lambda wildcards, resources: resources.mem[:-2],
     shell:
-        "kmc -k29 -m{resources.mem_gb} -okff -t{threads} -v @<(ls {input.reads}) {params.out_file} {params.out_dir} &> {log}"
+        "kmc -k29 -m{params.mem} -sm -okff -t{threads} -v @<(ls {input.reads}) {params.out_file} {params.out_dir} &> {log}"
 
 
 rule create_reference_paths:
