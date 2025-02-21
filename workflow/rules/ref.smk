@@ -61,14 +61,16 @@ rule get_known_variants:
 
 rule get_annotation:
     output:
-        "resources/annotation.gtf",
+        "resources/annotation.{ext}",
     params:
         species=config["ref"]["species"],
         release=config["ref"]["release"],
         build=config["ref"]["build"],
         flavor="",  # optional, e.g. chr_patch_hapl_scaff, see Ensembl FTP.
+    wildcard_constraints:
+        ext="gft|gff3",
     log:
-        "logs/get_annotation.log",
+        "logs/get_annotation_{ext}.log",
     cache: "omit-software"  # save space and time with between workflow caching (see docs)
     wrapper:
         "v2.3.2/bio/reference/ensembl-annotation"

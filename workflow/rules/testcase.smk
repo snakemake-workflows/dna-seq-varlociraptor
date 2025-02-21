@@ -1,3 +1,41 @@
+rule sort_observations:
+    input:
+        "results/observations/{group}/{sample}.{caller}.{scatteritem}.bcf",
+    output:
+        temp("results/observations/{group}/{sample}.{caller}.{scatteritem}.sorted.bcf"),
+    params:
+        # Set to True, in case you want uncompressed BCF output
+        uncompressed_bcf=False,
+        # Extra arguments
+        extras="",
+    log:
+        "logs/bcf-sort/{group}/{sample}.{caller}.{scatteritem}.log",
+    resources:
+        mem_mb=8000,
+    wrapper:
+        "v5.5.0/bio/bcftools/sort"
+
+
+rule index_observations:
+    input:
+        "results/observations/{group}/{sample}.{caller}.{scatteritem}.sorted.bcf",
+    output:
+        temp(
+            "results/observations/{group}/{sample}.{caller}.{scatteritem}.sorted.bcf.csi"
+        ),
+    params:
+        # Set to True, in case you want uncompressed BCF output
+        uncompressed_bcf=False,
+        # Extra arguments
+        extras="",
+    log:
+        "logs/bcf-index/{group}/{sample}.{caller}.{scatteritem}.log",
+    resources:
+        mem_mb=8000,
+    wrapper:
+        "v5.5.0/bio/bcftools/index"
+
+
 rule gather_observations:
     input:
         calls=gather.calling(
