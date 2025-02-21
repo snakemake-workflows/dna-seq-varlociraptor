@@ -23,9 +23,9 @@ rule count_sample_kmers:
     output:
         "results/kmers/{sample}.kff",
     params:
-        out_file=lambda w, output: os.path.splitext(output[0])[0],
-        out_dir=lambda w, output: os.path.dirname(output[0]),
-        mem=lambda wildcards, resources: resources.mem[:-2],
+        out_file=lambda wc, output: os.path.splitext(output[0])[0],
+        out_dir=lambda wc, output: os.path.dirname(output[0]),
+        mem=lambda wc, resources: resources.mem[:-2],
     conda:
         "../envs/kmc.yaml"
     shadow:
