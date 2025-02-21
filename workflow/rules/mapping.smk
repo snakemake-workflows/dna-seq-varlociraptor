@@ -25,6 +25,7 @@ rule count_sample_kmers:
     params:
         out_file=lambda w, output: os.path.splitext(output[0])[0],
         out_dir=lambda w, output: os.path.dirname(output[0]),
+        mem=lambda wildcards, resources: resources.mem[:-2],
     conda:
         "../envs/kmc.yaml"
     shadow:
@@ -34,8 +35,6 @@ rule count_sample_kmers:
     threads: max(workflow.cores, 1)
     resources:
         mem="64GB",
-    params:
-        mem=lambda wildcards, resources: resources.mem[:-2],
     shell:
         "kmc -k29 -m{params.mem} -sm -okff -t{threads} -v @<(ls {input.reads}) {params.out_file} {params.out_dir} &> {log}"
 
