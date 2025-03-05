@@ -845,10 +845,21 @@ def get_fdr_control_params(wildcards):
 
     mode = f"--mode {mode}"
 
+    retain_artifacts = lookup(
+        dpath="retain-artifacts",
+        within=query,
+        default=lookup(
+            dpath="calling/fdr-control/retain-artifacts", within=config, default="False"
+        ),
+    )
+
+    retain_artifacts = "--smart-retain-artifacts" if retain_artifacts else ""
+
     return {
         "threshold": threshold,
         "events": events,
         "mode": mode,
+        "retain_artifacts": retain_artifacts,
         "local": local,
         "filter": query.get("filter"),
     }
