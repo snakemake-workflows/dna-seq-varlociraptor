@@ -849,7 +849,7 @@ def get_fdr_control_params(wildcards):
         dpath="retain-artifacts",
         within=query,
         default=lookup(
-            dpath="calling/fdr-control/retain-artifacts", within=config, default="False"
+            dpath="calling/fdr-control/retain-artifacts", within=config, default=False
         ),
     )
 
