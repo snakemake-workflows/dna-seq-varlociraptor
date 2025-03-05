@@ -78,7 +78,7 @@ rule control_fdr:
         "../envs/varlociraptor.yaml"
     shell:
         "varlociraptor filter-calls control-fdr {input} {params.query[mode]} --var {wildcards.vartype} "
-        "--events {params.query[events]} --fdr {params.query[threshold]} > {output} 2> {log}"
+        "--events {params.query[events]} --fdr {params.query[threshold]} {params.query[retain_artifacts]} > {output} 2> {log}"
 
 
 rule merge_calls:
