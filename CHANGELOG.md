@@ -1,5 +1,12 @@
 # Changelog
 
+## [5.14.0](https://github.com/snakemake-workflows/dna-seq-varlociraptor/compare/v5.13.0...v5.14.0) (2025-03-06)
+
+
+### Features
+
+* enable event reports ([#364](https://github.com/snakemake-workflows/dna-seq-varlociraptor/issues/364)) ([f6cfd4d](https://github.com/snakemake-workflows/dna-seq-varlociraptor/commit/f6cfd4dfae32bffbbbae3f1a8518e9675a123512))
+
 ## [5.13.0](https://github.com/snakemake-workflows/dna-seq-varlociraptor/compare/v5.12.1...v5.13.0) (2025-03-05)
 
 
