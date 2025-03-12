@@ -1,5 +1,27 @@
 # Changelog
 
+## [5.14.0](https://github.com/snakemake-workflows/dna-seq-varlociraptor/compare/v5.13.0...v5.14.0) (2025-03-06)
+
+
+### Features
+
+* enable event reports ([#364](https://github.com/snakemake-workflows/dna-seq-varlociraptor/issues/364)) ([f6cfd4d](https://github.com/snakemake-workflows/dna-seq-varlociraptor/commit/f6cfd4dfae32bffbbbae3f1a8518e9675a123512))
+
+## [5.13.0](https://github.com/snakemake-workflows/dna-seq-varlociraptor/compare/v5.12.1...v5.13.0) (2025-03-05)
+
+
+### Features
+
+* allow retaining of artifacts ([#367](https://github.com/snakemake-workflows/dna-seq-varlociraptor/issues/367)) ([fb43f98](https://github.com/snakemake-workflows/dna-seq-varlociraptor/commit/fb43f98ec42bdb34d773a051cdff05f806ea3f6b))
+* allow retaining of artifacts upon fdr control ([#365](https://github.com/snakemake-workflows/dna-seq-varlociraptor/issues/365)) ([7728382](https://github.com/snakemake-workflows/dna-seq-varlociraptor/commit/7728382b381be4e758c6820cc66d3cc7f4b12b4d))
+
+## [5.12.1](https://github.com/snakemake-workflows/dna-seq-varlociraptor/compare/v5.12.0...v5.12.1) (2025-02-21)
+
+
+### Bug Fixes
+
+* avoid mis-parsing `NA` reference (`REF`) alleles in `split-call-tables.py` ([#360](https://github.com/snakemake-workflows/dna-seq-varlociraptor/issues/360)) ([9643ab9](https://github.com/snakemake-workflows/dna-seq-varlociraptor/commit/9643ab90ea5edec6f1a195edb470d9a5e6221536))
+
 ## [5.12.0](https://github.com/snakemake-workflows/dna-seq-varlociraptor/compare/v5.11.1...v5.12.0) (2025-02-19)
 
 
