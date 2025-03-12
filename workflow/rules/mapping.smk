@@ -23,17 +23,20 @@ rule count_sample_kmers:
     output:
         "results/kmers/{sample}.kff",
     params:
-        out_file=lambda w, output: os.path.splitext(output[0])[0],
-        out_dir=lambda w, output: os.path.dirname(output[0]),
+        out_file=lambda wc, output: os.path.splitext(output[0])[0],
+        out_dir=lambda wc, output: os.path.dirname(output[0]),
+        mem=lambda wc, resources: resources.mem[:-2],
     conda:
         "../envs/kmc.yaml"
     shadow:
         "minimal"
     log:
         "logs/kmers/{sample}.log",
-    threads: 16
+    threads: max(workflow.cores, 1)
+    resources:
+        mem="64GB",
     shell:
-        "kmc -k29 -m128 -okff -t{threads} -v @<(ls {input.reads}) {params.out_file} {params.out_dir} &> {log}"
+        "kmc -k29 -m{params.mem} -sm -okff -t{threads} -v @<(ls {input.reads}) {params.out_file} {params.out_dir} &> {log}"
 
 
 rule create_reference_paths:
