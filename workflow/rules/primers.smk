@@ -47,7 +47,7 @@ rule trim_primers:
 rule map_primers:
     input:
         reads=lambda wc: get_panel_primer_input(wc.panel),
-        idx=rules.bwa_index.output,
+        idx=access.random(rules.bwa_index.output),
     output:
         "results/primers/{panel}_primers.bam",
     log:

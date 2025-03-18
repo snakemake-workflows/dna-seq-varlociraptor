@@ -13,6 +13,10 @@ scattergather:
     calling=16,
 
 
+input_default:
+    access.seq,
+
+
 # Allow users to fix the underlying OS via singularity.
 container: "docker://continuumio/miniconda3"
 
