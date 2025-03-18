@@ -13,8 +13,7 @@ scattergather:
     calling=16,
 
 
-input_default:
-    access.sequential,
+workflow.input_default_flags(access.sequential)
 
 
 # Allow users to fix the underlying OS via singularity.
