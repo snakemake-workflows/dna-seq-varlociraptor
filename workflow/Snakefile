@@ -14,7 +14,7 @@ scattergather:
 
 
 inputflags:
-    access.sequential
+    access.sequential,
 
 
 # Allow users to fix the underlying OS via singularity.
