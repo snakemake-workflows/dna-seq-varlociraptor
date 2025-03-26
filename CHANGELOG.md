@@ -1,5 +1,12 @@
 # Changelog
 
+## [5.16.0](https://github.com/snakemake-workflows/dna-seq-varlociraptor/compare/v5.15.0...v5.16.0) (2025-03-26)
+
+
+### Features
+
+* use semantic colors for heatmap in event probability columns ([#371](https://github.com/snakemake-workflows/dna-seq-varlociraptor/issues/371)) ([d966dc3](https://github.com/snakemake-workflows/dna-seq-varlociraptor/commit/d966dc33aeca8d2786eecd8b80a36a15887c04cb))
+
 ## [5.15.0](https://github.com/snakemake-workflows/dna-seq-varlociraptor/compare/v5.14.0...v5.15.0) (2025-03-26)
 
 
