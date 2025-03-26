@@ -1,6 +1,6 @@
 from snakemake.utils import min_version
 
-min_version("8.13.0")
+min_version("9.1.0")
 
 
 configfile: "config/config.yaml"
@@ -11,6 +11,10 @@ report: "report/workflow.rst"
 
 scattergather:
     calling=16,
+
+
+inputflags:
+    access.sequential,
 
 
 # Allow users to fix the underlying OS via singularity.

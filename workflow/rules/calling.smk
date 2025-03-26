@@ -44,7 +44,7 @@ rule varlociraptor_preprocess:
     input:
         ref=genome,
         ref_idx=genome_fai,
-        candidates=get_candidate_calls,
+        candidates=access.multi(get_candidate_calls),
         bam="results/recal/{sample}.bam",
         bai="results/recal/{sample}.bai",
         alignment_props=get_alignment_props,

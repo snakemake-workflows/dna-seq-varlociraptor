@@ -1,7 +1,7 @@
 rule map_reads_bwa:
     input:
         reads=get_map_reads_input,
-        idx=rules.bwa_index.output,
+        idx=access.random(rules.bwa_index.output),
     output:
         temp("results/mapped/bwa/{sample}.bam"),
     log:
@@ -53,10 +53,10 @@ rule create_reference_paths:
 rule map_reads_vg:
     input:
         reads=get_map_reads_input,
-        graph=f"{pangenome_prefix}.gbz",
-        kmers="results/kmers/{sample}.kff",
-        hapl=f"{pangenome_prefix}.hapl",
-        paths="resources/reference_paths.txt",
+        graph=access.random(f"{pangenome_prefix}.gbz"),
+        kmers=access.random("results/kmers/{sample}.kff"),
+        hapl=access.random(f"{pangenome_prefix}.hapl"),
+        paths=access.random("resources/reference_paths.txt"),
     output:
         bam=temp("results/mapped/vg/{sample}.preprocessed.bam"),
         indexes=temp(
@@ -229,7 +229,7 @@ rule calc_consensus_reads:
 rule map_consensus_reads:
     input:
         reads=get_processed_consensus_input,
-        idx=rules.bwa_index.output,
+        idx=access.random(rules.bwa_index.output),
     output:
         temp("results/consensus/{sample}.consensus.{read_type}.mapped.bam"),
     params:
