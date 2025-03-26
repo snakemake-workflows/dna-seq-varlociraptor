@@ -1,9 +1,9 @@
 rule annotate_candidate_variants:
     input:
         calls="results/candidate-calls/{group}.{caller}.{scatteritem}.bcf",
-        cache="resources/vep/cache",
-        plugins="resources/vep/plugins",
-        fasta=genome,
+        cache=access.random("resources/vep/cache"),
+        plugins=access.random("resources/vep/plugins"),
+        fasta=access.random(genome),
         fai=genome_fai,
     output:
         calls="results/candidate-calls/{group}.{caller}.{scatteritem}.annotated.bcf",
@@ -25,11 +25,11 @@ rule annotate_candidate_variants:
 rule annotate_variants:
     input:
         calls="results/calls/{group}.{calling_type}.{scatteritem}.bcf",
-        cache="resources/vep/cache",
-        plugins="resources/vep/plugins",
+        cache=access.random("resources/vep/cache"),
+        plugins=access.random("resources/vep/plugins"),
         revel=lambda wc: get_plugin_aux("REVEL"),
         revel_tbi=lambda wc: get_plugin_aux("REVEL", True),
-        fasta=genome,
+        fasta=access.random(genome),
         fai=genome_fai,
     output:
         calls="results/calls/{group}.{calling_type}.{scatteritem}.annotated.bcf",
