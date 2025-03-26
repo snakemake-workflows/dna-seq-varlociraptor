@@ -1,5 +1,17 @@
 # Changelog
 
+## [5.15.0](https://github.com/snakemake-workflows/dna-seq-varlociraptor/compare/v5.14.0...v5.15.0) (2025-03-26)
+
+
+### Features
+
+* annotate access patterns ([#369](https://github.com/snakemake-workflows/dna-seq-varlociraptor/issues/369)) ([6a95549](https://github.com/snakemake-workflows/dna-seq-varlociraptor/commit/6a9554997fc2ee8f9ba45ccb4e467aeab8bd90a8))
+
+
+### Bug Fixes
+
+* limit resources for kmer counting ([#363](https://github.com/snakemake-workflows/dna-seq-varlociraptor/issues/363)) ([2f5ef0d](https://github.com/snakemake-workflows/dna-seq-varlociraptor/commit/2f5ef0d9626f4e0fb0e488b0dc9f267972c88b42))
+
 ## [5.14.0](https://github.com/snakemake-workflows/dna-seq-varlociraptor/compare/v5.13.0...v5.14.0) (2025-03-06)
 
 
