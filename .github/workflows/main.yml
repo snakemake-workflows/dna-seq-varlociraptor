@@ -44,9 +44,6 @@ jobs:
 
   Testing:
     runs-on: ubuntu-latest
-    needs: 
-      - Linting
-      - Formatting
     strategy:
       fail-fast: true
       matrix:
