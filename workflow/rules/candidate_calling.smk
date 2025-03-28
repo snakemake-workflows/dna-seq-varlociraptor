@@ -23,6 +23,25 @@ rule freebayes:
         "v2.7.0/bio/freebayes"
 
 
+rule savana:
+    input:
+        ref=access.random(genome),
+        ref_idx=genome_fai,
+        aln="results/recal/{sample}.{ext}",
+        index="results/recal/{sample}.{ext}.bai",
+    output:
+        "results/candidate-calls/{sample}.savana.bcf",
+    conda:
+        "../envs/savana.yaml",
+    log:
+        "logs/savana/{sample}.log",
+    shadow: "minimal"
+    threads: 8
+    shell:
+        "(savana to --tumour {input.aln} --ref {input.ref} --outdir . &&"
+        " mv *_sv_breakpoints.vcf {output}) 2> {log}"
+
+
 rule delly:
     input:
         ref=access.random(genome),
