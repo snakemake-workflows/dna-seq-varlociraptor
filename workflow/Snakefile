@@ -61,6 +61,14 @@ rule only_alignment:
         expand("results/mapped/{sample}.cram", sample=samples["sample_name"]),
 
 
+rule only_savana:
+    input:
+        expand(
+            "results/candidate-calls/{sample}.savana.vcf",
+            sample=samples["sample_name"],
+        ),
+
+
 rule benchmark:
     input:
         expand(

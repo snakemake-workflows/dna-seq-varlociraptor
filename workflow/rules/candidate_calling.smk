@@ -30,12 +30,13 @@ rule savana:
         aln="results/recal/{sample}.{ext}",
         index="results/recal/{sample}.{ext}.bai",
     output:
-        "results/candidate-calls/{sample}.savana.bcf",
+        "results/candidate-calls/{sample}.savana.vcf",
     conda:
-        "../envs/savana.yaml",
+        "../envs/savana.yaml"
     log:
         "logs/savana/{sample}.log",
-    shadow: "minimal"
+    shadow:
+        "minimal"
     threads: 8
     shell:
         "(savana to --tumour {input.aln} --ref {input.ref} --outdir . &&"

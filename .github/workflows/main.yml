@@ -92,7 +92,16 @@ jobs:
           directory: .test
           snakefile: workflow/Snakefile
           args: >
-            --conda-cleanup-pkgs cache --sdm conda --cores 10 ${{ matrix.case.args }} 
+            --conda-cleanup-pkgs cache --sdm conda --cores 10 ${{ matrix.case.args }}
+          show-disk-usage-on-error: true
+
+      - name: test savana
+        uses: snakemake/snakemake-github-action@v2
+        with:
+          directory: .test
+          snakefile: workflow/Snakefile
+          args: >
+            only_savana --conda-cleanup-pkgs cache --sdm conda --cores 10 ${{ matrix.case.args }}
           show-disk-usage-on-error: true
 
       - name: generate report
