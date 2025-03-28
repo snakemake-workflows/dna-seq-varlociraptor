@@ -65,7 +65,7 @@ rule only_alignment:
 rule only_savana:
     input:
         expand(
-            "results/candidate-calls/{sample}.savana.vcf",
+            "results/candidate-calls/{sample}.savana.bcf",
             sample=samples["sample_name"],
         ),
 
