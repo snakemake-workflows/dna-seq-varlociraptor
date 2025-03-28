@@ -31,7 +31,8 @@ rule savana:
         index="results/recal/{sample}.bai",
         germline_snvs="results/germline-snvs/{group}.bcf" if germline_events else [],
     output:
-        "results/candidate-calls/{sample}.savana.bcf",
+        bcf="results/candidate-calls/{sample}.savana.bcf",
+        outdir=directory("results/candidate-calls/savana/{sample}"),
     log:
         "logs/savana/{sample}.log",
     params:
@@ -40,12 +41,12 @@ rule savana:
         ),
     conda:
         "../envs/savana.yaml"
-    shadow:
-        "minimal"
     threads: 8
     shell:
-        "(savana to --tumour {input.aln} --ref {input.ref} --outdir . {params.snvs} &&"
-        " bcftools view -Ob -o {output} *_sv_breakpoints.vcf) 2> {log}"
+        "(savana to --tumour {input.aln} --ref {input.ref} --outdir {output.outdir}"
+        " {params.snvs} &&"
+        " bcftools view -Ob -o {output.bcf} {output.outdir}/{wildcards.sample}.sv_breakpoints.vcf) "
+        "2>&1 > {log}"
 
 
 rule delly:
