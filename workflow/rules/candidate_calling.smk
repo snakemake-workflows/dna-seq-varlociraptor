@@ -29,18 +29,23 @@ rule savana:
         ref_idx=genome_fai,
         aln=access.random("results/recal/{sample}.bam"),
         index="results/recal/{sample}.bai",
+        germline_snvs="results/germline-snvs/{group}.bcf" if germline_events else [],
     output:
-        "results/candidate-calls/{sample}.savana.vcf",
-    conda:
-        "../envs/savana.yaml"
+        "results/candidate-calls/{sample}.savana.bcf",
     log:
         "logs/savana/{sample}.log",
+    params:
+        snvs=lambda w, input: (
+            f"--snp_vcf {input.germline_snvs}" if germline_events else ""
+        ),
+    conda:
+        "../envs/savana.yaml"
     shadow:
         "minimal"
     threads: 8
     shell:
-        "(savana to --tumour {input.aln} --ref {input.ref} --outdir . &&"
-        " mv *_sv_breakpoints.vcf {output}) 2> {log}"
+        "(savana to --tumour {input.aln} --ref {input.ref} --outdir . {params.snvs} &&"
+        " bcftools view -Ob -o {output} *_sv_breakpoints.vcf) 2> {log}"
 
 
 rule delly:
