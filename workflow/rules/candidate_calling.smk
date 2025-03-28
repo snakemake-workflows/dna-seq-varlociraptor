@@ -41,9 +41,9 @@ rule savana:
         ),
     conda:
         "../envs/savana.yaml"
-    threads: 8
+    threads: 16
     shell:
-        "(savana to --tumour {input.aln} --ref {input.ref} --outdir {output.outdir}"
+        "(savana to --threads {threads} --tumour {input.aln} --ref {input.ref} --outdir {output.outdir}"
         " {params.snvs} &&"
         " bcftools view -Ob -o {output.bcf} {output.outdir}/{wildcards.sample}.sv_breakpoints.vcf) "
         "2>&1 > {log}"
