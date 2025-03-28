@@ -24,4 +24,4 @@ rule control_fdr_germline_snvs:
     conda:
         "../envs/varlociraptor.yaml"
     shell:
-        "varlociraptor filter-calls control-fdr {input} --events {params.events} --mode local-smart --var snv > {output} 2> {log}"
+        "varlociraptor filter-calls control-fdr {input} --events {params.events} --mode local-smart --var snv --fdr 0.05 > {output} 2> {log}"
