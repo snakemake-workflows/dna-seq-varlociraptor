@@ -3,6 +3,7 @@ channels:
   - bioconda
   - nodefaults
 dependencies:
+  - bcftools =1.21
   - pybedtools==0.9.0
   - pysam==0.20.0
   - cyvcf2==0.30.16
@@ -10,4 +11,4 @@ dependencies:
   - pandas==2.0.0
   - matplotlib==3.7.1
   - pip:
-    - git+https://github.com/johanneskoester/savana.git@fix/empty-calls
+      - git+https://github.com/johanneskoester/savana.git@fix/empty-calls
