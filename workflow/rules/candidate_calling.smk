@@ -27,8 +27,8 @@ rule savana:
     input:
         ref=access.random(genome),
         ref_idx=genome_fai,
-        aln="results/recal/{sample}.{ext}",
-        index="results/recal/{sample}.{ext}.bai",
+        aln="results/recal/{sample}.bam",
+        index="results/recal/{sample}.bai",
     output:
         "results/candidate-calls/{sample}.savana.vcf",
     conda:
