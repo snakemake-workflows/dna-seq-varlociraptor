@@ -792,14 +792,6 @@ def get_merge_calls_input(ext="bcf"):
     return inner
 
 
-def get_vep_threads():
-    n = len(samples)
-    if n:
-        return max(workflow.cores / n, 1)
-    else:
-        return 1
-
-
 def get_plugin_aux(plugin, index=False):
     if plugin in config["annotations"]["vep"]["final_calls"]["plugins"]:
         if plugin == "REVEL":
