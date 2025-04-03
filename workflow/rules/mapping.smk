@@ -58,7 +58,7 @@ rule map_reads_vg:
         hapl=access.random(f"{pangenome_prefix}.hapl"),
         paths=access.random("resources/reference_paths.txt"),
     output:
-        bam=temp("results/mapped/vg/{sample}.preprocessed.bam"),
+        bam=temp("results/mapped/vg/{sample}.raw.bam", group_jobs=True),
         indexes=temp(
             multiext(
                 f"{pangenome_prefix}.{{sample}}",
@@ -74,18 +74,33 @@ rule map_reads_vg:
         "benchmarks/vg_giraffe/{sample}.tsv"
     params:
         extra=lambda wc, input: f"--ref-paths {input.paths}",
-        sorting="fgbio",
-        sort_order="queryname",
+        sorting="none",
     threads: 64
     wrapper:
         "v5.7.0/bio/vg/giraffe"
+
+
+rule sort_vg_alignments:
+    input:
+        "results/mapped/vg/{sample}.raw.bam"
+    output:
+        temp("results/mapped/vg/{sample}.preprocessed.bam", group_jobs=True),
+    log:
+        "logs/vg_sort/{sample}.log",
+    params:
+        extra="-m 4G",
+    resources:
+        mem="4GB",
+    threads: 8
+    wrapper:
+        "v5.10.0/bio/samtools/sort"
 
 
 rule reheader_mapped_reads:
     input:
         "results/mapped/vg/{sample}.preprocessed.bam",
     output:
-        temp("results/mapped/vg/{sample}.reheadered.bam"),
+        temp("results/mapped/vg/{sample}.reheadered.bam", group_jobs=True),
     params:
         build=config["ref"]["build"],
     conda:
@@ -101,7 +116,7 @@ rule fix_mate:
     input:
         "results/mapped/vg/{sample}.reheadered.bam",
     output:
-        temp("results/mapped/vg/{sample}.mate_fixed.bam"),
+        temp("results/mapped/vg/{sample}.mate_fixed.bam", group_jobs=True),
     log:
         "logs/samtools/fix_mate/{sample}.log",
     threads: 8
