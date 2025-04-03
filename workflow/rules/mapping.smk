@@ -88,7 +88,7 @@ rule sort_vg_alignments:
     log:
         "logs/vg_sort/{sample}.log",
     params:
-        extra="-m 4G",
+        extra="-m 4G -n",
     resources:
         mem="4GB",
     threads: 8
