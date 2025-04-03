@@ -134,13 +134,16 @@ rule add_read_group:
     output:
         temp("results/mapped/vg/{sample}.bam"),
     log:
-        "logs/picard/add_rg/{sample}.log",
+        "logs/samtools/add_rg/{sample}.log",
     params:
-        extra=get_vg_read_group,
-    resources:
-        mem_mb=1024,
-    wrapper:
-        "v2.3.2/bio/picard/addorreplacereadgroups"
+        read_group=get_read_group,
+        compression_threads=lambda wildcards, threads: f"-@{threads}" if threads > 1 else ""
+    conda:
+        "../envs/samtools.yaml"
+    threads: 4
+    shell:
+        "samtools addreplacerg {input} -o {output} -r {params.read_group} "
+        "-w {params.compression_threads} 2> {log}"
 
 
 rule merge_untrimmed_fastqs:

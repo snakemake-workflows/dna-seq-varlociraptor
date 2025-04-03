@@ -639,13 +639,6 @@ def get_read_group(wildcards):
     )
 
 
-def get_vg_read_group(wildcards):
-    platform = extract_unique_sample_column_value(wildcards.sample, "platform")
-    return r"--RGLB lib1 --RGPL {platform} --RGPU {sample} --RGSM {sample} --RGID {sample}".format(
-        sample=wildcards.sample, platform=platform
-    )
-
-
 def get_map_reads_sorting_params(wildcards, ordering=False):
     match (sample_has_umis(wildcards.sample), ordering):
         case (True, True):
