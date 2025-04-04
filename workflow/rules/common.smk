@@ -623,6 +623,7 @@ def get_all_group_observations(wildcards):
     )
 
 
+# TODO maybe use get_read_group with prefix="--outSAMattrRGline "?
 def get_star_read_group(wildcards):
     """Denote sample name and platform in read group."""
     platform = extract_unique_sample_column_value(wildcards.sample, "platform")
@@ -631,12 +632,14 @@ def get_star_read_group(wildcards):
     )
 
 
-def get_read_group(wildcards):
-    """Denote sample name and platform in read group."""
-    platform = extract_unique_sample_column_value(wildcards.sample, "platform")
-    return r"-R '@RG\tID:{sample}\tSM:{sample}\tPL:{platform}'".format(
-        sample=wildcards.sample, platform=platform
-    )
+def get_read_group(prefix: str):
+    def inner(wildcards):
+        """Denote sample name and platform in read group."""
+        platform = extract_unique_sample_column_value(wildcards.sample, "platform")
+        return r"{prefix}'@RG\tID:{sample}\tSM:{sample}\tPL:{platform}'".format(
+            sample=wildcards.sample, platform=platform, prefix=prefix
+        )
+    return inner
 
 
 def get_map_reads_sorting_params(wildcards, ordering=False):
