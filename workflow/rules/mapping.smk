@@ -15,8 +15,6 @@ rule map_reads_bwa:
         "v3.8.0/bio/bwa/mem"
 
 
-# Perform kmer counting for haplotype sampling:
-# https://github.com/vgteam/vg/wiki/Haplotype-Sampling#haplotype-sampling
 rule count_sample_kmers:
     input:
         reads=get_map_reads_input,
@@ -116,7 +114,8 @@ rule reheader_mapped_reads:
         " samtools reheader - {input} > {output}) 2> {log}"
 
 
-# samtools fixmate requires querysorted input
+# TODO: why do we need this? If still needed, report back to vg team.
+# TODO: does vg output namesorted reads already? Then no sorting is required above.
 rule fix_mate:
     input:
         "results/mapped/vg/{sample}.reheadered.bam",
