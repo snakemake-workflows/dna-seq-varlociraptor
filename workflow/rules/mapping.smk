@@ -74,7 +74,6 @@ rule map_reads_vg:
         extra=lambda wc, input: f"--ref-paths {input.paths}",
         sorting="none",
     threads: 64
-    group: "vg-mapping"
     wrapper:
         "v5.7.0/bio/vg/giraffe"
 
@@ -91,7 +90,6 @@ rule sort_vg_alignments:
     resources:
         mem="4GB",
     threads: 8
-    group: "vg-mapping"
     wrapper:
         "v5.10.0/bio/samtools/sort"
 
@@ -106,8 +104,7 @@ rule reheader_mapped_reads:
     conda:
         "../envs/samtools.yaml"
     log:
-        "logs/reheader/{sample}.log",
-    group: "vg-mapping"
+        "logs/reheader/{sample}.log"
     shell:
         "(samtools view {input} -H |"
         " sed -E 's/(SN:{params.build}#0#chr)/SN:/; s/SN:M/SN:MT/' | "
@@ -126,7 +123,6 @@ rule fix_mate:
     threads: 8
     params:
         extra="",
-    group: "vg-mapping"
     wrapper:
         "v4.7.2/bio/samtools/fixmate"
 
@@ -146,7 +142,6 @@ rule add_read_group:
     conda:
         "../envs/samtools.yaml"
     threads: 4
-    group: "vg-mapping"
     shell:
         "samtools addreplacerg {input} -o {output} -r {params.read_group} "
         "-w {params.compression_threads} 2> {log}"
