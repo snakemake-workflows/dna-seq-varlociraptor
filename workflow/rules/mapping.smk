@@ -86,10 +86,10 @@ rule sort_vg_alignments:
     log:
         "logs/vg_sort/{sample}.log",
     params:
-        extra="-m 4G -n",
+        extra="-n",
+    threads: 16
     resources:
         mem="4GB",
-    threads: 8
     wrapper:
         "v5.10.0/bio/samtools/sort"
 
@@ -195,7 +195,7 @@ rule sort_annotated_reads:
         temp("results/mapped/{aligner}/{sample}.annotated.bam"),
     log:
         "logs/samtools_sort/{aligner}_{sample}.log",
-    threads: 8
+    threads: 16
     wrapper:
         "v3.7.0/bio/samtools/sort"
 
