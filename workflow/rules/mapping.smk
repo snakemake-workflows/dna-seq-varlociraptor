@@ -224,7 +224,7 @@ rule sort_vg_reads:
         temp("results/{subdir}/{sample}.sorted.bam"),
     log:
         "logs/samtools_sort/{subdir}_{sample}.log",
-    threads: 8
+    threads: 16
     wrapper:
         "v5.5.0/bio/samtools/sort"
 
@@ -286,7 +286,7 @@ rule sort_consensus_reads:
         temp("results/consensus/{sample}.bam"),
     log:
         "logs/samtools_sort/{sample}.log",
-    threads: 8
+    threads: 16
     wrapper:
         "v2.3.2/bio/samtools/sort"
 
