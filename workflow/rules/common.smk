@@ -909,11 +909,11 @@ def get_annotation_filter_expression(wildcards):
     return " and ".join(map("({})".format, filters)).replace('"', '\\"')
 
 
-def get_annotation_filter_aux(wildcards):
+def get_annotation_filter_aux(wildcards, input):
     return [
         f"--aux {name}={path}"
         for filter in get_annotation_filter_names(wildcards)
-        for name, path in get_filter_aux_entries(filter).items()
+        for name, path in zip(get_filter_aux_entries(filter).keys(), input.aux)
     ]
 
 

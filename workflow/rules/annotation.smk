@@ -93,6 +93,14 @@ rule annotate_dgidb:
         "rbt vcf-annotate-dgidb {input} {params.datasources} > {output} 2> {log}"
 
 
+use rule bcf_index as annotated_index with:
+    group:
+        "annotation"
+
+
+ruleorder: annotated_index > bcf_index
+
+
 rule gather_annotated_calls:
     input:
         calls=get_gather_annotated_calls_input(),
