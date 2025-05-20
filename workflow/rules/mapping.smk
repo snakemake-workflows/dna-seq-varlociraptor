@@ -89,7 +89,7 @@ rule sort_vg_alignments:
         extra="-n",
     threads: 16
     resources:
-        mem="4GB",
+        mem="8GB",
     wrapper:
         "v5.10.0/bio/samtools/sort"
 
