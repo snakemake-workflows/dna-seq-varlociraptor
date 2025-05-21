@@ -623,6 +623,7 @@ def get_all_group_observations(wildcards):
     )
 
 
+# TODO maybe use get_read_group with prefix="--outSAMattrRGline "?
 def get_star_read_group(wildcards):
     """Denote sample name and platform in read group."""
     platform = extract_unique_sample_column_value(wildcards.sample, "platform")
@@ -631,19 +632,14 @@ def get_star_read_group(wildcards):
     )
 
 
-def get_read_group(wildcards):
-    """Denote sample name and platform in read group."""
-    platform = extract_unique_sample_column_value(wildcards.sample, "platform")
-    return r"-R '@RG\tID:{sample}\tSM:{sample}\tPL:{platform}'".format(
-        sample=wildcards.sample, platform=platform
-    )
-
-
-def get_vg_read_group(wildcards):
-    platform = extract_unique_sample_column_value(wildcards.sample, "platform")
-    return r"--RGLB lib1 --RGPL {platform} --RGPU {sample} --RGSM {sample} --RGID {sample}".format(
-        sample=wildcards.sample, platform=platform
-    )
+def get_read_group(prefix: str):
+    def inner(wildcards):
+        """Denote sample name and platform in read group."""
+        platform = extract_unique_sample_column_value(wildcards.sample, "platform")
+        return r"{prefix}'@RG\tID:{sample}\tSM:{sample}\tPL:{platform}'".format(
+            sample=wildcards.sample, platform=platform, prefix=prefix
+        )
+    return inner
 
 
 def get_map_reads_sorting_params(wildcards, ordering=False):
@@ -799,14 +795,6 @@ def get_merge_calls_input(ext="bcf"):
     return inner
 
 
-def get_vep_threads():
-    n = len(samples)
-    if n:
-        return max(workflow.cores / n, 1)
-    else:
-        return 1
-
-
 def get_plugin_aux(plugin, index=False):
     if plugin in config["annotations"]["vep"]["final_calls"]["plugins"]:
         if plugin == "REVEL":
@@ -921,11 +909,11 @@ def get_annotation_filter_expression(wildcards):
     return " and ".join(map("({})".format, filters)).replace('"', '\\"')
 
 
-def get_annotation_filter_aux(wildcards):
+def get_annotation_filter_aux(wildcards, input):
     return [
         f"--aux {name}={path}"
         for filter in get_annotation_filter_names(wildcards)
-        for name, path in get_filter_aux_entries(filter).items()
+        for name, path in zip(get_filter_aux_entries(filter).keys(), input.aux)
     ]
 
 

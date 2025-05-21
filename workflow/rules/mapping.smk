@@ -7,7 +7,7 @@ rule map_reads_bwa:
     log:
         "logs/bwa_mem/{sample}.log",
     params:
-        extra=get_read_group,
+        extra=get_read_group("-R "),
         sorting=get_map_reads_sorting_params,
         sort_order=lambda wc: get_map_reads_sorting_params(wc, ordering=True),
     threads: 8
@@ -15,8 +15,6 @@ rule map_reads_bwa:
         "v3.8.0/bio/bwa/mem"
 
 
-# Perform kmer counting for haplotype sampling:
-# https://github.com/vgteam/vg/wiki/Haplotype-Sampling#haplotype-sampling
 rule count_sample_kmers:
     input:
         reads=get_map_reads_input,
@@ -58,7 +56,7 @@ rule map_reads_vg:
         hapl=access.random(f"{pangenome_prefix}.hapl"),
         paths=access.random("resources/reference_paths.txt"),
     output:
-        bam=temp("results/mapped/vg/{sample}.preprocessed.bam"),
+        bam=temp("results/mapped/vg/{sample}.raw.bam"),
         indexes=temp(
             multiext(
                 f"{pangenome_prefix}.{{sample}}",
@@ -74,11 +72,26 @@ rule map_reads_vg:
         "benchmarks/vg_giraffe/{sample}.tsv"
     params:
         extra=lambda wc, input: f"--ref-paths {input.paths}",
-        sorting="fgbio",
-        sort_order="queryname",
+        sorting="none",
     threads: 64
     wrapper:
         "v5.7.0/bio/vg/giraffe"
+
+
+rule sort_vg_alignments:
+    input:
+        "results/mapped/vg/{sample}.raw.bam"
+    output:
+        temp("results/mapped/vg/{sample}.preprocessed.bam"),
+    log:
+        "logs/vg_sort/{sample}.log",
+    params:
+        extra="-n",
+    threads: 16
+    resources:
+        mem="8GB",
+    wrapper:
+        "v5.10.0/bio/samtools/sort"
 
 
 rule reheader_mapped_reads:
@@ -91,12 +104,15 @@ rule reheader_mapped_reads:
     conda:
         "../envs/samtools.yaml"
     log:
-        "logs/reheader/{sample}.log",
+        "logs/reheader/{sample}.log"
     shell:
-        "samtools view {input} -H | sed -E 's/(SN:{params.build}#0#chr)/SN:/; s/SN:M/SN:MT/' | samtools reheader - {input} > {output} 2> {log}"
+        "(samtools view {input} -H |"
+        " sed -E 's/(SN:{params.build}#0#chr)/SN:/; s/SN:M/SN:MT/' | "
+        " samtools reheader - {input} > {output}) 2> {log}"
 
 
-# samtools fixmate requires querysorted input
+# TODO: why do we need this? If still needed, report back to vg team.
+# TODO: does vg output namesorted reads already? Then no sorting is required above.
 rule fix_mate:
     input:
         "results/mapped/vg/{sample}.reheadered.bam",
@@ -119,13 +135,16 @@ rule add_read_group:
     output:
         temp("results/mapped/vg/{sample}.bam"),
     log:
-        "logs/picard/add_rg/{sample}.log",
+        "logs/samtools/add_rg/{sample}.log",
     params:
-        extra=get_vg_read_group,
-    resources:
-        mem_mb=1024,
-    wrapper:
-        "v2.3.2/bio/picard/addorreplacereadgroups"
+        read_group=get_read_group(""),
+        compression_threads=lambda wildcards, threads: f"-@{threads}" if threads > 1 else ""
+    conda:
+        "../envs/samtools.yaml"
+    threads: 4
+    shell:
+        "samtools addreplacerg {input} -o {output} -r {params.read_group} "
+        "-w {params.compression_threads} 2> {log}"
 
 
 rule merge_untrimmed_fastqs:
@@ -176,7 +195,7 @@ rule sort_annotated_reads:
         temp("results/mapped/{aligner}/{sample}.annotated.bam"),
     log:
         "logs/samtools_sort/{aligner}_{sample}.log",
-    threads: 8
+    threads: 16
     wrapper:
         "v3.7.0/bio/samtools/sort"
 
@@ -205,7 +224,7 @@ rule sort_vg_reads:
         temp("results/{subdir}/{sample}.sorted.bam"),
     log:
         "logs/samtools_sort/{subdir}_{sample}.log",
-    threads: 8
+    threads: 16
     wrapper:
         "v5.5.0/bio/samtools/sort"
 
@@ -234,7 +253,7 @@ rule map_consensus_reads:
         temp("results/consensus/{sample}.consensus.{read_type}.mapped.bam"),
     params:
         index=lambda w, input: os.path.splitext(input.idx[0])[0],
-        extra=lambda w: "-C {}".format(get_read_group(w)),
+        extra=lambda w: "-C " + get_read_group("-R")(w),
         sort="samtools",
         sort_order="coordinate",
     wildcard_constraints:
@@ -267,7 +286,7 @@ rule sort_consensus_reads:
         temp("results/consensus/{sample}.bam"),
     log:
         "logs/samtools_sort/{sample}.log",
-    threads: 8
+    threads: 16
     wrapper:
         "v2.3.2/bio/samtools/sort"
 

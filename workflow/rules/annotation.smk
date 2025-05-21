@@ -17,7 +17,9 @@ rule annotate_candidate_variants:
         "logs/vep/{group}.{caller}.{scatteritem}.annotate_candidates.log",
     benchmark:
         "benchmarks/vep/{group}.{caller}.{scatteritem}.annotate_candidates.tsv"
-    threads: get_vep_threads()
+    threads: 4
+    group:
+        "candidate-annotation"
     wrapper:
         "v3.3.5/bio/vep/annotate"
 
@@ -43,7 +45,9 @@ rule annotate_variants:
         ),
     log:
         "logs/vep/{group}.{calling_type}.{scatteritem}.annotate.log",
-    threads: get_vep_threads()
+    threads: 4
+    group:
+        "annotation"
     wrapper:
         "v3.3.5/bio/vep/annotate"
 
@@ -63,8 +67,11 @@ rule annotate_vcfs:
     conda:
         "../envs/snpsift.yaml"
     threads: 4
+    group:
+        "annotation"
     shell:
-        "(bcftools view --threads {threads} {input.bcf} {params.pipes} | bcftools view --threads {threads} -Ob > {output}) 2> {log}"
+        "(bcftools view --threads {threads} {input.bcf} {params.pipes} | "
+        "bcftools view --threads {threads} -Ob > {output}) 2> {log}"
 
 
 rule annotate_dgidb:
@@ -80,8 +87,18 @@ rule annotate_dgidb:
         "../envs/rbt.yaml"
     resources:
         dgidb_requests=1,
+    group:
+        "annotation"
     shell:
         "rbt vcf-annotate-dgidb {input} {params.datasources} > {output} 2> {log}"
+
+
+use rule bcf_index as annotated_index with:
+    group:
+        "annotation"
+
+
+ruleorder: annotated_index > bcf_index
 
 
 rule gather_annotated_calls:
@@ -94,5 +111,7 @@ rule gather_annotated_calls:
         "logs/gather-annotated-calls/{group}.{calling_type}.log",
     params:
         extra="-a",
+    group:
+        "annotation"
     wrapper:
         "v2.3.2/bio/bcftools/concat"
