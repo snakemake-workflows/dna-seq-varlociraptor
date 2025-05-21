@@ -102,5 +102,5 @@ jobs:
           directory: .test
           snakefile: workflow/Snakefile
           args: >
-            --sdm conda --report report.zip ${{ matrix.case.args }}
+            --sdm conda --cores 1 --report report.zip ${{ matrix.case.args }}
           show-disk-usage-on-error: true
