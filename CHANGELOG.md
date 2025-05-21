@@ -1,5 +1,13 @@
 # Changelog
 
+## [5.16.1](https://github.com/snakemake-workflows/dna-seq-varlociraptor/compare/v5.16.0...v5.16.1) (2025-05-21)
+
+
+### Performance Improvements
+
+* improved WGS performance ([#375](https://github.com/snakemake-workflows/dna-seq-varlociraptor/issues/375)) ([3da4251](https://github.com/snakemake-workflows/dna-seq-varlociraptor/commit/3da42514cf16440baeffcd8baad9efb00188dbe0))
+* Update to datavzrd 2.57.0 ([#376](https://github.com/snakemake-workflows/dna-seq-varlociraptor/issues/376)) ([07243e3](https://github.com/snakemake-workflows/dna-seq-varlociraptor/commit/07243e318e4d7bed53364a391952df802ca42d2f))
+
 ## [5.16.0](https://github.com/snakemake-workflows/dna-seq-varlociraptor/compare/v5.15.0...v5.16.0) (2025-03-26)
 
 
