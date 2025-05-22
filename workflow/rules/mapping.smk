@@ -3,13 +3,13 @@ rule map_reads_bwa:
         reads=get_map_reads_input,
         idx=access.random(rules.bwa_index.output),
     output:
-        temp("results/mapped/bwa/{sample}.bam"),
+        temp("results/mapped/bwa/{sample}.raw.bam"),
     log:
         "logs/bwa_mem/{sample}.log",
     params:
         extra=get_read_group("-R "),
-        sorting=get_map_reads_sorting_params,
-        sort_order=lambda wc: get_map_reads_sorting_params(wc, ordering=True),
+        #sorting=get_map_reads_sorting_params,
+        #sort_order=lambda wc: get_map_reads_sorting_params(wc, ordering=True),
     threads: 8
     wrapper:
         "v3.8.0/bio/bwa/mem"
@@ -78,25 +78,9 @@ rule map_reads_vg:
         "v5.7.0/bio/vg/giraffe"
 
 
-rule sort_vg_alignments:
-    input:
-        "results/mapped/vg/{sample}.raw.bam"
-    output:
-        temp("results/mapped/vg/{sample}.preprocessed.bam"),
-    log:
-        "logs/vg_sort/{sample}.log",
-    params:
-        extra="-n",
-    threads: 16
-    resources:
-        mem="8GB",
-    wrapper:
-        "v5.10.0/bio/samtools/sort"
-
-
 rule reheader_mapped_reads:
     input:
-        "results/mapped/vg/{sample}.preprocessed.bam",
+        "results/mapped/vg/{sample}.raw.bam",
     output:
         temp("results/mapped/vg/{sample}.reheadered.bam"),
     params:
@@ -104,15 +88,14 @@ rule reheader_mapped_reads:
     conda:
         "../envs/samtools.yaml"
     log:
-        "logs/reheader/{sample}.log"
+        "logs/reheader/{sample}.log",
     shell:
         "(samtools view {input} -H |"
         " sed -E 's/(SN:{params.build}#0#chr)/SN:/; s/SN:M/SN:MT/' | "
         " samtools reheader - {input} > {output}) 2> {log}"
 
 
-# TODO: why do we need this? If still needed, report back to vg team.
-# TODO: does vg output namesorted reads already? Then no sorting is required above.
+# TODO If namesorted needed move this infront
 rule fix_mate:
     input:
         "results/mapped/vg/{sample}.reheadered.bam",
@@ -125,26 +108,6 @@ rule fix_mate:
         extra="",
     wrapper:
         "v4.7.2/bio/samtools/fixmate"
-
-
-# adding read groups is necessary because base recalibration throws errors
-# for not being able to find read group information
-rule add_read_group:
-    input:
-        "results/mapped/vg/{sample}.mate_fixed.bam",
-    output:
-        temp("results/mapped/vg/{sample}.bam"),
-    log:
-        "logs/samtools/add_rg/{sample}.log",
-    params:
-        read_group=get_read_group(""),
-        compression_threads=lambda wildcards, threads: f"-@{threads}" if threads > 1 else ""
-    conda:
-        "../envs/samtools.yaml"
-    threads: 4
-    shell:
-        "samtools addreplacerg {input} -o {output} -r {params.read_group} "
-        "-w {params.compression_threads} 2> {log}"
 
 
 rule merge_untrimmed_fastqs:
@@ -173,13 +136,25 @@ rule sort_untrimmed_fastqs:
         "fgbio SortFastq -i {input} -o {output} 2> {log}"
 
 
-# fgbio AnnotateBamsWithUmis requires querynamed sorted fastqs and bams
+rule namesort_alignments:
+    input:
+        get_namesort_input,
+    output:
+        temp("results/mapped/{aligner}/{sample}.namesorted.bam"),
+    conda:
+        "../envs/fgbio.yaml"
+    log:
+        "logs/fgbio_sort/{aligner}/{sample}.log",
+    shell:
+        "fgbio SortBam -i {input} -o {output} -s Queryname &> {log}"
+
+
 rule annotate_umis:
     input:
-        bam="results/mapped/{aligner}/{sample}.bam",
+        bam="results/mapped/{aligner}/{sample}.namesorted.bam",
         umi=get_umi_fastq,
     output:
-        pipe("pipe/{aligner}/{sample}.annotated.bam"),
+        temp("results/mapped/{aligner}/{sample}.annotated.bam"),
     params:
         extra=get_annotate_umis_params,
     log:
@@ -188,16 +163,42 @@ rule annotate_umis:
         "v3.7.0/bio/fgbio/annotatebamwithumis"
 
 
-rule sort_annotated_reads:
+# adding read groups is necessary because base recalibration throws errors
+# for not being able to find read group information
+rule add_read_group:
     input:
-        "pipe/{aligner}/{sample}.annotated.bam",
+        get_add_readgroup_input,
     output:
-        temp("results/mapped/{aligner}/{sample}.annotated.bam"),
+        temp("results/mapped/vg/{sample}.bam"),
     log:
-        "logs/samtools_sort/{aligner}_{sample}.log",
+        "logs/samtools/add_rg/{sample}.log",
+    params:
+        read_group=get_read_group(""),
+        compression_threads=lambda wildcards, threads: (
+            f"-@{threads}" if threads > 1 else ""
+        ),
+    conda:
+        "../envs/samtools.yaml"
+    threads: 4
+    shell:
+        "samtools addreplacerg {input} -o {output} -r {params.read_group} "
+        "-w {params.compression_threads} 2> {log}"
+
+
+rule sort_preprocessed_alignments:
+    input:
+        get_preprocessed_sorting_input,
+    output:
+        temp("results/mapped/{aligner}/{sample}.sorted.bam"),
+    log:
+        "logs/sort/{aligner}/{sample}.log",
+    params:
+        extra="-n",
     threads: 16
+    resources:
+        mem="8GB",
     wrapper:
-        "v3.7.0/bio/samtools/sort"
+        "v5.10.0/bio/samtools/sort"
 
 
 rule mark_duplicates:
@@ -215,18 +216,6 @@ rule mark_duplicates:
         mem_mb=3000,
     wrapper:
         "v2.5.0/bio/picard/markduplicates"
-
-
-rule sort_vg_reads:
-    input:
-        "results/{subdir}/{sample}.bam",
-    output:
-        temp("results/{subdir}/{sample}.sorted.bam"),
-    log:
-        "logs/samtools_sort/{subdir}_{sample}.log",
-    threads: 16
-    wrapper:
-        "v5.5.0/bio/samtools/sort"
 
 
 rule calc_consensus_reads:

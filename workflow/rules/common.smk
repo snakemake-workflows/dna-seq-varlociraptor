@@ -445,7 +445,7 @@ def get_markduplicates_input(wildcards):
     if sample_has_umis(wildcards.sample):
         return f"results/mapped/{aligner}/{{sample}}.annotated.bam"
     else:
-        return f"results/mapped/{aligner}/{{sample}}.bam"
+        return f"results/mapped/{aligner}/{{sample}}.sorted.bam"
 
 
 def get_recalibrate_quality_input(wildcards, bai=False):
@@ -471,11 +471,10 @@ def get_consensus_input(wildcards, bai=False):
 def get_trimming_input(wildcards, bai=False):
     ext = "bai" if bai else "bam"
     aligner = get_aligner(wildcards)
-    ext = f"sorted.{ext}" if aligner == "vg" else ext
     if is_activated("remove_duplicates"):
         return "results/dedup/{{sample}}.{ext}".format(ext=ext)
     else:
-        return "results/mapped/{aligner}/{{sample}}.{ext}".format(
+        return "results/mapped/{aligner}/{{sample}}.sorted.{ext}".format(
             aligner=aligner, ext=ext
         )
 
@@ -639,6 +638,7 @@ def get_read_group(prefix: str):
         return r"{prefix}'@RG\tID:{sample}\tSM:{sample}\tPL:{platform}'".format(
             sample=wildcards.sample, platform=platform, prefix=prefix
         )
+
     return inner
 
 
@@ -654,11 +654,29 @@ def get_map_reads_sorting_params(wildcards, ordering=False):
             return "samtools"
 
 
+def get_preprocessed_sorting_input(wildcards):
+    aligner = get_aligner(wildcards)
+    if aligner == "vg":
+        return "results/mapped/{vg}/{sample}.bam"
+    else:
+        return get_add_readgroup_input(wildcards)
+
+
 def get_add_readgroup_input(wildcards):
     if sample_has_umis(wildcards.sample):
-        return "results/mapped/vg/{sample}.annotated.bam"
+        return f"results/mapped/{aligner}/{{sample}}.annotated.bam"
     else:
+        return get_namesort_input(wildcards)
+
+
+def get_namesort_input(wildcards):
+    aligner = get_aligner(wildcards)
+    if aligner == "bwa":
+        return "results/mapped/bwa/{sample}.raw.bam"
+    elif sample_has_primers(wildcards):
         return "results/mapped/vg/{sample}.mate_fixed.bam"
+    else:
+        return "results/mapped/vg/{sample}.reheadered.bam"
 
 
 def get_mutational_burden_targets():
@@ -1467,7 +1485,7 @@ def get_primer_extra(wc, input):
     min_primer_len = get_shortest_primer_length(input.reads)
     # Check if shortest primer is below default values
     if min_primer_len < 32:
-        extra += f" -T {min_primer_len-2}"
+        extra += f" -T {min_primer_len - 2}"
     if min_primer_len < 19:
         extra += f" -k {min_primer_len}"
     return extra
