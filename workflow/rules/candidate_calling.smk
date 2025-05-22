@@ -23,6 +23,32 @@ rule freebayes:
         "v2.7.0/bio/freebayes"
 
 
+rule savana:
+    input:
+        ref=access.random(genome),
+        ref_idx=genome_fai,
+        aln=access.random("results/recal/{sample}.bam"),
+        index="results/recal/{sample}.bai",
+        germline_snvs="results/germline-snvs/{group}.bcf" if germline_events else [],
+    output:
+        bcf="results/candidate-calls/{sample}.savana.bcf",
+        outdir=directory("results/candidate-calls/savana/{sample}"),
+    log:
+        "logs/savana/{sample}.log",
+    params:
+        snvs=lambda w, input: (
+            f"--snp_vcf {input.germline_snvs}" if germline_events else ""
+        ),
+    conda:
+        "../envs/savana.yaml"
+    threads: 16
+    shell:
+        "(savana to --threads {threads} --tumour {input.aln} --ref {input.ref} --outdir {output.outdir}"
+        " {params.snvs} &&"
+        " bcftools view -Ob -o {output.bcf} {output.outdir}/{wildcards.sample}.sv_breakpoints.vcf) "
+        "2>&1 > {log}"
+
+
 rule delly:
     input:
         ref=access.random(genome),
