@@ -75,7 +75,7 @@ rule map_reads_vg:
         sorting="none",
     threads: 64
     wrapper:
-        "v5.7.0/bio/vg/giraffe"
+        "v6.1.0/bio/vg/giraffe"
 
 
 rule reheader_mapped_reads:
@@ -95,7 +95,6 @@ rule reheader_mapped_reads:
         " samtools reheader - {input} > {output}) 2> {log}"
 
 
-# TODO If namesorted needed move this infront
 rule fix_mate:
     input:
         "results/mapped/vg/{sample}.reheadered.bam",
@@ -193,7 +192,7 @@ rule sort_preprocessed_alignments:
     log:
         "logs/sort/{aligner}/{sample}.log",
     params:
-        extra="-n",
+        extra="",
     threads: 16
     resources:
         mem="8GB",
