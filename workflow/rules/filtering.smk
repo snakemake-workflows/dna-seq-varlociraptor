@@ -8,7 +8,7 @@ rule filter_candidates_by_annotation:
         "logs/filter-calls/annotation/{group}.{caller}.{scatteritem}.log",
     params:
         filter=get_candidate_filter_expression,
-        aux=get_candidate_filter_aux(),
+        aux=get_candidate_filter_aux,
     conda:
         "../envs/vembrane.yaml"
     shell:
