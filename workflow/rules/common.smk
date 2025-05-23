@@ -294,7 +294,7 @@ def get_aligner(wildcards):
         return "bwa"
 
 
-def get_cutadapt_input(wildcards):
+def get_fastp_input(wildcards):
     unit = units.loc[wildcards.sample].loc[wildcards.unit]
 
     if pd.isna(unit["fq1"]):
@@ -311,9 +311,7 @@ def get_cutadapt_input(wildcards):
         ending = ".gz" if unit["fq1"].endswith("gz") else ""
 
         def get_reads(fq):
-            return (
-                f"pipe/cutadapt/{unit.sample_name}/{unit.unit_name}.fq1.fastq{ending}"
-            )
+            return f"pipe/fastp/{unit.sample_name}/{unit.unit_name}.fq1.fastq{ending}"
 
     if pd.isna(unit["fq2"]):
         # single end sample
@@ -360,7 +358,7 @@ def get_raw_reads(sample, unit, fq):
     return files
 
 
-def get_cutadapt_pipe_input(wildcards):
+def get_fastp_pipe_input(wildcards):
     return get_raw_reads(wildcards.sample, wildcards.unit, wildcards.fq)
 
 
@@ -368,7 +366,7 @@ def get_fastqc_input(wildcards):
     return get_raw_reads(wildcards.sample, wildcards.unit, wildcards.fq)[0]
 
 
-def get_cutadapt_adapters(wildcards):
+def get_fastp_adapters(wildcards):
     unit = units.loc[wildcards.sample].loc[wildcards.unit]
     try:
         adapters = unit["adapters"]
@@ -377,6 +375,13 @@ def get_cutadapt_adapters(wildcards):
         return ""
     except KeyError:
         return ""
+
+
+def get_fastp_extra(wildcards):
+    extra = config["params"]["fastp"]
+    if sample_has_umis(wildcards.sample):
+        extra += get_annotate_umis_params(wildcards)
+    return extra
 
 
 def is_paired_end(sample):
@@ -442,7 +447,10 @@ def get_sample_datatype(sample):
 
 def get_markduplicates_input(wildcards):
     aligner = get_aligner(wildcards)
-    return f"results/mapped/{aligner}/{{sample}}.sorted.bam"
+    if sample_has_umis(wildcards.sample):
+        return f"results/mapped/{aligner}/{{sample}}.annotated.bam"
+    else:
+        return f"results/mapped/{aligner}/{{sample}}.sorted.bam"
 
 
 def get_recalibrate_quality_input(wildcards, bai=False):
@@ -556,7 +564,7 @@ def get_markduplicates_extra(wc):
     c = config["params"]["picard"]["MarkDuplicates"]
 
     if sample_has_umis(wc.sample):
-        b = "--BARCODE_TAG RX"
+        b = "--BARCODE_TAG BX"
     else:
         b = ""
 
@@ -656,22 +664,6 @@ def get_preprocessed_sorting_input(wildcards):
         return "results/mapped/vg/{sample}.rg.bam"
     else:
         return get_add_readgroup_input(wildcards)
-
-
-def get_add_readgroup_input(wildcards):
-    if sample_has_umis(wildcards.sample):
-        return "results/mapped/{aligner}/{sample}.annotated.bam"
-    else:
-        return get_namesort_input(wildcards)
-
-
-def get_namesort_input(wildcards):
-    if wildcards.aligner == "bwa":
-        return "results/mapped/{aligner}/{sample}.raw.bam"
-    elif sample_has_primers(wildcards):
-        return "results/mapped/{aligner}/{sample}.mate_fixed.bam"
-    else:
-        return "results/mapped/{aligner}/{sample}.reheadered.bam"
 
 
 def get_mutational_burden_targets():
@@ -1415,8 +1407,6 @@ def get_umi_fastq(wildcards):
             S=wildcards.sample,
             R=["fq1", "fq2"],
         )
-    else:
-        return umi_read
 
 
 def sample_has_primers(wildcards):
@@ -1439,8 +1429,12 @@ def sample_has_umis(sample):
 
 
 def get_annotate_umis_params(wildcards):
-    return "--sorted=true -r {}".format(
-        extract_unique_sample_column_value(wildcards.sample, "umi_read_structure")
+    translate_param = {"fq1": "read1", "fq2": "read2", "both": "per_read"}
+    return "--umi --umi_loc {read} --umi_len {umi_len}".format(
+        read=translate_param[
+            extract_unique_sample_column_value(wildcards.sample, "umi_read")
+        ],
+        umi_len=str(extract_unique_sample_column_value(wildcards.sample, "umi_len")),
     )
 
 
@@ -1555,15 +1549,16 @@ def get_fastqc_results(wildcards):
         pattern, unit=sample_units[paired_end_units].itertuples(), fq="fq2"
     )
 
-    # cutadapt
-    if sample_units["adapters"].notna().all():
-        pattern = "results/trimmed/{unit.sample_name}/{unit.unit_name}.{mode}.qc.txt"
-        yield from expand(
-            pattern, unit=sample_units[paired_end_units].itertuples(), mode="paired"
-        )
-        yield from expand(
-            pattern, unit=sample_units[~paired_end_units].itertuples(), mode="single"
-        )
+    # Todo can this be replaced by fastp?
+    # # cutadapt
+    # if sample_units["adapters"].notna().all():
+    #     pattern = "results/trimmed/{unit.sample_name}/{unit.unit_name}.{mode}.qc.txt"
+    #     yield from expand(
+    #         pattern, unit=sample_units[paired_end_units].itertuples(), mode="paired"
+    #     )
+    #     yield from expand(
+    #         pattern, unit=sample_units[~paired_end_units].itertuples(), mode="single"
+    #     )
 
     # samtools idxstats
     yield from expand(

@@ -3,7 +3,7 @@ rule map_reads_bwa:
         reads=get_map_reads_input,
         idx=access.random(rules.bwa_index.output),
     output:
-        temp("results/mapped/bwa/{sample}.raw.bam"),
+        temp("results/mapped/bwa/{sample}.bam"),
     log:
         "logs/bwa_mem/{sample}.log",
     params:
@@ -109,69 +109,20 @@ rule fix_mate:
         "v4.7.2/bio/samtools/fixmate"
 
 
-rule merge_untrimmed_fastqs:
-    input:
-        get_untrimmed_fastqs,
-    output:
-        temp("results/untrimmed/{sample}_{read}.fastq.gz"),
-    log:
-        "logs/merge-fastqs/untrimmed/{sample}_{read}.log",
-    wildcard_constraints:
-        read="fq1|fq2",
-    shell:
-        "cat {input} > {output} 2> {log}"
-
-
-rule sort_untrimmed_fastqs:
-    input:
-        "results/untrimmed/{sample}_{read}.fastq.gz",
-    output:
-        temp("results/untrimmed/{sample}_{read}.sorted.fastq.gz"),
-    conda:
-        "../envs/fgbio.yaml"
-    log:
-        "logs/fgbio/sort_fastq/{sample}_{read}.log",
-    shell:
-        "fgbio SortFastq -i {input} -o {output} 2> {log}"
-
-
-rule namesort_alignments:
-    input:
-        get_namesort_input,
-    output:
-        temp("results/mapped/{aligner}/{sample}.namesorted.bam"),
-    conda:
-        "../envs/fgbio.yaml"
-    log:
-        "logs/fgbio_sort/{aligner}/{sample}.log",
-    shell:
-        "fgbio SortBam -i {input} -o {output} -s Queryname &> {log}"
-
-
-rule annotate_umis:
-    input:
-        bam="results/mapped/{aligner}/{sample}.namesorted.bam",
-        umi=get_umi_fastq,
-    output:
-        temp("results/mapped/{aligner}/{sample}.annotated.bam"),
-    params:
-        extra=get_annotate_umis_params,
-    log:
-        "logs/fgbio/annotate_bam/{aligner}/{sample}.log",
-    wrapper:
-        "v3.7.0/bio/fgbio/annotatebamwithumis"
-
-
 # adding read groups is exclusive to vg mapped reads and
 # necessary because base recalibration throws errors
 # for not being able to find read group information
 rule add_read_group:
     input:
-        get_add_readgroup_input,
+        lambda wc: (
+            "results/mapped/vg/{sample}.mate_fixed.bam"
+            if sample_has_primers(wc)
+            else "results/mapped/vg/{sample}.reheadered.bam"
+        ),
     output:
-        temp("results/mapped/{aligner}/{sample}.rg.bam"),
+        temp("results/mapped/vg/{sample}.bam"),
     log:
-        "logs/samtools/add_rg/{aligner}_{sample}.log",
+        "logs/samtools/add_rg/{sample}.log",
     params:
         read_group=get_read_group(""),
         compression_threads=lambda wildcards, threads: (
@@ -185,9 +136,9 @@ rule add_read_group:
         "-w {params.compression_threads} 2> {log}"
 
 
-rule sort_preprocessed_alignments:
+rule sort_alignments:
     input:
-        get_preprocessed_sorting_input,
+        "results/mapped/{aligner}/{sample}.bam",
     output:
         temp("results/mapped/{aligner}/{sample}.sorted.bam"),
     log:
@@ -199,6 +150,20 @@ rule sort_preprocessed_alignments:
         mem="8GB",
     wrapper:
         "v5.10.0/bio/samtools/sort"
+
+
+rule annotate_umis:
+    input:
+        bam="results/mapped/{aligner}/{sample}.sorted.bam",
+        idx="results/mapped/{aligner}/{sample}.sorted.bai",
+    output:
+        temp("results/mapped/{aligner}/{sample}.annotated.bam"),
+    conda:
+        "../envs/umi_tools.yaml"
+    log:
+        "logs/annotate_bam/{aligner}/{sample}.log",
+    shell:
+        "umi_tools group -I {input.bam} --paired --umi-separator : --output-bam -S {output} &> {log}"
 
 
 rule mark_duplicates:
