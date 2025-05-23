@@ -653,27 +653,25 @@ def get_map_reads_sorting_params(wildcards, ordering=False):
 
 def get_preprocessed_sorting_input(wildcards):
     if wildcards.aligner == "vg":
-        return "results/mapped/vg/{sample}.bam"
+        return "results/mapped/vg/{sample}.rg.bam"
     else:
         return get_add_readgroup_input(wildcards)
 
 
 def get_add_readgroup_input(wildcards):
-    aligner = get_aligner(wildcards)
     if sample_has_umis(wildcards.sample):
-        return f"results/mapped/{aligner}/{{sample}}.annotated.bam"
+        return "results/mapped/{aligner}/{sample}.annotated.bam"
     else:
         return get_namesort_input(wildcards)
 
 
 def get_namesort_input(wildcards):
-    aligner = get_aligner(wildcards)
-    if aligner == "bwa":
-        return "results/mapped/bwa/{sample}.raw.bam"
+    if wildcards.aligner == "bwa":
+        return "results/mapped/{aligner}/{sample}.raw.bam"
     elif sample_has_primers(wildcards):
-        return "results/mapped/vg/{sample}.mate_fixed.bam"
+        return "results/mapped/{aligner}/{sample}.mate_fixed.bam"
     else:
-        return "results/mapped/vg/{sample}.reheadered.bam"
+        return "results/mapped/{aligner}/{sample}.reheadered.bam"
 
 
 def get_mutational_burden_targets():

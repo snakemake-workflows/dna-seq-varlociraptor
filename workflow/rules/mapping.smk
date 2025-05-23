@@ -162,15 +162,16 @@ rule annotate_umis:
         "v3.7.0/bio/fgbio/annotatebamwithumis"
 
 
-# adding read groups is necessary because base recalibration throws errors
+# adding read groups is exclusive to vg mapped reads and
+# necessary because base recalibration throws errors
 # for not being able to find read group information
 rule add_read_group:
     input:
         get_add_readgroup_input,
     output:
-        temp("results/mapped/vg/{sample}.bam"),
+        temp("results/mapped/{aligner}/{sample}.rg.bam"),
     log:
-        "logs/samtools/add_rg/{sample}.log",
+        "logs/samtools/add_rg/{aligner}_{sample}.log",
     params:
         read_group=get_read_group(""),
         compression_threads=lambda wildcards, threads: (
