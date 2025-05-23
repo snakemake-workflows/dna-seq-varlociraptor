@@ -919,7 +919,8 @@ def get_annotation_filter_aux(wildcards, input):
 
 def get_annotation_filter_aux_files(wildcards):
     return [
-        path
+        # aux files are considered as part of the config, hence local
+        local(path)
         for filter_name in get_annotation_filter_names(wildcards)
         for name, path in get_filter_aux_entries(filter_name).items()
     ]
@@ -938,16 +939,17 @@ def get_candidate_filter_aux_files():
     if "candidates" not in config["calling"]["filter"]:
         return []
     else:
-        return [path for name, path in get_filter_aux_entries("candidates").items()]
+        # aux files are considered as part of the config, hence local
+        return [local(path) for name, path in get_filter_aux_entries("candidates").items()]
 
 
-def get_candidate_filter_aux():
+def get_candidate_filter_aux(wildcards, input):
     if "candidates" not in config["calling"]["filter"]:
         return ""
     else:
         return [
             f"--aux {name}={path}"
-            for name, path in get_filter_aux_entries("candidates").items()
+            for name, path in zip(get_filter_aux_entries("candidates").keys(), input.aux)
         ]
 
 
