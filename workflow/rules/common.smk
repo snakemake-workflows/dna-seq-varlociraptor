@@ -442,10 +442,7 @@ def get_sample_datatype(sample):
 
 def get_markduplicates_input(wildcards):
     aligner = get_aligner(wildcards)
-    if sample_has_umis(wildcards.sample):
-        return f"results/mapped/{aligner}/{{sample}}.annotated.bam"
-    else:
-        return f"results/mapped/{aligner}/{{sample}}.sorted.bam"
+    return f"results/mapped/{aligner}/{{sample}}.sorted.bam"
 
 
 def get_recalibrate_quality_input(wildcards, bai=False):
@@ -655,14 +652,14 @@ def get_map_reads_sorting_params(wildcards, ordering=False):
 
 
 def get_preprocessed_sorting_input(wildcards):
-    aligner = get_aligner(wildcards)
-    if aligner == "vg":
-        return "results/mapped/{vg}/{sample}.bam"
+    if wildcards.aligner == "vg":
+        return "results/mapped/vg/{sample}.bam"
     else:
         return get_add_readgroup_input(wildcards)
 
 
 def get_add_readgroup_input(wildcards):
+    aligner = get_aligner(wildcards)
     if sample_has_umis(wildcards.sample):
         return f"results/mapped/{aligner}/{{sample}}.annotated.bam"
     else:
