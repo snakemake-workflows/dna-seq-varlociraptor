@@ -1,5 +1,12 @@
 # Changelog
 
+## [5.16.2](https://github.com/snakemake-workflows/dna-seq-varlociraptor/compare/v5.16.1...v5.16.2) (2025-05-23)
+
+
+### Bug Fixes
+
+* consider aux files as local (they are part of the config, which is always considered local) ([#379](https://github.com/snakemake-workflows/dna-seq-varlociraptor/issues/379)) ([4341b5e](https://github.com/snakemake-workflows/dna-seq-varlociraptor/commit/4341b5ea0d9ee30adfeed148b65ce719b7bd5812))
+
 ## [5.16.1](https://github.com/snakemake-workflows/dna-seq-varlociraptor/compare/v5.16.0...v5.16.1) (2025-05-21)
 
 
