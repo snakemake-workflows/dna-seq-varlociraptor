@@ -78,7 +78,7 @@ annotations:
 
 
 params:
-  cutadapt: ""
+  fastp: ""
   picard:
     MarkDuplicates: ""
   gatk:
