@@ -1549,16 +1549,15 @@ def get_fastqc_results(wildcards):
         pattern, unit=sample_units[paired_end_units].itertuples(), fq="fq2"
     )
 
-    # Todo can this be replaced by fastp?
-    # # cutadapt
-    # if sample_units["adapters"].notna().all():
-    #     pattern = "results/trimmed/{unit.sample_name}/{unit.unit_name}.{mode}.qc.txt"
-    #     yield from expand(
-    #         pattern, unit=sample_units[paired_end_units].itertuples(), mode="paired"
-    #     )
-    #     yield from expand(
-    #         pattern, unit=sample_units[~paired_end_units].itertuples(), mode="single"
-    #     )
+    # fastp
+    if sample_units["adapters"].notna().all():
+        pattern = "results/trimmed/{unit.sample_name}/{unit.unit_name}.{mode}.qc.html"
+        yield from expand(
+            pattern, unit=sample_units[paired_end_units].itertuples(), mode="paired"
+        )
+        yield from expand(
+            pattern, unit=sample_units[~paired_end_units].itertuples(), mode="single"
+        )
 
     # samtools idxstats
     yield from expand(

@@ -8,8 +8,6 @@ rule map_reads_bwa:
         "logs/bwa_mem/{sample}.log",
     params:
         extra=get_read_group("-R "),
-        #sorting=get_map_reads_sorting_params,
-        #sort_order=lambda wc: get_map_reads_sorting_params(wc, ordering=True),
     threads: 8
     wrapper:
         "v3.8.0/bio/bwa/mem"
