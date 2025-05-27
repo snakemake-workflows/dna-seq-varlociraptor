@@ -195,7 +195,7 @@ class PopulationDb:
         )
 
     def _load_variants(self):
-        return self.bcf.fetch(str(self.contig), self.pos, self.end)
+        return self.bcf.fetch(str(self.contig), self.pos - 1, self.end)
 
     @property
     def end(self):
@@ -233,7 +233,7 @@ calls = pd.read_csv(
     # Also, vembrane table as the tool producing the input seems to encode actual
     # `NA` values as empty column entries or `None` values, based on tests. So only
     # the empty string and `None` should be considered here.
-    na_values=["", "None"]
+    na_values=["", "None"],
 )
 calls["clinical significance"] = (
     calls["clinical significance"]
