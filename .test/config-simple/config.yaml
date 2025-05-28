@@ -81,7 +81,7 @@ annotations:
 
 
 params:
-  cutadapt: ""
+  fastp: ""
   picard:
     MarkDuplicates: "--VALIDATION_STRINGENCY LENIENT"
   gatk:

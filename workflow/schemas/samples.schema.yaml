@@ -50,11 +50,11 @@ properties:
     description: ID of primer panel
   umi_read:
     type: string
-    pattern: "(^(fq[1,2]|both)$)|(.(fq|fastq)(.gz)?)$"
+    pattern: "^(fq[1,2]|both)$"
     description: fq1 or fq2 for read containing umis
-  umi_read_structure:
-    type: string
-    description: read structure defining position of UMIs in reads (see https://github.com/fulcrumgenomics/fgbio/wiki/Read-Structures)
+  umi_len:
+    type: number
+    description: length of UMI
 
 required:
   - sample_name
@@ -65,4 +65,4 @@ required:
   - calling
 
 dependentRequired:
-  umi_read: ["umi_read_structure"]
+  umi_read: ["umi_len"]

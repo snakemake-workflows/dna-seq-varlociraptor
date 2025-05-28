@@ -261,7 +261,7 @@ tables:
   generate_excel: true
 
 params:
-  cutadapt: ""
+  fastp: ""
   picard:
     MarkDuplicates: "--VALIDATION_STRINGENCY LENIENT"
   gatk:

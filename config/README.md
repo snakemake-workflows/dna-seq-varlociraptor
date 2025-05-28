@@ -27,7 +27,8 @@ For each sample, add one or more sequencing units (runs, lanes or replicates) to
   * `fq1` and `fq2` for paired end reads. These can point to any FASTQ files on your system
   * `sra` only: specify an SRA (sequence read archive) accession (starting with e.g. ERR or SRR). The pipeline will automatically download the corresponding paired end reads from SRA.
   * If both local files (`fq1`, `fq2`) and SRA accession (`sra`) are available, the local files will be used.
-* Define adapters in the `adapters` column, by putting [cutadapt arguments](https://cutadapt.readthedocs.org) in quotation marks (e.g. `"-a ACGCGATCG -A GCTAGCGTACT"`).
+* Define adapters in the `adapters` column, by putting [fastp arguments](https://github.com/OpenGene/fastp?tab=readme-ov-file#adapters) in quotation marks (e.g. `"--adapter_sequence ACGCGATCG --adapter_sequence_r2 GCTAGCGTACT"`).
+Automatic adapter trimming can be enabled by setting the keyword `auto_trim` (Please consider the [fastp documentation](https://github.com/OpenGene/fastp) for flags to put here to configure the automatic trimming behavior more explicitly). If the column is empty no trimming will be performed.
 
 Missing values can be specified by empty columns or by writing `NA`. Lines can be commented out with `#`.
 
@@ -57,7 +58,5 @@ For annotating UMIs two additional columns in `sample.tsv` must be set:
   * `fq1` if the UMIs are part of read 1
   * `fq2` if the UMIs are part of read 2
   * `both` if there are UMIs in both paired end reads
-  * the path to an additional fastq file containing just the UMI of each fragment in fq1 and fq2 (with the same read names)
-* `umi_read_structure`: A read structure defining the UMI position in each UMI record (see https://github.com/fulcrumgenomics/fgbio/wiki/Read-Structures). If `both` reads contain a UMI, specify a read structure for both with whitespace in between (for example, `8M142T 8M142T`). In case a separate fastq file only containg UMI sequences is set the read structure needs to be `+M`.
-Read names of UMI records must match the corresponding records of the sample fastqs.
+* `umi_len`: Number of bases (UMI length) to be annotated as UMI.
 

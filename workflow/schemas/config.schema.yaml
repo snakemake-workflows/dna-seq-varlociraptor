@@ -306,7 +306,7 @@ properties:
   params:
     type: object
     properties:
-      cutadapt:
+      fastp:
         type: string
       gatk:
         type: object
@@ -343,7 +343,7 @@ properties:
     required:
       - gatk
       - picard
-      - cutadapt
+      - fastp
       - freebayes
       - varlociraptor
 
