@@ -1,5 +1,16 @@
 # Changelog
 
+## [6.0.0](https://github.com/snakemake-workflows/dna-seq-varlociraptor/compare/v5.16.2...v6.0.0) (2025-05-28)
+
+
+### ⚠ BREAKING CHANGES
+
+* fix handling of querysorted reads, replaced cutadapt by fastp, additional performance improvements and tool updates ([#378](https://github.com/snakemake-workflows/dna-seq-varlociraptor/issues/378))
+
+### Features
+
+* fix handling of querysorted reads, replaced cutadapt by fastp, additional performance improvements and tool updates ([#378](https://github.com/snakemake-workflows/dna-seq-varlociraptor/issues/378)) ([4c28667](https://github.com/snakemake-workflows/dna-seq-varlociraptor/commit/4c2866750d4259a2a3e9f7ca1aaefc5d803df315))
+
 ## [5.16.2](https://github.com/snakemake-workflows/dna-seq-varlociraptor/compare/v5.16.1...v5.16.2) (2025-05-23)
 
 
