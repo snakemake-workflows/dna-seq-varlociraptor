@@ -371,7 +371,12 @@ def get_fastp_adapters(wildcards):
     try:
         adapters = unit["adapters"]
         if isinstance(adapters, str):
-            return adapters
+            # Autotrimming is enabled by default.
+            # Therefore no adapter parameter needs to be passed.
+            if adapters == "auto_trim":
+                return ""
+            else:
+                return adapters
         return ""
     except KeyError:
         return ""
