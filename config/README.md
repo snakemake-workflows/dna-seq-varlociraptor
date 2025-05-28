@@ -28,7 +28,7 @@ For each sample, add one or more sequencing units (runs, lanes or replicates) to
   * `sra` only: specify an SRA (sequence read archive) accession (starting with e.g. ERR or SRR). The pipeline will automatically download the corresponding paired end reads from SRA.
   * If both local files (`fq1`, `fq2`) and SRA accession (`sra`) are available, the local files will be used.
 * Define adapters in the `adapters` column, by putting [fastp arguments](https://github.com/OpenGene/fastp?tab=readme-ov-file#adapters) in quotation marks (e.g. `"--adapter_sequence ACGCGATCG --adapter_sequence_r2 GCTAGCGTACT"`).
-Automatic adapter trimming can be enabled by setting the keyword `auto_trim` (Please consider the fastp documentation for paired end auto trimming). If the column is empty no trimming will be performed.
+Automatic adapter trimming can be enabled by setting the keyword `auto_trim` (Please consider the [fastp documentation](https://github.com/OpenGene/fastp) for flags to put here instead configure the automatic trimming behavior more explicitly). If the column is empty no trimming will be performed.
 
 Missing values can be specified by empty columns or by writing `NA`. Lines can be commented out with `#`.
 
