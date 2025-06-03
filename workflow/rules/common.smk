@@ -1555,11 +1555,13 @@ def get_variant_oncoprint_tables(wildcards, input):
     else:
         return []
 
+
 def get_any_event(wildcards):
     if wildcards.any_event in COMPLEMENT_EVENTS:
         return config["complement_events"][wildcards.any_event]
     else:
         return config["calling"]["fdr-control"]["events"][wildcards.any_event]
+
 
 def get_datavzrd_report_labels(wildcards):
     event = get_any_event(wildcards)

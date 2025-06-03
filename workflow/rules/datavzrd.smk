@@ -7,9 +7,19 @@ rule split_call_tables:
         coding="results/tables/{group}.{any_event}.coding.fdr-controlled.tsv",
         noncoding="results/tables/{group}.{any_event}.noncoding.fdr-controlled.tsv",
     params:
-        sorting=lambda wc:
-            lookup(within=config, dpath="complement_events/{wc.any_event}/sort", default=list()) if wc.any_event in COMPLEMENT_EVENTS else
-            lookup(within=config, dpath="calling/fdr-control/events/{wc.any_event}/sort", default=list()),
+        sorting=lambda wc: (
+            lookup(
+                within=config,
+                dpath="complement_events/{wc.any_event}/sort",
+                default=list(),
+            )
+            if wc.any_event in COMPLEMENT_EVENTS
+            else lookup(
+                within=config,
+                dpath="calling/fdr-control/events/{wc.any_event}/sort",
+                default=list(),
+            )
+        ),
     log:
         "logs/split_tables/{group}.{any_event}.log",
     conda:

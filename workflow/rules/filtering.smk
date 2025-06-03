@@ -114,11 +114,15 @@ rule complement_event:
     input:
         full=lambda w: expand(
             "results/final-calls/{{group}}.{full_event}.{{calling_type}}.fdr-controlled.bcf",
-            full_event=lookup(within=config, dpath=f"complement_events/{w.complement_event}/full"),
+            full_event=lookup(
+                within=config, dpath=f"complement_events/{w.complement_event}/full"
+            ),
         ),
         full_idx=lambda w: expand(
             "results/final-calls/{{group}}.{full_event}.{{calling_type}}.fdr-controlled.bcf.csi",
-            full_event=lookup(within=config, dpath=f"complement_events/{w.complement_event}/full"),
+            full_event=lookup(
+                within=config, dpath=f"complement_events/{w.complement_event}/full"
+            ),
         ),
         exclude="results/final_merged/{group}.{complement_event}.{calling_type}.merged_exclude.bcf",
         exclude_idx="results/final_merged/{group}.{complement_event}.{calling_type}.merged_exclude.bcf.csi",
