@@ -55,7 +55,7 @@ calling:
     # Retain artifacts upon FDR control (i.e. do not remove them from the callset,
     # see https://varlociraptor.github.io/docs/filtering)
     # Only applies in smart mode (local-smart or global-smart).
-    retain-artifacts: true
+    retain-artifacts: false
     events: 
       moderate:
         varlociraptor: 
