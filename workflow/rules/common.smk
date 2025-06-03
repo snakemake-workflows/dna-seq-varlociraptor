@@ -141,6 +141,15 @@ def get_calling_events(calling_type):
         for event, entries in config["calling"]["fdr-control"]["events"].items()
         if calling_type in entries.get("types", ["variants"])
     ]
+    complement_events = config.get("complement_events")
+    if complement_events:
+        events.extend(
+            [
+                ce
+                for ce, entries in complement_events.items()
+                if calling_type in entries.get("types", ["variants"])
+            ]
+        )
     return events
 
 
@@ -446,6 +455,20 @@ def get_markduplicates_input(wildcards):
         return f"results/mapped/{aligner}/{{sample}}.annotated.bam"
     else:
         return f"results/mapped/{aligner}/{{sample}}.bam"
+
+
+def get_merge_exclude_events_input(ext="bcf"):
+    def inner(wildcards):
+        events = config['complement_events'][wildcards.complement_event]['remove']
+        return expand(
+            "results/final-calls/{g}.{e}.{calling_type}.fdr-controlled.{ext}",
+            g=wildcards.group,
+            e=events,
+            calling_type=wildcards.calling_type,
+            ext=ext,
+        )
+    
+    return inner
 
 
 def get_recalibrate_quality_input(wildcards, bai=False):
@@ -975,13 +998,15 @@ def get_varlociraptor_params(wildcards, params):
         params += " --propagate-info-fields GENE_NAME GENE_ID EXON_NUMBER"
     return params
 
+COMPLEMENT_EVENTS = config.get("complement_events", {}).keys()
 
 wildcard_constraints:
     group="|".join(groups),
     sample="|".join(samples["sample_name"]),
     caller="|".join(["freebayes", "delly", "arriba"]),
     filter="|".join(config["calling"]["filter"]),
-    event="|".join(config["calling"]["fdr-control"]["events"].keys()),
+    event="|".join(config["calling"]["fdr-control"]["events"].keys() ^ COMPLEMENT_EVENTS),
+    complement_event="|".join(COMPLEMENT_EVENTS),
     regions_type="|".join(["expanded", "covered"]),
     calling_type="|".join(["fusions", "variants"]),
 

@@ -95,6 +95,46 @@ rule merge_calls:
         "v2.3.2/bio/bcftools/concat"
 
 
+rule merge_exclude_events:
+    input:
+        calls=get_merge_exclude_events_input(".bcf"),
+        idx=get_merge_exclude_events_input(".bcf.csi"),
+    output:
+        "results/final_merged/{group}.{complement_event}.{calling_type}.merged_exclude.bcf"
+    log:
+        "logs/merge_exclude_events/{group}.{complement_event}.{calling_type}.log"
+    params:
+        extra="-a",
+    threads: 4
+    wrapper:
+        "v6.2.0/bio/bcftools/concat"
+
+
+rule complement_event:
+    input:
+        full=lambda w: expand(
+            "results/final-calls/{{group}}.{full_event}.{calling_type}.fdr-controlled.norm.bcf",
+            full_event=config['calling']['complement'][w.complement_event]['full'],
+        ),
+        exclude="results/final_merged/{group}.{complement_event}.{calling_type}.merged_exclude.bcf",
+    output:
+        "results/final-calls/{group}.{complement_event}.{calling_type}.fdr-controlled.bcf",
+    log:
+        "logs/complement_event/{group}.{complement_event}.{calling_type}.bcf",
+    conda:
+        "../envs/bcftools.yaml"
+    params:
+        aliases = lambda w: ','.join(list(samples.loc[samples['group'] == w.group, 'alias']))
+    threads: 3
+    shell:
+        """
+        ( bcftools merge --force-samples {input.full} {input.exclude} | 
+          bcftools view -i 'COUNT(FORMAT/DP==".")>1' | 
+          bcftools view -s '{params.aliases}' 
+          >{output} ) 2> {log}
+        """
+
+
 rule convert_phred_scores:
     input:
         "results/final-calls/{group}.{event}.{calling_type}.fdr-controlled.bcf",
