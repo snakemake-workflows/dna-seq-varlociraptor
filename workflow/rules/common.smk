@@ -1007,10 +1007,11 @@ wildcard_constraints:
     sample="|".join(samples["sample_name"]),
     caller="|".join(["freebayes", "delly", "arriba"]),
     filter="|".join(config["calling"]["filter"]),
-    event="|".join(
+    event="|".join(config["calling"]["fdr-control"]["events"].keys()),
+    complement_event="|".join(COMPLEMENT_EVENTS),
+    any_event="|".join(
         config["calling"]["fdr-control"]["events"].keys() ^ COMPLEMENT_EVENTS
     ),
-    complement_event="|".join(COMPLEMENT_EVENTS),
     regions_type="|".join(["expanded", "covered"]),
     calling_type="|".join(["fusions", "variants"]),
 
@@ -1519,13 +1520,13 @@ def get_datavzrd_data(impact="coding"):
     if impact == "fusions":
         impact = "fusions.joined"
         calling_type = "fusions"
-    pattern = "results/tables/{group}.{event}.{impact}.fdr-controlled.tsv"
+    pattern = "results/tables/{group}.{any_event}.{impact}.fdr-controlled.tsv"
 
     def inner(wildcards):
         return expand(
             pattern,
             impact=impact,
-            event=wildcards.event,
+            event=wildcards.any_event,
             group=get_report_batch(calling_type),
         )
 
@@ -1535,9 +1536,9 @@ def get_datavzrd_data(impact="coding"):
 def get_oncoprint_input(wildcards):
     groups = get_report_batch("variants")
     return expand(
-        "results/tables/{group}.{event}.coding.fdr-controlled.tsv",
+        "results/tables/{group}.{any_event}.coding.fdr-controlled.tsv",
         group=groups,
-        event=wildcards.event,
+        any_event=wildcards.any_event,
     )
 
 
@@ -1554,9 +1555,14 @@ def get_variant_oncoprint_tables(wildcards, input):
     else:
         return []
 
+def get_any_event(wildcards):
+    if wildcards.any_event in COMPLEMENT_EVENTS:
+        return config["complement_events"][wildcards.any_event]
+    else:
+        return config["calling"]["fdr-control"]["events"][wildcards.any_event]
 
 def get_datavzrd_report_labels(wildcards):
-    event = config["calling"]["fdr-control"]["events"][wildcards.event]
+    event = get_any_event(wildcards)
     labels = {"batch": wildcards.batch}
     if "labels" in event:
         labels.update({key: str(value) for key, value in event["labels"].items()})
@@ -1566,7 +1572,7 @@ def get_datavzrd_report_labels(wildcards):
 
 
 def get_datavzrd_report_subcategory(wildcards):
-    event = config["calling"]["fdr-control"]["events"][wildcards.event]
+    event = get_any_event(wildcards)
     return event.get("subcategory", None)
 
 
@@ -1617,7 +1623,7 @@ def get_oncoprint(oncoprint_type):
     def inner(wildcards):
         if len(_get_report_batch("variants", wildcards.batch)) > 1:
             oncoprint_path = (
-                f"results/tables/oncoprints/{wildcards.batch}.{wildcards.event}"
+                f"results/tables/oncoprints/{wildcards.batch}.{wildcards.any_event}"
             )
             if oncoprint_type == "gene":
                 return f"{oncoprint_path}/gene-oncoprint.tsv"

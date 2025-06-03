@@ -97,8 +97,8 @@ rule merge_calls:
 
 rule merge_exclude_events:
     input:
-        calls=get_merge_exclude_events_input(".bcf"),
-        idx=get_merge_exclude_events_input(".bcf.csi"),
+        calls=get_merge_exclude_events_input("bcf"),
+        idx=get_merge_exclude_events_input("bcf.csi"),
     output:
         "results/final_merged/{group}.{complement_event}.{calling_type}.merged_exclude.bcf",
     log:
@@ -113,14 +113,19 @@ rule merge_exclude_events:
 rule complement_event:
     input:
         full=lambda w: expand(
-            "results/final-calls/{{group}}.{full_event}.{calling_type}.fdr-controlled.norm.bcf",
-            full_event=config["calling"]["complement"][w.complement_event]["full"],
+            "results/final-calls/{{group}}.{full_event}.{{calling_type}}.fdr-controlled.bcf",
+            full_event=lookup(within=config, dpath=f"complement_events/{w.complement_event}/full"),
+        ),
+        full_idx=lambda w: expand(
+            "results/final-calls/{{group}}.{full_event}.{{calling_type}}.fdr-controlled.bcf.csi",
+            full_event=lookup(within=config, dpath=f"complement_events/{w.complement_event}/full"),
         ),
         exclude="results/final_merged/{group}.{complement_event}.{calling_type}.merged_exclude.bcf",
+        exclude_idx="results/final_merged/{group}.{complement_event}.{calling_type}.merged_exclude.bcf.csi",
     output:
         "results/final-calls/{group}.{complement_event}.{calling_type}.fdr-controlled.bcf",
     log:
-        "logs/complement_event/{group}.{complement_event}.{calling_type}.bcf",
+        "logs/complement_event/{group}.{complement_event}.{calling_type}.log",
     conda:
         "../envs/bcftools.yaml"
     params:
@@ -130,20 +135,17 @@ rule complement_event:
     threads: 3
     shell:
         """
-        ( bcftools merge --force-samples {input.full} {input.exclude} | 
-          bcftools view -i 'COUNT(FORMAT/DP==".")>1' | 
-          bcftools view -s '{params.aliases}' 
-          >{output} ) 2> {log}
+        bcftools isec {input.full} {input.exclude} -n~10 -w 1 --output-type b --output {output} 2>{log} 
         """
 
 
 rule convert_phred_scores:
     input:
-        "results/final-calls/{group}.{event}.{calling_type}.fdr-controlled.bcf",
+        "results/final-calls/{group}.{any_event}.{calling_type}.fdr-controlled.bcf",
     output:
-        "results/final-calls/{group}.{event}.{calling_type}.fdr-controlled.normal-probs.bcf",
+        "results/final-calls/{group}.{any_event}.{calling_type}.fdr-controlled.normal-probs.bcf",
     log:
-        "logs/convert-phred-scores/{group}.{event}.{calling_type}.log",
+        "logs/convert-phred-scores/{group}.{any_event}.{calling_type}.log",
     conda:
         "../envs/varlociraptor.yaml"
     shell:

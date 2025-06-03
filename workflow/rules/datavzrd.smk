@@ -1,17 +1,17 @@
 rule split_call_tables:
     input:
-        calls="results/tables/{group}.{event}.variants.fdr-controlled.tsv",
+        calls="results/tables/{group}.{any_event}.variants.fdr-controlled.tsv",
         population_db=get_cleaned_population_db(),
         population_db_idx=get_cleaned_population_db(idx=True),
     output:
-        coding="results/tables/{group}.{event}.coding.fdr-controlled.tsv",
-        noncoding="results/tables/{group}.{event}.noncoding.fdr-controlled.tsv",
+        coding="results/tables/{group}.{any_event}.coding.fdr-controlled.tsv",
+        noncoding="results/tables/{group}.{any_event}.noncoding.fdr-controlled.tsv",
     params:
-        sorting=lambda wc: config["calling"]["fdr-control"]["events"][wc.event].get(
-            "sort", list()
-        ),
+        sorting=lambda wc:
+            lookup(within=config, dpath="complement_events/{wc.any_event}/sort", default=list()) if wc.any_event in COMPLEMENT_EVENTS else
+            lookup(within=config, dpath="calling/fdr-control/events/{wc.any_event}/sort", default=list()),
     log:
-        "logs/split_tables/{group}.{event}.log",
+        "logs/split_tables/{group}.{any_event}.log",
     conda:
         "../envs/split_call_tables.yaml"
     script:
@@ -20,11 +20,11 @@ rule split_call_tables:
 
 rule process_fusion_call_tables:
     input:
-        "results/tables/{group}.{event}.fusions.fdr-controlled.tsv",
+        "results/tables/{group}.{any_event}.fusions.fdr-controlled.tsv",
     output:
-        fusions="results/tables/{group}.{event}.fusions.joined.fdr-controlled.tsv",
+        fusions="results/tables/{group}.{any_event}.fusions.joined.fdr-controlled.tsv",
     log:
-        "logs/join_partner/{group}.{event}.log",
+        "logs/join_partner/{group}.{any_event}.log",
     conda:
         "../envs/pandas.yaml"
     script:
@@ -36,15 +36,15 @@ rule prepare_oncoprint:
         calls=get_oncoprint_input,
         group_annotation=config.get("groups", []),
     output:
-        gene_oncoprint="results/tables/oncoprints/{batch}.{event}/gene-oncoprint.tsv",
+        gene_oncoprint="results/tables/oncoprints/{batch}.{any_event}/gene-oncoprint.tsv",
         gene_oncoprint_sortings=directory(
-            "results/tables/oncoprints/{batch}.{event}/label_sortings/"
+            "results/tables/oncoprints/{batch}.{any_event}/label_sortings/"
         ),
         variant_oncoprints=directory(
-            "results/tables/oncoprints/{batch}.{event}/variant-oncoprints"
+            "results/tables/oncoprints/{batch}.{any_event}/variant-oncoprints"
         ),
     log:
-        "logs/prepare_oncoprint/{batch}.{event}.log",
+        "logs/prepare_oncoprint/{batch}.{any_event}.log",
     params:
         groups=get_report_batch("variants"),
         labels=get_heterogeneous_labels(),
@@ -76,11 +76,11 @@ rule datavzrd_variants_calls:
         ),
         gene_oncoprint=get_oncoprint("gene"),
         variant_oncoprints=get_oncoprint("variant"),
-        oncoprint_sorted_datasets="results/tables/oncoprints/{batch}.{event}/label_sortings/",
+        oncoprint_sorted_datasets="results/tables/oncoprints/{batch}.{any_event}/label_sortings/",
     output:
         report(
             directory(
-                "results/datavzrd-report/{batch}.{event}.variants.fdr-controlled"
+                "results/datavzrd-report/{batch}.{any_event}.variants.fdr-controlled"
             ),
             htmlindex="index.html",
             caption="../report/calls.rst",
@@ -89,7 +89,7 @@ rule datavzrd_variants_calls:
             subcategory=get_datavzrd_report_subcategory,
         ),
     log:
-        "logs/datavzrd_report/{batch}.{event}.log",
+        "logs/datavzrd_report/{batch}.{any_event}.log",
     params:
         variant_oncoprints=get_variant_oncoprint_tables,
         groups=get_report_batch("variants"),
@@ -100,7 +100,7 @@ rule datavzrd_variants_calls:
         group_annotations=group_annotation,
         labels=get_heterogeneous_labels(),
         event_desc=lookup(
-            dpath="calling/fdr-control/events/{event}/desc", within=config
+            dpath="calling/fdr-control/events/{any_event}/desc", within=config
         ),
     wrapper:
         "v5.6.1/utils/datavzrd"
@@ -127,7 +127,7 @@ rule datavzrd_fusion_calls:
     output:
         report(
             directory(
-                "results/datavzrd-report/{batch}.{event}.fusions.fdr-controlled"
+                "results/datavzrd-report/{batch}.{any_event}.fusions.fdr-controlled"
             ),
             htmlindex="index.html",
             caption="../report/calls.rst",
@@ -136,7 +136,7 @@ rule datavzrd_fusion_calls:
             subcategory=get_datavzrd_report_subcategory,
         ),
     log:
-        "logs/datavzrd_report/{batch}.{event}.log",
+        "logs/datavzrd_report/{batch}.{any_event}.log",
     params:
         groups=get_report_batch("fusions"),
         samples=samples,
