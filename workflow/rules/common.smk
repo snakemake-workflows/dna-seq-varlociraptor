@@ -459,7 +459,7 @@ def get_markduplicates_input(wildcards):
 
 def get_merge_exclude_events_input(ext="bcf"):
     def inner(wildcards):
-        events = config['complement_events'][wildcards.complement_event]['remove']
+        events = config["complement_events"][wildcards.complement_event]["remove"]
         return expand(
             "results/final-calls/{g}.{e}.{calling_type}.fdr-controlled.{ext}",
             g=wildcards.group,
@@ -467,7 +467,7 @@ def get_merge_exclude_events_input(ext="bcf"):
             calling_type=wildcards.calling_type,
             ext=ext,
         )
-    
+
     return inner
 
 
@@ -998,14 +998,18 @@ def get_varlociraptor_params(wildcards, params):
         params += " --propagate-info-fields GENE_NAME GENE_ID EXON_NUMBER"
     return params
 
+
 COMPLEMENT_EVENTS = config.get("complement_events", {}).keys()
+
 
 wildcard_constraints:
     group="|".join(groups),
     sample="|".join(samples["sample_name"]),
     caller="|".join(["freebayes", "delly", "arriba"]),
     filter="|".join(config["calling"]["filter"]),
-    event="|".join(config["calling"]["fdr-control"]["events"].keys() ^ COMPLEMENT_EVENTS),
+    event="|".join(
+        config["calling"]["fdr-control"]["events"].keys() ^ COMPLEMENT_EVENTS
+    ),
     complement_event="|".join(COMPLEMENT_EVENTS),
     regions_type="|".join(["expanded", "covered"]),
     calling_type="|".join(["fusions", "variants"]),
@@ -1504,7 +1508,7 @@ def get_primer_extra(wc, input):
     min_primer_len = get_shortest_primer_length(input.reads)
     # Check if shortest primer is below default values
     if min_primer_len < 32:
-        extra += f" -T {min_primer_len - 2}"
+        extra += f" -T {min_primer_len-2}"
     if min_primer_len < 19:
         extra += f" -k {min_primer_len}"
     return extra

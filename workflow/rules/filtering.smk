@@ -100,9 +100,9 @@ rule merge_exclude_events:
         calls=get_merge_exclude_events_input(".bcf"),
         idx=get_merge_exclude_events_input(".bcf.csi"),
     output:
-        "results/final_merged/{group}.{complement_event}.{calling_type}.merged_exclude.bcf"
+        "results/final_merged/{group}.{complement_event}.{calling_type}.merged_exclude.bcf",
     log:
-        "logs/merge_exclude_events/{group}.{complement_event}.{calling_type}.log"
+        "logs/merge_exclude_events/{group}.{complement_event}.{calling_type}.log",
     params:
         extra="-a",
     threads: 4
@@ -114,7 +114,7 @@ rule complement_event:
     input:
         full=lambda w: expand(
             "results/final-calls/{{group}}.{full_event}.{calling_type}.fdr-controlled.norm.bcf",
-            full_event=config['calling']['complement'][w.complement_event]['full'],
+            full_event=config["calling"]["complement"][w.complement_event]["full"],
         ),
         exclude="results/final_merged/{group}.{complement_event}.{calling_type}.merged_exclude.bcf",
     output:
@@ -124,7 +124,9 @@ rule complement_event:
     conda:
         "../envs/bcftools.yaml"
     params:
-        aliases = lambda w: ','.join(list(samples.loc[samples['group'] == w.group, 'alias']))
+        aliases=lambda w: ",".join(
+            list(samples.loc[samples["group"] == w.group, "alias"])
+        ),
     threads: 3
     shell:
         """
