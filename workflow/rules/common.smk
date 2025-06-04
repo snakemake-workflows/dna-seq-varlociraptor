@@ -1526,7 +1526,7 @@ def get_datavzrd_data(impact="coding"):
         return expand(
             pattern,
             impact=impact,
-            event=wildcards.any_event,
+            any_event=wildcards.any_event,
             group=get_report_batch(calling_type),
         )
 

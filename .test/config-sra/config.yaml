@@ -132,7 +132,7 @@ gene_coverage:
   min_avg_coverage: 8
 
 report:
-  activate: false
+  activate: true
   max_read_depth: 250
   stratify:
     activate: false
