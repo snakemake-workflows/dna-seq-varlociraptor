@@ -1,6 +1,6 @@
 __use_yte__: true
 
-name: ?f"Fusion calls {wildcards.event}"
+name: ?f"Fusion calls {wildcards.any_event}"
 
 default-view: ?f"{params.groups[0]}-fusions"
 
