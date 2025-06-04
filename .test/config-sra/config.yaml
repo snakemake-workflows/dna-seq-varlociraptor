@@ -47,7 +47,7 @@ calling:
     moderate: "ANN['IMPACT'] == 'MODERATE'"
     no_filter: "True"
   fdr-control:
-    threshold: 0.05
+    threshold: 0.01
     # Denote FDR control mode.
     # The default (local-smart) is recommended because it provides the most realistic and intuitive results.
     # See see https://varlociraptor.github.io/docs/filtering for details.
@@ -55,36 +55,36 @@ calling:
     # Retain artifacts upon FDR control (i.e. do not remove them from the callset,
     # see https://varlociraptor.github.io/docs/filtering)
     # Only applies in smart mode (local-smart or global-smart).
-    retain-artifacts: false
     events: 
       moderate:
+        desc: Variants with moderate impact
         varlociraptor: 
           - base_only
           - changed_only
           - both
         filter:
           - moderate
-        desc: Variants with moderate impact
       present:
+        desc: All variants present, unfiltered.
         varlociraptor: 
           - base_only
           - changed_only
           - both
         filter:
           - no_filter
-        desc: Variants with moderate impact
       present_or_artifact:
+        desc: All variants present, unfiltered and with the artifacts probability also considered part of the present probability.
+        retain-artifacts: true
         varlociraptor: 
           - base_only
           - changed_only
           - both
-          - artifact
         filter:
           - no_filter
-        desc: Variants with moderate impact
 
 complement_events:
   filtered_artifacts:
+    desc: All variants that were removed from the present event during fdr control due to a high artifacts probability.
     report: True
     types: ["variants", "fusions"]
     full: present_or_artifact
