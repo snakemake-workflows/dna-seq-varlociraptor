@@ -1569,7 +1569,7 @@ def get_datavzrd_report_labels(wildcards):
     if "labels" in event:
         labels.update({key: str(value) for key, value in event["labels"].items()})
     else:
-        labels["callset"] = wildcards.event.replace("_", " ")
+        labels["callset"] = wildcards.any_event.replace("_", " ")
     return labels
 
 
