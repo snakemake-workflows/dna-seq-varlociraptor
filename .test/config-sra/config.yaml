@@ -105,7 +105,7 @@ annotations:
       params: "--fields IMPACT"
       plugins: []
     final_calls:
-      params: "--fields IMPACT"
+      params: "--everything"
       plugins: []
 
 params:
