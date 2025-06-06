@@ -132,10 +132,10 @@ rule complement_event:
         "logs/complement_event/{group}.{complement_event}.{calling_type}.log",
     conda:
         "../envs/bcftools.yaml"
-    threads: 3
+    threads: 2
     shell:
         """
-        bcftools isec {input.full} {input.exclude} -n~10 -w 1 --output-type b --output {output} 2>{log} 
+        bcftools isec {input.full} {input.exclude} -n~10 -w 1 --threads {threads} --output-type b --output {output} 2>{log} 
         """
 
 
