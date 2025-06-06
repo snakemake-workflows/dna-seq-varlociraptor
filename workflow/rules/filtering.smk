@@ -132,10 +132,6 @@ rule complement_event:
         "logs/complement_event/{group}.{complement_event}.{calling_type}.log",
     conda:
         "../envs/bcftools.yaml"
-    params:
-        aliases=lambda w: ",".join(
-            list(samples.loc[samples["group"] == w.group, "alias"])
-        ),
     threads: 3
     shell:
         """
