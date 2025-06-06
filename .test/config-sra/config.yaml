@@ -55,10 +55,10 @@ calling:
     # Retain artifacts upon FDR control (i.e. do not remove them from the callset,
     # see https://varlociraptor.github.io/docs/filtering)
     # Only applies in smart mode (local-smart or global-smart).
-    events: 
+    events:
       moderate:
         desc: Variants with moderate impact
-        varlociraptor: 
+        varlociraptor:
           - base_only
           - changed_only
           - both
@@ -66,7 +66,7 @@ calling:
           - moderate
       present:
         desc: All variants present, unfiltered.
-        varlociraptor: 
+        varlociraptor:
           - base_only
           - changed_only
           - both
@@ -75,7 +75,7 @@ calling:
       present_or_artifact:
         desc: All variants present, unfiltered and with the artifacts probability also considered part of the present probability.
         retain-artifacts: true
-        varlociraptor: 
+        varlociraptor:
           - base_only
           - changed_only
           - both
