@@ -95,13 +95,57 @@ rule merge_calls:
         "v2.3.2/bio/bcftools/concat"
 
 
+rule merge_exclude_events:
+    input:
+        calls=get_merge_exclude_events_input("bcf"),
+        idx=get_merge_exclude_events_input("bcf.csi"),
+    output:
+        "results/final_merged/{group}.{complement_event}.{calling_type}.merged_exclude.bcf",
+    log:
+        "logs/merge_exclude_events/{group}.{complement_event}.{calling_type}.log",
+    params:
+        extra="-a",
+    threads: 4
+    wrapper:
+        "v6.2.0/bio/bcftools/concat"
+
+
+rule complement_event:
+    input:
+        full=lambda w: expand(
+            "results/final-calls/{{group}}.{full_event}.{{calling_type}}.fdr-controlled.bcf",
+            full_event=lookup(
+                within=config, dpath=f"complement_events/{w.complement_event}/full"
+            ),
+        ),
+        full_idx=lambda w: expand(
+            "results/final-calls/{{group}}.{full_event}.{{calling_type}}.fdr-controlled.bcf.csi",
+            full_event=lookup(
+                within=config, dpath=f"complement_events/{w.complement_event}/full"
+            ),
+        ),
+        exclude="results/final_merged/{group}.{complement_event}.{calling_type}.merged_exclude.bcf",
+        exclude_idx="results/final_merged/{group}.{complement_event}.{calling_type}.merged_exclude.bcf.csi",
+    output:
+        "results/final-calls/{group}.{complement_event}.{calling_type}.fdr-controlled.bcf",
+    log:
+        "logs/complement_event/{group}.{complement_event}.{calling_type}.log",
+    conda:
+        "../envs/bcftools.yaml"
+    threads: 2
+    shell:
+        """
+        bcftools isec {input.full} {input.exclude} -n~10 -w 1 --threads {threads} --output-type b --output {output} 2>{log} 
+        """
+
+
 rule convert_phred_scores:
     input:
-        "results/final-calls/{group}.{event}.{calling_type}.fdr-controlled.bcf",
+        "results/final-calls/{group}.{any_event}.{calling_type}.fdr-controlled.bcf",
     output:
-        "results/final-calls/{group}.{event}.{calling_type}.fdr-controlled.normal-probs.bcf",
+        "results/final-calls/{group}.{any_event}.{calling_type}.fdr-controlled.normal-probs.bcf",
     log:
-        "logs/convert-phred-scores/{group}.{event}.{calling_type}.log",
+        "logs/convert-phred-scores/{group}.{any_event}.{calling_type}.log",
     conda:
         "../envs/varlociraptor.yaml"
     shell:

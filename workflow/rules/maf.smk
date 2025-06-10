@@ -1,23 +1,23 @@
 rule group_bcf_to_vcf:
     input:
-        "results/final-calls/{group}.{event}.{calling_type}.fdr-controlled.bcf",
+        "results/final-calls/{group}.{any_event}.{calling_type}.fdr-controlled.bcf",
     output:
-        temp("results/maf/{group}.{event}.{calling_type}.fdr-controlled.vcf"),
+        temp("results/maf/{group}.{any_event}.{calling_type}.fdr-controlled.vcf"),
     log:
-        "logs/maf/{group}.{event}.{calling_type}.fdr-controlled.log",
+        "logs/maf/{group}.{any_event}.{calling_type}.fdr-controlled.log",
     wrapper:
         "v3.8.0/bio/bcftools/view"
 
 
 rule group_vcf_to_maf:
     input:
-        vcf="results/maf/{group}.{event}.{calling_type}.fdr-controlled.vcf",
+        vcf="results/maf/{group}.{any_event}.{calling_type}.fdr-controlled.vcf",
         ref=genome,
         scenario="results/scenarios/{group}.yaml",  # needed for determining event probability INFO fields
     output:
-        maf="results/maf/{group}.{event}.{calling_type}.fdr-controlled.maf",
+        maf="results/maf/{group}.{any_event}.{calling_type}.fdr-controlled.maf",
     log:
-        "logs/maf/{group}.{event}.{calling_type}.fdr-controlled.log",
+        "logs/maf/{group}.{any_event}.{calling_type}.fdr-controlled.log",
     conda:
         "../envs/vcf2maf.yaml"
     params:
