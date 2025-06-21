@@ -193,6 +193,14 @@ properties:
         type: boolean
     required:
       - activate
+  
+  impact_graphs:
+    type: object
+    properties:
+      activate:
+        type: boolean
+    required:
+      - activate
 
 
   calling:
