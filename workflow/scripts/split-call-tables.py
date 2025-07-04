@@ -173,7 +173,6 @@ class PopulationDb:
             self.pos = pos
             self._variants = self._load_variants()
         for variant in self._variants:
-            print(variant.pos)
             if variant.pos == pos and variant.alts[0] == alt:
                 yield variant
             if variant.pos > pos:

@@ -1,6 +1,6 @@
 module fusion_calling:
     meta_wrapper:
-        "v3.13.3/meta/bio/star_arriba"
+        "v7.1.0/meta/bio/star_arriba"
     config:
         config
 

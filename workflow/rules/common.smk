@@ -11,7 +11,7 @@ samples = (
     pd.read_csv(
         config["samples"],
         sep="\t",
-        dtype={"sample_name": str, "group": str},
+        dtype={"sample_name": str, "group": str, "umi_len": "Int64"},
         comment="#",
     )
     .set_index("sample_name", drop=False)
