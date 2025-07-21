@@ -195,7 +195,6 @@ class PopulationDb:
         )
 
     def _load_variants(self):
-        print(self.pos)
         return self.bcf.fetch(str(self.contig), self.pos - 1, self.end)
 
     @property
