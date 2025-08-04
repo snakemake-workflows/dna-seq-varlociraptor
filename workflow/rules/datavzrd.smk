@@ -99,7 +99,7 @@ rule datavzrd_variants_calls:
         labels=get_heterogeneous_labels(),
         event_desc=lambda wc: lookup(within=get_any_event(wc), dpath="desc", default="No description provided"),
     wrapper:
-        "v5.6.1/utils/datavzrd"
+        "v7.2.0/utils/datavzrd"
 
 
 rule datavzrd_fusion_calls:
@@ -137,7 +137,7 @@ rule datavzrd_fusion_calls:
         groups=get_report_batch("fusions"),
         samples=samples,
     wrapper:
-        "v5.6.1/utils/datavzrd"
+        "v7.2.0/utils/datavzrd"
 
 
 rule bedtools_merge:
@@ -191,4 +191,4 @@ rule datavzrd_coverage:
     params:
         samples=lambda wc: get_group_samples(wc.group),
     wrapper:
-        "v5.6.1/utils/datavzrd"
+        "v7.2.0/utils/datavzrd"
