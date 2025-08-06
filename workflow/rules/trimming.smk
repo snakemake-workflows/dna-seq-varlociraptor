@@ -8,13 +8,13 @@ rule get_sra:
         "v5.0.2/bio/sra-tools/fasterq-dump"
 
 
-rule cutadapt_pipe:
+rule fastp_pipe:
     input:
-        get_cutadapt_pipe_input,
+        get_fastp_pipe_input,
     output:
-        pipe("pipe/cutadapt/{sample}/{unit}.{fq}.{ext}"),
+        pipe("pipe/fastp/{sample}/{unit}.{fq}.{ext}"),
     log:
-        "logs/pipe-fastqs/catadapt/{sample}-{unit}.{fq}.{ext}.log",
+        "logs/pipe-fastqs/fastp/{sample}-{unit}.{fq}.{ext}.log",
     wildcard_constraints:
         ext=r"fastq|fastq\.gz",
     threads: 0  # this does not need CPU
@@ -22,37 +22,41 @@ rule cutadapt_pipe:
         "cat {input} > {output} 2> {log}"
 
 
-rule cutadapt_pe:
+rule fastp_se:
     input:
-        get_cutadapt_input,
+        sample=lambda wc: get_fastp_input(wc),
     output:
-        fastq1=temp("results/trimmed/{sample}/{unit}_R1.fastq.gz"),
-        fastq2=temp("results/trimmed/{sample}/{unit}_R2.fastq.gz"),
-        qc="results/trimmed/{sample}/{unit}.paired.qc.txt",
+        trimmed=temp("results/trimmed/{sample}/{unit}.single.fastq.gz"),
+        html="results/trimmed/{sample}/{unit}.single.qc.html",
+        json="results/trimmed/{sample}/{unit}.single.json",
     log:
-        "logs/cutadapt/{sample}-{unit}.log",
+        "logs/fastp/se/{sample}_{unit}.log",
     params:
-        extra=config["params"]["cutadapt"],
-        adapters=get_cutadapt_adapters,
+        adapters=get_fastp_adapters,
+        extra=get_fastp_extra,
     threads: 8
     wrapper:
-        "v3.5.3/bio/cutadapt/pe"
+        "v6.2.0/bio/fastp"
 
 
-rule cutadapt_se:
+rule fastp_pe:
     input:
-        get_cutadapt_input,
+        sample=lambda wc: get_fastp_input(wc),
     output:
-        fastq=temp("results/trimmed/{sample}/{unit}.single.fastq.gz"),
-        qc="results/trimmed/{sample}/{unit}.single.qc.txt",
+        trimmed=[
+            temp("results/trimmed/{sample}/{unit}_R1.fastq.gz"),
+            temp("results/trimmed/{sample}/{unit}_R2.fastq.gz"),
+        ],
+        html="results/trimmed/{sample}/{unit}.paired.qc.html",
+        json="results/trimmed/{sample}/{unit}.paired.json",
     log:
-        "logs/cutadapt/{sample}-{unit}.se.log",
+        "logs/fastp/pe/{sample}_{unit}.log",
     params:
-        extra=config["params"]["cutadapt"],
-        adapters=get_cutadapt_adapters,
+        adapters=get_fastp_adapters,
+        extra=get_fastp_extra,
     threads: 8
     wrapper:
-        "v3.5.3/bio/cutadapt/se"
+        "v6.2.0/bio/fastp"
 
 
 rule merge_trimmed_fastqs:

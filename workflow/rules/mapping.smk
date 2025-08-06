@@ -1,39 +1,38 @@
 rule map_reads_bwa:
     input:
         reads=get_map_reads_input,
-        idx=rules.bwa_index.output,
+        idx=access.random(rules.bwa_index.output),
     output:
         temp("results/mapped/bwa/{sample}.bam"),
     log:
         "logs/bwa_mem/{sample}.log",
     params:
-        extra=get_read_group,
-        sorting=get_map_reads_sorting_params,
-        sort_order=lambda wc: get_map_reads_sorting_params(wc, ordering=True),
+        extra=get_read_group("-R "),
     threads: 8
     wrapper:
         "v3.8.0/bio/bwa/mem"
 
 
-# Perform kmer counting for haplotype sampling:
-# https://github.com/vgteam/vg/wiki/Haplotype-Sampling#haplotype-sampling
 rule count_sample_kmers:
     input:
         reads=get_map_reads_input,
     output:
         "results/kmers/{sample}.kff",
     params:
-        out_file=lambda w, output: os.path.splitext(output[0])[0],
-        out_dir=lambda w, output: os.path.dirname(output[0]),
+        out_file=lambda wc, output: os.path.splitext(output[0])[0],
+        out_dir=lambda wc, output: os.path.dirname(output[0]),
+        mem=lambda wc, resources: resources.mem[:-2],
     conda:
         "../envs/kmc.yaml"
     shadow:
         "minimal"
     log:
         "logs/kmers/{sample}.log",
-    threads: 16
+    threads: max(workflow.cores, 1)
+    resources:
+        mem="64GB",
     shell:
-        "kmc -k29 -m128 -okff -t{threads} -v @<(ls {input.reads}) {params.out_file} {params.out_dir} &> {log}"
+        "kmc -k29 -m{params.mem} -sm -okff -t{threads} -v @<(ls {input.reads}) {params.out_file} {params.out_dir} &> {log}"
 
 
 rule create_reference_paths:
@@ -50,12 +49,12 @@ rule create_reference_paths:
 rule map_reads_vg:
     input:
         reads=get_map_reads_input,
-        graph=f"{pangenome_prefix}.gbz",
-        kmers="results/kmers/{sample}.kff",
-        hapl=f"{pangenome_prefix}.hapl",
-        paths="resources/reference_paths.txt",
+        graph=access.random(f"{pangenome_prefix}.gbz"),
+        kmers=access.random("results/kmers/{sample}.kff"),
+        hapl=access.random(f"{pangenome_prefix}.hapl"),
+        paths=access.random("resources/reference_paths.txt"),
     output:
-        bam=temp("results/mapped/vg/{sample}.preprocessed.bam"),
+        bam=temp("results/mapped/vg/{sample}.raw.bam"),
         indexes=temp(
             multiext(
                 f"{pangenome_prefix}.{{sample}}",
@@ -71,16 +70,15 @@ rule map_reads_vg:
         "benchmarks/vg_giraffe/{sample}.tsv"
     params:
         extra=lambda wc, input: f"--ref-paths {input.paths}",
-        sorting="fgbio",
-        sort_order="queryname",
+        sorting="none",
     threads: 64
     wrapper:
-        "v5.7.0/bio/vg/giraffe"
+        "v6.1.0/bio/vg/giraffe"
 
 
 rule reheader_mapped_reads:
     input:
-        "results/mapped/vg/{sample}.preprocessed.bam",
+        "results/mapped/vg/{sample}.raw.bam",
     output:
         temp("results/mapped/vg/{sample}.reheadered.bam"),
     params:
@@ -90,10 +88,11 @@ rule reheader_mapped_reads:
     log:
         "logs/reheader/{sample}.log",
     shell:
-        "samtools view {input} -H | sed -E 's/(SN:{params.build}#0#chr)/SN:/; s/SN:M/SN:MT/' | samtools reheader - {input} > {output} 2> {log}"
+        "(samtools view {input} -H |"
+        " sed -E 's/(SN:{params.build}#0#chr)/SN:/; s/SN:M/SN:MT/' | "
+        " samtools reheader - {input} > {output}) 2> {log}"
 
 
-# samtools fixmate requires querysorted input
 rule fix_mate:
     input:
         "results/mapped/vg/{sample}.reheadered.bam",
@@ -108,74 +107,61 @@ rule fix_mate:
         "v4.7.2/bio/samtools/fixmate"
 
 
-# adding read groups is necessary because base recalibration throws errors
+# adding read groups is exclusive to vg mapped reads and
+# necessary because base recalibration throws errors
 # for not being able to find read group information
 rule add_read_group:
     input:
-        "results/mapped/vg/{sample}.mate_fixed.bam",
+        lambda wc: (
+            "results/mapped/vg/{sample}.mate_fixed.bam"
+            if sample_has_primers(wc)
+            else "results/mapped/vg/{sample}.reheadered.bam"
+        ),
     output:
         temp("results/mapped/vg/{sample}.bam"),
     log:
-        "logs/picard/add_rg/{sample}.log",
+        "logs/samtools/add_rg/{sample}.log",
     params:
-        extra=get_vg_read_group,
-    resources:
-        mem_mb=1024,
-    wrapper:
-        "v2.3.2/bio/picard/addorreplacereadgroups"
-
-
-rule merge_untrimmed_fastqs:
-    input:
-        get_untrimmed_fastqs,
-    output:
-        temp("results/untrimmed/{sample}_{read}.fastq.gz"),
-    log:
-        "logs/merge-fastqs/untrimmed/{sample}_{read}.log",
-    wildcard_constraints:
-        read="fq1|fq2",
-    shell:
-        "cat {input} > {output} 2> {log}"
-
-
-rule sort_untrimmed_fastqs:
-    input:
-        "results/untrimmed/{sample}_{read}.fastq.gz",
-    output:
-        temp("results/untrimmed/{sample}_{read}.sorted.fastq.gz"),
+        read_group=get_read_group(""),
+        compression_threads=lambda wildcards, threads: (
+            f"-@{threads}" if threads > 1 else ""
+        ),
     conda:
-        "../envs/fgbio.yaml"
-    log:
-        "logs/fgbio/sort_fastq/{sample}_{read}.log",
+        "../envs/samtools.yaml"
+    threads: 4
     shell:
-        "fgbio SortFastq -i {input} -o {output} 2> {log}"
+        "samtools addreplacerg {input} -o {output} -r {params.read_group} "
+        "-w {params.compression_threads} 2> {log}"
 
 
-# fgbio AnnotateBamsWithUmis requires querynamed sorted fastqs and bams
+rule sort_alignments:
+    input:
+        "results/mapped/{aligner}/{sample}.bam",
+    output:
+        temp("results/mapped/{aligner}/{sample}.sorted.bam"),
+    log:
+        "logs/sort/{aligner}/{sample}.log",
+    params:
+        extra="",
+    threads: 16
+    resources:
+        mem="8GB",
+    wrapper:
+        "v5.10.0/bio/samtools/sort"
+
+
 rule annotate_umis:
     input:
-        bam="results/mapped/{aligner}/{sample}.bam",
-        umi=get_umi_fastq,
-    output:
-        pipe("pipe/{aligner}/{sample}.annotated.bam"),
-    params:
-        extra=get_annotate_umis_params,
-    log:
-        "logs/fgbio/annotate_bam/{aligner}/{sample}.log",
-    wrapper:
-        "v3.7.0/bio/fgbio/annotatebamwithumis"
-
-
-rule sort_annotated_reads:
-    input:
-        "pipe/{aligner}/{sample}.annotated.bam",
+        bam="results/mapped/{aligner}/{sample}.sorted.bam",
+        idx="results/mapped/{aligner}/{sample}.sorted.bai",
     output:
         temp("results/mapped/{aligner}/{sample}.annotated.bam"),
+    conda:
+        "../envs/umi_tools.yaml"
     log:
-        "logs/samtools_sort/{aligner}_{sample}.log",
-    threads: 8
-    wrapper:
-        "v3.7.0/bio/samtools/sort"
+        "logs/annotate_bam/{aligner}/{sample}.log",
+    shell:
+        "umi_tools group -I {input.bam} --paired --umi-separator : --output-bam -S {output} &> {log}"
 
 
 rule mark_duplicates:
@@ -193,18 +179,6 @@ rule mark_duplicates:
         mem_mb=3000,
     wrapper:
         "v2.5.0/bio/picard/markduplicates"
-
-
-rule sort_vg_reads:
-    input:
-        "results/{subdir}/{sample}.bam",
-    output:
-        temp("results/{subdir}/{sample}.sorted.bam"),
-    log:
-        "logs/samtools_sort/{subdir}_{sample}.log",
-    threads: 8
-    wrapper:
-        "v5.5.0/bio/samtools/sort"
 
 
 rule calc_consensus_reads:
@@ -226,12 +200,12 @@ rule calc_consensus_reads:
 rule map_consensus_reads:
     input:
         reads=get_processed_consensus_input,
-        idx=rules.bwa_index.output,
+        idx=access.random(rules.bwa_index.output),
     output:
         temp("results/consensus/{sample}.consensus.{read_type}.mapped.bam"),
     params:
         index=lambda w, input: os.path.splitext(input.idx[0])[0],
-        extra=lambda w: "-C {}".format(get_read_group(w)),
+        extra=lambda w: "-C " + get_read_group("-R")(w),
         sort="samtools",
         sort_order="coordinate",
     wildcard_constraints:
@@ -264,7 +238,7 @@ rule sort_consensus_reads:
         temp("results/consensus/{sample}.bam"),
     log:
         "logs/samtools_sort/{sample}.log",
-    threads: 8
+    threads: 16
     wrapper:
         "v2.3.2/bio/samtools/sort"
 

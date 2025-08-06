@@ -1,6 +1,6 @@
 from snakemake.utils import min_version
 
-min_version("8.13.0")
+min_version("9.1.0")
 
 
 configfile: "config/config.yaml"
@@ -13,11 +13,16 @@ scattergather:
     calling=16,
 
 
+inputflags:
+    access.sequential,
+
+
 # Allow users to fix the underlying OS via singularity.
 container: "docker://continuumio/miniconda3"
 
 
 include: "rules/common.smk"
+include: "rules/utils.smk"
 include: "rules/qc.smk"
 include: "rules/benchmarking.smk"
 include: "rules/ref.smk"
@@ -30,7 +35,6 @@ include: "rules/filtering.smk"
 include: "rules/maf.smk"
 include: "rules/mutational_burden.smk"
 include: "rules/vega.smk"
-include: "rules/utils.smk"
 include: "rules/primers.smk"
 include: "rules/table.smk"
 include: "rules/regions.smk"

@@ -1,10 +1,10 @@
 rule freebayes:
     input:
-        ref=genome,
+        ref=access.random(genome),
         ref_idx=genome_fai,
         regions="results/regions/{group}.expanded_regions.filtered.bed",
         # you can have a list of samples here
-        alns=lambda w: get_group_bams(w),
+        alns=access.random(lambda w: get_group_bams(w)),
         idxs=lambda w: get_group_bams(w, bai=True),
     output:
         "results/candidate-calls/{group}.freebayes.bcf",
@@ -25,9 +25,9 @@ rule freebayes:
 
 rule delly:
     input:
-        ref=genome,
+        ref=access.random(genome),
         ref_idx=genome_fai,
-        alns=lambda w: get_group_bams(w),
+        alns=access.random(lambda w: get_group_bams(w)),
         index=lambda w: get_group_bams(w, bai=True),
         exclude=get_delly_excluded_regions(),
     output:
@@ -83,7 +83,5 @@ rule scatter_candidates:
         "logs/scatter-candidates/{group}.{caller}.log",
     conda:
         "../envs/rbt.yaml"
-    group:
-        "calling"
     shell:
         "rbt vcf-split {input} {output}"

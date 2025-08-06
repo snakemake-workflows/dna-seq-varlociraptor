@@ -75,7 +75,7 @@ annotations:
       plugins: []
 
 params:
-  cutadapt: ""
+  fastp: ""
   picard:
     MarkDuplicates: ""
   gatk:

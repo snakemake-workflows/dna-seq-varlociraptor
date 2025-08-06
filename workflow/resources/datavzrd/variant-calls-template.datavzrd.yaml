@@ -259,7 +259,7 @@ views:
                 scale: "linear"
                 aux-domain-columns:
                   - "regex('.+: read depth')"
-          "regex('prob: .+')":
+          "regex('prob: (?!artifact|absent)')":
             plot:
               heatmap:
                 scale: linear
@@ -267,6 +267,14 @@ views:
                 range:
                   - white
                   - "#1f77b4"
+          "regex('prob: (artifact|absent)')":
+            plot:
+              heatmap:
+                scale: linear
+                domain: [0.0, 1.0]
+                range:
+                  - white
+                  - "#d4322c"
           "gnomad genome af":
             optional: true
             plot:
@@ -433,7 +441,7 @@ views:
                 scale: "linear"
                 aux-domain-columns:
                   - "regex('.+: read depth')"
-          "regex('prob: .+')":
+          "regex('prob: (?!artifact|absent)')":
             plot:
               heatmap:
                 scale: linear
@@ -441,6 +449,14 @@ views:
                 range:
                   - white
                   - "#1f77b4"
+          "regex('prob: (artifact|absent)')":
+            plot:
+              heatmap:
+                scale: linear
+                domain: [0.0, 1.0]
+                range:
+                  - white
+                  - "#d4322c"
           "gnomad genome af":
             optional: true
             plot:

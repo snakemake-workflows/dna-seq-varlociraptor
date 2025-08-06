@@ -169,7 +169,7 @@ def get_final_output(wildcards):
                 if lookup(
                     dpath=f"calling/fdr-control/events/{event}/report",
                     within=config,
-                    default=False,
+                    default=True,
                 ):
                     final_output.extend(
                         expand(
@@ -295,7 +295,7 @@ def get_aligner(wildcards):
         return "bwa"
 
 
-def get_cutadapt_input(wildcards):
+def get_fastp_input(wildcards):
     unit = units.loc[wildcards.sample].loc[wildcards.unit]
 
     if pd.isna(unit["fq1"]):
@@ -312,9 +312,7 @@ def get_cutadapt_input(wildcards):
         ending = ".gz" if unit["fq1"].endswith("gz") else ""
 
         def get_reads(fq):
-            return (
-                f"pipe/cutadapt/{unit.sample_name}/{unit.unit_name}.fq1.fastq{ending}"
-            )
+            return f"pipe/fastp/{unit.sample_name}/{unit.unit_name}.fq1.fastq{ending}"
 
     if pd.isna(unit["fq2"]):
         # single end sample
@@ -361,7 +359,7 @@ def get_raw_reads(sample, unit, fq):
     return files
 
 
-def get_cutadapt_pipe_input(wildcards):
+def get_fastp_pipe_input(wildcards):
     return get_raw_reads(wildcards.sample, wildcards.unit, wildcards.fq)
 
 
@@ -369,15 +367,27 @@ def get_fastqc_input(wildcards):
     return get_raw_reads(wildcards.sample, wildcards.unit, wildcards.fq)[0]
 
 
-def get_cutadapt_adapters(wildcards):
+def get_fastp_adapters(wildcards):
     unit = units.loc[wildcards.sample].loc[wildcards.unit]
     try:
         adapters = unit["adapters"]
         if isinstance(adapters, str):
-            return adapters
+            # Autotrimming is enabled by default.
+            # Therefore no adapter parameter needs to be passed.
+            if adapters == "auto_trim":
+                return ""
+            else:
+                return adapters
         return ""
     except KeyError:
         return ""
+
+
+def get_fastp_extra(wildcards):
+    extra = config["params"]["fastp"]
+    if sample_has_umis(wildcards.sample):
+        extra += get_annotate_umis_params(wildcards)
+    return extra
 
 
 def is_paired_end(sample):
@@ -446,7 +456,7 @@ def get_markduplicates_input(wildcards):
     if sample_has_umis(wildcards.sample):
         return f"results/mapped/{aligner}/{{sample}}.annotated.bam"
     else:
-        return f"results/mapped/{aligner}/{{sample}}.bam"
+        return f"results/mapped/{aligner}/{{sample}}.sorted.bam"
 
 
 def get_recalibrate_quality_input(wildcards, bai=False):
@@ -472,11 +482,10 @@ def get_consensus_input(wildcards, bai=False):
 def get_trimming_input(wildcards, bai=False):
     ext = "bai" if bai else "bam"
     aligner = get_aligner(wildcards)
-    ext = f"sorted.{ext}" if aligner == "vg" else ext
     if is_activated("remove_duplicates"):
         return "results/dedup/{{sample}}.{ext}".format(ext=ext)
     else:
-        return "results/mapped/{aligner}/{{sample}}.{ext}".format(
+        return "results/mapped/{aligner}/{{sample}}.sorted.{ext}".format(
             aligner=aligner, ext=ext
         )
 
@@ -561,7 +570,7 @@ def get_markduplicates_extra(wc):
     c = config["params"]["picard"]["MarkDuplicates"]
 
     if sample_has_umis(wc.sample):
-        b = "--BARCODE_TAG RX"
+        b = "--BARCODE_TAG BX"
     else:
         b = ""
 
@@ -624,6 +633,7 @@ def get_all_group_observations(wildcards):
     )
 
 
+# TODO maybe use get_read_group with prefix="--outSAMattrRGline "?
 def get_star_read_group(wildcards):
     """Denote sample name and platform in read group."""
     platform = extract_unique_sample_column_value(wildcards.sample, "platform")
@@ -632,19 +642,15 @@ def get_star_read_group(wildcards):
     )
 
 
-def get_read_group(wildcards):
-    """Denote sample name and platform in read group."""
-    platform = extract_unique_sample_column_value(wildcards.sample, "platform")
-    return r"-R '@RG\tID:{sample}\tSM:{sample}\tPL:{platform}'".format(
-        sample=wildcards.sample, platform=platform
-    )
+def get_read_group(prefix: str):
+    def inner(wildcards):
+        """Denote sample name and platform in read group."""
+        platform = extract_unique_sample_column_value(wildcards.sample, "platform")
+        return r"{prefix}'@RG\tID:{sample}\tSM:{sample}\tPL:{platform}'".format(
+            sample=wildcards.sample, platform=platform, prefix=prefix
+        )
 
-
-def get_vg_read_group(wildcards):
-    platform = extract_unique_sample_column_value(wildcards.sample, "platform")
-    return r"--RGLB lib1 --RGPL {platform} --RGPU {sample} --RGSM {sample} --RGID {sample}".format(
-        sample=wildcards.sample, platform=platform
-    )
+    return inner
 
 
 def get_map_reads_sorting_params(wildcards, ordering=False):
@@ -659,11 +665,11 @@ def get_map_reads_sorting_params(wildcards, ordering=False):
             return "samtools"
 
 
-def get_add_readgroup_input(wildcards):
-    if sample_has_umis(wildcards.sample):
-        return "results/mapped/vg/{sample}.annotated.bam"
+def get_preprocessed_sorting_input(wildcards):
+    if wildcards.aligner == "vg":
+        return "results/mapped/vg/{sample}.rg.bam"
     else:
-        return "results/mapped/vg/{sample}.mate_fixed.bam"
+        return get_add_readgroup_input(wildcards)
 
 
 def get_mutational_burden_targets():
@@ -808,14 +814,6 @@ def get_merge_calls_input(ext="bcf"):
     return inner
 
 
-def get_vep_threads():
-    n = len(samples)
-    if n:
-        return max(workflow.cores / n, 1)
-    else:
-        return 1
-
-
 def get_plugin_aux(plugin, index=False):
     if plugin in config["annotations"]["vep"]["final_calls"]["plugins"]:
         if plugin == "REVEL":
@@ -854,10 +852,21 @@ def get_fdr_control_params(wildcards):
 
     mode = f"--mode {mode}"
 
+    retain_artifacts = lookup(
+        dpath="retain-artifacts",
+        within=query,
+        default=lookup(
+            dpath="calling/fdr-control/retain-artifacts", within=config, default=False
+        ),
+    )
+
+    retain_artifacts = "--smart-retain-artifacts" if retain_artifacts else ""
+
     return {
         "threshold": threshold,
         "events": events,
         "mode": mode,
+        "retain_artifacts": retain_artifacts,
         "local": local,
         "filter": query.get("filter"),
     }
@@ -919,17 +928,18 @@ def get_annotation_filter_expression(wildcards):
     return " and ".join(map("({})".format, filters)).replace('"', '\\"')
 
 
-def get_annotation_filter_aux(wildcards):
+def get_annotation_filter_aux(wildcards, input):
     return [
         f"--aux {name}={path}"
         for filter in get_annotation_filter_names(wildcards)
-        for name, path in get_filter_aux_entries(filter).items()
+        for name, path in zip(get_filter_aux_entries(filter).keys(), input.aux)
     ]
 
 
 def get_annotation_filter_aux_files(wildcards):
     return [
-        path
+        # aux files are considered as part of the config, hence local
+        local(path)
         for filter_name in get_annotation_filter_names(wildcards)
         for name, path in get_filter_aux_entries(filter_name).items()
     ]
@@ -948,16 +958,17 @@ def get_candidate_filter_aux_files():
     if "candidates" not in config["calling"]["filter"]:
         return []
     else:
-        return [path for name, path in get_filter_aux_entries("candidates").items()]
+        # aux files are considered as part of the config, hence local
+        return [local(path) for name, path in get_filter_aux_entries("candidates").items()]
 
 
-def get_candidate_filter_aux():
+def get_candidate_filter_aux(wildcards, input):
     if "candidates" not in config["calling"]["filter"]:
         return ""
     else:
         return [
             f"--aux {name}={path}"
-            for name, path in get_filter_aux_entries("candidates").items()
+            for name, path in zip(get_filter_aux_entries("candidates").keys(), input.aux)
         ]
 
 
@@ -1412,8 +1423,6 @@ def get_umi_fastq(wildcards):
             S=wildcards.sample,
             R=["fq1", "fq2"],
         )
-    else:
-        return umi_read
 
 
 def sample_has_primers(wildcards):
@@ -1436,8 +1445,12 @@ def sample_has_umis(sample):
 
 
 def get_annotate_umis_params(wildcards):
-    return "--sorted=true -r {}".format(
-        extract_unique_sample_column_value(wildcards.sample, "umi_read_structure")
+    translate_param = {"fq1": "read1", "fq2": "read2", "both": "per_read"}
+    return "--umi --umi_loc {read} --umi_len {umi_len}".format(
+        read=translate_param[
+            extract_unique_sample_column_value(wildcards.sample, "umi_read")
+        ],
+        umi_len=str(extract_unique_sample_column_value(wildcards.sample, "umi_len")),
     )
 
 
@@ -1552,9 +1565,9 @@ def get_fastqc_results(wildcards):
         pattern, unit=sample_units[paired_end_units].itertuples(), fq="fq2"
     )
 
-    # cutadapt
+    # fastp
     if sample_units["adapters"].notna().all():
-        pattern = "results/trimmed/{unit.sample_name}/{unit.unit_name}.{mode}.qc.txt"
+        pattern = "results/trimmed/{unit.sample_name}/{unit.unit_name}.{mode}.qc.html"
         yield from expand(
             pattern, unit=sample_units[paired_end_units].itertuples(), mode="paired"
         )

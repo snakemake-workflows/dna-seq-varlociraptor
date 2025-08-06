@@ -153,6 +153,10 @@ calling:
     # The default (local-smart) is recommended because it provides the most realistic and intuitive results.
     # See see https://varlociraptor.github.io/docs/filtering for details.
     mode: local-smart
+    # Retain artifacts upon FDR control (i.e. do not remove them from the callset,
+    # see https://varlociraptor.github.io/docs/filtering)
+    # Only applies in smart mode (local-smart or global-smart).
+    retain-artifacts: false
     events:
       # Add any number of events here to filter for.
       # The id of each event can be chosen freely, but needs to contain
@@ -260,7 +264,7 @@ tables:
   generate_excel: true
 
 params:
-  cutadapt: ""
+  fastp: ""
   picard:
     MarkDuplicates: "--VALIDATION_STRINGENCY LENIENT"
   gatk:
