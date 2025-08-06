@@ -62,7 +62,7 @@ rule predictosaurus_process:
         gff="resources/annotation.gff3",
         graph="results/impact_graphs/{group}.freebayes.graphs.duckdb",
     output:
-        "results/impact_graphs/{group}.paths.duckdb",
+        "results/impact_graphs/{group}.scores.duckdb",
     log:
         "logs/predictosaurus/process/{group}.log",
     conda:
@@ -84,5 +84,5 @@ rule predictosaurus_plot:
         "../envs/predictosaurus.yaml"
     shell:
         """
-        predictosaurus plot --input {input} --format html --output {output} 2> {log}
+        predictosaurus plot --input {input} --output {output} 2> {log}
         """
