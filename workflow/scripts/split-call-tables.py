@@ -173,7 +173,6 @@ class PopulationDb:
             self.pos = pos
             self._variants = self._load_variants()
         for variant in self._variants:
-            print(variant.pos)
             if variant.pos == pos and variant.alts[0] == alt:
                 yield variant
             if variant.pos > pos:
@@ -196,7 +195,6 @@ class PopulationDb:
         )
 
     def _load_variants(self):
-        print(self.pos)
         return self.bcf.fetch(str(self.contig), self.pos - 1, self.end)
 
     @property
