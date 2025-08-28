@@ -44,7 +44,7 @@ include: "rules/fusion_calling.smk"
 include: "rules/testcase.smk"
 include: "rules/population.smk"
 include: "rules/mutational_signatures.smk"
-
+include: "rules/varpubs.smk"
 
 batches = "all"
 if is_activated("report/stratify"):

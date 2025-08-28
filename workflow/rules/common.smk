@@ -248,6 +248,7 @@ def get_final_output(wildcards):
                 )
     final_output.extend(get_mutational_burden_targets())
     final_output.extend(get_mutational_signature_targets())
+    final_output.extend(get_varpubs_targets())
 
     if is_activated("population/db"):
         final_output.append(lookup(dpath="population/db/path", within=config))
@@ -689,6 +690,7 @@ def get_mutational_burden_targets():
 def get_mutational_signature_targets():
     mutational_signature_targets = []
     if is_activated("mutational_signatures"):
+        # TODO Is this loop required as a groups are already applied by expand
         for group in variants_groups:
             mutational_signature_targets.extend(
                 expand(
@@ -699,6 +701,17 @@ def get_mutational_signature_targets():
             )
     return mutational_signature_targets
 
+def get_varpubs_targets():
+    varpubs_targets = []
+    if is_activated("varpubs"):
+        varpubs_targets.extend(
+            expand(
+                "results/datavzrd-report/varpubs/{group}.{event}",
+                group=variants_groups,
+                event=get_calling_events("variants")
+            )
+        )
+    return varpubs_targets
 
 def get_scattered_calls(ext="bcf"):
     def inner(wildcards):

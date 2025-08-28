@@ -83,6 +83,13 @@ mutational_signatures:
 gene_coverage:
   min_avg_coverage: 5
 
+varpubs:
+  activate: false
+  llm_url: https://vllm.staging.kite.ume.de/v1/
+  model: meta-llama/Llama-3.3-70B-Instruct
+  api_key: ""
+  mail: "mtb@uk-essen.de"
+
 # printing of variants in interactive tables
 report:
   # if stratification is deactivated, one report for all
