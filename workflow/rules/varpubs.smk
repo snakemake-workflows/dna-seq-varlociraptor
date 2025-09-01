@@ -28,4 +28,4 @@ rule varpubs_summarize_variants:
     log:
         "logs/varpub/summarize/{group}.{event}.log",
     shell:
-        "varpubs summarize-variants --db_path {input.db_path} --vcf_path {input.bcf} --llm_url {params.llm_url} --model {params.model} --api_key {params.api_key} --output {output}"
+        "varpubs summarize-variants --db_path {input.db_path} --vcf_path {input.bcf} --llm_url {params.llm_url} --model {params.model} --api_key '{params.api_key}' --output {output} &> {log}"

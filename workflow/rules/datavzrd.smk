@@ -103,7 +103,7 @@ rule datavzrd_variants_calls:
             dpath="calling/fdr-control/events/{event}/desc", within=config
         ),
     wrapper:
-        "v6.2.0/utils/datavzrd"
+        "v7.2.0/utils/datavzrd"
 
 
 rule datavzrd_fusion_calls:
@@ -141,8 +141,28 @@ rule datavzrd_fusion_calls:
         groups=get_report_batch("fusions"),
         samples=samples,
     wrapper:
-        "v6.2.0/utils/datavzrd"
+        "v7.2.0/utils/datavzrd"
 
+rule datavzrd_varpubs:
+    input:
+        csv="results/varpubs/{batch}.{event}.csv",
+        config=workflow.source_path(
+            "../resources/datavzrd/varpubs-template.datavzrd.yaml"
+        ),
+    output:
+        report(
+            directory(
+                "results/datavzrd-report/varpubs/{batch}.{event}"
+            ),
+            htmlindex="index.html",
+            category="Summaries of variant publications",
+            labels=get_datavzrd_report_labels,
+            subcategory=get_datavzrd_report_subcategory,
+        ),
+    log:
+        "logs/datavzrd_report/varpubs/{batch}.{event}.log",
+    wrapper:
+        "v7.2.0/utils/datavzrd"
 
 rule bedtools_merge:
     input:
@@ -195,4 +215,4 @@ rule datavzrd_coverage:
     params:
         samples=lambda wc: get_group_samples(wc.group),
     wrapper:
-        "v6.2.0/utils/datavzrd"
+        "v7.2.0/utils/datavzrd"
