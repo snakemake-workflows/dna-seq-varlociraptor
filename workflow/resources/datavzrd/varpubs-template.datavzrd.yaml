@@ -1,0 +1,32 @@
+__use_yte__: true
+
+name: Variant publication summaries
+
+default-view: Summaries
+
+datasets:
+  Summaries:
+    path: ?input.csv
+    separator: ","
+views:
+  Summaries:
+    dataset: Summaries
+    render-table:
+      columns:
+        DOI:
+          link-to-url:
+            doi:
+              url: https://doi.org/{value}
+        Summary:
+          spell:
+            url: v1.4.0/utils/text
+            with:
+              chars_per_line: 80
+        Variant:
+          display-mode: normal
+        PMID:
+          display-mode: normal
+          link-to-url:
+            pubmed:
+              url: https://pubmed.ncbi.nlm.nih.gov/{value}
+              new-window: true
