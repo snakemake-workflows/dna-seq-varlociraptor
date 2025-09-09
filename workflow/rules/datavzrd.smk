@@ -149,6 +149,9 @@ rule datavzrd_varpubs:
         config=workflow.source_path(
             "../resources/datavzrd/varpubs-template.datavzrd.yaml"
         ),
+        summary_formatter=workflow.source_path(
+            "../resources/datavzrd/summary_formatter.js"
+        ),
     output:
         report(
             directory(
