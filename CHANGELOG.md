@@ -1,5 +1,12 @@
 # Changelog
 
+## [6.0.2](https://github.com/snakemake-workflows/dna-seq-varlociraptor/compare/v6.0.1...v6.0.2) (2025-09-17)
+
+
+### Bug Fixes
+
+* Upgrade wrappers from 7.2.0 to 7.3.0 with https update to vep-cache rule ([#387](https://github.com/snakemake-workflows/dna-seq-varlociraptor/issues/387)) ([ed366e6](https://github.com/snakemake-workflows/dna-seq-varlociraptor/commit/ed366e62a6070cb232e097c2a8c5638815cb942f))
+
 ## [6.0.1](https://github.com/snakemake-workflows/dna-seq-varlociraptor/compare/v6.0.0...v6.0.1) (2025-09-17)
 
 
