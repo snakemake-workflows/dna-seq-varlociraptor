@@ -71,7 +71,7 @@ rule get_annotation:
         "logs/get_annotation.log",
     cache: "omit-software"  # save space and time with between workflow caching (see docs)
     wrapper:
-        "v7.4.0/bio/reference/ensembl-annotation"
+        "v7.5.0/bio/reference/ensembl-annotation"
 
 
 rule determine_coding_regions:
