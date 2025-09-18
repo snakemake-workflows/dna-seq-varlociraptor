@@ -56,7 +56,7 @@ rule get_known_variants:
         chromosome=config["ref"].get("chromosome"),
     cache: "omit-software"
     wrapper:
-        "v7.3.0/bio/reference/ensembl-variation"
+        "v7.5.0/bio/reference/ensembl-variation"
 
 
 rule get_annotation:
@@ -71,7 +71,7 @@ rule get_annotation:
         "logs/get_annotation.log",
     cache: "omit-software"  # save space and time with between workflow caching (see docs)
     wrapper:
-        "v7.3.0/bio/reference/ensembl-annotation"
+        "v7.5.0/bio/reference/ensembl-annotation"
 
 
 rule determine_coding_regions:
@@ -134,7 +134,7 @@ rule get_vep_cache:
         "logs/vep/cache.log",
     cache: "omit-software"
     wrapper:
-        "v7.3.0/bio/vep/cache"
+        "v7.5.0/bio/vep/cache"
 
 
 rule get_vep_plugins:
