@@ -163,6 +163,14 @@ def get_final_output(wildcards):
         )
     )
 
+    if is_activated("hla_typing"):
+        final_output.extend(
+            expand(
+                "results/hla-typing/{item.group}.{item.sample}.tsv",
+                item=samples.itertuples(),
+            )
+        )
+
     for calling_type in calling_types:
         if config["report"]["activate"]:
             for event in get_calling_events(calling_type):
@@ -702,7 +710,18 @@ def get_mutational_signature_targets():
 
 def get_scattered_calls(ext="bcf"):
     def inner(wildcards):
-        caller = "arriba" if wildcards.calling_type == "fusions" else variant_caller
+        match wildcards.calling_type:
+            case "fusions":
+                caller = "arriba"
+            case "variants":
+                caller = variant_caller
+            case "hla-variants":
+                caller = "orthanq"
+            case _:
+                raise ValueError(
+                    f"Unexpected wildcard value for 'calling_type': {wildcards.calling_type}"
+                )
+
         return expand(
             "results/calls/{{group}}.{caller}.{{scatteritem}}.{ext}",
             caller=caller,
@@ -749,6 +768,15 @@ def get_gather_annotated_calls_input(ext="bcf"):
         )
 
     return inner
+
+
+def get_scatter_candidates_input(wildcards):
+    if wildcards.caller == "orthanq":
+        return "results/candidate-calls/orthanq.bcf"
+    elif config.get("target_regions"):
+        return "results/candidate-calls/{group}.{caller}.filtered.bcf"
+    else:
+        return get_fixed_candidate_calls("bcf")
 
 
 def get_candidate_calls(wc):
