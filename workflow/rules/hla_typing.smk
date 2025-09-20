@@ -34,3 +34,8 @@ rule orthanq_call:
         "logs/orthanq/{group}.{sample}.log",
     shell:
         "orthanq call {input} --sample {wildcards.sample} --out-table {output} 2> {log}"
+
+
+# TODO add other outputs (plots), fill missing inputs and commands
+# TODO decide how to handle deactivation of biases in varlociraptor:
+# my current favorite is a special INFO tag in the orthanq candidates.
