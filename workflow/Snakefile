@@ -28,6 +28,7 @@ include: "rules/benchmarking.smk"
 include: "rules/ref.smk"
 include: "rules/trimming.smk"
 include: "rules/mapping.smk"
+include: "rules/germline_snvs.smk"
 include: "rules/candidate_calling.smk"
 include: "rules/calling.smk"
 include: "rules/annotation.smk"
@@ -59,6 +60,14 @@ rule all:
 rule only_alignment:
     input:
         expand("results/mapped/{sample}.cram", sample=samples["sample_name"]),
+
+
+rule only_savana:
+    input:
+        expand(
+            "results/candidate-calls/{sample}.savana.bcf",
+            sample=samples["sample_name"],
+        ),
 
 
 rule benchmark:

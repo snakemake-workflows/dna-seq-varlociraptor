@@ -44,6 +44,8 @@ delly_excluded_regions = {
     ("homo_sapiens", "GRCh37"): "human.hg19",
 }
 
+germline_events = lookup("calling/savana/germline_events", within=config, default=[])
+
 
 def _group_or_sample(row):
     group = row.get("group", None)
