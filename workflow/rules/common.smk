@@ -773,7 +773,7 @@ def get_gather_annotated_calls_input(ext="bcf"):
 
 def get_scatter_candidates_input(wildcards):
     if wildcards.caller == "orthanq":
-        return "results/candidate-calls/orthanq.bcf"
+        return "results/candidate-calls/orthanq.{locus}.bcf"
     elif config.get("target_regions"):
         return "results/candidate-calls/{group}.{caller}.filtered.bcf"
     else:
