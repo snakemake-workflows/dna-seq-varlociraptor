@@ -166,8 +166,9 @@ def get_final_output(wildcards):
     if is_activated("hla_typing"):
         final_output.extend(
             expand(
-                "results/hla-typing/{item.group}.{item.sample}.tsv",
-                item=samples.itertuples(),
+                "results/hla-typing/{group}_{locus}/{group}_{locus}.csv",
+                group=groups,
+                locus=config["hla_typing"].get("loci")
             )
         )
 

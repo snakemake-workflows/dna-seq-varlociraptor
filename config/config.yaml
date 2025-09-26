@@ -80,6 +80,11 @@ mutational_signatures:
 
 hla_typing:
   activate: false
+  loci: 
+    - "A"
+    - "B"
+    - "C"
+    - "DQB1"
 
 # Sets the minimum average coverage for each gene.
 # Genes with lower average coverage will not be concidered in gene coverage datavzrd report
