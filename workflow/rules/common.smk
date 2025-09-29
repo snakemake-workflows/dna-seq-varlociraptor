@@ -170,7 +170,8 @@ def get_final_output(wildcards):
     if is_activated("hla_typing"):
         final_output.extend(
             expand(
-                "results/hla-typing/{group}-{locus}/{group}-{locus}.csv",
+                "results/hla-typing/{group}-{locus}/{sample}/{sample}-{locus}.csv",
+                sample=samples["sample_name"].unique(),
                 group=groups,
                 locus=[
                     f"orthanq-{locus}" for locus in config["hla_typing"].get("loci")
