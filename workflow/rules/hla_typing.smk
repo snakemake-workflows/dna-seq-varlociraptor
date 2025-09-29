@@ -32,7 +32,7 @@ rule orthanq_candidate_variants:
         xml="results/preparation/hla.xml",
         genome=genome,
     output:
-        bcfs=expand("results/candidate-calls/orthanq.{locus}.bcf", locus=config["hla_typing"].get("loci"))
+        bcfs=expand("results/orthanq-candidate-calls/{caller}.hla-variants.bcf", caller=[f"orthanq-{locus}" for locus in config['hla_typing'].get('loci')])
     log:
         "logs/orthanq-candidates.log",
     conda:
@@ -44,15 +44,29 @@ rule orthanq_candidate_variants:
         "orthanq candidates hla --alleles {input.hla_genes} --genome {input.genome} --xml {input.xml} "
         "--threads {threads} --output-bcf --output {params.output_folder} 2> {log}"
 
-
-rule gather_annotated_calls:
+#since the scatter_candidates rule does not work without group wildcards.
+rule scatter_candidates_orthanq:
     input:
-        calls=gather.calling("results/calls/{{group}}.{locus}.orthanq.{scatteritem}.bcf"),
-        idx=gather.calling("results/calls/{{group}}.{locus}.orthanq.{scatteritem}.bcf.csi"),
+        "results/orthanq-candidate-calls/{orthanq_locus}.hla-variants.bcf"
     output:
-        "results/calls/{group}.{locus}.hla-variants.bcf",
+        scatter.calling(
+            "results/orthanq-candidate-calls/{{orthanq_locus}}.hla-variants.{scatteritem}.bcf"
+        ),
     log:
-        "logs/gather-hla-variants/{group}.{locus}.log",
+        "logs/scatter-candidates/{orthanq_locus}.log",
+    conda:
+        "../envs/rbt.yaml"
+    shell:
+        "rbt vcf-split {input} {output}"
+
+rule gather_annotated_calls_orthanq:
+    input:
+        calls=gather.calling("results/calls/{{group}}.{{caller}}.{scatteritem}.bcf"),
+        idx=gather.calling("results/calls/{{group}}.{{caller}}.{scatteritem}.bcf.csi"),
+    output:
+        "results/calls/{group}.{caller}.bcf",
+    log:
+        "logs/gather-hla-variants/{group}.{caller}.log",
     params:
         extra="-a",
     group:
@@ -63,19 +77,19 @@ rule gather_annotated_calls:
 
 rule orthanq_call:
     input:
-        haplotype_variants="results/candidate-calls/orthanq.{locus}.bcf",
-        haplotype_calls="results/calls/{group}.{locus).hla-variants.bcf",
+        haplotype_variants="results/orthanq-candidate-calls/{caller}.hla-variants.bcf",
+        haplotype_calls="results/calls/{group}.{caller}.bcf",
         xml="results/preparation/hla.xml",
     output: #orthanq uses underscore for a separator of sample/group name and locus name.
-        table="results/hla-typing/{group}_{locus}/{group}_{locus}.csv",
-        three_field_solutions="results/hla-typing/{group}_{locus}/3_field_solutions.json",
-        two_field_solutions="results/hla-typing/{group}_{locus}/2_field_solutions.json",
-        final_solution="results/hla-typing/{group}_{locus}/final_solution.json",
-        lp_solution="results/hla-typing/{group}_{locus}/lp_solution.json",
-        two_field_table="results/hla-typing/{group}_{locus}/2-field.csv",
-        g_groups="results/hla-typing/{group}_{locus}/G_groups.csv",
+        table="results/hla-typing/{group}-{caller}/{group}-{caller}.csv",
+        three_field_solutions="results/hla-typing/{group}-{caller}/3_field_solutions.json",
+        two_field_solutions="results/hla-typing/{group}-{caller}/2_field_solutions.json",
+        final_solution="results/hla-typing/{group}-{caller}/final_solution.json",
+        lp_solution="results/hla-typing/{group}-{caller}/lp_solution.json",
+        two_field_table="results/hla-typing/{group}-{caller}/2-field.csv",
+        g_groups="results/hla-typing/{group}-{caller}/G_groups.csv",
     log:
-        "logs/orthanq/{group}.{locus}.log",
+        "logs/orthanq/{group}-{caller}.log",
     conda:
         "../envs/orthanq.yaml"
     shell:

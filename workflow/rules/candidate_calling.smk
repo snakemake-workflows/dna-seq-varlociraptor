@@ -72,7 +72,9 @@ rule filter_offtarget_variants:
 
 rule scatter_candidates:
     input:
-        get_scatter_candidates_input,
+        "results/candidate-calls/{group}.{caller}.filtered.bcf"
+        if config.get("target_regions", None)
+        else get_fixed_candidate_calls("bcf"),
     output:
         scatter.calling(
             "results/candidate-calls/{{group}}.{{caller}}.{scatteritem}.bcf"
