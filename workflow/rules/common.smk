@@ -48,6 +48,7 @@ delly_excluded_regions = {
 hla_loci = config.get("hla_typing", {}).get("loci", [])
 orthanq_callers = [f"orthanq-{locus}" for locus in hla_loci]
 
+
 def _group_or_sample(row):
     group = row.get("group", None)
     if pd.isnull(group):
@@ -171,7 +172,9 @@ def get_final_output(wildcards):
             expand(
                 "results/hla-typing/{group}-{locus}/{group}-{locus}.csv",
                 group=groups,
-                locus=[f"orthanq-{locus}" for locus in config['hla_typing'].get('loci')]
+                locus=[
+                    f"orthanq-{locus}" for locus in config["hla_typing"].get("loci")
+                ],
             )
         )
 
@@ -720,7 +723,9 @@ def get_scattered_calls(ext="bcf"):
             case "variants":
                 caller = variant_caller
             case "hla-variants":
-                caller = [f"orthanq-{locus}" for locus in config['hla_typing'].get('loci', [])]
+                caller = [
+                    f"orthanq-{locus}" for locus in config["hla_typing"].get("loci", [])
+                ]
             case _:
                 raise ValueError(
                     f"Unexpected wildcard value for 'calling_type': {wildcards.calling_type}"
@@ -785,7 +790,7 @@ def get_gather_annotated_calls_input(ext="bcf"):
 
 def get_candidate_calls(wc):
     filter = config["calling"]["filter"].get("candidates")
-    #only use orthanq path if caller is one of the orthanq loci
+    # only use orthanq path if caller is one of the orthanq loci
     if is_activated("hla_typing") and wc.caller.startswith("orthanq-"):
         return "results/orthanq-candidate-calls/{caller}.hla-variants.{scatteritem}.bcf"
 
@@ -986,7 +991,9 @@ def get_candidate_filter_aux_files():
         return []
     else:
         # aux files are considered as part of the config, hence local
-        return [local(path) for name, path in get_filter_aux_entries("candidates").items()]
+        return [
+            local(path) for name, path in get_filter_aux_entries("candidates").items()
+        ]
 
 
 def get_candidate_filter_aux(wildcards, input):
@@ -995,7 +1002,9 @@ def get_candidate_filter_aux(wildcards, input):
     else:
         return [
             f"--aux {name}={path}"
-            for name, path in zip(get_filter_aux_entries("candidates").keys(), input.aux)
+            for name, path in zip(
+                get_filter_aux_entries("candidates").keys(), input.aux
+            )
         ]
 
 
@@ -1517,7 +1526,7 @@ def get_primer_extra(wc, input):
     min_primer_len = get_shortest_primer_length(input.reads)
     # Check if shortest primer is below default values
     if min_primer_len < 32:
-        extra += f" -T {min_primer_len - 2}"
+        extra += f" -T {min_primer_len-2}"
     if min_primer_len < 19:
         extra += f" -k {min_primer_len}"
     return extra

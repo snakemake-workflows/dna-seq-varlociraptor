@@ -32,7 +32,10 @@ rule orthanq_candidate_variants:
         xml="results/preparation/hla.xml",
         genome=genome,
     output:
-        bcfs=expand("results/orthanq-candidate-calls/{caller}.hla-variants.bcf", caller=[f"orthanq-{locus}" for locus in config['hla_typing'].get('loci')])
+        bcfs=expand(
+            "results/orthanq-candidate-calls/{caller}.hla-variants.bcf",
+            caller=[f"orthanq-{locus}" for locus in config["hla_typing"].get("loci")],
+        ),
     log:
         "logs/orthanq-candidates.log",
     conda:
@@ -44,10 +47,11 @@ rule orthanq_candidate_variants:
         "orthanq candidates hla --alleles {input.hla_genes} --genome {input.genome} --xml {input.xml} "
         "--threads {threads} --output-bcf --output {params.output_folder} 2> {log}"
 
-#since the scatter_candidates rule does not work without group wildcards.
+
+# since the scatter_candidates rule does not work without group wildcards.
 rule scatter_candidates_orthanq:
     input:
-        "results/orthanq-candidate-calls/{orthanq_locus}.hla-variants.bcf"
+        "results/orthanq-candidate-calls/{orthanq_locus}.hla-variants.bcf",
     output:
         scatter.calling(
             "results/orthanq-candidate-calls/{{orthanq_locus}}.hla-variants.{scatteritem}.bcf"
@@ -58,6 +62,7 @@ rule scatter_candidates_orthanq:
         "../envs/rbt.yaml"
     shell:
         "rbt vcf-split {input} {output}"
+
 
 rule gather_annotated_calls_orthanq:
     input:
@@ -80,7 +85,7 @@ rule orthanq_call:
         haplotype_variants="results/orthanq-candidate-calls/{caller}.hla-variants.bcf",
         haplotype_calls="results/calls/{group}.{caller}.bcf",
         xml="results/preparation/hla.xml",
-    output: #orthanq uses underscore for a separator of sample/group name and locus name.
+    output:  #orthanq uses underscore for a separator of sample/group name and locus name.
         table="results/hla-typing/{group}-{caller}/{group}-{caller}.csv",
         three_field_solutions="results/hla-typing/{group}-{caller}/3_field_solutions.json",
         two_field_solutions="results/hla-typing/{group}-{caller}/2_field_solutions.json",
@@ -95,6 +100,7 @@ rule orthanq_call:
     shell:
         "orthanq call hla --haplotype-variants {input.haplotype_variants} --xml {input.xml} "
         " --haplotype-calls {input.haplotype_calls} --prior diploid --output {output.table} 2> {log}"
+
 
 # TODO add other outputs (plots), fill missing inputs and commands
 # TODO decide how to handle deactivation of biases in varlociraptor:
