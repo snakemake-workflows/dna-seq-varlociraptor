@@ -86,19 +86,19 @@ rule orthanq_call:
         haplotype_calls="results/calls/{group}.{caller}.bcf",
         xml="results/preparation/hla.xml",
     output:  #orthanq uses underscore for a separator of sample/group name and locus name.
-        table="results/hla-typing/{group}-{caller}/{sample}/{sample}-{caller}.csv",
-        three_field_solutions="results/hla-typing/{group}-{caller}/{sample}/3_field_solutions.json",
-        two_field_solutions="results/hla-typing/{group}-{caller}/{sample}/2_field_solutions.json",
-        final_solution="results/hla-typing/{group}-{caller}/{sample}/final_solution.json",
-        lp_solution="results/hla-typing/{group}-{caller}/{sample}/lp_solution.json",
-        two_field_table="results/hla-typing/{group}-{caller}/{sample}/2-field.csv",
-        g_groups="results/hla-typing/{group}-{caller}/{sample}/G_groups.csv",
+        table="results/hla-typing/{group}-{caller}/{alias}/{alias}-{caller}.csv",
+        three_field_solutions="results/hla-typing/{group}-{caller}/{alias}/3_field_solutions.json",
+        two_field_solutions="results/hla-typing/{group}-{caller}/{alias}/2_field_solutions.json",
+        final_solution="results/hla-typing/{group}-{caller}/{alias}/final_solution.json",
+        lp_solution="results/hla-typing/{group}-{caller}/{alias}/lp_solution.json",
+        two_field_table="results/hla-typing/{group}-{caller}/{alias}/2-field.csv",
+        g_groups="results/hla-typing/{group}-{caller}/{alias}/G_groups.csv",
     log:
-        "logs/orthanq/{group}-{sample}-{caller}.log",
+        "logs/orthanq/{group}-{alias}-{caller}.log",
     conda:
         "../envs/orthanq.yaml"
     shell:
-        "orthanq call hla --haplotype-variants {input.haplotype_variants} --xml {input.xml} --sample {wildcards.sample} "
+        "orthanq call hla --haplotype-variants {input.haplotype_variants} --xml {input.xml} --sample {wildcards.alias} "
         " --haplotype-calls {input.haplotype_calls} --prior diploid --output {output.table} 2> {log}"
 
 

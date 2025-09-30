@@ -168,16 +168,16 @@ def get_final_output(wildcards):
     )
 
     if is_activated("hla_typing"):
-        final_output.extend(
-            expand(
-                "results/hla-typing/{group}-{locus}/{sample}/{sample}-{locus}.csv",
-                sample=samples["sample_name"].unique(),
-                group=groups,
-                locus=[
-                    f"orthanq-{locus}" for locus in config["hla_typing"].get("loci")
-                ],
+        loci = [f"orthanq-{locus}" for locus in config["hla_typing"].get("loci", [])]
+        for group in samples["group"].unique():
+            final_output.extend(
+                expand(
+                    "results/hla-typing/{group}-{locus}/{alias}/{alias}-{locus}.csv",
+                    alias=get_group_aliases(group),
+                    group=group,
+                    locus=loci,
+                )
             )
-        )
 
     for calling_type in calling_types:
         if config["report"]["activate"]:
