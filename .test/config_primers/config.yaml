@@ -38,6 +38,14 @@ mutational_signatures:
   events:
     - some_id
 
+hla_typing:
+  activate: false
+  loci: 
+    - "A"
+    - "B"
+    - "C"
+    - "DQB1"
+
 calling:
   delly:
     activate: true
