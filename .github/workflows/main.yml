@@ -14,10 +14,12 @@ concurrency:
 
 jobs:
   Testing:
-    runs-on: ubuntu-latest
     strategy:
       fail-fast: true
       matrix:
+        image:
+          - ubuntu-latest
+          - ubuntu-24.04-arm
         case:
           - name: local input (dryrun)
             args: >-
@@ -62,6 +64,7 @@ jobs:
             report: true
             cleanup: false
     name: test ${{ matrix.case.name }}
+    runs-on: ${{ matrix.image }}
 
     steps:
       - name: update apt
