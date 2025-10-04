@@ -59,7 +59,7 @@ rule map_primers:
         sort_extra="",  # Extra args for samtools/picard.
     threads: 8
     wrapper:
-        "v2.13.0/bio/bwa/mem"
+        "v7.6.0/bio/bwa/mem"
 
 
 rule filter_unmapped_primers:
@@ -72,7 +72,7 @@ rule filter_unmapped_primers:
     log:
         "logs/primers/{panel}_primers_filtered.log",
     wrapper:
-        "v2.3.2/bio/samtools/view"
+        "v7.6.0/bio/samtools/view"
 
 
 rule primer_to_bed:

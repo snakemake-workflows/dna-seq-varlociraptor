@@ -62,7 +62,7 @@ rule gather_calls:
     params:
         extra="-a",
     wrapper:
-        "v2.3.2/bio/bcftools/concat"
+        "v7.6.0/bio/bcftools/concat"
 
 
 rule control_fdr:
@@ -92,7 +92,7 @@ rule merge_calls:
     params:
         extra="-a",
     wrapper:
-        "v2.3.2/bio/bcftools/concat"
+        "v7.6.0/bio/bcftools/concat"
 
 
 rule convert_phred_scores:

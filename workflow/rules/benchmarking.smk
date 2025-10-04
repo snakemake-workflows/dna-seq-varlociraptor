@@ -13,7 +13,7 @@ rule gather_benchmark_calls:
     params:
         extra="-a",
     wrapper:
-        "v2.3.2/bio/bcftools/concat"
+        "v7.6.0/bio/bcftools/concat"
 
 
 rule chm_eval_sample:
@@ -23,7 +23,7 @@ rule chm_eval_sample:
         "logs/benchmarking/chm-eval-sample.log",
     cache: "omit-software"
     wrapper:
-        "v2.3.2/bio/benchmark/chm-eval-sample"
+        "v7.6.0/bio/benchmark/chm-eval-sample"
 
 
 rule chm_namesort:
@@ -37,7 +37,7 @@ rule chm_namesort:
         "logs/benchmarking/samtools-namesort.log",
     threads: workflow.cores - 1
     wrapper:
-        "v2.3.2/bio/samtools/sort"
+        "v7.6.0/bio/samtools/sort"
 
 
 rule chm_to_fastq:
@@ -65,7 +65,7 @@ rule chm_eval_kit:
         "logs/benchmarking/chm-eval-kit.log",
     cache: True
     wrapper:
-        "v2.3.2/bio/benchmark/chm-eval-kit"
+        "v7.6.0/bio/benchmark/chm-eval-kit"
 
 
 rule chromosome_map:
@@ -111,4 +111,4 @@ rule chm_eval:
     log:
         "logs/benchmarking/{query}.chm-eval.log",
     wrapper:
-        "v2.3.2/bio/benchmark/chm-eval"
+        "v7.6.0/bio/benchmark/chm-eval"

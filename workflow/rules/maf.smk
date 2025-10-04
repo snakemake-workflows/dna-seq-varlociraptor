@@ -6,7 +6,7 @@ rule group_bcf_to_vcf:
     log:
         "logs/maf/{group}.{event}.{calling_type}.fdr-controlled.log",
     wrapper:
-        "v3.8.0/bio/bcftools/view"
+        "v7.6.0/bio/bcftools/view"
 
 
 rule group_vcf_to_maf:
