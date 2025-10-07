@@ -9,7 +9,7 @@ rule fastqc:
     resources:
         mem_mb=1024,
     wrapper:
-        "v2.10.0/bio/fastqc"
+        "v7.6.0/bio/fastqc"
 
 
 rule samtools_idxstats:
@@ -21,7 +21,7 @@ rule samtools_idxstats:
     log:
         "logs/samtools/idxstats/{sample}.log",
     wrapper:
-        "v2.3.2/bio/samtools/idxstats"
+        "v7.6.0/bio/samtools/idxstats"
 
 
 rule samtools_stats:
@@ -32,7 +32,7 @@ rule samtools_stats:
     log:
         "logs/samtools/stats/{sample}.log",
     wrapper:
-        "v2.3.2/bio/samtools/stats"
+        "v7.6.0/bio/samtools/stats"
 
 
 rule multiqc:
@@ -50,4 +50,4 @@ rule multiqc:
     log:
         "logs/multiqc/{group}.log",
     wrapper:
-        "v2.10.0/bio/multiqc"
+        "v7.6.0/bio/multiqc"

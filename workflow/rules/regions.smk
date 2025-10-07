@@ -35,10 +35,10 @@ rule build_sample_regions:
         bai="results/recal/{sample}.bai",
         bed="resources/gene_annotation.bed",
     output:
-        "results/regions/{group}/{sample}.mosdepth.global.dist.txt",
-        "results/regions/{group}/{sample}.quantized.bed.gz",
-        "results/regions/{group}/{sample}.regions.bed.gz",
-        "results/regions/{group}/{sample}.mosdepth.region.dist.txt",
+        dist="results/regions/{group}/{sample}.mosdepth.global.dist.txt",
+        quant="results/regions/{group}/{sample}.quantized.bed.gz",
+        bed="results/regions/{group}/{sample}.regions.bed.gz",
+        bed_dist="results/regions/{group}/{sample}.mosdepth.region.dist.txt",
         summary="results/regions/{group}/{sample}.mosdepth.summary.txt",  # this named output is required for prefix parsing
     log:
         "logs/mosdepth/regions/{group}_{sample}.log",
@@ -46,7 +46,7 @@ rule build_sample_regions:
         extra="--no-per-base",
         quantize="1:",
     wrapper:
-        "v2.3.2/bio/mosdepth"
+        "v7.6.0/bio/mosdepth"
 
 
 rule merge_expanded_group_regions:
