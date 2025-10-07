@@ -103,7 +103,7 @@ rule datavzrd_variants_calls:
             dpath="calling/fdr-control/events/{event}/desc", within=config
         ),
     wrapper:
-        "v6.2.0/utils/datavzrd"
+        "v7.6.0/utils/datavzrd"
 
 
 rule datavzrd_fusion_calls:
@@ -141,7 +141,7 @@ rule datavzrd_fusion_calls:
         groups=get_report_batch("fusions"),
         samples=samples,
     wrapper:
-        "v6.2.0/utils/datavzrd"
+        "v7.6.0/utils/datavzrd"
 
 
 rule bedtools_merge:
@@ -156,7 +156,7 @@ rule bedtools_merge:
     log:
         "logs/bedtools/{group}/{sample}.log",
     wrapper:
-        "v2.6.0/bio/bedtools/intersect"
+        "v7.3.0/bio/bedtools/intersect"
 
 
 rule coverage_table:
@@ -195,4 +195,4 @@ rule datavzrd_coverage:
     params:
         samples=lambda wc: get_group_samples(wc.group),
     wrapper:
-        "v6.2.0/utils/datavzrd"
+        "v7.6.0/utils/datavzrd"

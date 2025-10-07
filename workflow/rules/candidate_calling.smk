@@ -20,7 +20,7 @@ rule freebayes:
         ),
     threads: max(workflow.cores - 1, 1)  # use all available cores -1 (because of the pipe) for calling
     wrapper:
-        "v2.7.0/bio/freebayes"
+        "v7.6.0/bio/freebayes"
 
 
 rule delly:
@@ -38,7 +38,7 @@ rule delly:
         extra=config["params"].get("delly", ""),
     threads: lambda _, input: len(input.alns)  # delly parallelizes over the number of samples
     wrapper:
-        "v2.3.2/bio/delly"
+        "v7.6.0/bio/delly"
 
 
 # Delly breakends lead to invalid BCFs after VEP annotation (invalid RLEN). Therefore we exclude them for now.
@@ -67,7 +67,7 @@ rule filter_offtarget_variants:
     log:
         "logs/filter_offtarget_variants/{group}.{caller}.log",
     wrapper:
-        "v2.3.2/bio/bcftools/filter"
+        "v7.6.0/bio/bcftools/filter"
 
 
 rule scatter_candidates:

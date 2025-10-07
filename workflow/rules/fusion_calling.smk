@@ -1,6 +1,6 @@
 module fusion_calling:
     meta_wrapper:
-        "v7.1.0/meta/bio/star_arriba"
+        "v1.26.0/meta/bio/star_arriba"
     config:
         config
 
@@ -95,7 +95,7 @@ rule sort_arriba_calls:
     resources:
         mem_mb=8000,
     wrapper:
-        "v1.21.0/bio/bcftools/sort"
+        "v7.6.0/bio/bcftools/sort"
 
 
 rule bcftools_concat_candidates:
@@ -113,4 +113,4 @@ rule bcftools_concat_candidates:
     resources:
         mem_mb=10,
     wrapper:
-        "v1.21.0/bio/bcftools/concat"
+        "v7.6.0/bio/bcftools/concat"

@@ -21,7 +21,7 @@ rule annotate_candidate_variants:
     group:
         "candidate-annotation"
     wrapper:
-        "v3.3.5/bio/vep/annotate"
+        "v7.6.0/bio/vep/annotate"
 
 
 rule annotate_variants:
@@ -49,7 +49,7 @@ rule annotate_variants:
     group:
         "annotation"
     wrapper:
-        "v3.3.5/bio/vep/annotate"
+        "v7.6.0/bio/vep/annotate"
 
 
 # TODO What about multiple ID Fields?
@@ -114,4 +114,4 @@ rule gather_annotated_calls:
     group:
         "annotation"
     wrapper:
-        "v2.3.2/bio/bcftools/concat"
+        "v7.6.0/bio/bcftools/concat"
