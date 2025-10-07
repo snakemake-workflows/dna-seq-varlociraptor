@@ -31,5 +31,5 @@ jobs:
         with:
           branch: perf/autobump
           title: "perf: autobump conda envs"
-          token: ${secrets.AUTOBUMP_PAT}
+          token: ${{ secrets.AUTOBUMP_PAT }}
           commit-message: "perf: autobump conda envs"
