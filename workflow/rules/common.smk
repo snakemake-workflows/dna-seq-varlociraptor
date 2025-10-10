@@ -172,7 +172,7 @@ def get_final_output(wildcards):
         for group in samples["group"].unique():
             final_output.extend(
                 expand(
-                    "results/hla-typing/{group}-{locus}/{alias}/{alias}-{locus}.csv",
+                    "results/hla-typing/{group}-{locus}/{alias}/",
                     alias=get_group_aliases(group),
                     group=group,
                     locus=loci,

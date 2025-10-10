@@ -28,27 +28,34 @@ rule unzip_xml:
 
 rule orthanq_candidate_variants:
     input:
-        hla_genes="results/preparation/hla_gen.fasta",
-        xml="results/preparation/hla.xml",
         genome=genome,
+        xml="results/preparation/hla.xml",
+        alleles="results/preparation/hla_gen.fasta",
     output:
-        bcfs=expand(
-            "results/orthanq-candidate-calls/{caller}.hla-variants.bcf",
-            caller=[f"orthanq-{locus}" for locus in config["hla_typing"].get("loci")],
-        ),
+        temp(directory("results/orthanq-candidate-calls-temp/"))
     log:
-        "logs/orthanq-candidates.log",
-    conda:
-        "../envs/orthanq.yaml"
-    params:
-        output_folder=lambda wc, output: os.path.dirname(output.bcfs[0]),
+        "logs/orthanq_candidates/candidates.log",
     threads: 8
+    params:
+        command="candidates",
+        subcommand="hla",
+        output_bcf=True 
+    wrapper:
+        "v7.6.2/bio/orthanq"
+
+
+rule rename_candidate_bcf:
+    input:
+        "results/orthanq-candidate-calls-temp/"
+    output:
+        "results/orthanq-candidate-calls/orthanq-{locus}.hla-variants.bcf"
+    log:
+        "logs/scatter-candidates/rename_candidates_{locus}.log",
     shell:
-        "orthanq candidates hla --alleles {input.hla_genes} --genome {input.genome} --xml {input.xml} "
-        "--threads {threads} --output-bcf --output {params.output_folder} 2> {log}"
+        "cp {input}/{wildcards.locus}.bcf {output}"
 
 
-# since the scatter_candidates rule does not work without group wildcards.
+# The scatter_candidates rule does not work without group wildcards.
 rule scatter_candidates_orthanq:
     input:
         "results/orthanq-candidate-calls/{orthanq_locus}.hla-variants.bcf",
@@ -80,28 +87,23 @@ rule gather_annotated_calls_orthanq:
         "v2.3.2/bio/bcftools/concat"
 
 
-rule orthanq_call:
+rule orthanq_call_hla:
     input:
-        haplotype_variants="results/orthanq-candidate-calls/{caller}.hla-variants.bcf",
         haplotype_calls="results/calls/{group}.{caller}.bcf",
+        haplotype_variants="results/orthanq-candidate-calls/{caller}.hla-variants.bcf",
         xml="results/preparation/hla.xml",
-    output:  #orthanq uses underscore for a separator of sample/group name and locus name.
-        table="results/hla-typing/{group}-{caller}/{alias}/{alias}-{caller}.csv",
-        three_field_solutions="results/hla-typing/{group}-{caller}/{alias}/3_field_solutions.json",
-        two_field_solutions="results/hla-typing/{group}-{caller}/{alias}/2_field_solutions.json",
-        final_solution="results/hla-typing/{group}-{caller}/{alias}/final_solution.json",
-        lp_solution="results/hla-typing/{group}-{caller}/{alias}/lp_solution.json",
-        two_field_table="results/hla-typing/{group}-{caller}/{alias}/2-field.csv",
-        g_groups="results/hla-typing/{group}-{caller}/{alias}/G_groups.csv",
+    output:
+        directory("results/hla-typing/{group}-{caller}/{alias}")
     log:
         "logs/orthanq/{group}-{alias}-{caller}.log",
-    conda:
-        "../envs/orthanq.yaml"
-    shell:
-        "orthanq call hla --haplotype-variants {input.haplotype_variants} --xml {input.xml} --sample {wildcards.alias} "
-        " --haplotype-calls {input.haplotype_calls} --prior diploid --output {output.table} 2> {log}"
-
-
+    params:
+        command="call",
+        subcommand="hla",
+        prior="diploid",
+        extra=""
+    wrapper:
+        "v7.6.2/bio/orthanq"
+        
 # TODO add other outputs (plots), fill missing inputs and commands
 # TODO decide how to handle deactivation of biases in varlociraptor:
 # my current favorite is a special INFO tag in the orthanq candidates.
