@@ -9,9 +9,8 @@ rule get_hla_genes_and_xml:
         genes_link="ftp://ftp.ebi.ac.uk/pub/databases/ipd/imgt/hla/hla_gen.fasta",
         xml_link="ftp://ftp.ebi.ac.uk/pub/databases/ipd/imgt/hla/xml/hla.xml.zip",
     shell:
-        "wget -c {params.genes_link} -O {output.genes} && "
-        "wget -c {params.xml_link} -O {output.xml} 2> {log}"
-
+        "wget -c {params.genes_link} -O {output.genes} 2> {log} && "
+        "wget -c {params.xml_link} -O {output.xml} 2>> {log}"
 
 rule unzip_xml:
     input:
