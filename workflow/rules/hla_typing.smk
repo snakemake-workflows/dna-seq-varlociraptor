@@ -41,7 +41,7 @@ rule orthanq_candidate_variants:
         subcommand="hla",
         output_bcf=True 
     wrapper:
-        "v7.6.2/bio/orthanq"
+        "v7.7.0/bio/orthanq"
 
 
 rule rename_candidate_bcf:
@@ -102,7 +102,7 @@ rule orthanq_call_hla:
         prior="diploid",
         extra=""
     wrapper:
-        "v7.6.2/bio/orthanq"
+        "v7.7.0/bio/orthanq"
         
 # TODO add other outputs (plots), fill missing inputs and commands
 # TODO decide how to handle deactivation of biases in varlociraptor:
