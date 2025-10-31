@@ -1,11 +1,11 @@
 rule filter_candidates_by_annotation:
     input:
-        bcf="results/candidate-calls/{group}.{caller}.{scatteritem}.annotated.bcf",
+        bcf="results/calls/candidates/{group}/{group}.{caller}.{scatteritem}.annotated.bcf",
         aux=get_candidate_filter_aux_files(),
     output:
-        "results/candidate-calls/{group}.{caller}.{scatteritem}.filtered.bcf",
+        "results/calls/candidates/{group}/{group}.{caller}.{scatteritem}.filtered.bcf",
     log:
-        "logs/filter-calls/annotation/{group}.{caller}.{scatteritem}.log",
+        "logs/filter-calls/annotation/{group}/{group}.{caller}.{scatteritem}.log",
     params:
         filter=get_candidate_filter_expression,
         aux=get_candidate_filter_aux,
@@ -22,9 +22,9 @@ rule filter_by_annotation:
         csi=partial(get_annotated_bcf, index=True),
         aux=get_annotation_filter_aux_files,
     output:
-        "results/calls/{group}.{event}.{calling_type}.{scatteritem}.filtered_ann.bcf",
+        "results/calls/{group}/{group}.{event}.{calling_type}.{scatteritem}.filtered_ann.bcf",
     log:
-        "logs/filter-calls/annotation/{group}.{event}.{calling_type}.{scatteritem}.log",
+        "logs/filter-calls/annotation/{group}/{group}.{event}.{calling_type}.{scatteritem}.log",
     params:
         filter=get_annotation_filter_expression,
         aux=get_annotation_filter_aux,
@@ -36,9 +36,9 @@ rule filter_by_annotation:
 
 rule filter_odds:
     input:
-        "results/calls/{group}.{event}.{calling_type}.{scatteritem}.filtered_ann.bcf",
+        "results/calls/{group}/{group}.{event}.{calling_type}.{scatteritem}.filtered_ann.bcf",
     output:
-        "results/calls/{group}.{event}.{calling_type}.{scatteritem}.filtered_odds.bcf",
+        "results/calls/{group}/{group}.{event}.{calling_type}.{scatteritem}.filtered_odds.bcf",
     params:
         events=lambda wc: config["calling"]["fdr-control"]["events"][wc.event][
             "varlociraptor"
@@ -56,9 +56,9 @@ rule gather_calls:
         calls=get_gather_calls_input(),
         idx=get_gather_calls_input(ext="bcf.csi"),
     output:
-        "results/calls/{group}.{event}.{calling_type}.filtered_{by}.bcf",
+        "results/calls/{group}/{group}.{event}.{calling_type}.filtered_{by}.bcf",
     log:
-        "logs/gather-calls/{group}.{event}.{calling_type}.filtered_{by}.log",
+        "logs/gather-calls/{group}/{group}.{event}.{calling_type}.filtered_{by}.log",
     params:
         extra="-a",
     wrapper:
@@ -69,9 +69,9 @@ rule control_fdr:
     input:
         get_control_fdr_input,
     output:
-        "results/calls/{group}.{vartype}.{event}.{calling_type}.fdr-controlled.bcf",
+        "results/calls/{group}/{group}.{vartype}.{event}.{calling_type}.fdr-controlled.bcf",
     log:
-        "logs/control-fdr/{group}.{vartype}.{event}.{calling_type}.log",
+        "logs/control-fdr/{group}/{group}.{vartype}.{event}.{calling_type}.log",
     params:
         query=get_fdr_control_params,
     conda:
@@ -86,9 +86,9 @@ rule merge_calls:
         calls=get_merge_calls_input("bcf"),
         idx=get_merge_calls_input("bcf.csi"),
     output:
-        "results/final-calls/{group}.{event}.{calling_type}.fdr-controlled.bcf",
+        "results/final-calls/{group}/{group}.{event}.{calling_type}.fdr-controlled.bcf",
     log:
-        "logs/merge-calls/{group}.{event}.{calling_type}.log",
+        "logs/merge-calls/{group}/{group}.{event}.{calling_type}.log",
     params:
         extra="-a",
     wrapper:
@@ -97,9 +97,9 @@ rule merge_calls:
 
 rule convert_phred_scores:
     input:
-        "results/final-calls/{group}.{event}.{calling_type}.fdr-controlled.bcf",
+        "results/final-calls/{group}/{group}.{event}.{calling_type}.fdr-controlled.bcf",
     output:
-        "results/final-calls/{group}.{event}.{calling_type}.fdr-controlled.normal-probs.bcf",
+        "results/final-calls/{group}/{group}.{event}.{calling_type}.fdr-controlled.normal-probs.bcf",
     log:
         "logs/convert-phred-scores/{group}.{event}.{calling_type}.log",
     conda:

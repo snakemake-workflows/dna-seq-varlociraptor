@@ -1,11 +1,11 @@
 rule split_call_tables:
     input:
-        calls="results/tables/{group}.{event}.variants.fdr-controlled.tsv",
+        calls="results/tables/{group}/{group}.{event}.variants.fdr-controlled.tsv",
         population_db=get_cleaned_population_db(),
         population_db_idx=get_cleaned_population_db(idx=True),
     output:
-        coding="results/tables/{group}.{event}.coding.fdr-controlled.tsv",
-        noncoding="results/tables/{group}.{event}.noncoding.fdr-controlled.tsv",
+        coding="results/tables/{group}/{group}.{event}.coding.fdr-controlled.tsv",
+        noncoding="results/tables/{group}/{group}.{event}.noncoding.fdr-controlled.tsv",
     params:
         sorting=lambda wc: config["calling"]["fdr-control"]["events"][wc.event].get(
             "sort", list()
@@ -20,9 +20,9 @@ rule split_call_tables:
 
 rule process_fusion_call_tables:
     input:
-        "results/tables/{group}.{event}.fusions.fdr-controlled.tsv",
+        "results/tables/{group}/{group}.{event}.fusions.fdr-controlled.tsv",
     output:
-        fusions="results/tables/{group}.{event}.fusions.joined.fdr-controlled.tsv",
+        fusions="results/tables/{group}/{group}.{event}.fusions.joined.fdr-controlled.tsv",
     log:
         "logs/join_partner/{group}.{event}.log",
     conda:
