@@ -209,7 +209,7 @@ def get_final_output(wildcards):
         if lookup(dpath="maf/activate", within=config, default=False):
             final_output.extend(
                 expand(
-                    "results/maf/{group}.{event}.{calling_type}.fdr-controlled.maf",
+                    "results/maf/{group}/{group}.{event}.{calling_type}.fdr-controlled.maf",
                     group=(
                         variants_groups
                         if calling_type == "variants"
