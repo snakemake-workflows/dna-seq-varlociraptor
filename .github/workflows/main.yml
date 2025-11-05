@@ -69,7 +69,7 @@ jobs:
 
       - name: Free Disk Space (Ubuntu)
         if: ${{ matrix.case.cleanup }}
-        uses: jlumbroso/free-disk-space@v1.3.0
+        uses: jlumbroso/free-disk-space@v1.3.1
         with:
           # this might remove tools that are actually needed,
           # if set to "true" but frees about 6 GB
