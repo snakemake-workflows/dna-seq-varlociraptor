@@ -60,7 +60,7 @@ jobs:
             args: >-
               --configfile .test/config-sra/config.yaml
             report: true
-            cleanup: false
+            cleanup: true
     name: test ${{ matrix.case.name }}
 
     steps:
