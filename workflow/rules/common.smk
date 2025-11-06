@@ -1171,7 +1171,7 @@ def get_info_fusion_fields_for_tables(wildcards):
 def get_format_fields_for_tables(wildcards):
     format_fields = ["AF", "DP"]
 
-    if lookup(dpath="tables/output/short_observations", within=config, default=False):
+    if lookup(dpath="tables/output/short_observations", within=config, default=False) or wilcards.calling_type == "fusions":
         format_fields.extend(["SROBS", "SAOBS"])
 
     if lookup(dpath="tables/output/observations", within=config, default=False):
