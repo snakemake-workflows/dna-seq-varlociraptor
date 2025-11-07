@@ -5,7 +5,7 @@ rule filter_candidates_by_annotation:
     output:
         "results/calls/candidates/{caller}/filtered/{group}/{group}.{scatteritem}.bcf",
     log:
-        "logs/filter-calls/annotation/{group}/{group}.{caller}.{scatteritem}.log",
+        "logs/filter-calls/annotation/{caller}/{group}/{group}.{scatteritem}.log",
     params:
         filter=get_candidate_filter_expression,
         aux=get_candidate_filter_aux,
