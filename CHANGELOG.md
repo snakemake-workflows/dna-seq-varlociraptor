@@ -1,5 +1,17 @@
 # Changelog
 
+## [6.0.3](https://github.com/snakemake-workflows/dna-seq-varlociraptor/compare/v6.0.2...v6.0.3) (2025-11-07)
+
+
+### Bug Fixes
+
+* Upgrade wrapper versions to v7.5.0 ([#389](https://github.com/snakemake-workflows/dna-seq-varlociraptor/issues/389)) ([ee49828](https://github.com/snakemake-workflows/dna-seq-varlociraptor/commit/ee49828e5e37ab48063f45faeca4477a759a37f0))
+
+
+### Performance Improvements
+
+* update vep wrappers ([#401](https://github.com/snakemake-workflows/dna-seq-varlociraptor/issues/401)) ([76b2038](https://github.com/snakemake-workflows/dna-seq-varlociraptor/commit/76b2038595c7ebfc4a93f342e6924b0899297400))
+
 ## [6.0.2](https://github.com/snakemake-workflows/dna-seq-varlociraptor/compare/v6.0.1...v6.0.2) (2025-09-17)
 
 
