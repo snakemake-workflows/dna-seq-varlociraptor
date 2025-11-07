@@ -69,7 +69,7 @@ rule convert_fusions:
         fai=genome_fai,
         fusions="results/arriba/{sample}.fusions.annotated.tsv",
     output:
-        temp("results/calls/candidates/{sample}/{sample}.arriba.vcf"),
+        temp("results/calls/candidates/arriba/{sample}/{sample}.vcf"),
     conda:
         "../envs/arriba.yaml"
     log:
@@ -82,9 +82,9 @@ rule convert_fusions:
 
 rule sort_arriba_calls:
     input:
-        "results/calls/candidates/{sample}/{sample}.arriba.vcf",
+        "results/calls/candidates/arriba/{sample}/{sample}.vcf",
     output:
-        temp("results/calls/candidates/{sample}/{sample}.arriba.bcf"),
+        temp("results/calls/candidates/arriba/{sample}/{sample}.bcf"),
     params:
         # Set to True, in case you want uncompressed BCF output
         uncompressed_bcf=False,
@@ -103,7 +103,7 @@ rule bcftools_concat_candidates:
         calls=get_arriba_group_candidates,
         idx=lambda wc: get_arriba_group_candidates(wc, csi=True),
     output:
-        "results/calls/candidates/{group}/{group}.arriba.bcf",
+        "results/calls/candidates/arriba/{group}/{group}.bcf",
     log:
         "logs/concat_candidates/{group}.log",
     params:

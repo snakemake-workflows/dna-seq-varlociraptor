@@ -1,13 +1,13 @@
 rule annotate_candidate_variants:
     input:
-        calls="results/calls/candidates/{group}/{group}.{caller}.{scatteritem}.bcf",
+        calls="results/calls/candidates/{caller}/{group}/{group}.{scatteritem}.bcf",
         cache=access.random("resources/vep/cache"),
         plugins=access.random("resources/vep/plugins"),
         fasta=access.random(genome),
         fai=genome_fai,
     output:
-        calls="results/calls/candidates/{group}/{group}.{caller}.{scatteritem}.annotated.bcf",
-        stats="results/calls/candidates/{group}/{group}.{caller}.{scatteritem}.stats.html",
+        calls="results/calls/candidates/{caller}/{group}/{group}.{scatteritem}.annotated.bcf",
+        stats="results/calls/candidates/{caller}/{group}/{group}.{scatteritem}.stats.html",
     params:
         plugins=config["annotations"]["vep"]["candidate_calls"]["plugins"],
         extra="{} --vcf_info_field ANN ".format(
@@ -26,7 +26,7 @@ rule annotate_candidate_variants:
 
 rule annotate_variants:
     input:
-        calls="results/calls/{group}/{group}.{calling_type}.{scatteritem}.bcf",
+        calls="results/calls/varlociraptor/{group}/{group}.{calling_type}.{scatteritem}.bcf",
         cache=access.random("resources/vep/cache"),
         plugins=access.random("resources/vep/plugins"),
         revel=lambda wc: get_plugin_aux("REVEL"),

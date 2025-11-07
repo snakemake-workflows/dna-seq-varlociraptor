@@ -258,9 +258,9 @@ def get_final_output(wildcards):
 def get_gather_calls_input(ext="bcf"):
     def inner(wildcards):
         if wildcards.by == "odds":
-            pattern = "results/calls/{{{{group}}}}/{{{{group}}}}.{{{{event}}}}.{{{{calling_type}}}}.{{scatteritem}}.filtered_odds.{ext}"
+            pattern = "results/calls/filtered/filtered_odds/{{{{group}}}}/{{{{group}}}}.{{{{event}}}}.{{{{calling_type}}}}.{{scatteritem}}.{ext}"
         elif wildcards.by == "ann":
-            pattern = "results/calls/{{{{group}}}}/{{{{group}}}}.{{{{event}}}}.{{{{calling_type}}}}.{{scatteritem}}.filtered_ann.{ext}"
+            pattern = "results/calls/filtered/filtered_ann/{{{{group}}}}/{{{{group}}}}.{{{{event}}}}.{{{{calling_type}}}}.{{scatteritem}}.{ext}"
         else:
             raise ValueError(
                 "Unexpected wildcard value for 'by': {}".format(wildcards.by)
@@ -278,7 +278,7 @@ def get_control_fdr_input(wildcards):
         and wildcards.calling_type == "variants"
     ):
         by = "ann" if query["local"] else "odds"
-        return "results/calls/{{group}}/{{group}}.{{event}}.{{calling_type}}.filtered_{by}.bcf".format(
+        return "results/calls/filtered/{{group}}/{{group}}.{{event}}.{{calling_type}}.filtered_{by}.bcf".format(
             by=by
         )
     else:
@@ -593,7 +593,7 @@ def get_group_bams(wildcards, bai=False):
 def get_arriba_group_candidates(wildcards, csi=False):
     ext = ".csi" if csi else ""
     return expand(
-        "results/calls/candidates/{sample}/{sample}.arriba.bcf{ext}",
+        "results/calls/candidates/arriba/{sample}/{sample}.bcf{ext}",
         sample=get_group_samples(wildcards.group),
         ext=ext,
     )
@@ -615,7 +615,7 @@ def get_resource(name):
 def get_group_observations(wildcards):
     # TODO if group contains only a single sample, do not require sorting.
     return expand(
-        "results/observations/{group}/{sample}.{caller}.{scatteritem}.bcf",
+        "results/observations/{caller}/{group}/{sample}.{scatteritem}.bcf",
         caller=wildcards.caller,
         group=wildcards.group,
         scatteritem=wildcards.scatteritem,
@@ -625,7 +625,7 @@ def get_group_observations(wildcards):
 
 def get_all_group_observations(wildcards):
     return expand(
-        "results/observations/{group}/{sample}.{caller}.all.bcf",
+        "results/observations/{caller}/{group}/{sample}.all.bcf",
         caller=wildcards.caller,
         group=wildcards.group,
         sample=get_group_samples(wildcards.group),
@@ -704,7 +704,7 @@ def get_scattered_calls(ext="bcf"):
     def inner(wildcards):
         caller = "arriba" if wildcards.calling_type == "fusions" else variant_caller
         return expand(
-            "results/calls/{{group}}/{{group}}.{caller}.{{scatteritem}}.{ext}",
+            "results/calls/varlociraptor/{caller}/{{group}}/{{group}}.{{scatteritem}}.{ext}",
             caller=caller,
             ext=ext,
         )
@@ -722,20 +722,20 @@ def get_annotate_dgidb_input(wildcards):
 
 
 def get_final_selected_annotation():
-    selection = "vep_annotated/"
+    selection = "vep_annotated"
     if is_activated("annotations/vcfs"):
-        selection = "db_annotated/"
+        selection = "db_annotated"
     if is_activated("annotations/dgidb"):
-        selection = "dgidb_annotated/"
+        selection = "dgidb_annotated"
     return selection
 
 def get_annotated_bcf(wildcards, index=False):
     ext = ".csi" if index else ""
     selection = (
-        get_final_selected_annotation() if wildcards.calling_type == "variants" else ""
+        get_final_selected_annotation() if wildcards.calling_type == "variants" else "varlociraptor"
     )
     return (
-        "results/calls/{selection}{group}/{group}.{calling_type}.{scatteritem}.bcf{ext}".format(
+        "results/calls/{selection}/{group}/{group}.{calling_type}.{scatteritem}.bcf{ext}".format(
             group=wildcards.group,
             calling_type=wildcards.calling_type,
             selection=selection,
@@ -748,10 +748,10 @@ def get_annotated_bcf(wildcards, index=False):
 def get_gather_annotated_calls_input(ext="bcf"):
     def inner(wildcards):
         selection = (
-            get_final_selected_annotation() if wildcards.calling_type == "variants" else ""
+            get_final_selected_annotation() if wildcards.calling_type == "variants" else "varlociraptor"
         )
         return gather.calling(
-            "results/calls/{selection}{{{{group}}}}/{{{{group}}}}.{{{{calling_type}}}}.{{scatteritem}}.{ext}".format(
+            "results/calls/{selection}/{{{{group}}}}/{{{{group}}}}.{{{{calling_type}}}}.{{scatteritem}}.{ext}".format(
                 ext=ext, selection=selection
             )
         )
@@ -762,9 +762,9 @@ def get_gather_annotated_calls_input(ext="bcf"):
 def get_candidate_calls(wc):
     filter = config["calling"]["filter"].get("candidates")
     if filter and wc.caller != "arriba":
-        return "results/calls/candidates/{group}/{group}.{caller}.{scatteritem}.filtered.bcf"
+        return "results/calls/candidates/{caller}/filtered/{group}/{group}.{scatteritem}.bcf"
     else:
-        return "results/calls/candidates/{group}/{group}.{caller}.{scatteritem}.bcf"
+        return "results/calls/candidates/{caller}/{group}/{group}.{scatteritem}.bcf"
 
 
 def _get_report_batch(calling_type, batch):
@@ -805,7 +805,7 @@ def get_merge_calls_input(ext="bcf"):
             else ["BND"]
         )
         return expand(
-            "results/calls/{{group}}/{{group}}.{vartype}.{{event}}.{{calling_type}}.fdr-controlled.{ext}",
+            "results/calls/fdr-controlled/{{group}}/{{group}}.{vartype}.{{event}}.{{calling_type}}.{ext}",
             ext=ext,
             vartype=vartype,
         )
@@ -875,12 +875,12 @@ def get_fixed_candidate_calls(ext="bcf"):
     def inner(wildcards):
         if wildcards.caller == "delly":
             return expand(
-                "results/calls/candidates/{{group}}/{{group}}.delly.no_bnds.{ext}",
+                "results/calls/candidates/delly/{{group}}/{{group}}.no_bnds.{ext}",
                 ext=ext,
             )
         else:
             return expand(
-                "results/calls/candidates/{{group}}/{{group}}.{{caller}}.{ext}",
+                "results/calls/candidates/{{caller}}/{{group}}/{{group}}.{ext}",
                 ext=ext,
             )
 

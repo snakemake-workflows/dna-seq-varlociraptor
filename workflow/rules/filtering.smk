@@ -1,9 +1,9 @@
 rule filter_candidates_by_annotation:
     input:
-        bcf="results/calls/candidates/{group}/{group}.{caller}.{scatteritem}.annotated.bcf",
+        bcf="results/calls/candidates/{caller}/{group}/{group}.{scatteritem}.annotated.bcf",
         aux=get_candidate_filter_aux_files(),
     output:
-        "results/calls/candidates/{group}/{group}.{caller}.{scatteritem}.filtered.bcf",
+        "results/calls/candidates/{caller}/filtered/{group}/{group}.{scatteritem}.bcf",
     log:
         "logs/filter-calls/annotation/{group}/{group}.{caller}.{scatteritem}.log",
     params:
@@ -22,7 +22,7 @@ rule filter_by_annotation:
         csi=partial(get_annotated_bcf, index=True),
         aux=get_annotation_filter_aux_files,
     output:
-        "results/calls/{group}/{group}.{event}.{calling_type}.{scatteritem}.filtered_ann.bcf",
+        "results/calls/filtered/filtered_ann/{group}/{group}.{event}.{calling_type}.{scatteritem}.bcf",
     log:
         "logs/filter-calls/annotation/{group}/{group}.{event}.{calling_type}.{scatteritem}.log",
     params:
@@ -36,9 +36,9 @@ rule filter_by_annotation:
 
 rule filter_odds:
     input:
-        "results/calls/{group}/{group}.{event}.{calling_type}.{scatteritem}.filtered_ann.bcf",
+        "results/calls/filtered/filtered_ann/{group}/{group}.{event}.{calling_type}.{scatteritem}.bcf",
     output:
-        "results/calls/{group}/{group}.{event}.{calling_type}.{scatteritem}.filtered_odds.bcf",
+        "results/calls/filtered/filtered_odds/{group}/{group}.{event}.{calling_type}.{scatteritem}.bcf",
     params:
         events=lambda wc: config["calling"]["fdr-control"]["events"][wc.event][
             "varlociraptor"
@@ -56,7 +56,7 @@ rule gather_calls:
         calls=get_gather_calls_input(),
         idx=get_gather_calls_input(ext="bcf.csi"),
     output:
-        "results/calls/{group}/{group}.{event}.{calling_type}.filtered_{by}.bcf",
+        "results/calls/filtered/{group}/{group}.{event}.{calling_type}.filtered_{by}.bcf",
     log:
         "logs/gather-calls/{group}/{group}.{event}.{calling_type}.filtered_{by}.log",
     params:
@@ -69,7 +69,7 @@ rule control_fdr:
     input:
         get_control_fdr_input,
     output:
-        "results/calls/{group}/{group}.{vartype}.{event}.{calling_type}.fdr-controlled.bcf",
+        "results/calls/fdr-controlled/{group}/{group}.{vartype}.{event}.{calling_type}.bcf",
     log:
         "logs/control-fdr/{group}/{group}.{vartype}.{event}.{calling_type}.log",
     params:

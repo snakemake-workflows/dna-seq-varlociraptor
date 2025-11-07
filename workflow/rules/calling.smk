@@ -47,7 +47,7 @@ rule varlociraptor_preprocess:
         bai="results/recal/{sample}.bai",
         alignment_props=get_alignment_props,
     output:
-        "results/observations/{group}/{sample}.{caller}.{scatteritem}.bcf",
+        "results/observations/{caller}/{group}/{sample}.{scatteritem}.bcf",
     params:
         extra=lambda wc: get_varlociraptor_params(
             wc, config["params"]["varlociraptor"]["preprocess"]
@@ -69,9 +69,9 @@ rule varlociraptor_call:
         obs=get_group_observations,
         scenario="results/scenarios/{group}.yaml",
     output:
-        temp("results/calls/{group}/{group}.{caller}.{scatteritem}.unsorted.bcf"),
+        temp("results/calls/varlociraptor/{caller}/{group}/{group}.{scatteritem}.unsorted.bcf"),
     log:
-        "logs/varlociraptor/call/{group}.{caller}.{scatteritem}.log",
+        "logs/varlociraptor/call/{caller}/{group}.{scatteritem}.log",
     params:
         obs=get_varlociraptor_obs_args,
         # Add -o as workaround to separate info field entries from subcommand
@@ -95,9 +95,9 @@ rule varlociraptor_call:
 
 rule sort_calls:
     input:
-        "results/calls/{group}/{group}.{caller}.{scatteritem}.unsorted.bcf",
+        "results/calls/varlociraptor/{caller}/{group}/{group}.{scatteritem}.unsorted.bcf",
     output:
-        temp("results/calls/{group}/{group}.{caller}.{scatteritem}.bcf"),
+        temp("results/calls/varlociraptor/{caller}/{group}/{group}.{scatteritem}.bcf"),
     params:
         # Set to True, in case you want uncompressed BCF output
         uncompressed_bcf=False,
@@ -116,7 +116,7 @@ rule bcftools_concat:
         calls=get_scattered_calls(),
         indexes=get_scattered_calls(ext="bcf.csi"),
     output:
-        "results/calls/{group}/{group}.{calling_type}.{scatteritem}.bcf",
+        "results/calls/varlociraptor/{group}/{group}.{calling_type}.{scatteritem}.bcf",
     log:
         "logs/concat-calls/{group}/{group}.{calling_type}.{scatteritem}.log",
     params:
