@@ -258,9 +258,9 @@ def get_final_output(wildcards):
 def get_gather_calls_input(ext="bcf"):
     def inner(wildcards):
         if wildcards.by == "odds":
-            pattern = "results/calls/filtered/filtered_odds/{{{{group}}}}/{{{{group}}}}.{{{{event}}}}.{{{{calling_type}}}}.{{scatteritem}}.{ext}"
+            pattern = "results/calls/filtered/filtered_odds/{{{{group}}}}/{{{{event}}}}/{{{{group}}}}.{{{{calling_type}}}}.{{scatteritem}}.{ext}"
         elif wildcards.by == "ann":
-            pattern = "results/calls/filtered/filtered_ann/{{{{group}}}}/{{{{group}}}}.{{{{event}}}}.{{{{calling_type}}}}.{{scatteritem}}.{ext}"
+            pattern = "results/calls/filtered/filtered_ann/{{{{group}}}}/{{{{event}}}}/{{{{group}}}}.{{{{calling_type}}}}.{{scatteritem}}.{ext}"
         else:
             raise ValueError(
                 "Unexpected wildcard value for 'by': {}".format(wildcards.by)
@@ -278,7 +278,7 @@ def get_control_fdr_input(wildcards):
         and wildcards.calling_type == "variants"
     ):
         by = "ann" if query["local"] else "odds"
-        return "results/calls/filtered/{{group}}/{{group}}.{{event}}.{{calling_type}}.filtered_{by}.bcf".format(
+        return "results/calls/filtered/{{group}}/{{event}}/{{group}}.{{calling_type}}.filtered_{by}.bcf".format(
             by=by
         )
     else:
@@ -805,7 +805,7 @@ def get_merge_calls_input(ext="bcf"):
             else ["BND"]
         )
         return expand(
-            "results/calls/fdr-controlled/{{group}}/{{group}}.{vartype}.{{event}}.{{calling_type}}.{ext}",
+            "results/calls/fdr-controlled/{{group}}/{{event}}/{{group}}.{vartype}.{{calling_type}}.{ext}",
             ext=ext,
             vartype=vartype,
         )
