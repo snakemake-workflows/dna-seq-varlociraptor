@@ -134,7 +134,7 @@ rule get_vep_cache:
         "logs/vep/cache.log",
     cache: "omit-software"
     wrapper:
-        "v7.6.0/bio/vep/cache"
+        "v8.0.0/bio/vep/cache"
 
 
 rule get_vep_plugins:
@@ -145,7 +145,7 @@ rule get_vep_plugins:
     log:
         "logs/vep/plugins.log",
     wrapper:
-        "v7.7.0/bio/vep/plugins"
+        "v8.8.0/bio/vep/plugins"
 
 
 rule get_pangenome:
