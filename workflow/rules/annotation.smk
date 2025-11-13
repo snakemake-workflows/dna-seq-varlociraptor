@@ -21,7 +21,7 @@ rule annotate_candidate_variants:
     group:
         "candidate-annotation"
     wrapper:
-        "v8.8.0/bio/vep/annotate"
+        "v8.0.0/bio/vep/annotate"
 
 
 rule annotate_variants:
@@ -49,7 +49,7 @@ rule annotate_variants:
     group:
         "annotation"
     wrapper:
-        "v8.8.0/bio/vep/annotate"
+        "v8.0.0/bio/vep/annotate"
 
 
 # TODO What about multiple ID Fields?

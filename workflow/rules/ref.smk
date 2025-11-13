@@ -145,7 +145,7 @@ rule get_vep_plugins:
     log:
         "logs/vep/plugins.log",
     wrapper:
-        "v8.8.0/bio/vep/plugins"
+        "v8.0.0/bio/vep/plugins"
 
 
 rule get_pangenome:
