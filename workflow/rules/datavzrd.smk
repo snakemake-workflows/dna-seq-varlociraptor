@@ -20,7 +20,15 @@ rule split_call_tables:
 
 rule process_fusion_call_tables:
     input:
-        "results/tables/{group}.{event}.fusions.fdr-controlled.tsv",
+        varlociraptor="results/tables/{group}.{event}.fusions.fdr-controlled.tsv",
+        arriba=expand(
+            "results/arriba/{sample}.fusions.annotated.tsv",
+            sample=lookup(
+                within=samples,
+                query="group == '{group}' & calling == 'fusions' & dataype == 'rna'",
+                cols="sample_name",
+            ),
+        ),
     output:
         fusions="results/tables/{group}.{event}.fusions.joined.fdr-controlled.tsv",
     log:
