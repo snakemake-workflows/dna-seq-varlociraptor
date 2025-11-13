@@ -25,7 +25,7 @@ rule process_fusion_call_tables:
             "results/arriba/{sample}.fusions.annotated.tsv",
             sample=lookup(
                 within=samples,
-                query="group == '{group}' & calling == 'fusions' & dataype == 'rna'",
+                query="group == '{group}' & calling == 'fusions' & datatype == 'rna'",
                 cols="sample_name",
             ),
         ),
