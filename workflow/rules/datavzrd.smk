@@ -147,6 +147,7 @@ rule datavzrd_fusion_calls:
         "logs/datavzrd_report/{batch}.{event}.log",
     params:
         groups=get_report_batch("fusions"),
+        species=lookup(within=config, dpath="ref/species"),
         samples=samples,
     wrapper:
         "v6.2.0/utils/datavzrd"
