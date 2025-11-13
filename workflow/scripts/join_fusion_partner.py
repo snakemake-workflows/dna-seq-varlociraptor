@@ -24,6 +24,8 @@ def get_samples(df):
     )
 
 
+# Drop columns, where both breakpoints will always have identical annotation,
+# because varlociraptor evaluates them together as one event.
 def drop_shared_columns(df):
     prob_columns = get_prefix_columns(df, "prob: ")
     df = df.drop(prob_columns, axis="columns")
@@ -72,6 +74,7 @@ for col in ["feature_id", "feature_name"]:
 
 first_partners = calls["id"].str.contains("a$")
 first_calls = calls[first_partners]
+# The dropped columns are identical between breakpoints of the same event.
 first_calls = drop_shared_columns(first_calls)
 second_calls = calls[~first_partners]
 samples = get_samples(second_calls)
