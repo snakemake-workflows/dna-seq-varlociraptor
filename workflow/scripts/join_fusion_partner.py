@@ -87,8 +87,6 @@ paired_fusions = first_calls.merge(
 )
 paired_fusions = paired_fusions.filter(regex="^(?!mateid|id)")
 
-print(snakemake.input["varlociraptor"])
-print(snakemake.input["arriba"])
 # From this file, we bring back useful arriba annotations for the final
 # datavzrd table for the report.
 annotated_candidates = pd.read_csv(
