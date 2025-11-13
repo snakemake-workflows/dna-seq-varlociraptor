@@ -21,13 +21,14 @@ rule split_call_tables:
 rule process_fusion_call_tables:
     input:
         varlociraptor="results/tables/{group}.{event}.fusions.fdr-controlled.tsv",
-        arriba=expand(
+        arriba=lambda wc: expand(
             "results/arriba/{sample}.fusions.annotated.tsv",
-            sample=lookup(
-                within=samples,
-                query="group == '{group}' & calling == 'fusions' & datatype == 'rna'",
-                cols="sample_name",
-            ),
+            sample=samples.loc[
+                (samples["group"] == wc.group) & 
+                (samples["calling"] == 'fusions') &
+                (samples["datatype"] == 'rna'),
+                "sample_name"
+            ]
         ),
     output:
         fusions="results/tables/{group}.{event}.fusions.joined.fdr-controlled.tsv",
