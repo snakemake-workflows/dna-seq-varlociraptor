@@ -49,8 +49,8 @@ views:
                 link_to_url: f"https://www.ensembl.org/{params.species}/Gene/Summary?g={value}"
             add-columns:
               breakpoint 2:
-               value: function create_position(row) { return ":".join([row.chromosome_partner2, row.position_partner2]) }
-               link_to_url: f"https://www.ensembl.org/{params.species}/Location/View?r={{value}}"
+                value: function create_position(row) { return ":".join([row.chromosome_partner2, row.position_partner2]) }
+                link_to_url: f"https://www.ensembl.org/{params.species}/Location/View?r={{value}}"
             columns:
               feature_id_partner2:
                 label: HUGO gene name breakpoint 2
