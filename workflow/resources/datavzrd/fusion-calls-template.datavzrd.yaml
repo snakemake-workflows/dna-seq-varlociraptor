@@ -25,11 +25,11 @@ views:
             add-columns:
               breakpoint 1:
                 value: function create_position(row) { return ":".join([row.chromosome_partner1, row.position_partner1]) }
-                link_to_url: f"https://www.ensembl.org/{params.species}/Gene/Summary?g={value}"
+                link-to-url: f"https://www.ensembl.org/{params.species}/Gene/Summary?g={{value}}"
             columns:
               feature_id_partner1:
                 label: HUGO gene name breakpoint 1
-                link_to_url: "https://www.genecards.org/cgi-bin/carddisp.pl?gene={value}"
+                link-to-url: "https://www.genecards.org/cgi-bin/carddisp.pl?gene={value}"
               exon_partner1:
                 label: exon breakpoint 1
               site1:
@@ -42,19 +42,19 @@ views:
               feature_name_partner1:
                 label: ensembl ID breakpoint 1
                 display-mode: detail
-                link_to_url: f"https://www.ensembl.org/{params.species}/Gene/Summary?g={value}"
+                link-to-url: f"https://www.ensembl.org/{params.species}/Gene/Summary?g={value}"
               feature_name_partner2:
                 label: ensembl ID breakpoint 2
                 display-mode: detail
-                link_to_url: f"https://www.ensembl.org/{params.species}/Gene/Summary?g={value}"
+                link-to-url: f"https://www.ensembl.org/{params.species}/Gene/Summary?g={value}"
             add-columns:
               breakpoint 2:
                 value: function create_position(row) { return ":".join([row.chromosome_partner2, row.position_partner2]) }
-                link_to_url: f"https://www.ensembl.org/{params.species}/Location/View?r={{value}}"
+                link-to-url: f"https://www.ensembl.org/{params.species}/Location/View?r={{value}}"
             columns:
               feature_id_partner2:
                 label: HUGO gene name breakpoint 2
-                link_to_url: "https://www.genecards.org/cgi-bin/carddisp.pl?gene={value}"
+                link-to-url: "https://www.genecards.org/cgi-bin/carddisp.pl?gene={value}"
               exon_partner2:
                 label: exon breakpoint 2
               site2:
