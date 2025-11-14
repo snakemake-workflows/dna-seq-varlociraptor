@@ -79,6 +79,7 @@ views:
                     aux-domain-columns:
                       - site1
               type:
+                plot:
                   heatmap:
                     type: nominal
                     color-scheme: category10
