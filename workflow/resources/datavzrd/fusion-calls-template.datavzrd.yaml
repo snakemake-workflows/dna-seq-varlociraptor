@@ -42,7 +42,8 @@ views:
                   heatmap:
                     type: nominal
                     color-scheme: set1
-                    aux-domain-columns: site2
+                    aux-domain-columns:
+                      - site2
               feature_name_partner1:
                 label: ensembl ID breakpoint 1
                 display-mode: detail
@@ -75,7 +76,8 @@ views:
                   heatmap:
                     type: nominal
                     color-scheme: set1
-                    aux-domain-columns: site1
+                    aux-domain-columns:
+                      - site1
               type:
                   heatmap:
                     type: nominal
