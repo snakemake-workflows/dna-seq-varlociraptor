@@ -130,12 +130,13 @@ paired_fusions_with_arriba_annotations = paired_fusions.merge(
         "chrom2",
         "pos2",
     ],
+)
 # Some breakpoints have multiple gene annotations, and in merging only by
 # chromosome and position this will lead to entries that are the cartesian
 # product of the entries in the two sets. While keeping entries with a
 # 'not in exon` feature_name, we filter those duplicates down to entries
 # where the feature_name and gene_id agree.
-).loc[
+paired_fusions_with_arriba_annotations = paired_fusions_with_arriba_annotations.loc[
     (paired_fusions_with_arriba_annotations['feature_name_partner1'] == 'not in exon') |
     (paired_fusions_with_arriba_annotations['feature_name_partner2'] == 'not in exon') |
     (
