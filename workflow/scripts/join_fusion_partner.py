@@ -65,7 +65,7 @@ calls = pd.read_csv(
     },
 )
 calls[["feature_name", "feature_id"]] = calls[["feature_id", "feature_name"]].fillna(
-    "('not in exon',)"
+    "('not_in_exon',)"
 )
 calls = calls.drop(["reference allele", "alternative allele"], axis="columns")
 # Obtain first entry of columns annotated as tuple by arriba
@@ -112,7 +112,7 @@ annotated_candidates[["chrom2", "pos2"]] = annotated_candidates["breakpoint2"].s
 annotated_candidates = annotated_candidates.drop(columns=["breakpoint1", "breakpoint2"])
 
 # We merge only on chromosome and position, as some breakpoints don't have gene
-# name annotations and will receive a 'not in exon' entry (see above). Thus,
+# name annotations and will receive a 'not_in_exon' entry (see above). Thus,
 # their gene designation will differ from those provided by the arriba
 # annotation.
 paired_fusions_with_arriba_annotations = paired_fusions.merge(
@@ -134,11 +134,11 @@ paired_fusions_with_arriba_annotations = paired_fusions.merge(
 # Some breakpoints have multiple gene annotations, and in merging only by
 # chromosome and position this will lead to entries that are the cartesian
 # product of the entries in the two sets. While keeping entries with a
-# 'not in exon` feature_name, we filter those duplicates down to entries
+# 'not_in_exon` feature_name, we filter those duplicates down to entries
 # where the feature_name and gene_id agree.
 paired_fusions_with_arriba_annotations = paired_fusions_with_arriba_annotations.loc[
-    (paired_fusions_with_arriba_annotations['feature_name_partner1'] == 'not in exon') |
-    (paired_fusions_with_arriba_annotations['feature_name_partner2'] == 'not in exon') |
+    (paired_fusions_with_arriba_annotations['feature_name_partner1'] == 'not_in_exon') |
+    (paired_fusions_with_arriba_annotations['feature_name_partner2'] == 'not_in_exon') |
     (
         ( paired_fusions_with_arriba_annotations['feature_name_partner1'] == paired_fusions_with_arriba_annotations['gene_id1']) &
         ( paired_fusions_with_arriba_annotations['feature_name_partner2'] == paired_fusions_with_arriba_annotations['gene_id2'])
