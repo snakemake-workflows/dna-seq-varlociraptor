@@ -84,6 +84,7 @@ views:
                     type: nominal
                     color-scheme: category10
               reading_frame:
+                plot:
                   heatmap:
                     type: nominal
                     color-scheme: dark2
