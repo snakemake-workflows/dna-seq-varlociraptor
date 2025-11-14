@@ -90,7 +90,7 @@ paired_fusions = paired_fusions.filter(regex="^(?!mateid|id)")
 # From this file, we bring back useful arriba annotations for the final
 # datavzrd table for the report.
 annotated_candidates = pd.read_csv(
-    snakemake.input["arriba"],
+    snakemake.input["arriba"][0],
     sep="\t",
     usecols=[
         "gene_id1",
