@@ -21,7 +21,7 @@ rule split_call_tables:
 rule process_fusion_call_tables:
     input:
         varlociraptor="results/tables/{group}.{event}.fusions.fdr-controlled.tsv",
-        arriba=lambda wc.expand(
+        arriba=lambda wc: expand(
             "results/arriba/{sample}.fusions.annotated.tsv",
             sample=lookup(
                 within=samples,
