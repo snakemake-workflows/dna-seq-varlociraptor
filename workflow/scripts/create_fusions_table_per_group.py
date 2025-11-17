@@ -181,6 +181,10 @@ paired_fusions_with_arriba_annotations = paired_fusions_with_arriba_annotations.
         "chromosome_partner2",
         "position_partner2",
     ]
+).drop(
+    # remove unused columns
+    "end_position_partner1",
+    "end_position_partner2",
 )
 
 # groups of columns, with numbers varying depending on scenario
@@ -191,11 +195,13 @@ obs_cols = list(paired_fusions_with_arriba_annotations.columns.str.endswith("obs
 
 # order of all the columns independent of the scenario
 columns_order = [
+    "location_breakpoint_1",
     "ensembl_gene_id_breakpoint_1",
     "ensembl_transcript_id_breakpoint_1",
     "gene_symbol_breakpoint_1",
     "exon_breakpoint_1",
     "site_type_breakpoint_1",
+    "location_breakpoint_2",
     "ensembl_gene_id_breakpoint_2",
     "ensembl_transcript_id_breakpoint_2",
     "gene_symbol_breakpoint_2",
