@@ -26,7 +26,7 @@ views:
               location_breakpoint_1:
                 link-to-url:
                   ensembl:
-                    url: ?f"https://www.ensembl.org/{params.species}/Gene/Summary?g={{value}}"
+                    url: ?f"https://www.ensembl.org/{params.species}/Location/Overview?r={{value}}"
                     new-window: true
               ensembl_gene_id_breakpoint_1:
                 display-mode: detail
@@ -57,7 +57,7 @@ views:
               location_breakpoint_2:
                 link-to-url:
                   ensembl:
-                    url: ?f"https://www.ensembl.org/{params.species}/Gene/Summary?g={{value}}"
+                    url: ?f"https://www.ensembl.org/{params.species}/Location/Overview?r={{value}}"
                     new-window: true
               ensembl_gene_id_breakpoint_2:
                 display-mode: detail
