@@ -19,13 +19,15 @@ views:
     dataset: Summaries
     render-table:
       columns:
-        Summary:
-          custom-path: ?read_file(input.summary_formatter)
-        Variant:
+        summary:
+          custom: ?read_file(input.summary_formatter)
+        symbol:
           display-mode: normal
-        PMIDs:
+        hgvsp:
+          display-mode: normal
+        pmids:
           display-mode: normal
           plot:
             pills:
-              separator: ";"
+              separator: ","
               range: ["blue"]

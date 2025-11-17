@@ -2,4 +2,10 @@ channels:
   - conda-forge
   - bioconda
 dependencies:
-  - varpubs =0.2.0
+  - cyvcf2
+  - openai
+  - pytest
+  - biopython
+  - duckdb
+  - pip:
+      - varpubs =0.4

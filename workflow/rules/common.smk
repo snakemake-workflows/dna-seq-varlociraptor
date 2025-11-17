@@ -711,6 +711,7 @@ def get_varpubs_targets():
                 event=get_calling_events("variants")
             )
         )
+        varpubs_targets.append(lookup(dpath="varpubs/cache", within=config))
     return varpubs_targets
 
 def get_scattered_calls(ext="bcf"):
@@ -1074,6 +1075,21 @@ def get_population_db(use_before_update=False):
                 return []
         else:
             return update(db)
+    return []
+
+
+def get_varpubs_cache(use_before_update=False):
+    if is_activated("varpubs"):
+        cache = lookup(dpath="varpubs/cache", within=config)
+        if not cache.endswith(".duckdb"):
+            raise ValueError("Varpubs cache must be a duckdb file.")
+        if use_before_update:
+            if exists(cache):
+                return before_update(cache)
+            else:
+                return []
+        else:
+            return update(cache)
     return []
 
 

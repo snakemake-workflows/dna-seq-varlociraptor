@@ -25,11 +25,11 @@ ref:
   release: 111
   # Genome build
   build: GRCh38
-  pangenome: 
+  pangenome:
     # if active, reads will be aligned to given pangenome instead of to the linear reference genome
     # Important: this is only supported for homo_sapiens so far
     activate: true
-    # Pangenome source and version: Only 'hprc' and v1.1 are supported for now. 
+    # Pangenome source and version: Only 'hprc' and v1.1 are supported for now.
     # see https://github.com/human-pangenomics/hpp_pangenome_resources/?tab=readme-ov-file#minigraph-cactus for details
     source: hprc
     version: v1.1
@@ -83,12 +83,14 @@ mutational_signatures:
 gene_coverage:
   min_avg_coverage: 5
 
+# summary of Pubmed articles for called variants
 varpubs:
   activate: false
-  llm_url: https://vllm.staging.kite.ume.de/v1/
-  model: meta-llama/Llama-3.3-70B-Instruct
+  cache: /media/HDD/varpubs_cache/varpubs_cache.duckdb
+  llm_url: http://localhost:11434/v1
+  model: mistral:latest
   api_key: ""
-  mail: "mtb@uk-essen.de"
+  mail: "some_email@example.com"
 
 # printing of variants in interactive tables
 report:
@@ -248,7 +250,7 @@ annotations:
         # Plugin args can be passed as well, e.g. "LoFtool,path/to/custom/scores.txt".
         - LoFtool
         - REVEL
-        # For integration of SpliceAI preprocessed snv and indel scores (including index files) are required. 
+        # For integration of SpliceAI preprocessed snv and indel scores (including index files) are required.
         # Scores are available on https://basespace.illumina.com/s/otSPW8hnhaZR
         #- SpliceAI,snv=<path/to/spliceai_scores.raw.snv.hg38.vcf.gz,indel=<path/to/spliceai_scores.raw.indel.hg38.vcf.gz>
         # For annotation of AlphaMissense scores a tsv-file containing processed scores is required.
