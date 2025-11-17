@@ -143,8 +143,8 @@ paired_fusions_with_arriba_annotations = paired_fusions_with_arriba_annotations.
         ( paired_fusions_with_arriba_annotations['feature_name_partner1'] == paired_fusions_with_arriba_annotations['gene_id1']) &
         ( paired_fusions_with_arriba_annotations['feature_name_partner2'] == paired_fusions_with_arriba_annotations['gene_id2'])
     )
-# Remove duplicate columns only needed for record matching.
 ].drop(
+    # Remove duplicate columns only needed for record matching.
     columns=[
         "gene_id1",
         "chrom1",
@@ -153,6 +153,68 @@ paired_fusions_with_arriba_annotations = paired_fusions_with_arriba_annotations.
         "chrom2",
         "pos2",
     ]
+).assign(
+    # merge chromosome and position into a single breakpoint representation
+    location_breakpoint_1=lambda x: ":".join([ x["chromosome_partner1"], x["position_partner1"] ]),
+    location_breakpoint_2=lambda x: ":".join([ x["chromosome_partner2"], x["position_partner2"] ]),
+).rename(
+    # rename to interpretable column names
+    columns={
+        "feature_name_partner1": "ensembl_gene_id_breakpoint_1",
+        "transcript_id1": "ensembl_transcript_id_breakpoint_1",
+        "feature_id_partner1": "gene_symbol_breakpoint_1",
+        "exon_partner1": "exon_breakpoint_1",
+        "site1": "site_type_breakpoint_1",
+        "feature_name_partner2": "ensembl_gene_id_breakpoint_2",
+        "transcript_id2": "ensembl_transcript_id_breakpoint_2",
+        "feature_id_partner2": "gene_symbol_breakpoint_2",
+        "exon_partner2": "exon_breakpoint_2",
+        "site2": "site_type_breakpoint_2",
+        "type": "fusion_type",
+        "reading_frame": "resulting_reading_frame",
+    }
+).drop(
+    # remove redundant breakpoint info
+    columns=[
+        "chromosome_partner1",
+        "position_partner1",
+        "chromosome_partner2",
+        "position_partner2",
+    ]
 )
+
+# groups of columns, with numbers varying depending on scenario
+prob_cols = paired_fusions_with_arriba_annotations.columns.str.startswith("prob: ")
+af_cols = paired_fusions_with_arriba_annotations.columns.str.endswith(": allele frequency")
+depth_cols = paired_fusions_with_arriba_annotations.columns.str.endswith(": read depth")
+obs_cols = paired_fusions_with_arriba_annotations.columns.str.endswith("observations")
+
+# Order of all the clearly identifiable columns
+columns_order = [
+    "ensembl_gene_id_breakpoint_1",
+    "ensembl_transcript_id_breakpoint_1",
+    "gene_symbol_breakpoint_1",
+    "exon_breakpoint_1",
+    "site_type_breakpoint_1",
+    "ensembl_gene_id_breakpoint_2",
+    "ensembl_transcript_id_breakpoint_2",
+    "gene_symbol_breakpoint_2",
+    "exon_breakpoint_2",
+    "site_type_breakpoint_2",
+    "fusion_type",
+    "resulting_reading_frame",
+]
+
+columns_order = columns_order + prob_cols + af_cols + depth_cols + obs_cols
+
+# don't accidentally loose any columns
+remaining_columns = [col for col in list(paired_fusions_with_arriba_annotations.columns.values) if col not in columns_order]
+columns_order = columns_order + remaining_columns
+
+
+# reorder columns to order wanted in datavzrd table
+paired_fusions_with_arriba_annotations = paired_fusions_with_arriba_annotations[[
+    columns_order
+]]
 
 write(paired_fusions_with_arriba_annotations, snakemake.output.fusions)
