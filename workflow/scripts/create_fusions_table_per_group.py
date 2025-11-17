@@ -155,8 +155,8 @@ paired_fusions_with_arriba_annotations = paired_fusions_with_arriba_annotations.
     ]
 ).assign(
     # merge chromosome and position into a single breakpoint representation
-    location_breakpoint_1=lambda x: ":".join([ x["chromosome_partner1"].str, x["position_partner1"].str ]),
-    location_breakpoint_2=lambda x: ":".join([ x["chromosome_partner2"].str, x["position_partner2"].str ]),
+    location_breakpoint_1=lambda x: f'{x["chromosome_partner1"]}:{x["position_partner1"]}',
+    location_breakpoint_2=lambda x: f'{x["chromosome_partner2"]}:{x["position_partner2"]}',
 ).rename(
     # rename to interpretable column names
     columns={
