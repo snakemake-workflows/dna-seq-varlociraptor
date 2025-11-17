@@ -183,8 +183,10 @@ paired_fusions_with_arriba_annotations = paired_fusions_with_arriba_annotations.
     ]
 ).drop(
     # remove unused columns
-    "end_position_partner1",
-    "end_position_partner2",
+    columns=[
+        "end_position_partner1",
+        "end_position_partner2",
+    ]
 )
 
 # groups of columns, with numbers varying depending on scenario
