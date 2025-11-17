@@ -131,9 +131,6 @@ paired_fusions_with_arriba_annotations = paired_fusions.merge(
         "pos2",
     ],
 )
-
-import pdb; pdb.set_trace()
-
 # Some breakpoints have multiple gene annotations, and in merging only by
 # chromosome and position this will lead to entries that are the cartesian
 # product of the entries in the two sets. While keeping entries with a
@@ -238,11 +235,9 @@ columns_order = columns_order + prob_cols + af_cols + depth_cols + obs_cols
 remaining_columns = [col for col in list(paired_fusions_with_arriba_annotations.columns.values) if col not in columns_order]
 columns_order = columns_order + remaining_columns
 
-print(paired_fusions_with_arriba_annotations.head())
 # reorder columns to order wanted in datavzrd table
 paired_fusions_with_arriba_annotations = paired_fusions_with_arriba_annotations[
     columns_order
 ]
-print(paired_fusions_with_arriba_annotations.head())
 
 write(paired_fusions_with_arriba_annotations, snakemake.output.fusions)
