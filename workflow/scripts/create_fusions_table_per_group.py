@@ -213,8 +213,10 @@ columns_order = [
 
 columns_order = columns_order + prob_cols + af_cols + depth_cols + obs_cols
 
+print(columns_order)
 # don't accidentally loose any columns
 remaining_columns = [col for col in list(paired_fusions_with_arriba_annotations.columns.values) if col not in columns_order]
+print(remaining_columns)
 columns_order = columns_order + remaining_columns
 print(columns_order)
 print(paired_fusions_with_arriba_annotations)
