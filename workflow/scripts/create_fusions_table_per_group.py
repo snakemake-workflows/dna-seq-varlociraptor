@@ -190,10 +190,26 @@ paired_fusions_with_arriba_annotations = paired_fusions_with_arriba_annotations.
 )
 
 # groups of columns, with numbers varying depending on scenario
-prob_cols = list(paired_fusions_with_arriba_annotations.columns.str.startswith("prob: "))
-af_cols = list(paired_fusions_with_arriba_annotations.columns.str.endswith(": allele frequency"))
-depth_cols = list(paired_fusions_with_arriba_annotations.columns.str.endswith(": read depth"))
-obs_cols = list(paired_fusions_with_arriba_annotations.columns.str.endswith("observations"))
+prob_cols = list(
+    paired_fusions_with_arriba_annotations.columns[
+        paired_fusions_with_arriba_annotations.columns.str.startswith("prob: ")
+    ]
+)
+af_cols = list(
+    paired_fusions_with_arriba_annotations.columns[
+        paired_fusions_with_arriba_annotations.columns.str.endswith(": allele frequency")
+    ]
+)
+depth_cols = list(
+    paired_fusions_with_arriba_annotations.columns[
+        paired_fusions_with_arriba_annotations.columns.str.endswith(": read depth")
+    ]
+)
+obs_cols = list(
+    paired_fusions_with_arriba_annotations.columns[
+        paired_fusions_with_arriba_annotations.columns.str.endswith("observations")
+    ]
+)
 
 # order of all the columns independent of the scenario
 columns_order = [
