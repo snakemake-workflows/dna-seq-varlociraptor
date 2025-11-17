@@ -42,7 +42,7 @@ views:
                   gene_card:
                     url: "https://www.genecards.org/cgi-bin/carddisp.pl?gene={value}"
               exon_breakpoint_1:
-                display_mode: detail
+                display-mode: detail
               site_type_breakpoint_1:
                 plot:
                   heatmap:
@@ -69,7 +69,7 @@ views:
                   gene_card:
                     url: "https://www.genecards.org/cgi-bin/carddisp.pl?gene={value}"
               exon_breakpoint_2:
-                display_mode: detail
+                display-mode: detail
               site_type_breakpoint_2:
                 plot:
                   heatmap:
