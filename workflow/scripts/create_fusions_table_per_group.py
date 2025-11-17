@@ -184,12 +184,12 @@ paired_fusions_with_arriba_annotations = paired_fusions_with_arriba_annotations.
 )
 
 # groups of columns, with numbers varying depending on scenario
-prob_cols = paired_fusions_with_arriba_annotations.columns.str.startswith("prob: ")
-af_cols = paired_fusions_with_arriba_annotations.columns.str.endswith(": allele frequency")
-depth_cols = paired_fusions_with_arriba_annotations.columns.str.endswith(": read depth")
-obs_cols = paired_fusions_with_arriba_annotations.columns.str.endswith("observations")
+prob_cols = list(paired_fusions_with_arriba_annotations.columns.str.startswith("prob: "))
+af_cols = list(paired_fusions_with_arriba_annotations.columns.str.endswith(": allele frequency"))
+depth_cols = list(paired_fusions_with_arriba_annotations.columns.str.endswith(": read depth"))
+obs_cols = list(paired_fusions_with_arriba_annotations.columns.str.endswith("observations"))
 
-# Order of all the clearly identifiable columns
+# order of all the columns independent of the scenario
 columns_order = [
     "ensembl_gene_id_breakpoint_1",
     "ensembl_transcript_id_breakpoint_1",
