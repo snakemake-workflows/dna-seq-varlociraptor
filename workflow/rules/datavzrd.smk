@@ -36,7 +36,7 @@ rule process_fusion_call_tables:
     conda:
         "../envs/pandas.yaml"
     script:
-        "../scripts/join_fusion_partner.py"
+        "../scripts/create_fusions_table_per_group.py"
 
 
 rule prepare_oncoprint:
