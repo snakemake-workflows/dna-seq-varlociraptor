@@ -210,7 +210,8 @@ columns_order = columns_order + prob_cols + af_cols + depth_cols + obs_cols
 # don't accidentally loose any columns
 remaining_columns = [col for col in list(paired_fusions_with_arriba_annotations.columns.values) if col not in columns_order]
 columns_order = columns_order + remaining_columns
-
+print(columns_order)
+print(paired_fusions_with_arriba_annotations)
 
 # reorder columns to order wanted in datavzrd table
 paired_fusions_with_arriba_annotations = paired_fusions_with_arriba_annotations[
