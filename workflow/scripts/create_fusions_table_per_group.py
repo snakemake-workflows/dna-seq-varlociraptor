@@ -213,8 +213,8 @@ columns_order = columns_order + remaining_columns
 
 
 # reorder columns to order wanted in datavzrd table
-paired_fusions_with_arriba_annotations = paired_fusions_with_arriba_annotations[[
+paired_fusions_with_arriba_annotations = paired_fusions_with_arriba_annotations[
     columns_order
-]]
+]
 
 write(paired_fusions_with_arriba_annotations, snakemake.output.fusions)
