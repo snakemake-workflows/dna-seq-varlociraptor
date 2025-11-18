@@ -1,5 +1,12 @@
 # Changelog
 
+## [6.1.2](https://github.com/snakemake-workflows/dna-seq-varlociraptor/compare/v6.1.1...v6.1.2) (2025-11-18)
+
+
+### Bug Fixes
+
+* various fixes for the fusions calling ([#400](https://github.com/snakemake-workflows/dna-seq-varlociraptor/issues/400)) ([388b7da](https://github.com/snakemake-workflows/dna-seq-varlociraptor/commit/388b7dac35d07b101adbe03da919f4805d31ebbe))
+
 ## [6.1.1](https://github.com/snakemake-workflows/dna-seq-varlociraptor/compare/v6.1.0...v6.1.1) (2025-11-18)
 
 
