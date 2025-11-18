@@ -1,5 +1,12 @@
 # Changelog
 
+## [6.1.1](https://github.com/snakemake-workflows/dna-seq-varlociraptor/compare/v6.1.0...v6.1.1) (2025-11-18)
+
+
+### Bug Fixes
+
+* fixed format-string for linting ([4b6e289](https://github.com/snakemake-workflows/dna-seq-varlociraptor/commit/4b6e2896169d83659b0afddee0384b69ec82152c))
+
 ## [6.1.0](https://github.com/snakemake-workflows/dna-seq-varlociraptor/compare/v6.0.3...v6.1.0) (2025-11-14)
 
 
