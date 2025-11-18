@@ -1,5 +1,36 @@
 # Changelog
 
+## [6.1.1](https://github.com/snakemake-workflows/dna-seq-varlociraptor/compare/v6.1.0...v6.1.1) (2025-11-18)
+
+
+### Bug Fixes
+
+* fixed format-string for linting ([4b6e289](https://github.com/snakemake-workflows/dna-seq-varlociraptor/commit/4b6e2896169d83659b0afddee0384b69ec82152c))
+
+## [6.1.0](https://github.com/snakemake-workflows/dna-seq-varlociraptor/compare/v6.0.3...v6.1.0) (2025-11-14)
+
+
+### Features
+
+* Use alleles spell in Datavzrd report ([#396](https://github.com/snakemake-workflows/dna-seq-varlociraptor/issues/396)) ([a65edf7](https://github.com/snakemake-workflows/dna-seq-varlociraptor/commit/a65edf76c441235367009da2d23e7942bdb91d41))
+
+
+### Bug Fixes
+
+* update vep wrappers to 8.0.0 to make env installable ([#402](https://github.com/snakemake-workflows/dna-seq-varlociraptor/issues/402)) ([fa7d314](https://github.com/snakemake-workflows/dna-seq-varlociraptor/commit/fa7d314e769f43a6023f0c1d06a34e06385b43c4))
+
+## [6.0.3](https://github.com/snakemake-workflows/dna-seq-varlociraptor/compare/v6.0.2...v6.0.3) (2025-11-07)
+
+
+### Bug Fixes
+
+* Upgrade wrapper versions to v7.5.0 ([#389](https://github.com/snakemake-workflows/dna-seq-varlociraptor/issues/389)) ([ee49828](https://github.com/snakemake-workflows/dna-seq-varlociraptor/commit/ee49828e5e37ab48063f45faeca4477a759a37f0))
+
+
+### Performance Improvements
+
+* update vep wrappers ([#401](https://github.com/snakemake-workflows/dna-seq-varlociraptor/issues/401)) ([76b2038](https://github.com/snakemake-workflows/dna-seq-varlociraptor/commit/76b2038595c7ebfc4a93f342e6924b0899297400))
+
 ## [6.0.2](https://github.com/snakemake-workflows/dna-seq-varlociraptor/compare/v6.0.1...v6.0.2) (2025-09-17)
 
 
