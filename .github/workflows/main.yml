@@ -55,7 +55,7 @@ jobs:
             args: >-
               --configfile .test/config_primers/config.yaml
             report: true
-            cleanup: false
+            cleanup: true
           - name: sra download
             args: >-
               --configfile .test/config-sra/config.yaml
