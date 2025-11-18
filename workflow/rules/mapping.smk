@@ -205,7 +205,7 @@ rule map_consensus_reads:
         temp("results/consensus/{sample}.consensus.{read_type}.mapped.bam"),
     params:
         index=lambda w, input: os.path.splitext(input.idx[0])[0],
-        extra=lambda w: "-C " + get_read_group("-R")(w),
+        extra=lambda w: f"-C {get_read_group("-R")(w)}",
         sort="samtools",
         sort_order="coordinate",
     wildcard_constraints:
