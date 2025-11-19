@@ -44,6 +44,10 @@ delly_excluded_regions = {
     ("homo_sapiens", "GRCh37"): "human.hg19",
 }
 
+# hla typing
+hla_loci = config.get("hla_typing", {}).get("loci", [])
+orthanq_callers = [f"orthanq-{locus}" for locus in hla_loci]
+
 
 def _group_or_sample(row):
     group = row.get("group", None)
@@ -162,6 +166,18 @@ def get_final_output(wildcards):
             group=groups,
         )
     )
+
+    if is_activated("hla_typing"):
+        loci = [f"orthanq-{locus}" for locus in config["hla_typing"].get("loci", [])]
+        for group in samples["group"].unique():
+            final_output.extend(
+                expand(
+                    "results/hla-typing/{group}-{locus}/{alias}/",
+                    alias=get_group_aliases(group),
+                    group=group,
+                    locus=loci,
+                )
+            )
 
     for calling_type in calling_types:
         if config["report"]["activate"]:
@@ -702,7 +718,20 @@ def get_mutational_signature_targets():
 
 def get_scattered_calls(ext="bcf"):
     def inner(wildcards):
-        caller = "arriba" if wildcards.calling_type == "fusions" else variant_caller
+        match wildcards.calling_type:
+            case "fusions":
+                caller = "arriba"
+            case "variants":
+                caller = variant_caller
+            case "hla-variants":
+                caller = [
+                    f"orthanq-{locus}" for locus in config["hla_typing"].get("loci", [])
+                ]
+            case _:
+                raise ValueError(
+                    f"Unexpected wildcard value for 'calling_type': {wildcards.calling_type}"
+                )
+
         return expand(
             "results/calls/{{group}}.{caller}.{{scatteritem}}.{ext}",
             caller=caller,
@@ -751,12 +780,25 @@ def get_gather_annotated_calls_input(ext="bcf"):
     return inner
 
 
+# def get_scatter_candidates_input(wildcards):
+#     if wildcards.caller == "orthanq":
+#         return "results/candidate-calls/{caller}.{scatteritem}.bcf"
+#     elif config.get("target_regions"):
+#         return "results/candidate-calls/{group}.{caller}.filtered.bcf"
+#     else:
+#         return get_fixed_candidate_calls("bcf")
+
+
 def get_candidate_calls(wc):
     filter = config["calling"]["filter"].get("candidates")
+    # only use orthanq path if caller is one of the orthanq loci
+    if is_activated("hla_typing") and wc.caller.startswith("orthanq-"):
+        return "results/orthanq-candidate-calls/{caller}.hla-variants.{scatteritem}.bcf"
+
     if filter and wc.caller != "arriba":
         return "results/candidate-calls/{group}.{caller}.{scatteritem}.filtered.bcf"
-    else:
-        return "results/candidate-calls/{group}.{caller}.{scatteritem}.bcf"
+
+    return "results/candidate-calls/{group}.{caller}.{scatteritem}.bcf"
 
 
 def _get_report_batch(calling_type, batch):
@@ -983,7 +1025,7 @@ def get_varlociraptor_params(wildcards, params):
 wildcard_constraints:
     group="|".join(groups),
     sample="|".join(samples["sample_name"]),
-    caller="|".join(["freebayes", "delly", "arriba"]),
+    caller="|".join(["freebayes", "delly", "arriba"] + orthanq_callers),
     filter="|".join(config["calling"]["filter"]),
     event="|".join(config["calling"]["fdr-control"]["events"].keys()),
     regions_type="|".join(["expanded", "covered"]),

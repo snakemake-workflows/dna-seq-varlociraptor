@@ -57,6 +57,14 @@ mutational_signatures:
   events:
     - some_id
 
+hla_typing:
+  activate: false
+  loci: 
+    - "A"
+    - "B"
+    - "C"
+    - "DQB1"
+    
 # printing of variants in a matrix, sorted by recurrence
 report:
   # if stratificatio is deactivated, one oncoprint for all
