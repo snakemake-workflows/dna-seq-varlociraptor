@@ -20,7 +20,15 @@ rule split_call_tables:
 
 rule process_fusion_call_tables:
     input:
-        "results/tables/{group}/{group}.{event}.fusions.fdr-controlled.tsv",
+        varlociraptor="results/tables/{group}/{group}.{event}.fusions.fdr-controlled.tsv",
+        arriba=expand(
+            "results/arriba/{sample}.fusions.annotated.tsv",
+            sample=lookup(
+                within=samples,
+                query="group == '{group}' & calling == 'fusions' & datatype == 'rna'",
+                cols="sample_name",
+            ),
+        ),
     output:
         fusions="results/tables/{group}/{group}.{event}.fusions.joined.fdr-controlled.tsv",
     log:
@@ -28,7 +36,7 @@ rule process_fusion_call_tables:
     conda:
         "../envs/pandas.yaml"
     script:
-        "../scripts/join_fusion_partner.py"
+        "../scripts/create_fusions_table_per_group.py"
 
 
 rule prepare_oncoprint:
@@ -139,6 +147,7 @@ rule datavzrd_fusion_calls:
         "logs/datavzrd_report/{batch}.{event}.log",
     params:
         groups=get_report_batch("fusions"),
+        species=lookup(within=config, dpath="ref/species"),
         samples=samples,
     wrapper:
         "v6.2.0/utils/datavzrd"

@@ -31,5 +31,5 @@ jobs:
         with:
           branch: perf/autobump
           title: "perf: autobump snakemake wrappers"
-          token: ${secrets.AUTOBUMP_PAT}
+          token: ${{ secrets.AUTOBUMP_PAT }}
           commit-message: "perf: autobump snakemake wrappers"
