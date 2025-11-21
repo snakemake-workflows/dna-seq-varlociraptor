@@ -14,7 +14,7 @@ if is_activated("population/db"):
 
     rule population_filter_variants:
         input:
-            "results/final-calls/{group}.variants.annotated.bcf",
+            "results/final-calls/{group}/{group}.variants.annotated.bcf",
         output:
             temp("results/population/{group}.variants.filtered.bcf"),
         log:
