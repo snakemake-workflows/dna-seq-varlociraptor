@@ -304,8 +304,12 @@ views:
             display-mode: detail
           reference allele:
             display-mode: detail
+            spell:
+              url: v1.5.0/med/alleles
           alternative allele:
             display-mode: detail
+            spell:
+              url: v1.5.0/med/alleles
           protein position:
             display-mode: detail
           protein alteration (short):
@@ -493,8 +497,12 @@ views:
             display-mode: detail
           reference allele:
             display-mode: detail
+            spell:
+              url: v1.5.0/med/alleles
           alternative allele:
             display-mode: detail
+            spell:
+              url: v1.5.0/med/alleles
           canonical:
             optional: true
             display-mode: detail

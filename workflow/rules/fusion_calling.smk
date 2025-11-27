@@ -62,7 +62,6 @@ rule annotate_exons:
         """
 
 
-# Use script provided by arriba once new version is released
 rule convert_fusions:
     input:
         fasta=rules.get_genome.output,

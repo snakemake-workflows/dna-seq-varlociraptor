@@ -1,0 +1,35 @@
+# run every week
+on:
+  schedule:
+    - cron: '0 0 * * 0'
+  workflow_dispatch:
+
+# cancel any in-progress runs if a new commit is pushed
+# https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions#concurrency
+concurrency:
+  group: 'autobump'
+  cancel-in-progress: true
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  autobump:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Update conda envs and also create pinnings
+        uses: snakemake/snakedeploy-github-action@v1
+        with:
+          subcommand: update-conda-envs
+          args: workflow/envs/*.yaml --pin-envs
+
+      - name: Create Pull Request
+        uses: peter-evans/create-pull-request@v7
+        with:
+          branch: perf/autobump
+          title: "perf: autobump conda envs"
+          token: ${{ secrets.AUTOBUMP_PAT }}
+          commit-message: "perf: autobump conda envs"

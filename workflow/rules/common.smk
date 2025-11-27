@@ -959,7 +959,9 @@ def get_candidate_filter_aux_files():
         return []
     else:
         # aux files are considered as part of the config, hence local
-        return [local(path) for name, path in get_filter_aux_entries("candidates").items()]
+        return [
+            local(path) for name, path in get_filter_aux_entries("candidates").items()
+        ]
 
 
 def get_candidate_filter_aux(wildcards, input):
@@ -968,7 +970,9 @@ def get_candidate_filter_aux(wildcards, input):
     else:
         return [
             f"--aux {name}={path}"
-            for name, path in zip(get_filter_aux_entries("candidates").keys(), input.aux)
+            for name, path in zip(
+                get_filter_aux_entries("candidates").keys(), input.aux
+            )
         ]
 
 
@@ -1181,7 +1185,10 @@ def get_info_fusion_fields_for_tables(wildcards):
 def get_format_fields_for_tables(wildcards):
     format_fields = ["AF", "DP"]
 
-    if lookup(dpath="tables/output/short_observations", within=config, default=False):
+    if (
+        lookup(dpath="tables/output/short_observations", within=config, default=False)
+        or wildcards.calling_type == "fusions"
+    ):
         format_fields.extend(["SROBS", "SAOBS"])
 
     if lookup(dpath="tables/output/observations", within=config, default=False):
@@ -1492,7 +1499,7 @@ def get_primer_extra(wc, input):
     min_primer_len = get_shortest_primer_length(input.reads)
     # Check if shortest primer is below default values
     if min_primer_len < 32:
-        extra += f" -T {min_primer_len - 2}"
+        extra += f" -T {min_primer_len-2}"
     if min_primer_len < 19:
         extra += f" -k {min_primer_len}"
     return extra
