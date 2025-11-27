@@ -1,0 +1,18 @@
+{
+  "$schema": "https://vega.github.io/schema/vega-lite/v6.json",
+  "mark": "tick",
+  "encoding": {
+    "x": {
+      "field": "score",
+      "type": "quantitative",
+        "scale": {
+          "domain": [0,1]
+          }
+      }
+    },
+    "config": {
+      "tick": {
+        "thickness": 2.5
+      }
+  }
+}
