@@ -1,6 +1,7 @@
 rule split_call_tables:
     input:
         calls="results/tables/{group}.{event}.variants.fdr-controlled.tsv",
+        impact_graphs="results/impact_graphs/{group}.tsv",
         population_db=get_cleaned_population_db(),
         population_db_idx=get_cleaned_population_db(idx=True),
     output:
@@ -70,6 +71,12 @@ rule datavzrd_variants_calls:
         ),
         data_short_observations=workflow.source_path(
             "../resources/datavzrd/data_short_observations.js"
+        ),
+        spec_impact_graph=workflow.source_path(
+            "../resources/datavzrd/spec_impact_graph.json"
+        ),
+        data_impact_graph=workflow.source_path(
+            "../resources/datavzrd/data_impact_graph.js"
         ),
         config=workflow.source_path(
             "../resources/datavzrd/variant-calls-template.datavzrd.yaml"

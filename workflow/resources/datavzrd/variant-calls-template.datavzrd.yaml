@@ -326,6 +326,12 @@ views:
               with:
                 true_value: "True"
                 false_value: "False"
+          impact_scores:
+            optional: true
+            custom-plot:
+              data: ?read_file(input.data_impact_graph)
+              spec: ?read_file(input.spec_impact_graph)
+            display-mode: detail
           ?for alias in params.samples.loc[params.samples["group"] == group, "alias"]:
             '?f"{alias}: short observations"':
               optional: true

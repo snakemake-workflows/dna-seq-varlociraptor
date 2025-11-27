@@ -1,13 +1,14 @@
-rule gather_calls:
+rule gather_candidate_calls:
     input:
         calls=gather.calling("results/calls/{{group}}.{{caller}}.{scatteritem}.bcf"),
+        csi=gather.calling("results/calls/{{group}}.{{caller}}.{scatteritem}.bcf.csi"),
     output:
-        "results/calls/{group}/{caller}.bcf",
+        "results/calls/{group}.{caller}.bcf",
     log:
-        "logs/gather-calls/{group}/{caller}.log",
+        "logs/gather-calls/{group}.{caller}.log",
     params:
         uncompressed_bcf=False,
-        extra="",
+        extra="-a ",
     threads: 4
     resources:
         mem_mb=10,
@@ -50,9 +51,10 @@ rule predictosaurus_build:
         "logs/predictosaurus/build/{group}_{caller}.log",
     conda:
         "../envs/predictosaurus.yaml"
+    threads: 25
     shell:
         """
-        predictosaurus build -v --calls {input.calls} --observations {params.obs_aux} --output {output} 2> {log}
+        predictosaurus -t {threads} build --min-prob-present 0.99 -v --calls {input.calls} --observations {params.obs_aux} --output {output} 2> {log}
         """
 
 
@@ -67,22 +69,24 @@ rule predictosaurus_process:
         "logs/predictosaurus/process/{group}.log",
     conda:
         "../envs/predictosaurus.yaml"
+    threads: 24
     shell:
         """
-        predictosaurus process -v --features {input.gff} --reference {input.ref} --graph {input.graph} --output {output} 2> {log}
+        predictosaurus -t {threads} process -v --features {input.gff} --reference {input.ref} --graph {input.graph} --output {output} 2> {log}
         """
 
 
 rule predictosaurus_plot:
     input:
-        "results/impact_graphs/{group}.paths.duckdb",
+        "results/impact_graphs/{group}.scores.duckdb",
     output:
-        "results/impact_graphs/{group}",
+        "results/impact_graphs/{group}.tsv",
     log:
         "logs/predictosaurus/plot/{group}.log",
     conda:
         "../envs/predictosaurus.yaml"
+    threads: 1
     shell:
         """
-        predictosaurus plot --input {input} --output {output} 2> {log}
+        predictosaurus -t {threads} plot --input {input} --output {output} 2> {log}
         """

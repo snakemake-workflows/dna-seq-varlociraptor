@@ -157,6 +157,14 @@ def bin_max_vaf(df, samples):
     return df
 
 
+def load_impact_scores():
+    df = pd.read_csv(snakemake.input.impact_graphs, sep="\t", dtype={"score": "str"})
+    df = df.groupby('transcript', as_index=False).agg({'score': ','.join})
+    df["transcript"] = df['transcript'].str.extract(r'CDS:(.*)')
+    df.rename(columns={"score": "impact_scores"}, inplace=True)
+    return df
+
+
 class PopulationDb:
     def __init__(self, path):
         self.contig = None
@@ -274,6 +282,11 @@ if calls.columns.str.endswith(": short ref observations").any():
 
 if calls.columns.str.startswith("spliceai").any():
     calls = select_spliceai_effect(calls)
+
+if snakemake.input.impact_graphs:
+    impact_scores = load_impact_scores()
+    calls = calls.merge(impact_scores[['transcript', 'impact_scores']], how='left', left_on='ensp', right_on='transcript')
+    calls.drop(columns=['transcript', "ensp"], inplace=True)
 
 coding = ~pd.isna(calls["hgvsp"])
 canonical = calls["canonical"].notnull()

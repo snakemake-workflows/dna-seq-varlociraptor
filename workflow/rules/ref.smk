@@ -68,7 +68,7 @@ rule get_annotation:
         build=config["ref"]["build"],
         flavor="",  # optional, e.g. chr_patch_hapl_scaff, see Ensembl FTP.
     wildcard_constraints:
-        ext="gft|gff3",
+        ext="gtf|gff3",
     log:
         "logs/get_annotation_{ext}.log",
     cache: "omit-software"  # save space and time with between workflow caching (see docs)

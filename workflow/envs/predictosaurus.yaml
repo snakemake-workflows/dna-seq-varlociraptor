@@ -2,4 +2,4 @@ channels:
   - conda-forge
   - bioconda
 dependencies:
-  - predictosaurus =0.4.0
+  - predictosaurus =0.4.1

@@ -1127,6 +1127,7 @@ def get_annotation_fields_for_tables(wildcards):
         "HGVSp",
         "IMPACT",
         "MANE_PLUS_CLINICAL",
+        "ENSP",
         "Protein_position",
         "SWISSPROT",
         "SYMBOL",
@@ -1362,6 +1363,7 @@ def get_vembrane_config(wildcards, input):
         "ANN['Amino_acids']",
         "ANN['CANONICAL']",
         "ANN['MANE_PLUS_CLINICAL']",
+        "ANN['ENSP']",
         # fusions only
         "INFO['GENE_NAME']",
         "INFO['GENE_ID']",
