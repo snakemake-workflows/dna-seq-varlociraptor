@@ -16,18 +16,14 @@ rule gather_candidate_calls:
         "v5.8.2/bio/bcftools/concat"
 
 
-def get_predictosaurus_build_aux(wildcards):
-    aux = []
-    for sample in get_group_samples(wildcards.group):
-        aux.append(
-            "{alias}=results/observations/{group}/{sample}.{caller}.all.bcf".format(
-                alias=samples.loc[samples["sample_name"] == sample]["alias"].iloc[0],
-                caller=wildcards.caller,
-                group=wildcards.group,
-                sample=sample,
-            )
-        )
-    return " ".join(aux)
+def get_predictosaurus_build_aux(wildcards, input):
+    aux_entries = []
+    for path in input.obs:
+        sample = os.path.basename(path).split(".")[0]
+        alias = samples.loc[samples["sample_name"] == sample]["alias"].iloc[0]
+        aux_entries.append(f"{alias}={path}")
+    return " ".join(aux_entries)
+
 
 
 def get_all_group_observations(wildcards):
