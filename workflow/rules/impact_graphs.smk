@@ -50,7 +50,7 @@ rule predictosaurus_build:
     threads: 25
     shell:
         """
-        predictosaurus -t {threads} build --min-prob-present 0.99 -v --calls {input.calls} --observations {params.obs_aux} --output {output} 2> {log}
+        predictosaurus -t {threads} build --min-prob-present 0.99 --min-vaf 0.10 -v --calls {input.calls} --observations {params.obs_aux} --output {output} 2> {log}
         """
 
 
