@@ -77,6 +77,9 @@ mutational_signatures:
     # select events (callsets, defined under calling/fdr-control/events) to evaluate
     - some_id
 
+impact_graphs:
+  activate: false
+
 # Sets the minimum average coverage for each gene.
 # Genes with lower average coverage will not be concidered in gene coverage datavzrd report
 # If not present min_avg_coverage will be set to 0 rendering all genes.
