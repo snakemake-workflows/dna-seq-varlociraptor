@@ -1,7 +1,7 @@
 rule split_call_tables:
     input:
         calls="results/tables/{group}.{event}.variants.fdr-controlled.tsv",
-        impact_graphs="results/impact_graphs/{group}.tsv",
+        impact_graphs="results/impact_graphs/{group}.tsv" if is_activated("impact_graphs") else [],
         population_db=get_cleaned_population_db(),
         population_db_idx=get_cleaned_population_db(idx=True),
     output:

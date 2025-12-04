@@ -248,8 +248,6 @@ def get_final_output(wildcards):
                 )
     final_output.extend(get_mutational_burden_targets())
     final_output.extend(get_mutational_signature_targets())
-    final_output.extend(get_impact_graph_targets())
-
     if is_activated("population/db"):
         final_output.append(lookup(dpath="population/db/path", within=config))
 
@@ -698,15 +696,6 @@ def get_mutational_signature_targets():
             )
         )
     return mutational_signature_targets
-
-
-def get_impact_graph_targets():
-    impact_graph_targets = []
-    if is_activated("impact_graphs"):
-        impact_graph_targets.extend(
-            expand("results/impact_graphs/{group}", group=variants_groups)
-        )
-    return impact_graph_targets
 
 
 def get_scattered_calls(ext="bcf"):
