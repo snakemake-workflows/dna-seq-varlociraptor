@@ -3,19 +3,6 @@
     "data": {
         "name": "table"
     },
-    "transform": [
-        {
-            "flatten": ["impact_scores"]
-        },
-        {
-            "fold": ["sampleA", "sampleB"],
-            "as": ["sample", "likelihood"]
-        },
-        {
-            "calculate": "datum.impact_scores.score",
-            "as": "score"
-        }
-    ],
     "mark": {
         "type": "tick",
         "thickness": 2.5

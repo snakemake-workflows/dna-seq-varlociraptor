@@ -163,10 +163,10 @@ def load_impact_scores():
     samples = [c for c in df.columns if c not in ("transcript", "score")]
 
     def format_scores(row):
-        obj = {"score": row["score"]}
+        s = []
         for s in samples:
-            obj[s] = row[s]
-        return obj
+            s.append({"score": row["score"], "sample": s, "likelihood": row[s]})
+        return s
 
     df["impact_scores"] = df.apply(format_scores, axis=1)
     out = df.groupby("transcript", as_index=False).agg({"impact_scores": list})
