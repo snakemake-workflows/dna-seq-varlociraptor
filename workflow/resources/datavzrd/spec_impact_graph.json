@@ -1,18 +1,40 @@
 {
-  "$schema": "https://vega.github.io/schema/vega-lite/v6.json",
-  "mark": "tick",
-  "encoding": {
-    "x": {
-      "field": "score",
-      "type": "quantitative",
-        "scale": {
-          "domain": [0,1]
-          }
-      }
+    "$schema": "https://vega.github.io/schema/vega-lite/v6.json",
+    "data": {
+        "name": "table"
     },
-    "config": {
-      "tick": {
+    "transform": [
+        {
+            "flatten": ["impact_scores"]
+        },
+        {
+            "fold": ["sampleA", "sampleB"],
+            "as": ["sample", "likelihood"]
+        },
+        {
+            "calculate": "datum.impact_scores.score",
+            "as": "score"
+        }
+    ],
+    "mark": {
+        "type": "tick",
         "thickness": 2.5
-      }
-  }
+    },
+    "encoding": {
+        "x": {
+            "field": "score",
+            "type": "quantitative",
+            "scale": { "domain": [0, 1] }
+        },
+        "color": {
+            "field": "sample",
+            "type": "nominal",
+            "legend": { "title": "Sample" }
+        },
+        "opacity": {
+            "field": "likelihood",
+            "type": "quantitative",
+            "scale": { "domain": [0, 1] }
+        }
+    }
 }

@@ -1,12 +1,13 @@
+import json
 import sys
 
 sys.stderr = open(snakemake.log[0], "w")
 
+from typing import Generator
+
 import numpy as np
 import pandas as pd
 import pysam
-
-from typing import Generator
 
 PROB_EPSILON = 0.01  # columns with all probabilities below will be dropped
 
@@ -159,10 +160,19 @@ def bin_max_vaf(df, samples):
 
 def load_impact_scores():
     df = pd.read_csv(snakemake.input.impact_graphs, sep="\t", dtype={"score": "str"})
-    df = df.groupby('transcript', as_index=False).agg({'score': ','.join})
-    df["transcript"] = df['transcript'].str.extract(r'CDS:(.*)')
-    df.rename(columns={"score": "impact_scores"}, inplace=True)
-    return df
+    samples = [c for c in df.columns if c not in ("transcript", "score")]
+
+    def format_scores(row):
+        obj = {"score": row["score"]}
+        for s in samples:
+            obj[s] = row[s]
+        return obj
+
+    df["impact_scores"] = df.apply(format_scores, axis=1)
+    out = df.groupby("transcript", as_index=False).agg({"impact_scores": list})
+    out["transcript"] = out["transcript"].str.extract(r"CDS:(.*)")
+
+    return out
 
 
 class PopulationDb:
@@ -285,8 +295,13 @@ if calls.columns.str.startswith("spliceai").any():
 
 if snakemake.input.impact_graphs:
     impact_scores = load_impact_scores()
-    calls = calls.merge(impact_scores[['transcript', 'impact_scores']], how='left', left_on='ensp', right_on='transcript')
-    calls.drop(columns=['transcript', "ensp"], inplace=True)
+    calls = calls.merge(
+        impact_scores[["transcript", "impact_scores"]],
+        how="left",
+        left_on="ensp",
+        right_on="transcript",
+    )
+    calls.drop(columns=["transcript", "ensp"], inplace=True)
 
 coding = ~pd.isna(calls["hgvsp"])
 canonical = calls["canonical"].notnull()

@@ -50,7 +50,7 @@ rule predictosaurus_build:
     threads: 25
     shell:
         """
-        predictosaurus -t {threads} build --min-prob-present 0.99 --min-vaf 0.10 -v --calls {input.calls} --observations {params.obs_aux} --output {output} 2> {log}
+        predictosaurus -t {threads} build --min-prob-present 0.95 --min-vaf 0.05 -v --calls {input.calls} --observations {params.obs_aux} --output {output} 2> {log}
         """
 
 
@@ -65,7 +65,7 @@ rule predictosaurus_process:
         "logs/predictosaurus/process/{group}.log",
     conda:
         "../envs/predictosaurus.yaml"
-    threads: 24
+    threads: 28
     shell:
         """
         predictosaurus -t {threads} process -v --features {input.gff} --reference {input.ref} --graph {input.graph} --output {output} 2> {log}
