@@ -1,9 +1,9 @@
 rule vembrane_table:
     input:
-        bcf="results/final-calls/{group}.{event}.{calling_type}.fdr-controlled.normal-probs.bcf",
+        bcf="results/final-calls/{group}/{group}.{event}.{calling_type}.fdr-controlled.normal-probs.bcf",
         scenario="results/scenarios/{group}.yaml",
     output:
-        bcf="results/tables/{group}.{event}.{calling_type}.fdr-controlled.tsv",
+        bcf="results/tables/{group}/{group}.{event}.{calling_type}.fdr-controlled.tsv",
     conda:
         "../envs/vembrane.yaml"
     params:

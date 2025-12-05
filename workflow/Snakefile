@@ -1,3 +1,10 @@
+# bcf files are seperated into subdirectories
+# (processed) candidate calls created by freebayes, delly and arriba are placed under:
+# results/calls/candidates/<rule_identifier>/<group>/<group>.<suffix>.bcf
+# filtered/annotated calls processed by varlociraptor are placed under:
+# results/calls/<rule_identifier>/<group>/<event>/<group>.<suffix>.bcf
+
+
 from snakemake.utils import min_version
 
 min_version("9.1.0")
