@@ -60,7 +60,7 @@ use rule arriba from fusion_calling with:
         default_known_fusions=True,
         extra="-u " # do not use arriba-internal duplicate marking
         "-f "  # turn off the following arriba filters:
-        "no_genomic_support,""
+        "no_genomic_support,"
         "genomic_support,"
         "no_coverage,"
         "mismatches,"
