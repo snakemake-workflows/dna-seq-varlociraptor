@@ -28,10 +28,20 @@ use rule star_align from fusion_calling with:
         reads_per_gene="results/mapped/star/{sample}.ReadsPerGene.tsv",
     params:
         # specific parameters to work well with arriba
-        extra=lambda wc, input: f"--quantMode GeneCounts --sjdbGTFfile {input.annotation} {get_star_read_group(wc)}"
-        " --outSAMtype BAM SortedByCoordinate --chimSegmentMin 10 --chimOutType WithinBAM SoftClip"
-        " --chimJunctionOverhangMin 10 --chimScoreMin 1 --chimScoreDropMax 30 --chimScoreJunctionNonGTAG 0"
-        " --chimScoreSeparation 1 --alignSJstitchMismatchNmax 5 -1 5 5 --chimSegmentReadGapMax 3",
+        extra=lambda wc, input: "--quantMode GeneCounts "
+        f"--sjdbGTFfile {input.annotation} "
+        f"{get_star_read_group(wc)}"
+        "--outSAMtype BAM SortedByCoordinate "
+        "--chimSegmentMin 10 "
+        "--chimOutType WithinBAM SoftClip "
+        "--chimJunctionOverhangMin 10 "
+        "--chimScoreMin 1 "
+        "--chimScoreDropMax 30 "
+        "--chimScoreJunctionNonGTAG 0 "
+        "--chimScoreSeparation 1 "
+        "--alignSJstitchMismatchNmax 5 "
+        "-1 5 5 "
+        "--chimSegmentReadGapMax 3 ",
     resources:
         mem_mb=36000,  # suggestion at: https://github.com/alexdobin/STAR/issues/1159#issuecomment-788150448
 
@@ -48,7 +58,16 @@ use rule arriba from fusion_calling with:
         genome_build=config["ref"]["build"],
         default_blacklist=True,
         default_known_fusions=True,
-        extra="-u -f no_genomic_support,genomic_support,no_coverage,mismatches,homopolymer,low_entropy,duplicates,min_support",
+        extra="-u " # do not use arriba-internal duplicate marking
+        "-f "  # turn off the following arriba filters:
+        "no_genomic_support,""
+        "genomic_support,"
+        "no_coverage,"
+        "mismatches,"
+        "homopolymer,"
+        "low_entropy,"
+        "duplicates,"
+        "min_support",
     resources:
         mem_mb=lambda wc, input, attempt: input.size_mb * attempt,  # We have usually seen memory usage well below the input.size_mb (which includes the reference data), but also individual samples with peaks beyond it. One retry to double the reserved memory fixed this for all cases we have seen so far.
 
