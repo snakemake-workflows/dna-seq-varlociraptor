@@ -1,0 +1,32 @@
+{
+    "$schema": "https://vega.github.io/schema/vega-lite/v6.json",
+    "width": 200,
+    "height": 200,
+    "data": {
+        "name": "scores"
+    },
+    "mark": {
+        "type": "circle",
+        "size": 100
+    },
+    "encoding": {
+        "y": {
+            "field": "score",
+            "type": "quantitative",
+            "scale": { "domain": [0, 1] },
+            "title": "Score"
+        },
+        "color": {
+            "field": "sample",
+            "type": "nominal",
+            "legend": { "title": "Sample" }
+        },
+        "x": {
+            "field": "likelihood",
+            "type": "quantitative",
+            "scale": { "domain": [0, 1] },
+            "title": "Likelihood"
+        },
+        "tooltip": [{ "field": "score" }, { "field": "likelihood" }]
+    }
+}

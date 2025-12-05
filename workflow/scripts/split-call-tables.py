@@ -1,12 +1,14 @@
+import json
 import sys
 
 sys.stderr = open(snakemake.log[0], "w")
 
+import csv
+from typing import Generator
+
 import numpy as np
 import pandas as pd
 import pysam
-
-from typing import Generator
 
 PROB_EPSILON = 0.01  # columns with all probabilities below will be dropped
 
@@ -20,7 +22,7 @@ def write(df, path):
             remaining_columns.extend(["revel", "hgvsp", "symbol"])
             remaining_columns = [col for col in df.columns if col in remaining_columns]
         df = df[remaining_columns]
-    df.to_csv(path, index=False, sep="\t")
+    df.to_csv(path, index=False, sep="\t", quoting=csv.QUOTE_NONE, escapechar="\\")
 
 
 def format_floats(df):
@@ -157,6 +159,25 @@ def bin_max_vaf(df, samples):
     return df
 
 
+def load_impact_scores():
+    df = pd.read_csv(snakemake.input.impact_graphs, sep="\t", dtype={"score": "str"})
+    samples = [c for c in df.columns if c not in ("transcript", "score")]
+
+    def format_scores(row):
+        score_list = []
+        for s in samples:
+            score_list.append(
+                {"score": row["score"], "sample": s, "likelihood": row[s]}
+            )
+        return score_list  # Return list, not JSON string
+
+    df["impact_scores"] = df.apply(format_scores, axis=1)
+    out = df.groupby("transcript", as_index=False).agg({"impact_scores": "sum"})
+    out["impact_scores"] = out["impact_scores"].apply(json.dumps)
+    out["transcript"] = out["transcript"].str.extract(r"CDS:(.*)")
+    return out
+
+
 class PopulationDb:
     def __init__(self, path):
         self.contig = None
@@ -274,6 +295,16 @@ if calls.columns.str.endswith(": short ref observations").any():
 
 if calls.columns.str.startswith("spliceai").any():
     calls = select_spliceai_effect(calls)
+
+if snakemake.input.impact_graphs:
+    impact_scores = load_impact_scores()
+    calls = calls.merge(
+        impact_scores[["transcript", "impact_scores"]],
+        how="left",
+        left_on="ensp",
+        right_on="transcript",
+    )
+    calls.drop(columns=["transcript", "ensp"], inplace=True)
 
 coding = ~pd.isna(calls["hgvsp"])
 canonical = calls["canonical"].notnull()
