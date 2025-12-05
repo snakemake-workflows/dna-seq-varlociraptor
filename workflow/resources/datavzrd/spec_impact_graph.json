@@ -10,7 +10,7 @@
         "size": 100
     },
     "encoding": {
-        "x": {
+        "y": {
             "field": "score",
             "type": "quantitative",
             "scale": { "domain": [0, 1] },
@@ -21,7 +21,7 @@
             "type": "nominal",
             "legend": { "title": "Sample" }
         },
-        "y": {
+        "x": {
             "field": "likelihood",
             "type": "quantitative",
             "scale": { "domain": [0, 1] },

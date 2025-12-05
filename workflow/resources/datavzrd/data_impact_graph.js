@@ -1,3 +1,7 @@
 function parse_impact_scores(value) {
-    return JSON.parse(value);
+    if (!value) {
+        return [];
+    } else {
+        return JSON.parse(value);
+    }
 }
