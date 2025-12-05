@@ -12,6 +12,7 @@ use rule star_index from fusion_calling with:
     input:
         fasta=rules.get_genome.output,
         gtf=rules.get_annotation.output,
+    threads: 12  # suggestion at: https://github.com/alexdobin/STAR/issues/364#issuecomment-760274128
     resources:
         mem_mb=36000,  # suggestion at: https://github.com/alexdobin/STAR/issues/364#issuecomment-760274128
 

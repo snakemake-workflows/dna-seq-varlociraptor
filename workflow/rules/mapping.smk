@@ -143,9 +143,9 @@ rule sort_alignments:
         "logs/sort/{aligner}/{sample}.log",
     params:
         extra="",
-    threads: 16
+    threads: 8
     resources:
-        mem_mb=lambda wc, threads: threads * 1000,
+        mem_mb=lambda wc, threads: threads * 2000,
     wrapper:
         "v5.10.0/bio/samtools/sort"
 
