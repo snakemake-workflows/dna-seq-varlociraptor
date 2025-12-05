@@ -58,16 +58,20 @@ use rule arriba from fusion_calling with:
         genome_build=config["ref"]["build"],
         default_blacklist=True,
         default_known_fusions=True,
-        extra="-u " # do not use arriba-internal duplicate marking
-        "-f "  # turn off the following arriba filters:
-        "no_genomic_support,"
-        "genomic_support,"
-        "no_coverage,"
-        "mismatches,"
-        "homopolymer,"
-        "low_entropy,"
-        "duplicates,"
-        "min_support",
+        extra=lambda wc: "-u " # do not use arriba-internal duplicate marking
+        "-f "  # turn off the following arriba filters (https://github.com/suhrig/arriba/wiki/11-Internal-algorithm)
+        f'{",".join([
+            # read level filters to turn off (https://github.com/suhrig/arriba/wiki/11-Internal-algorithm#read-level-filters)
+            "duplicates",
+            "homopolymer",
+            "mismatches",
+            "low_entropy",
+            # event-level filters to turn off (https://github.com/suhrig/arriba/wiki/11-Internal-algorithm#event-level-filters)
+            "min_support",
+            "no_genomic_support",
+            "no_coverage",
+            "genomic_support",
+        ])}',
     resources:
         mem_mb=lambda wc, input, attempt: input.size_mb * attempt,  # We have usually seen memory usage well below the input.size_mb (which includes the reference data), but also individual samples with peaks beyond it. One retry to double the reserved memory fixed this for all cases we have seen so far.
 
