@@ -3,6 +3,7 @@ import sys
 
 sys.stderr = open(snakemake.log[0], "w")
 
+import csv
 from typing import Generator
 
 import numpy as np
@@ -21,7 +22,7 @@ def write(df, path):
             remaining_columns.extend(["revel", "hgvsp", "symbol"])
             remaining_columns = [col for col in df.columns if col in remaining_columns]
         df = df[remaining_columns]
-    df.to_csv(path, index=False, sep="\t")
+    df.to_csv(path, index=False, sep="\t", quoting=csv.QUOTE_NONE, escapechar="\\")
 
 
 def format_floats(df):
@@ -168,12 +169,12 @@ def load_impact_scores():
             score_list.append(
                 {"score": row["score"], "sample": s, "likelihood": row[s]}
             )
-        return score_list
+        return score_list  # Return list, not JSON string
 
     df["impact_scores"] = df.apply(format_scores, axis=1)
-    out = df.groupby("transcript", as_index=False).agg({"impact_scores": list})
+    out = df.groupby("transcript", as_index=False).agg({"impact_scores": "sum"})
+    out["impact_scores"] = out["impact_scores"].apply(json.dumps)
     out["transcript"] = out["transcript"].str.extract(r"CDS:(.*)")
-
     return out
 
 
