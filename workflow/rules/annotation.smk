@@ -1,22 +1,22 @@
 rule annotate_candidate_variants:
     input:
-        calls="results/calls/candidates/{caller}/{group}/{group}.{scatteritem}.bcf",
+        calls="results/candidate-calls/{caller}/{group}/{group}.{scatteritem}.bcf",
         cache=access.random("resources/vep/cache"),
         plugins=access.random("resources/vep/plugins"),
         fasta=access.random(genome),
         fai=genome_fai,
     output:
-        calls="results/calls/candidates/{caller}/{group}/{group}.{scatteritem}.annotated.bcf",
-        stats="results/calls/candidates/{caller}/{group}/{group}.{scatteritem}.stats.html",
+        calls="results/candidate-calls/{caller}/{group}/{group}.{scatteritem}.annotated.bcf",
+        stats="results/candidate-calls/{caller}/{group}/{group}.{scatteritem}.stats.html",
     params:
         plugins=config["annotations"]["vep"]["candidate_calls"]["plugins"],
         extra="{} --vcf_info_field ANN ".format(
             config["annotations"]["vep"]["candidate_calls"]["params"]
         ),
     log:
-        "logs/vep/{group}/{group}.{caller}.{scatteritem}.annotate_candidates.log",
+        "logs/vep/{caller}/{group}/{group}.{scatteritem}.annotate_candidates.log",
     benchmark:
-        "benchmarks/vep/{group}/{group}.{caller}.{scatteritem}.annotate_candidates.tsv"
+        "benchmarks/vep/{caller}/{group}/{group}.{scatteritem}.annotate_candidates.tsv"
     threads: 4
     group:
         "candidate-annotation"

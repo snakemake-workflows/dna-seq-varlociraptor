@@ -1,9 +1,9 @@
 rule filter_candidates_by_annotation:
     input:
-        bcf="results/calls/candidates/{caller}/{group}/{group}.{scatteritem}.annotated.bcf",
+        bcf="results/candidate-calls/{caller}/{group}/{group}.{scatteritem}.annotated.bcf",
         aux=get_candidate_filter_aux_files(),
     output:
-        "results/calls/candidates/{caller}/filtered/{group}/{group}.{scatteritem}.bcf",
+        "results/candidate-calls/{caller}/filtered/{group}/{group}.{scatteritem}.bcf",
     log:
         "logs/filter-calls/annotation/{caller}/{group}/{group}.{scatteritem}.log",
     params:

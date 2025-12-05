@@ -593,7 +593,7 @@ def get_group_bams(wildcards, bai=False):
 def get_arriba_group_candidates(wildcards, csi=False):
     ext = ".csi" if csi else ""
     return expand(
-        "results/calls/candidates/arriba/{sample}/{sample}.bcf{ext}",
+        "results/candidate-calls/arriba/{sample}/{sample}.bcf{ext}",
         sample=get_group_samples(wildcards.group),
         ext=ext,
     )
@@ -762,9 +762,9 @@ def get_gather_annotated_calls_input(ext="bcf"):
 def get_candidate_calls(wc):
     filter = config["calling"]["filter"].get("candidates")
     if filter and wc.caller != "arriba":
-        return "results/calls/candidates/{caller}/filtered/{group}/{group}.{scatteritem}.bcf"
+        return "results/candidate-calls/{caller}/filtered/{group}/{group}.{scatteritem}.bcf"
     else:
-        return "results/calls/candidates/{caller}/{group}/{group}.{scatteritem}.bcf"
+        return "results/candidate-calls/{caller}/{group}/{group}.{scatteritem}.bcf"
 
 
 def _get_report_batch(calling_type, batch):
@@ -875,12 +875,12 @@ def get_fixed_candidate_calls(ext="bcf"):
     def inner(wildcards):
         if wildcards.caller == "delly":
             return expand(
-                "results/calls/candidates/delly/{{group}}/{{group}}.no_bnds.{ext}",
+                "results/candidate-calls/delly/{{group}}/{{group}}.no_bnds.{ext}",
                 ext=ext,
             )
         else:
             return expand(
-                "results/calls/candidates/{{caller}}/{{group}}/{{group}}.{ext}",
+                "results/candidate-calls/{{caller}}/{{group}}/{{group}}.{ext}",
                 ext=ext,
             )
 
