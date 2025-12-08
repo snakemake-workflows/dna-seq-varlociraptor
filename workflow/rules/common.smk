@@ -1575,13 +1575,13 @@ def get_fastqc_results(wildcards):
 
     # samtools idxstats
     yield from expand(
-        "results/qc/{sample}.bam.idxstats",
+        "results/qc/{sample}.cram.idxstats",
         sample=group_samples,
     )
 
     # samtools stats
     yield from expand(
-        "results/qc/{sample}.bam.stats",
+        "results/qc/{sample}.cram.stats",
         sample=group_samples,
     )
 
