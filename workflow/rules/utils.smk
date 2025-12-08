@@ -24,11 +24,11 @@ rule bcf_to_vcf_gz:
 
 rule bam_index:
     input:
-        "{prefix}.bam",
+        "{prefix}.cram",
     output:
-        "{prefix}.bai",
+        "{prefix}.crai",
     log:
-        "logs/bam-index/{prefix}.log",
+        "logs/crai-index/{prefix}.log",
     wrapper:
         "v2.3.2/bio/samtools/index"
 

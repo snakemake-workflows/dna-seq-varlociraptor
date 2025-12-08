@@ -26,8 +26,8 @@ rule varlociraptor_alignment_properties:
     input:
         ref=genome,
         ref_idx=genome_fai,
-        bam="results/recal/{sample}.bam",
-        bai="results/recal/{sample}.bai",
+        bam="results/recal/{sample}.cram",
+        bai="results/recal/{sample}.crai",
     output:
         "results/alignment-properties/{group}/{sample}.json",
     log:
@@ -43,8 +43,8 @@ rule varlociraptor_preprocess:
         ref=genome,
         ref_idx=genome_fai,
         candidates=access.multi(get_candidate_calls),
-        bam="results/recal/{sample}.bam",
-        bai="results/recal/{sample}.bai",
+        bam="results/recal/{sample}.cram",
+        bai="results/recal/{sample}.crai",
         alignment_props=get_alignment_props,
     output:
         "results/observations/{group}/{sample}.{caller}.{scatteritem}.bcf",

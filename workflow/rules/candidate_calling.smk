@@ -5,13 +5,13 @@ rule freebayes:
         regions="results/regions/{group}.expanded_regions.filtered.bed",
         # you can have a list of samples here
         alns=access.random(lambda w: get_group_bams(w)),
-        idxs=lambda w: get_group_bams(w, bai=True),
+        idxs=lambda w: get_group_bams(w, crai=True),
     output:
         "results/candidate-calls/{group}.freebayes.bcf",
     log:
         "logs/freebayes/{group}.log",
     params:
-        # genotyping is performed by varlociraptor, hence we deactivate it in freebayes by 
+        # genotyping is performed by varlociraptor, hence we deactivate it in freebayes by
         # always setting --pooled-continuous
         extra="--pooled-continuous --min-alternate-count {} --min-alternate-fraction {} {}".format(
             1 if is_activated("calc_consensus_reads") else 2,
@@ -28,7 +28,7 @@ rule delly:
         ref=access.random(genome),
         ref_idx=genome_fai,
         alns=access.random(lambda w: get_group_bams(w)),
-        index=lambda w: get_group_bams(w, bai=True),
+        index=lambda w: get_group_bams(w, crai=True),
         exclude=get_delly_excluded_regions(),
     output:
         "results/candidate-calls/{group}.delly.bcf",

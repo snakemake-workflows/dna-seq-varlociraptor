@@ -3,7 +3,7 @@ rule map_reads_bwa:
         reads=get_map_reads_input,
         idx=access.random(rules.bwa_index.output),
     output:
-        temp("results/mapped/bwa/{sample}.bam"),
+        temp("results/mapped/bwa/{sample}.cram"),
     log:
         "logs/bwa_mem/{sample}.log",
     params:
@@ -54,7 +54,7 @@ rule map_reads_vg:
         hapl=access.random(f"{pangenome_prefix}.hapl"),
         paths=access.random("resources/reference_paths.txt"),
     output:
-        bam=temp("results/mapped/vg/{sample}.raw.bam"),
+        bam=temp("results/mapped/vg/{sample}.raw.cram"),
         indexes=temp(
             multiext(
                 f"{pangenome_prefix}.{{sample}}",
@@ -78,9 +78,9 @@ rule map_reads_vg:
 
 rule reheader_mapped_reads:
     input:
-        "results/mapped/vg/{sample}.raw.bam",
+        "results/mapped/vg/{sample}.raw.cram",
     output:
-        temp("results/mapped/vg/{sample}.reheadered.bam"),
+        temp("results/mapped/vg/{sample}.reheadered.cram"),
     params:
         build=config["ref"]["build"],
     conda:
@@ -95,9 +95,9 @@ rule reheader_mapped_reads:
 
 rule fix_mate:
     input:
-        "results/mapped/vg/{sample}.reheadered.bam",
+        "results/mapped/vg/{sample}.reheadered.cram",
     output:
-        temp("results/mapped/vg/{sample}.mate_fixed.bam"),
+        temp("results/mapped/vg/{sample}.mate_fixed.cram"),
     log:
         "logs/samtools/fix_mate/{sample}.log",
     threads: 8
@@ -113,12 +113,12 @@ rule fix_mate:
 rule add_read_group:
     input:
         lambda wc: (
-            "results/mapped/vg/{sample}.mate_fixed.bam"
+            "results/mapped/vg/{sample}.mate_fixed.cram"
             if sample_has_primers(wc)
-            else "results/mapped/vg/{sample}.reheadered.bam"
+            else "results/mapped/vg/{sample}.reheadered.cram"
         ),
     output:
-        temp("results/mapped/vg/{sample}.bam"),
+        temp("results/mapped/vg/{sample}.cram"),
     log:
         "logs/samtools/add_rg/{sample}.log",
     params:
@@ -136,9 +136,9 @@ rule add_read_group:
 
 rule sort_alignments:
     input:
-        "results/mapped/{aligner}/{sample}.bam",
+        "results/mapped/{aligner}/{sample}.cram",
     output:
-        temp("results/mapped/{aligner}/{sample}.sorted.bam"),
+        temp("results/mapped/{aligner}/{sample}.sorted.cram"),
     log:
         "logs/sort/{aligner}/{sample}.log",
     params:
@@ -152,8 +152,8 @@ rule sort_alignments:
 
 rule annotate_umis:
     input:
-        bam="results/mapped/{aligner}/{sample}.sorted.bam",
-        idx="results/mapped/{aligner}/{sample}.sorted.bai",
+        bam="results/mapped/{aligner}/{sample}.sorted.cram",
+        idx="results/mapped/{aligner}/{sample}.sorted.crai",
     output:
         temp("results/mapped/{aligner}/{sample}.annotated.bam"),
     conda:
@@ -168,7 +168,7 @@ rule mark_duplicates:
     input:
         bams=get_markduplicates_input,
     output:
-        bam=temp("results/dedup/{sample}.bam"),
+        bam=temp("results/dedup/{sample}.cram"),
         metrics="results/qc/dedup/{sample}.metrics.txt",
     log:
         "logs/picard/dedup/{sample}.log",
@@ -202,7 +202,7 @@ rule map_consensus_reads:
         reads=get_processed_consensus_input,
         idx=access.random(rules.bwa_index.output),
     output:
-        temp("results/consensus/{sample}.consensus.{read_type}.mapped.bam"),
+        temp("results/consensus/{sample}.consensus.{read_type}.mapped.cram"),
     params:
         index=lambda w, input: os.path.splitext(input.idx[0])[0],
         extra=lambda w: f"-C {get_read_group("-R")(w)}",
@@ -233,9 +233,9 @@ rule merge_consensus_reads:
 
 rule sort_consensus_reads:
     input:
-        "results/consensus/{sample}.merged.bam",
+        "results/consensus/{sample}.merged.cram",
     output:
-        temp("results/consensus/{sample}.bam"),
+        temp("results/consensus/{sample}.cram"),
     log:
         "logs/samtools_sort/{sample}.log",
     threads: 16
@@ -247,13 +247,13 @@ rule sort_consensus_reads:
 rule splitncigarreads:
     input:
         bam=lambda wc: (
-            "results/dedup/{sample}.bam"
+            "results/dedup/{sample}.cram"
             if is_activated("remove_duplicates")
-            else "results/mapped/star/{sample}.bam"
+            else "results/mapped/star/{sample}.cram"
         ),
         ref=genome,
     output:
-        "results/split/{sample}.bam",
+        "results/split/{sample}.cram",
     log:
         "logs/gatk/splitNCIGARreads/{sample}.log",
     params:
@@ -268,7 +268,7 @@ rule splitncigarreads:
 rule recalibrate_base_qualities:
     input:
         bam=get_recalibrate_quality_input,
-        bai=lambda w: get_recalibrate_quality_input(w, bai=True),
+        bai=lambda w: get_recalibrate_quality_input(w, crai=True),
         ref=genome,
         ref_dict=genome_dict,
         ref_fai=genome_fai,
@@ -294,14 +294,14 @@ ruleorder: apply_bqsr > bam_index
 rule apply_bqsr:
     input:
         bam=get_recalibrate_quality_input,
-        bai=lambda w: get_recalibrate_quality_input(w, bai=True),
+        bai=lambda w: get_recalibrate_quality_input(w, crai=True),
         ref=genome,
         ref_dict=genome_dict,
         ref_fai=genome_fai,
         recal_table="results/recal/{sample}.grp",
     output:
-        bam=protected("results/recal/{sample}.bam"),
-        bai="results/recal/{sample}.bai",
+        bam=protected("results/recal/{sample}.cram"),
+        bai="results/recal/{sample}.crai",
     log:
         "logs/gatk/gatk_applybqsr/{sample}.log",
     params:
