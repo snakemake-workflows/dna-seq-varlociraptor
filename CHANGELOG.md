@@ -1,5 +1,17 @@
 # Changelog
 
+## [6.2.0](https://github.com/snakemake-workflows/dna-seq-varlociraptor/compare/v6.1.2...v6.2.0) (2025-12-11)
+
+
+### Features
+
+* split output files into subdirectories ([#398](https://github.com/snakemake-workflows/dna-seq-varlociraptor/issues/398)) ([d0b4770](https://github.com/snakemake-workflows/dna-seq-varlociraptor/commit/d0b477020857b46a83fb4572d8d20c1774e8d2ca))
+
+
+### Bug Fixes
+
+* bump star arriba meta-wrapper ([1cefa14](https://github.com/snakemake-workflows/dna-seq-varlociraptor/commit/1cefa144cf661e47099ee1ddef6019b209856d65))
+
 ## [6.1.2](https://github.com/snakemake-workflows/dna-seq-varlociraptor/compare/v6.1.1...v6.1.2) (2025-11-18)
 
 
