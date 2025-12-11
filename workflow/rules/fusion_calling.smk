@@ -12,6 +12,9 @@ use rule star_index from fusion_calling with:
     input:
         fasta=rules.get_genome.output,
         gtf=rules.get_annotation.output,
+    threads: 12  # suggestion at: https://github.com/alexdobin/STAR/issues/364#issuecomment-760274128
+    resources:
+        mem_mb=36000,  # suggestion at: https://github.com/alexdobin/STAR/issues/364#issuecomment-760274128
 
 
 use rule star_align from fusion_calling with:
@@ -25,11 +28,38 @@ use rule star_align from fusion_calling with:
         reads_per_gene="results/mapped/star/{sample}.ReadsPerGene.tsv",
     params:
         # specific parameters to work well with arriba
-        extra=lambda wc, input: f"--quantMode GeneCounts --sjdbGTFfile {input.annotation} {get_star_read_group(wc)}"
-        " --outSAMtype BAM SortedByCoordinate --chimSegmentMin 10 --chimOutType WithinBAM SoftClip"
-        " --chimJunctionOverhangMin 10 --chimScoreMin 1 --chimScoreDropMax 30 --chimScoreJunctionNonGTAG 0"
-        " --chimScoreSeparation 1 --alignSJstitchMismatchNmax 5 -1 5 5 --chimSegmentReadGapMax 3",
+        extra=lambda wc, input: "--quantMode GeneCounts "
+        f"--sjdbGTFfile {input.annotation} "
+        f"{get_star_read_group(wc)}"
+        "--outSAMtype BAM SortedByCoordinate "
+        "--chimSegmentMin 10 "
+        "--chimOutType WithinBAM SoftClip "
+        "--chimJunctionOverhangMin 10 "
+        "--chimScoreMin 1 "
+        "--chimScoreDropMax 30 "
+        "--chimScoreJunctionNonGTAG 0 "
+        "--chimScoreSeparation 1 "
+        "--alignSJstitchMismatchNmax 5 "
+        "-1 5 5 "
+        "--chimSegmentReadGapMax 3 ",
+    resources:
+        mem_mb=36000,  # suggestion at: https://github.com/alexdobin/STAR/issues/1159#issuecomment-788150448
 
+
+ARRIBA_FILTERS_TO_TURN_OFF=",".join(
+    [
+        # read level filters to turn off (https://github.com/suhrig/arriba/wiki/11-Internal-algorithm#read-level-filters)
+        "duplicates",
+        "homopolymer",
+        "mismatches",
+        "low_entropy",
+        # event-level filters to turn off (https://github.com/suhrig/arriba/wiki/11-Internal-algorithm#event-level-filters)
+        "min_support",
+        "no_genomic_support",
+        "no_coverage",
+        "genomic_support",
+    ]
+)
 
 use rule arriba from fusion_calling with:
     input:
@@ -43,7 +73,10 @@ use rule arriba from fusion_calling with:
         genome_build=config["ref"]["build"],
         default_blacklist=True,
         default_known_fusions=True,
-        extra="-u -f no_genomic_support,genomic_support,no_coverage,mismatches,homopolymer,low_entropy,duplicates,min_support",
+        extra="-u " # do not use arriba-internal duplicate marking
+            f"-f {ARRIBA_FILTERS_TO_TURN_OFF}",  # turn off the following arriba filters (https://github.com/suhrig/arriba/wiki/11-Internal-algorithm)
+    resources:
+        mem_mb=lambda wc, input, attempt: input.size_mb * attempt,  # We have usually seen memory usage well below the input.size_mb (which includes the reference data), but also individual samples with peaks beyond it. One retry to double the reserved memory fixed this for all cases we have seen so far.
 
 
 rule annotate_exons:
@@ -110,6 +143,6 @@ rule bcftools_concat_candidates:
         extra="-d exact -a",
     threads: 4
     resources:
-        mem_mb=10,
+        mem_mb=500,
     wrapper:
         "v1.21.0/bio/bcftools/concat"

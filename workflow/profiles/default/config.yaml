@@ -1,0 +1,5 @@
+# This was introduced to generally retry rules once, to avoid holding up
+# workflows on systems where jobs can randomly fail. In addition, at least the
+# following rules increase their resource requests for the second attempt:
+# * arriba
+retries: 1
