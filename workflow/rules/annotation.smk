@@ -28,7 +28,11 @@ rule annotate_variants:
         cache="resources/vep/cache",
         plugins="resources/vep/plugins",
         revel=lambda wc: get_plugin_aux("REVEL"),
-        revel_tbi=lambda wc: get_plugin_aux("REVEL", True),
+        revel_tbi=lambda wc: get_plugin_aux("REVEL", index=True),
+        cadd_snv=lambda wc: get_plugin_aux("CADD", file_type="snv"),
+        cadd_snv_tbi=lambda wc: get_plugin_aux("CADD", file_type="snv", index=True),
+        cadd_indel=lambda wc: get_plugin_aux("CADD", file_type="indels"),
+        cadd_indel_tbi=lambda wc: get_plugin_aux("CADD", file_type="indels", index=True),
         fasta=genome,
         fai=genome_fai,
     output:
@@ -37,7 +41,9 @@ rule annotate_variants:
     params:
         # Pass a list of plugins to use, see https://www.ensembl.org/info/docs/tools/vep/script/vep_plugins.html
         # Plugin args can be added as well, e.g. via an entry "MyPlugin,1,FOO", see docs.
-        plugins=config["annotations"]["vep"]["final_calls"]["plugins"],
+        plugins=lambda wc: [
+            p.replace("CADD", f"CADD,snv={get_plugin_aux('CADD', file_type='snv')},indels={get_plugin_aux('CADD', file_type='indels')}") for p in config["annotations"]["vep"]["final_calls"]["plugins"]
+        ],
         extra="{} --vcf_info_field ANN --hgvsg".format(
             config["annotations"]["vep"]["final_calls"]["params"]
         ),
