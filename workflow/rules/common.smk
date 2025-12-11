@@ -182,7 +182,7 @@ def get_final_output(wildcards):
                 else:
                     final_output.extend(
                         expand(
-                            "results/final-calls/{group}.{event}.{calling_type}.fdr-controlled.bcf",
+                            "results/final-calls/{group}/{group}.{event}.{calling_type}.fdr-controlled.bcf",
                             group=(
                                 variants_groups
                                 if calling_type == "variants"
@@ -195,7 +195,7 @@ def get_final_output(wildcards):
         else:
             final_output.extend(
                 expand(
-                    "results/final-calls/{group}.{event}.{calling_type}.fdr-controlled.bcf",
+                    "results/final-calls/{group}/{group}.{event}.{calling_type}.fdr-controlled.bcf",
                     group=(
                         variants_groups
                         if calling_type == "variants"
@@ -209,7 +209,7 @@ def get_final_output(wildcards):
         if lookup(dpath="maf/activate", within=config, default=False):
             final_output.extend(
                 expand(
-                    "results/maf/{group}.{event}.{calling_type}.fdr-controlled.maf",
+                    "results/maf/{group}/{group}.{event}.{calling_type}.fdr-controlled.maf",
                     group=(
                         variants_groups
                         if calling_type == "variants"
@@ -223,7 +223,7 @@ def get_final_output(wildcards):
         if config["tables"]["activate"]:
             final_output.extend(
                 expand(
-                    "results/tables/{group}.{event}.{calling_type}.fdr-controlled.tsv",
+                    "results/tables/{group}/{group}.{event}.{calling_type}.fdr-controlled.tsv",
                     group=(
                         variants_groups
                         if calling_type == "variants"
@@ -236,7 +236,7 @@ def get_final_output(wildcards):
             if config["tables"].get("generate_excel", False):
                 final_output.extend(
                     expand(
-                        "results/tables/{group}.{event}.{calling_type}.fdr-controlled.xlsx",
+                        "results/tables/{group}/{group}.{event}.{calling_type}.fdr-controlled.xlsx",
                         group=(
                             variants_groups
                             if calling_type == "variants"
@@ -258,9 +258,9 @@ def get_final_output(wildcards):
 def get_gather_calls_input(ext="bcf"):
     def inner(wildcards):
         if wildcards.by == "odds":
-            pattern = "results/calls/{{{{group}}}}.{{{{event}}}}.{{{{calling_type}}}}.{{scatteritem}}.filtered_odds.{ext}"
+            pattern = "results/calls/filtered/filtered_odds/{{{{group}}}}/{{{{event}}}}/{{{{group}}}}.{{{{calling_type}}}}.{{scatteritem}}.{ext}"
         elif wildcards.by == "ann":
-            pattern = "results/calls/{{{{group}}}}.{{{{event}}}}.{{{{calling_type}}}}.{{scatteritem}}.filtered_ann.{ext}"
+            pattern = "results/calls/filtered/filtered_ann/{{{{group}}}}/{{{{event}}}}/{{{{group}}}}.{{{{calling_type}}}}.{{scatteritem}}.{ext}"
         else:
             raise ValueError(
                 "Unexpected wildcard value for 'by': {}".format(wildcards.by)
@@ -278,11 +278,11 @@ def get_control_fdr_input(wildcards):
         and wildcards.calling_type == "variants"
     ):
         by = "ann" if query["local"] else "odds"
-        return "results/calls/{{group}}.{{event}}.{{calling_type}}.filtered_{by}.bcf".format(
+        return "results/calls/filtered/{{group}}/{{event}}/{{group}}.{{calling_type}}.filtered_{by}.bcf".format(
             by=by
         )
     else:
-        return "results/final-calls/{group}.{calling_type}.annotated.bcf"
+        return "results/final-calls/{group}/{group}.{calling_type}.annotated.bcf"
 
 
 def get_aligner(wildcards):
@@ -593,7 +593,7 @@ def get_group_bams(wildcards, bai=False):
 def get_arriba_group_candidates(wildcards, csi=False):
     ext = ".csi" if csi else ""
     return expand(
-        "results/candidate-calls/{sample}.arriba.bcf{ext}",
+        "results/candidate-calls/arriba/{sample}/{sample}.bcf{ext}",
         sample=get_group_samples(wildcards.group),
         ext=ext,
     )
@@ -615,7 +615,7 @@ def get_resource(name):
 def get_group_observations(wildcards):
     # TODO if group contains only a single sample, do not require sorting.
     return expand(
-        "results/observations/{group}/{sample}.{caller}.{scatteritem}.bcf",
+        "results/observations/{caller}/{group}/{sample}.{scatteritem}.bcf",
         caller=wildcards.caller,
         group=wildcards.group,
         scatteritem=wildcards.scatteritem,
@@ -625,7 +625,7 @@ def get_group_observations(wildcards):
 
 def get_all_group_observations(wildcards):
     return expand(
-        "results/observations/{group}/{sample}.{caller}.all.bcf",
+        "results/observations/{caller}/{group}/{sample}.all.bcf",
         caller=wildcards.caller,
         group=wildcards.group,
         sample=get_group_samples(wildcards.group),
@@ -704,30 +704,38 @@ def get_scattered_calls(ext="bcf"):
     def inner(wildcards):
         caller = "arriba" if wildcards.calling_type == "fusions" else variant_caller
         return expand(
-            "results/calls/{{group}}.{caller}.{{scatteritem}}.{ext}",
+            "results/calls/varlociraptor/{caller}/{{group}}/{{group}}.{{scatteritem}}.{ext}",
             caller=caller,
             ext=ext,
         )
 
     return inner
 
+def get_annotate_dgidb_input(wildcards):
+    selection = "db_annotated" if is_activated("annotations/vcfs") else "vep_annotated"
+    return (
+        "results/calls/{selection}/{prefix}.bcf".format(
+            selection=selection,
+            prefix=wildcards.prefix,
+        )
+    )
 
-def get_selected_annotations():
-    selection = ".annotated"
+
+def get_final_selected_annotation():
+    selection = "vep_annotated"
     if is_activated("annotations/vcfs"):
-        selection += ".db-annotated"
+        selection = "db_annotated"
     if is_activated("annotations/dgidb"):
-        selection += ".dgidb"
+        selection = "dgidb_annotated"
     return selection
-
 
 def get_annotated_bcf(wildcards, index=False):
     ext = ".csi" if index else ""
     selection = (
-        get_selected_annotations() if wildcards.calling_type == "variants" else ""
+        get_final_selected_annotation() if wildcards.calling_type == "variants" else "varlociraptor"
     )
     return (
-        "results/calls/{group}.{calling_type}.{scatteritem}{selection}.bcf{ext}".format(
+        "results/calls/{selection}/{group}/{group}.{calling_type}.{scatteritem}.bcf{ext}".format(
             group=wildcards.group,
             calling_type=wildcards.calling_type,
             selection=selection,
@@ -740,10 +748,10 @@ def get_annotated_bcf(wildcards, index=False):
 def get_gather_annotated_calls_input(ext="bcf"):
     def inner(wildcards):
         selection = (
-            get_selected_annotations() if wildcards.calling_type == "variants" else ""
+            get_final_selected_annotation() if wildcards.calling_type == "variants" else "varlociraptor"
         )
         return gather.calling(
-            "results/calls/{{{{group}}}}.{{{{calling_type}}}}.{{scatteritem}}{selection}.{ext}".format(
+            "results/calls/{selection}/{{{{group}}}}/{{{{group}}}}.{{{{calling_type}}}}.{{scatteritem}}.{ext}".format(
                 ext=ext, selection=selection
             )
         )
@@ -754,9 +762,9 @@ def get_gather_annotated_calls_input(ext="bcf"):
 def get_candidate_calls(wc):
     filter = config["calling"]["filter"].get("candidates")
     if filter and wc.caller != "arriba":
-        return "results/candidate-calls/{group}.{caller}.{scatteritem}.filtered.bcf"
+        return "results/candidate-calls/{caller}/filtered/{group}/{group}.{scatteritem}.bcf"
     else:
-        return "results/candidate-calls/{group}.{caller}.{scatteritem}.bcf"
+        return "results/candidate-calls/{caller}/{group}/{group}.{scatteritem}.bcf"
 
 
 def _get_report_batch(calling_type, batch):
@@ -797,7 +805,7 @@ def get_merge_calls_input(ext="bcf"):
             else ["BND"]
         )
         return expand(
-            "results/calls/{{group}}.{vartype}.{{event}}.{{calling_type}}.fdr-controlled.{ext}",
+            "results/calls/fdr-controlled/{{group}}/{{event}}/{{group}}.{vartype}.{{calling_type}}.{ext}",
             ext=ext,
             vartype=vartype,
         )
@@ -867,12 +875,12 @@ def get_fixed_candidate_calls(ext="bcf"):
     def inner(wildcards):
         if wildcards.caller == "delly":
             return expand(
-                "results/candidate-calls/{{group}}.delly.no_bnds.{ext}",
+                "results/candidate-calls/delly/{{group}}/{{group}}.no_bnds.{ext}",
                 ext=ext,
             )
         else:
             return expand(
-                "results/candidate-calls/{{group}}.{{caller}}.{ext}",
+                "results/candidate-calls/{{caller}}/{{group}}/{{group}}.{ext}",
                 ext=ext,
             )
 
@@ -1499,7 +1507,7 @@ def get_datavzrd_data(impact="coding"):
     if impact == "fusions":
         impact = "fusions.joined"
         calling_type = "fusions"
-    pattern = "results/tables/{group}.{event}.{impact}.fdr-controlled.tsv"
+    pattern = "results/tables/{group}/{group}.{event}.{impact}.fdr-controlled.tsv"
 
     def inner(wildcards):
         return expand(
@@ -1515,7 +1523,7 @@ def get_datavzrd_data(impact="coding"):
 def get_oncoprint_input(wildcards):
     groups = get_report_batch("variants")
     return expand(
-        "results/tables/{group}.{event}.coding.fdr-controlled.tsv",
+        "results/tables/{group}/{group}.{event}.coding.fdr-controlled.tsv",
         group=groups,
         event=wildcards.event,
     )
