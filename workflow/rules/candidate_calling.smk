@@ -7,7 +7,7 @@ rule freebayes:
         alns=access.random(lambda w: get_group_bams(w)),
         idxs=lambda w: get_group_bams(w, crai=True),
     output:
-        "results/candidate-calls/{group}.freebayes.bcf",
+        "results/candidate-calls/freebayes/{group}/{group}.bcf",
     log:
         "logs/freebayes/{group}.log",
     params:
@@ -31,7 +31,7 @@ rule delly:
         index=lambda w: get_group_bams(w, crai=True),
         exclude=get_delly_excluded_regions(),
     output:
-        "results/candidate-calls/{group}.delly.bcf",
+        "results/candidate-calls/delly/{group}/{group}.bcf",
     log:
         "logs/delly/{group}.log",
     params:
@@ -44,9 +44,9 @@ rule delly:
 # Delly breakends lead to invalid BCFs after VEP annotation (invalid RLEN). Therefore we exclude them for now.
 rule fix_delly_calls:
     input:
-        "results/candidate-calls/{group}.delly.bcf",
+        "results/candidate-calls/delly/{group}/{group}.bcf",
     output:
-        "results/candidate-calls/{group}.delly.no_bnds.bcf",
+        "results/candidate-calls/delly/{group}/{group}.no_bnds.bcf",
     log:
         "logs/fix_delly_calls/{group}.log",
     conda:
@@ -61,26 +61,26 @@ rule filter_offtarget_variants:
         index=get_fixed_candidate_calls("bcf.csi"),
         regions="resources/target_regions/target_regions.bed",
     output:
-        "results/candidate-calls/{group}.{caller}.filtered.bcf",
+        "results/candidate-calls/{caller}/filtered/{group}/{group}.bcf",
     params:
         extra="",
     log:
-        "logs/filter_offtarget_variants/{group}.{caller}.log",
+        "logs/filter_offtarget_variants/{group}/{group}.{caller}.log",
     wrapper:
         "v2.3.2/bio/bcftools/filter"
 
 
 rule scatter_candidates:
     input:
-        "results/candidate-calls/{group}.{caller}.filtered.bcf"
+        "results/candidate-calls/{caller}/filtered/{group}/{group}.bcf"
         if config.get("target_regions", None)
         else get_fixed_candidate_calls("bcf"),
     output:
         scatter.calling(
-            "results/candidate-calls/{{group}}.{{caller}}.{scatteritem}.bcf"
+            "results/candidate-calls/{{caller}}/{{group}}/{{group}}.{scatteritem}.bcf"
         ),
     log:
-        "logs/scatter-candidates/{group}.{caller}.log",
+        "logs/scatter-candidates/{caller}/{group}/{group}.log",
     conda:
         "../envs/rbt.yaml"
     shell:
