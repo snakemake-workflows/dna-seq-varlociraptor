@@ -301,7 +301,7 @@ rule apply_bqsr:
         recal_table="results/recal/{sample}.grp",
     output:
         bam=protected("results/recal/{sample}.cram"),
-        bai="results/recal/{sample}.crai",
+        bai="results/recal/{sample}.cram.bai",
     log:
         "logs/gatk/gatk_applybqsr/{sample}.log",
     params:

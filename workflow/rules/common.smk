@@ -582,7 +582,7 @@ def get_markduplicates_extra(wc):
 
 
 def get_group_bams(wildcards, crai=False):
-    ext = "crai" if crai else "cram"
+    ext = "cram.bai" if crai else "cram"
     return expand(
         "results/recal/{sample}.{ext}",
         sample=get_group_samples(wildcards.group),

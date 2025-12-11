@@ -27,12 +27,13 @@ rule samtools_idxstats:
 rule samtools_stats:
     input:
         bam="results/recal/{sample}.cram",
+        ref=genome,
     output:
         "results/qc/{sample}.cram.stats",
     log:
         "logs/samtools/stats/{sample}.log",
     wrapper:
-        "v2.3.2/bio/samtools/stats"
+        "v7.6.0/bio/samtools/stats"
 
 
 rule multiqc:
