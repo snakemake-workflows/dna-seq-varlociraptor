@@ -839,7 +839,7 @@ def get_plugin_aux(plugin, file_type="", index=False):
             suffix = ".tbi" if index else ""
             return "resources/cadd.{build}.{cadd_version}.{file_type}.tsv.gz{suffix}".format(
                 build=lookup(within=config, dpath="ref/build"),
-                cadd_version=lookup(within=config, dpath="annotation/vep/final_calls/score_versions/cadd"),
+                cadd_version=lookup(within=config, dpath="annotations/vep/final_calls/score_versions/cadd"),
                 file_type=file_type,
                 suffix=suffix,
             )
