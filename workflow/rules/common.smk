@@ -885,7 +885,7 @@ def get_fdr_control_params(wildcards):
     )
 
     retain_artifacts = "--smart-retain-artifacts" if retain_artifacts else ""
-
+/if pl
     return {
         "threshold": threshold,
         "events": events,
@@ -1177,7 +1177,7 @@ def get_annotation_fields_for_tables(wildcards):
         ):
             if plugin == "REVEL":
                 annotation_fields.append("REVEL")
-            if plugin == "CADD":
+            elif plugin == "CADD":
                 annotation_fields.append("CADD_PHRED")
             elif plugin == "SpliceAI":
                 annotation_fields.extend(
