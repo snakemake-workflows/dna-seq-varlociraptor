@@ -104,7 +104,7 @@ rule fix_mate:
     params:
         extra="",
     wrapper:
-        "v4.7.2/bio/samtools/fixmate"
+        "v8.1.0/bio/samtools/fixmate"
 
 
 # adding read groups is exclusive to vg mapped reads and
@@ -142,12 +142,12 @@ rule sort_alignments:
     log:
         "logs/sort/{aligner}/{sample}.log",
     params:
-        extra="",
+        extra="--output-fmt-option version=3.0", # picard markduplicates does not support cram 3.1, need to wait for picard >3.4.0
     threads: 16
     resources:
         mem="8GB",
     wrapper:
-        "v5.10.0/bio/samtools/sort"
+        "v8.1.0/bio/samtools/sort"
 
 
 rule annotate_umis:
@@ -174,11 +174,12 @@ rule mark_duplicates:
         "logs/picard/dedup/{sample}.log",
     params:
         extra=get_markduplicates_extra,
+        samtools_opts="--output-fmt-option version=3.0", # gatk does not support cram 3.1, need to wait for gatk >4.6.2.0
     resources:
         #https://broadinstitute.github.io/picard/faq.html
         mem_mb=3000,
     wrapper:
-        "v2.5.0/bio/picard/markduplicates"
+        "21cbbdb/bio/picard/markduplicates"
 
 
 rule calc_consensus_reads:
@@ -188,7 +189,7 @@ rule calc_consensus_reads:
         consensus_r1=temp("results/consensus/fastq/{sample}.1.fq"),
         consensus_r2=temp("results/consensus/fastq/{sample}.2.fq"),
         consensus_se=temp("results/consensus/fastq/{sample}.se.fq"),
-        skipped=temp("results/consensus/{sample}.skipped.bam"),
+        skipped=temp("results/consensus/{sample}.skipped.cram"),
     log:
         "logs/consensus/{sample}.log",
     conda:
@@ -214,21 +215,21 @@ rule map_consensus_reads:
         "logs/bwa_mem/{sample}.{read_type}.consensus.log",
     threads: 8
     wrapper:
-        "v2.3.2/bio/bwa/mem"
+        "v8.1.0/bio/bwa/mem"
 
 
 rule merge_consensus_reads:
     input:
-        "results/consensus/{sample}.skipped.bam",
-        "results/consensus/{sample}.consensus.se.mapped.bam",
-        "results/consensus/{sample}.consensus.pe.mapped.bam",
+        "results/consensus/{sample}.skipped.cram",
+        "results/consensus/{sample}.consensus.se.mapped.cram",
+        "results/consensus/{sample}.consensus.pe.mapped.cram",
     output:
-        temp("results/consensus/{sample}.merged.bam"),
+        temp("results/consensus/{sample}.merged.cram"),
     log:
         "logs/samtools_merge/{sample}.log",
     threads: 8
     wrapper:
-        "v2.3.2/bio/samtools/merge"
+        "v8.1.0/bio/samtools/merge"
 
 
 rule sort_consensus_reads:
@@ -240,7 +241,7 @@ rule sort_consensus_reads:
         "logs/samtools_sort/{sample}.log",
     threads: 16
     wrapper:
-        "v2.3.2/bio/samtools/sort"
+        "v8.1.0/bio/samtools/sort"
 
 
 # TODO Does not use consensus reads
@@ -262,7 +263,7 @@ rule splitncigarreads:
     resources:
         mem_mb=1024,
     wrapper:
-        "v3.1.0/bio/gatk/splitncigarreads"
+        "v8.1.0/bio/gatk/splitncigarreads"
 
 
 rule recalibrate_base_qualities:

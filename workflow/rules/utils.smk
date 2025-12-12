@@ -30,7 +30,7 @@ rule bam_index:
     log:
         "logs/crai-index/{prefix}.log",
     wrapper:
-        "v2.3.2/bio/samtools/index"
+        "v8.1.0/bio/samtools/index"
 
 
 rule tabix_known_variants:
