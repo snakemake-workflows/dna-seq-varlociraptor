@@ -32,7 +32,7 @@ rule trim_primers:
         bam="results/primers/{sample}.primers.bam",
         primers=get_primer_regions,
     output:
-        trimmed=temp("results/trimmed/{sample}.trimmed.bam"),
+        trimmed=temp("results/trimmed/{sample}.trimmed.cram"),
     params:
         sort_order="Coordinate",
         single_primer=get_single_primer_flag,
