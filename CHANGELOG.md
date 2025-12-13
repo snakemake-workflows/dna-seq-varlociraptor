@@ -1,5 +1,12 @@
 # Changelog
 
+## [6.2.1](https://github.com/snakemake-workflows/dna-seq-varlociraptor/compare/v6.2.0...v6.2.1) (2025-12-11)
+
+
+### Bug Fixes
+
+* set pathvars ([36f0f6b](https://github.com/snakemake-workflows/dna-seq-varlociraptor/commit/36f0f6b52fd0bc9f5513d7bcb616149f6b2812cd))
+
 ## [6.2.0](https://github.com/snakemake-workflows/dna-seq-varlociraptor/compare/v6.1.2...v6.2.0) (2025-12-11)
 
 
