@@ -311,7 +311,7 @@ def get_fastp_input(wildcards):
         ending = ".gz" if unit["fq1"].endswith("gz") else ""
 
         def get_reads(fq):
-            return f"pipe/fastp/{unit.sample_name}/{unit.unit_name}.fq1.fastq{ending}"
+            return f"pipe/fastp/{unit.sample_name}/{unit.unit_name}.{fq}.fastq{ending}"
 
     if pd.isna(unit["fq2"]):
         # single end sample
