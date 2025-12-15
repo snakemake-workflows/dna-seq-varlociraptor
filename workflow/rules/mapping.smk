@@ -32,7 +32,9 @@ rule count_sample_kmers:
     resources:
         mem="64GB",
     shell:
-        "kmc -k29 -m{params.mem} -sm -okff -t{threads} -v @<(ls {input.reads}) {params.out_file} {params.out_dir} &> {log}"
+        "tmpdir=$(mktemp -d); "
+        "kmc -k29 -m{params.mem} -sm -okff -t{threads} -v @<(ls {input.reads}) {params.out_file} $tmpdir &> {log} && "
+        "rm -r $tmpdir || (rm -r $tmpdir && exit 1)"
 
 
 rule create_reference_paths:
