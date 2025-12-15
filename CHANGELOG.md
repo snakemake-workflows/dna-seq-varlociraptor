@@ -1,5 +1,13 @@
 # Changelog
 
+## [6.2.2](https://github.com/snakemake-workflows/dna-seq-varlociraptor/compare/v6.2.1...v6.2.2) (2025-12-15)
+
+
+### Bug Fixes
+
+* define max threads for kmc ([9234e8e](https://github.com/snakemake-workflows/dna-seq-varlociraptor/commit/9234e8e0a113ca8d04a7c256112b92b99ed5e0e2))
+* use proper temp directory for kmc output ([c35f84c](https://github.com/snakemake-workflows/dna-seq-varlociraptor/commit/c35f84cb5d2a5243452544881d523e267c04029b))
+
 ## [6.2.1](https://github.com/snakemake-workflows/dna-seq-varlociraptor/compare/v6.2.0...v6.2.1) (2025-12-11)
 
 
