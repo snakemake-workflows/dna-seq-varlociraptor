@@ -28,7 +28,7 @@ rule count_sample_kmers:
         "minimal"
     log:
         "logs/kmers/{sample}.log",
-    threads: max(workflow.cores, 1)
+    threads: min(max(workflow.cores, 1), 128) # kmc can use 128 threads at most
     resources:
         mem="64GB",
     shell:
