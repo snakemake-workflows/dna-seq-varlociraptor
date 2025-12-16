@@ -885,7 +885,7 @@ def get_fdr_control_params(wildcards):
     )
 
     retain_artifacts = "--smart-retain-artifacts" if retain_artifacts else ""
-/if pl
+
     return {
         "threshold": threshold,
         "events": events,
