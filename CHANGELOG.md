@@ -1,5 +1,17 @@
 # Changelog
 
+## [6.2.3](https://github.com/snakemake-workflows/dna-seq-varlociraptor/compare/v6.2.2...v6.2.3) (2025-12-19)
+
+
+### Bug Fixes
+
+* use correct read when merging multiple units with the same name ([d73bc9c](https://github.com/snakemake-workflows/dna-seq-varlociraptor/commit/d73bc9c0f51e5bf3ef8d1b85208ac3074a0e02ce))
+
+
+### Performance Improvements
+
+* tune memory usage of samtools sort ([a7b2f9c](https://github.com/snakemake-workflows/dna-seq-varlociraptor/commit/a7b2f9c8d35751fc4609561e50d93982cb74c570))
+
 ## [6.2.2](https://github.com/snakemake-workflows/dna-seq-varlociraptor/compare/v6.2.1...v6.2.2) (2025-12-15)
 
 
