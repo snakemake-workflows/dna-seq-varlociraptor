@@ -142,13 +142,11 @@ rule sort_alignments:
         temp("results/mapped/{aligner}/{sample}.sorted.bam"),
     log:
         "logs/sort/{aligner}/{sample}.log",
-    params:
-        extra="",
     threads: 16
     resources:
         mem_mb=64000,
     wrapper:
-        "v5.10.0/bio/samtools/sort"
+        "v8.1.1/bio/samtools/sort"
 
 
 rule annotate_umis:
@@ -240,8 +238,10 @@ rule sort_consensus_reads:
     log:
         "logs/samtools_sort/{sample}.log",
     threads: 16
+    resources:
+        mem_mb=64000
     wrapper:
-        "v2.3.2/bio/samtools/sort"
+        "v8.1.1/bio/samtools/sort"
 
 
 # TODO Does not use consensus reads
