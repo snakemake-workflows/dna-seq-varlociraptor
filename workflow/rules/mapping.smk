@@ -146,7 +146,7 @@ rule sort_alignments:
         extra="",
     threads: 16
     resources:
-        mem="8GB",
+        mem_mb=64000,
     wrapper:
         "v5.10.0/bio/samtools/sort"
 
