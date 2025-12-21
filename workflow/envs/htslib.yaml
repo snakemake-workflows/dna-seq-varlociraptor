@@ -2,5 +2,5 @@ channels:
   - conda-forge
   - bioconda
 dependencies:
-  - htslib =1.12
+  - htslib =1.23
   - unzip =6.0
