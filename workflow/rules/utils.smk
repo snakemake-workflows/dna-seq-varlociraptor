@@ -22,16 +22,26 @@ rule bcf_to_vcf_gz:
         "v2.3.2/bio/bcftools/view"
 
 
+rule cram_index:
+    input:
+        "{prefix}.cram",
+    output:
+        "{prefix}.crai",
+    log:
+        "logs/crai-index/{prefix}.log",
+    wrapper:
+        "v8.1.0/bio/samtools/index"
+
+
 rule bam_index:
     input:
         "{prefix}.bam",
     output:
         "{prefix}.bai",
     log:
-        "logs/bam-index/{prefix}.log",
+        "logs/crai-index/{prefix}.log",
     wrapper:
-        "v2.3.2/bio/samtools/index"
-
+        "v8.1.0/bio/samtools/index"
 
 rule tabix_known_variants:
     input:
