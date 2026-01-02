@@ -1,5 +1,51 @@
 # Changelog
 
+## [6.2.4](https://github.com/snakemake-workflows/dna-seq-varlociraptor/compare/v6.2.3...v6.2.4) (2025-12-30)
+
+
+### Performance Improvements
+
+* update to latest datavzrd ([4ee9f7b](https://github.com/snakemake-workflows/dna-seq-varlociraptor/commit/4ee9f7b12a8004b5d59ff70ee5ca90a5ec716730))
+
+## [6.2.3](https://github.com/snakemake-workflows/dna-seq-varlociraptor/compare/v6.2.2...v6.2.3) (2025-12-19)
+
+
+### Bug Fixes
+
+* use correct read when merging multiple units with the same name ([d73bc9c](https://github.com/snakemake-workflows/dna-seq-varlociraptor/commit/d73bc9c0f51e5bf3ef8d1b85208ac3074a0e02ce))
+
+
+### Performance Improvements
+
+* tune memory usage of samtools sort ([a7b2f9c](https://github.com/snakemake-workflows/dna-seq-varlociraptor/commit/a7b2f9c8d35751fc4609561e50d93982cb74c570))
+
+## [6.2.2](https://github.com/snakemake-workflows/dna-seq-varlociraptor/compare/v6.2.1...v6.2.2) (2025-12-15)
+
+
+### Bug Fixes
+
+* define max threads for kmc ([9234e8e](https://github.com/snakemake-workflows/dna-seq-varlociraptor/commit/9234e8e0a113ca8d04a7c256112b92b99ed5e0e2))
+* use proper temp directory for kmc output ([c35f84c](https://github.com/snakemake-workflows/dna-seq-varlociraptor/commit/c35f84cb5d2a5243452544881d523e267c04029b))
+
+## [6.2.1](https://github.com/snakemake-workflows/dna-seq-varlociraptor/compare/v6.2.0...v6.2.1) (2025-12-11)
+
+
+### Bug Fixes
+
+* set pathvars ([36f0f6b](https://github.com/snakemake-workflows/dna-seq-varlociraptor/commit/36f0f6b52fd0bc9f5513d7bcb616149f6b2812cd))
+
+## [6.2.0](https://github.com/snakemake-workflows/dna-seq-varlociraptor/compare/v6.1.2...v6.2.0) (2025-12-11)
+
+
+### Features
+
+* split output files into subdirectories ([#398](https://github.com/snakemake-workflows/dna-seq-varlociraptor/issues/398)) ([d0b4770](https://github.com/snakemake-workflows/dna-seq-varlociraptor/commit/d0b477020857b46a83fb4572d8d20c1774e8d2ca))
+
+
+### Bug Fixes
+
+* bump star arriba meta-wrapper ([1cefa14](https://github.com/snakemake-workflows/dna-seq-varlociraptor/commit/1cefa144cf661e47099ee1ddef6019b209856d65))
+
 ## [6.1.2](https://github.com/snakemake-workflows/dna-seq-varlociraptor/compare/v6.1.1...v6.1.2) (2025-11-18)
 
 

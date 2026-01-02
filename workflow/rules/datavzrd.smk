@@ -111,7 +111,7 @@ rule datavzrd_variants_calls:
             dpath="calling/fdr-control/events/{event}/desc", within=config
         ),
     wrapper:
-        "v6.2.0/utils/datavzrd"
+        "v8.0.3/utils/datavzrd"
 
 
 rule datavzrd_fusion_calls:
@@ -150,7 +150,7 @@ rule datavzrd_fusion_calls:
         species=lookup(within=config, dpath="ref/species"),
         samples=samples,
     wrapper:
-        "v6.2.0/utils/datavzrd"
+        "v8.0.3/utils/datavzrd"
 
 
 rule bedtools_merge:
@@ -204,4 +204,4 @@ rule datavzrd_coverage:
     params:
         samples=lambda wc: get_group_samples(wc.group),
     wrapper:
-        "v6.2.0/utils/datavzrd"
+        "v8.0.3/utils/datavzrd"
