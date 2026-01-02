@@ -139,42 +139,37 @@ rule sort_alignments:
     input:
         "results/mapped/{aligner}/{sample}.cram",
     output:
-        temp("results/mapped/{aligner}/{sample}.sorted.cram"),
+        temp("results/mapped/{aligner}/{sample}.sorted.bam"),
     log:
         "logs/sort/{aligner}/{sample}.log",
-<<<<<<< HEAD
     params:
         extra="--output-fmt-option version=3.0", # picard markduplicates does not support cram 3.1, need to wait for picard >3.4.0
-=======
->>>>>>> master
     threads: 16
     resources:
         mem_mb=64000,
     wrapper:
-<<<<<<< HEAD
-        "v8.1.0/bio/samtools/sort"
-=======
         "v8.1.1/bio/samtools/sort"
->>>>>>> master
 
-
+# TODO No support for cram
 rule annotate_umis:
     input:
-        bam="results/mapped/{aligner}/{sample}.sorted.cram",
-        idx="results/mapped/{aligner}/{sample}.sorted.crai",
+        bam="results/mapped/{aligner}/{sample}.sorted.bam",
+        idx="results/mapped/{aligner}/{sample}.sorted.bai",
+        ref=genome,
     output:
-        temp("results/mapped/{aligner}/{sample}.annotated.bam"),
+        temp("results/mapped/{aligner}/{sample}.annotated.cram"),
     conda:
         "../envs/umi_tools.yaml"
     log:
         "logs/annotate_bam/{aligner}/{sample}.log",
     shell:
-        "umi_tools group -I {input.bam} --paired --umi-separator : --output-bam -S {output} &> {log}"
+        "(umi_tools group -I {input.bam} --paired --umi-separator : --output-bam --log2stderr | samtools view --output-fmt-option version=3.0 -C -T {input.ref} -o {output}) &> {log}"
 
-
+# TODO Somehow has issues processing cram files returning: Exception in thread "main" java.lang.IllegalArgumentException: Failure getting reference bases for sequence 1
 rule mark_duplicates:
     input:
         bams=get_markduplicates_input,
+        ref=genome,
     output:
         bam=temp("results/dedup/{sample}.cram"),
         metrics="results/qc/dedup/{sample}.metrics.txt",
@@ -187,7 +182,7 @@ rule mark_duplicates:
         #https://broadinstitute.github.io/picard/faq.html
         mem_mb=3000,
     wrapper:
-        "21cbbdb/bio/picard/markduplicates"
+        "21cbbdb/bio/picard/markduplicates" # TODO: update wrapper once https://github.com/snakemake/snakemake-wrappers/pull/4788 is merged
 
 
 rule calc_consensus_reads:
