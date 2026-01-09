@@ -134,7 +134,7 @@ rule add_read_group:
         "samtools addreplacerg {input} -o {output} -r {params.read_group} "
         "-w {params.compression_threads} 2> {log}"
 
-
+# TODO Change to cram once umi_tools supports it
 rule sort_alignments:
     input:
         "results/mapped/{aligner}/{sample}.cram",
@@ -157,15 +157,15 @@ rule annotate_umis:
         idx="results/mapped/{aligner}/{sample}.sorted.bai",
         ref=genome,
     output:
-        temp("results/mapped/{aligner}/{sample}.annotated.cram"),
+        temp("results/mapped/{aligner}/{sample}.annotated.bam"),
     conda:
         "../envs/umi_tools.yaml"
     log:
         "logs/annotate_bam/{aligner}/{sample}.log",
     shell:
-        "(umi_tools group -I {input.bam} --paired --umi-separator : --output-bam --log2stderr | samtools view --output-fmt-option version=3.0 -C -T {input.ref} -o {output}) &> {log}"
+        "umi_tools group -I {input.bam} --paired --umi-separator : --output-bam -S {output}  &> {log}"
 
-# TODO Somehow has issues processing cram files returning: Exception in thread "main" java.lang.IllegalArgumentException: Failure getting reference bases for sequence 1
+
 rule mark_duplicates:
     input:
         bams=get_markduplicates_input,
@@ -286,7 +286,7 @@ rule recalibrate_base_qualities:
         extra=config["params"]["gatk"]["BaseRecalibrator"],
         java_opts="",
     resources:
-        mem_mb=1024,
+        mem_mb=4096,
     log:
         "logs/gatk/baserecalibrator/{sample}.log",
     threads: 8
@@ -313,5 +313,7 @@ rule apply_bqsr:
     params:
         extra=config["params"]["gatk"]["applyBQSR"],  # optional
         java_opts="",  # optional
+    resources:
+            mem_mb=2048,
     wrapper:
         "v2.3.2/bio/gatk/applybqsr"

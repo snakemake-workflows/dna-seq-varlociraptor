@@ -453,9 +453,9 @@ def get_sample_datatype(sample):
 def get_markduplicates_input(wildcards):
     aligner = get_aligner(wildcards)
     if sample_has_umis(wildcards.sample):
-        return f"results/mapped/{aligner}/{{sample}}.annotated.cram"
+        return f"results/mapped/{aligner}/{{sample}}.annotated.bam"
     else:
-        return f"results/mapped/{aligner}/{{sample}}.sorted.cram"
+        return f"results/mapped/{aligner}/{{sample}}.sorted.bam"
 
 
 def get_recalibrate_quality_input(wildcards, crai=False):
@@ -477,13 +477,14 @@ def get_consensus_input(wildcards, crai=False):
     else:
         return get_trimming_input(wildcards, crai)
 
-
+# genneralize ext once umi_tools supports cram
 def get_trimming_input(wildcards, crai=False):
-    ext = "crai" if crai else "cram"
     aligner = get_aligner(wildcards)
     if is_activated("remove_duplicates"):
+        ext = "crai" if crai else "cram"
         return "results/dedup/{{sample}}.{ext}".format(ext=ext)
     else:
+        ext = "bai" if crai else "bam"
         return "results/mapped/{aligner}/{{sample}}.sorted.{ext}".format(
             aligner=aligner, ext=ext
         )
