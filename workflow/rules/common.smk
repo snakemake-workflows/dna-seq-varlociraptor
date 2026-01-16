@@ -690,11 +690,13 @@ def get_mutational_signature_targets():
     mutational_signature_targets = []
     if is_activated("mutational_signatures"):
         for group in variants_groups:
+            samples = lookup(query=f"group == '{group}'", within=samples, cols="sample_name")
             mutational_signature_targets.extend(
                 expand(
                     "results/plots/mutational_signatures/{group}.{event}.html",
-                    group=variants_groups,
-                    event=config["mutational_signatures"].get("events"),
+                    group=group,
+                    sample=samples,
+                    event=lookup("mutational_signatures/events", within=config),
                 )
             )
     return mutational_signature_targets
