@@ -1,5 +1,12 @@
 # Changelog
 
+## [6.2.7](https://github.com/snakemake-workflows/dna-seq-varlociraptor/compare/v6.2.6...v6.2.7) (2026-01-16)
+
+
+### Bug Fixes
+
+* missing adaptations to recent changes in the structure of the final-calls folder ([c8cabdd](https://github.com/snakemake-workflows/dna-seq-varlociraptor/commit/c8cabddbfdaf986ec77fc5f219374bbadbe017d1))
+
 ## [6.2.6](https://github.com/snakemake-workflows/dna-seq-varlociraptor/compare/v6.2.5...v6.2.6) (2026-01-16)
 
 
