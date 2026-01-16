@@ -1,11 +1,11 @@
 rule split_call_tables:
     input:
-        calls="results/tables/{group}.{event}.variants.fdr-controlled.tsv",
+        calls="results/tables/{group}/{group}.{event}.variants.fdr-controlled.tsv",
         population_db=get_cleaned_population_db(),
         population_db_idx=get_cleaned_population_db(idx=True),
     output:
-        coding="results/tables/{group}.{event}.coding.fdr-controlled.tsv",
-        noncoding="results/tables/{group}.{event}.noncoding.fdr-controlled.tsv",
+        coding="results/tables/{group}/{group}.{event}.coding.fdr-controlled.tsv",
+        noncoding="results/tables/{group}/{group}.{event}.noncoding.fdr-controlled.tsv",
     params:
         sorting=lambda wc: config["calling"]["fdr-control"]["events"][wc.event].get(
             "sort", list()
@@ -20,15 +20,23 @@ rule split_call_tables:
 
 rule process_fusion_call_tables:
     input:
-        "results/tables/{group}.{event}.fusions.fdr-controlled.tsv",
+        varlociraptor="results/tables/{group}/{group}.{event}.fusions.fdr-controlled.tsv",
+        arriba=expand(
+            "results/arriba/{sample}.fusions.annotated.tsv",
+            sample=lookup(
+                within=samples,
+                query="group == '{group}' & calling == 'fusions' & datatype == 'rna'",
+                cols="sample_name",
+            ),
+        ),
     output:
-        fusions="results/tables/{group}.{event}.fusions.joined.fdr-controlled.tsv",
+        fusions="results/tables/{group}/{group}.{event}.fusions.joined.fdr-controlled.tsv",
     log:
         "logs/join_partner/{group}.{event}.log",
     conda:
         "../envs/pandas.yaml"
     script:
-        "../scripts/join_fusion_partner.py"
+        "../scripts/create_fusions_table_per_group.py"
 
 
 rule prepare_oncoprint:
@@ -103,7 +111,7 @@ rule datavzrd_variants_calls:
             dpath="calling/fdr-control/events/{event}/desc", within=config
         ),
     wrapper:
-        "v7.2.0/utils/datavzrd"
+        "v8.0.3/utils/datavzrd"
 
 
 rule datavzrd_fusion_calls:
@@ -139,9 +147,14 @@ rule datavzrd_fusion_calls:
         "logs/datavzrd_report/{batch}.{event}.log",
     params:
         groups=get_report_batch("fusions"),
+        species=lookup(within=config, dpath="ref/species"),
         samples=samples,
     wrapper:
+<<<<<<< HEAD
         "v7.2.0/utils/datavzrd"
+=======
+        "v8.0.3/utils/datavzrd"
+>>>>>>> master
 
 rule datavzrd_varpubs:
     input:
@@ -218,4 +231,8 @@ rule datavzrd_coverage:
     params:
         samples=lambda wc: get_group_samples(wc.group),
     wrapper:
+<<<<<<< HEAD
         "v7.2.0/utils/datavzrd"
+=======
+        "v8.0.3/utils/datavzrd"
+>>>>>>> master

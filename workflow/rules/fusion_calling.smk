@@ -1,17 +1,18 @@
 module fusion_calling:
     meta_wrapper:
-        "v7.1.0/meta/bio/star_arriba"
-    config:
-        config
+        "v8.0.0/meta/bio/star_arriba"
+    pathvars:
+        results="results", # Path to results directory
+        resources="resources", # Path to resources directory
+        logs="logs", # Path to logs directory
+        genome_sequence=genome, # Path to FASTA file with genome sequence
+        genome_annotation="resources/annotation.gtf", # Path to GTF file with genome annotation
+        reads_r1="...", # Overwritten with function below
+        reads_r2="...", # Overwritten with function below
+        per="{sample}", # Pattern for sample identifiers, e.g. ``"{sample}"``
 
 
 use rule * from fusion_calling
-
-
-use rule star_index from fusion_calling with:
-    input:
-        fasta=rules.get_genome.output,
-        gtf=rules.get_annotation.output,
 
 
 use rule star_align from fusion_calling with:
@@ -62,14 +63,13 @@ rule annotate_exons:
         """
 
 
-# Use script provided by arriba once new version is released
 rule convert_fusions:
     input:
         fasta=rules.get_genome.output,
         fai=genome_fai,
         fusions="results/arriba/{sample}.fusions.annotated.tsv",
     output:
-        temp("results/candidate-calls/{sample}.arriba.vcf"),
+        temp("results/candidate-calls/arriba/{sample}/{sample}.vcf"),
     conda:
         "../envs/arriba.yaml"
     log:
@@ -82,16 +82,16 @@ rule convert_fusions:
 
 rule sort_arriba_calls:
     input:
-        "results/candidate-calls/{sample}.arriba.vcf",
+        "results/candidate-calls/arriba/{sample}/{sample}.vcf",
     output:
-        temp("results/candidate-calls/{sample}.arriba.bcf"),
+        temp("results/candidate-calls/arriba/{sample}/{sample}.bcf"),
     params:
         # Set to True, in case you want uncompressed BCF output
         uncompressed_bcf=False,
         # Extra arguments
         extras="",
     log:
-        "logs/bcf-sort/{sample}.log",
+        "logs/bcf-sort/{sample}/{sample}.log",
     resources:
         mem_mb=8000,
     wrapper:
@@ -103,7 +103,7 @@ rule bcftools_concat_candidates:
         calls=get_arriba_group_candidates,
         idx=lambda wc: get_arriba_group_candidates(wc, csi=True),
     output:
-        "results/candidate-calls/{group}.arriba.bcf",
+        "results/candidate-calls/arriba/{group}/{group}.bcf",
     log:
         "logs/concat_candidates/{group}.log",
     params:

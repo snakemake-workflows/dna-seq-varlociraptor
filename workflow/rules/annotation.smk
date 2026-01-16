@@ -1,32 +1,32 @@
 rule annotate_candidate_variants:
     input:
-        calls="results/candidate-calls/{group}.{caller}.{scatteritem}.bcf",
+        calls="results/candidate-calls/{caller}/{group}/{group}.{scatteritem}.bcf",
         cache=access.random("resources/vep/cache"),
         plugins=access.random("resources/vep/plugins"),
         fasta=access.random(genome),
         fai=genome_fai,
     output:
-        calls="results/candidate-calls/{group}.{caller}.{scatteritem}.annotated.bcf",
-        stats="results/candidate-calls/{group}.{caller}.{scatteritem}.stats.html",
+        calls="results/candidate-calls/{caller}/{group}/{group}.{scatteritem}.annotated.bcf",
+        stats="results/candidate-calls/{caller}/{group}/{group}.{scatteritem}.stats.html",
     params:
         plugins=config["annotations"]["vep"]["candidate_calls"]["plugins"],
         extra="{} --vcf_info_field ANN ".format(
             config["annotations"]["vep"]["candidate_calls"]["params"]
         ),
     log:
-        "logs/vep/{group}.{caller}.{scatteritem}.annotate_candidates.log",
+        "logs/vep/{caller}/{group}/{group}.{scatteritem}.annotate_candidates.log",
     benchmark:
-        "benchmarks/vep/{group}.{caller}.{scatteritem}.annotate_candidates.tsv"
+        "benchmarks/vep/{caller}/{group}/{group}.{scatteritem}.annotate_candidates.tsv"
     threads: 4
     group:
         "candidate-annotation"
     wrapper:
-        "v3.3.5/bio/vep/annotate"
+        "v8.0.0/bio/vep/annotate"
 
 
 rule annotate_variants:
     input:
-        calls="results/calls/{group}.{calling_type}.{scatteritem}.bcf",
+        calls="results/calls/varlociraptor/{group}/{group}.{calling_type}.{scatteritem}.bcf",
         cache=access.random("resources/vep/cache"),
         plugins=access.random("resources/vep/plugins"),
         revel=lambda wc: get_plugin_aux("REVEL"),
@@ -34,8 +34,8 @@ rule annotate_variants:
         fasta=access.random(genome),
         fai=genome_fai,
     output:
-        calls="results/calls/{group}.{calling_type}.{scatteritem}.annotated.bcf",
-        stats="results/calls/{group}.{calling_type}.{scatteritem}.stats.html",
+        calls="results/calls/vep_annotated/{group}/{group}.{calling_type}.{scatteritem}.bcf",
+        stats="results/calls/vep_annotated/{group}/{group}.{calling_type}.{scatteritem}.stats.html",
     params:
         # Pass a list of plugins to use, see https://www.ensembl.org/info/docs/tools/vep/script/vep_plugins.html
         # Plugin args can be added as well, e.g. via an entry "MyPlugin,1,FOO", see docs.
@@ -49,17 +49,17 @@ rule annotate_variants:
     group:
         "annotation"
     wrapper:
-        "v3.3.5/bio/vep/annotate"
+        "v8.0.0/bio/vep/annotate"
 
 
 # TODO What about multiple ID Fields?
 rule annotate_vcfs:
     input:
-        bcf="results/calls/{prefix}.bcf",
+        bcf="results/calls/vep_annotated/{prefix}.bcf",
         annotations=get_annotation_vcfs(),
         idx=get_annotation_vcfs(idx=True),
     output:
-        "results/calls/{prefix}.db-annotated.bcf",
+        "results/calls/db_annotated/{prefix}.bcf",
     log:
         "logs/annotate-vcfs/{prefix}.log",
     params:
@@ -76,11 +76,11 @@ rule annotate_vcfs:
 
 rule annotate_dgidb:
     input:
-        "results/calls/{prefix}.bcf",
+        get_annotate_dgidb_input,
     params:
         datasources=get_dgidb_datasources(),
     output:
-        "results/calls/{prefix}.dgidb.bcf",
+        "results/calls/dgidb_annotated/{prefix}.bcf",
     log:
         "logs/annotate-dgidb/{prefix}.log",
     conda:
@@ -106,9 +106,9 @@ rule gather_annotated_calls:
         calls=get_gather_annotated_calls_input(),
         idx=get_gather_annotated_calls_input(ext="bcf.csi"),
     output:
-        "results/final-calls/{group}.{calling_type}.annotated.bcf",
+        "results/final-calls/{group}/{group}.{calling_type}.annotated.bcf",
     log:
-        "logs/gather-annotated-calls/{group}.{calling_type}.log",
+        "logs/gather-annotated-calls/{group}/{group}.{calling_type}.log",
     params:
         extra="-a",
     group:

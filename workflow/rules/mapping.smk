@@ -20,7 +20,6 @@ rule count_sample_kmers:
         "results/kmers/{sample}.kff",
     params:
         out_file=lambda wc, output: os.path.splitext(output[0])[0],
-        out_dir=lambda wc, output: os.path.dirname(output[0]),
         mem=lambda wc, resources: resources.mem[:-2],
     conda:
         "../envs/kmc.yaml"
@@ -28,11 +27,13 @@ rule count_sample_kmers:
         "minimal"
     log:
         "logs/kmers/{sample}.log",
-    threads: max(workflow.cores, 1)
+    threads: min(max(workflow.cores, 1), 128) # kmc can use 128 threads at most
     resources:
         mem="64GB",
     shell:
-        "kmc -k29 -m{params.mem} -sm -okff -t{threads} -v @<(ls {input.reads}) {params.out_file} {params.out_dir} &> {log}"
+        "tmpdir=$(mktemp -d); "
+        "kmc -k29 -m{params.mem} -sm -okff -t{threads} -v @<(ls {input.reads}) {params.out_file} $tmpdir &> {log} && "
+        "rm -r $tmpdir || (rm -r $tmpdir && exit 1)"
 
 
 rule create_reference_paths:
@@ -141,13 +142,11 @@ rule sort_alignments:
         temp("results/mapped/{aligner}/{sample}.sorted.bam"),
     log:
         "logs/sort/{aligner}/{sample}.log",
-    params:
-        extra="",
     threads: 16
     resources:
-        mem="8GB",
+        mem_mb=64000,
     wrapper:
-        "v5.10.0/bio/samtools/sort"
+        "v8.1.1/bio/samtools/sort"
 
 
 rule annotate_umis:
@@ -205,7 +204,7 @@ rule map_consensus_reads:
         temp("results/consensus/{sample}.consensus.{read_type}.mapped.bam"),
     params:
         index=lambda w, input: os.path.splitext(input.idx[0])[0],
-        extra=lambda w: "-C " + get_read_group("-R")(w),
+        extra=lambda w: f"-C {get_read_group("-R")(w)}",
         sort="samtools",
         sort_order="coordinate",
     wildcard_constraints:
@@ -239,8 +238,10 @@ rule sort_consensus_reads:
     log:
         "logs/samtools_sort/{sample}.log",
     threads: 16
+    resources:
+        mem_mb=64000
     wrapper:
-        "v2.3.2/bio/samtools/sort"
+        "v8.1.1/bio/samtools/sort"
 
 
 # TODO Does not use consensus reads
