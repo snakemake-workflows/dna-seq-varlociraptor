@@ -126,7 +126,7 @@ calling:
     # (see gene_list_filter below). By this, you can e.g. conduct a virtual panel analysis
     # while massively speeding up the varlociraptor based evaluation of the variants.
     # See https://github.com/vembrane/vembrane
-    candidates: "ANN['IMPACT'] != 'LOW'"
+    candidates: "'MODERATE' in ANN['IMPACT']"
     # Add any number of named filters here (replace myfilter with a reasonable name,
     # and add more below). Filtering happens with the vembrane filter language
     # (see https://github.com/vembrane/vembrane), and you can refer to any fields that
@@ -135,7 +135,7 @@ calling:
     # Filters will be applied independenty, and can be referred in FDR control below
     # to generate calls for different events.
     # You can for example filter by ANN fields, ID or dbsnp annotations here.
-    impact_filter: "ANN['IMPACT'] == 'HIGH'"
+    impact_filter: "'HIGH' in ANN['IMPACT']"
     # If you need to use vembrane command line options beyond the filter expression,
     # please use the filter sub-structure with 'expression:' for the filter expression
     # and "aux-files:" for additional files with IDs for filtering. This can for example
