@@ -1,6 +1,6 @@
 rule create_mutational_context_file:
     input:
-        bcf="results/final-calls/{group}.{event}.variants.fdr-controlled.bcf",
+        bcf="results/final-calls/{group}/{group}.{event}.variants.fdr-controlled.bcf",
         ref=genome,
         fai=genome_fai,
     output:
