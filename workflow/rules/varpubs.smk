@@ -3,21 +3,19 @@ rule varpubs_deploy_db:
         bcf="results/final-calls/{group}.{event}.variants.fdr-controlled.normal-probs.bcf",
     output:
         "results/varpubs/{group}.{event}.duckdb",
-    params:
-        mail=lookup(dpath="varpubs/mail", within=config),
     conda:
         "../envs/varpubs.yaml"
     log:
         "logs/varpub/deploy/{group}.{event}.log",
     shell:
-        "varpubs deploy-db --db_path {output} --vcf_paths {input.bcf} --email {params.mail} &> {log}"
+        "varpubs -v deploy-db --db_path {output} --vcf_paths {input.bcf} &> {log}"
 
 
 rule varpubs_summarize_variants:
     input:
         bcf="results/final-calls/{group}.{event}.variants.fdr-controlled.normal-probs.bcf",
         db_path="results/varpubs/{group}.{event}.duckdb",
-        cache=get_varpubs_cache(use_before_update=True)
+        cache=get_unchanged_varpubs_cache(),
     output:
         summaries="results/varpubs/{group}.{event}.csv",
         cache="results/varpubs/caches/{group}.{event}.duckdb",
@@ -37,14 +35,12 @@ rule varpubs_summarize_variants:
 
 rule merge_caches:
     input:
-        cache=get_varpubs_cache(use_before_update=True),
-        event_caches=lambda wc: expand(
-            "results/varpubs/caches/{group}.{event}.duckdb",
-            group=variants_groups,
-            event=get_calling_events("variants")
-        ),
+        cache=get_unchanged_varpubs_cache(),
+        event_caches=lambda wc: get_varpubs_targets(wc, target="cache"),
     output:
-        get_varpubs_cache(use_before_update=False),
+        update(
+            lookup(dpath="varpubs/cache", within=config)
+        )
     log:
         "logs/varpub/merge_cache.log",
     conda:

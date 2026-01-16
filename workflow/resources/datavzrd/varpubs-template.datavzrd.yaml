@@ -26,7 +26,7 @@ views:
         hgvsp:
           display-mode: normal
         pmids:
-          display-mode: normal
+          display-mode: detail
           plot:
             pills:
               separator: ","
