@@ -1,5 +1,12 @@
 # Changelog
 
+## [6.2.6](https://github.com/snakemake-workflows/dna-seq-varlociraptor/compare/v6.2.5...v6.2.6) (2026-01-16)
+
+
+### Bug Fixes
+
+* adapt mutational-burden command to CLI changes in Varlociraptor ([0676b20](https://github.com/snakemake-workflows/dna-seq-varlociraptor/commit/0676b208d1949f82bd56da0b69f165ba5ce7282c))
+
 ## [6.2.5](https://github.com/snakemake-workflows/dna-seq-varlociraptor/compare/v6.2.4...v6.2.5) (2026-01-14)
 
 
