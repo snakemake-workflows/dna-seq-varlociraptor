@@ -150,11 +150,7 @@ rule datavzrd_fusion_calls:
         species=lookup(within=config, dpath="ref/species"),
         samples=samples,
     wrapper:
-<<<<<<< HEAD
-        "v7.2.0/utils/datavzrd"
-=======
         "v8.0.3/utils/datavzrd"
->>>>>>> master
 
 rule datavzrd_varpubs:
     input:
@@ -178,7 +174,7 @@ rule datavzrd_varpubs:
     log:
         "logs/datavzrd_report/varpubs/{batch}.{event}.log",
     wrapper:
-        "v7.2.0/utils/datavzrd"
+        "v8.0.3/utils/datavzrd"
 
 rule bedtools_merge:
     input:
@@ -231,8 +227,4 @@ rule datavzrd_coverage:
     params:
         samples=lambda wc: get_group_samples(wc.group),
     wrapper:
-<<<<<<< HEAD
-        "v7.2.0/utils/datavzrd"
-=======
         "v8.0.3/utils/datavzrd"
->>>>>>> master
