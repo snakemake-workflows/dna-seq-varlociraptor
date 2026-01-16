@@ -248,6 +248,15 @@ annotations:
         # Scores are available on https://zenodo.org/records/10813168
         # A tabix index is required and can be created by calling `tabix -s 1 -b 2 -e 2 -f -S 1 AlphaMissense_hg38.tsv.gz`
         #- AlphaMissense,file=<path/to/AlphaMissense_hg38.tsv.gz>
+        # To add CADD_PHRED scores to all single nucleotide variants and many
+        # indels, uncomment the following and make sure to specify a `cadd`
+        # score version below:
+        # - CADD
+      score_versions:
+        # Uncomment the cadd_version if you use the CADD plugin for VEP.
+        # Available versions can be seen at:
+        # https://cadd.bihealth.org/
+        # cadd: v1.7
 
 # printing of variants in a table format (might be deprecated soon)
 tables:

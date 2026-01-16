@@ -813,11 +813,19 @@ def get_merge_calls_input(ext="bcf"):
     return inner
 
 
-def get_plugin_aux(plugin, index=False):
+def get_plugin_aux(plugin, file_type="", index=False):
     if plugin in config["annotations"]["vep"]["final_calls"]["plugins"]:
         if plugin == "REVEL":
             suffix = ".tbi" if index else ""
             return "resources/revel_scores.tsv.gz{suffix}".format(suffix=suffix)
+        if plugin == "CADD":
+            suffix = ".tbi" if index else ""
+            return "resources/cadd.{build}.{cadd_version}.{file_type}.tsv.gz{suffix}".format(
+                build=lookup(within=config, dpath="ref/build"),
+                cadd_version=lookup(within=config, dpath="annotations/vep/final_calls/score_versions/cadd"),
+                file_type=file_type,
+                suffix=suffix,
+            )
     return []
 
 
@@ -1144,13 +1152,15 @@ def get_annotation_fields_for_tables(wildcards):
             if field not in annotation_fields
         ]
     )
-    for plugin in ["REVEL", "SpliceAI", "AlphaMissense"]:
+    for plugin in ["CADD", "REVEL", "SpliceAI", "AlphaMissense"]:
         if any(
             entry.startswith(plugin)
             for entry in config["annotations"]["vep"]["final_calls"]["plugins"]
         ):
             if plugin == "REVEL":
                 annotation_fields.append("REVEL")
+            elif plugin == "CADD":
+                annotation_fields.append("CADD_PHRED")
             elif plugin == "SpliceAI":
                 annotation_fields.extend(
                     [
@@ -1350,6 +1360,7 @@ def get_vembrane_config(wildcards, input):
         "ANN['gnomADg_AF']",
         "ANN['EXON'].raw",
         "ANN['REVEL']",
+        "ANN['CADD_PHRED']",
         # variants only, split-call-tables.py will select the column with the
         # highest score and will put it in the same place
         "ANN['SpliceAI_pred_DS_AG']",
