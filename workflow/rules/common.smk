@@ -689,16 +689,18 @@ def get_mutational_burden_targets():
 def get_mutational_signature_targets():
     mutational_signature_targets = []
     if is_activated("mutational_signatures"):
+        samples_to_consider = set(lookup("mutational_signatures/samples", within=config))
         for group in variants_groups:
-            samples = lookup(query=f"group == '{group}'", within=samples, cols="sample_name")
-            mutational_signature_targets.extend(
-                expand(
-                    "results/plots/mutational_signatures/{group}.{event}.html",
-                    group=group,
-                    sample=samples,
-                    event=lookup("mutational_signatures/events", within=config),
+            samples = set(lookup(query=f"group == '{group}'", within=samples, cols="sample_name")) & samples_to_consider
+            if samples:
+                mutational_signature_targets.extend(
+                    expand(
+                        "results/plots/mutational_signatures/{group}.{event}.html",
+                        group=group,
+                        sample=samples,
+                        event=lookup("mutational_signatures/events", within=config),
+                    )
                 )
-            )
     return mutational_signature_targets
 
 
