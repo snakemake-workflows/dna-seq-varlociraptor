@@ -1,5 +1,17 @@
 # Changelog
 
+## [6.3.0](https://github.com/snakemake-workflows/dna-seq-varlociraptor/compare/v6.2.7...v6.3.0) (2026-01-17)
+
+
+### Features
+
+* allow samples other than tumor to be used for mutational signature calling ([#418](https://github.com/snakemake-workflows/dna-seq-varlociraptor/issues/418)) ([b6b428d](https://github.com/snakemake-workflows/dna-seq-varlociraptor/commit/b6b428d80f76be49299e1817d19c9180c3c320a4))
+
+
+### Bug Fixes
+
+* use latest bugfix release of varlociraptor ([89c177f](https://github.com/snakemake-workflows/dna-seq-varlociraptor/commit/89c177f586d774063ccd6291efad0f9837c7509b))
+
 ## [6.2.7](https://github.com/snakemake-workflows/dna-seq-varlociraptor/compare/v6.2.6...v6.2.7) (2026-01-16)
 
 
