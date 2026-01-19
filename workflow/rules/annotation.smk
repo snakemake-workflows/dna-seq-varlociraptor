@@ -44,7 +44,7 @@ rule annotate_variants:
         # Pass a list of plugins to use, see https://www.ensembl.org/info/docs/tools/vep/script/vep_plugins.html
         # Plugin args can be added as well, e.g. via an entry "MyPlugin,1,FOO", see docs.
         plugins=lambda wc: [
-            p.replace("CADD", f"CADD,snv={get_plugin_aux('CADD', file_type='snv')},indels={get_plugin_aux('CADD', file_type='indels')}") for p in config["annotations"]["vep"]["final_calls"]["plugins"]
+            p.replace("CADD", f"CADD,snv={get_plugin_aux('CADD', cadd_variant_type='snv')},indels={get_plugin_aux('CADD', cadd_variant_type='indels')}") for p in config["annotations"]["vep"]["final_calls"]["plugins"]
         ],
         extra="{} --vcf_info_field ANN --hgvsg".format(
             config["annotations"]["vep"]["final_calls"]["params"]
