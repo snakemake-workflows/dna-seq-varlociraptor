@@ -42,7 +42,7 @@ mutational_burden:
     - hist
     - curve
   # Events to use for mutational burden plotting.
-  # In case you have certain samples where this differs, 
+  # In case you have certain samples where this differs,
   # you can add an additional column mutational_burden_events
   # to the sample table (samples.tsv).
   # There events can be specified comma separated.
@@ -79,6 +79,14 @@ tables:
     event_prob: true
   generate_excel: true
 
+varpubs:
+  activate: false
+  cache: /media/HDD/varpubs_cache/varpubs_cache.duckdb
+  llm_url: http://localhost:11434/v1
+  model: mistral:latest
+  api_key: ""
+  mail: "some_email@example.com"
+
 calling:
   infer_genotypes: true
   delly:
@@ -93,9 +101,9 @@ calling:
     threshold: 0.05
     # denote whether local or global FDR shall be controlled
     local: true
-    events: 
+    events:
       # Add any number of events here to filter for.
-      # The name of each event can be chosen freely 
+      # The name of each event can be chosen freely
       # ("somatic" below is just an example and can be modified as needed).
       present:
         varlociraptor:
@@ -130,7 +138,7 @@ annotations:
       params: ""
       plugins: []
     final_calls:
-      # Consider removing --everything if VEP is slow for you (e.g. for WGS), 
+      # Consider removing --everything if VEP is slow for you (e.g. for WGS),
       # and think carefully about which annotations you need.
       params: ""
       plugins: []
@@ -146,7 +154,7 @@ params:
     # add extra arguments for varlociraptor call
     # For example, in case of panel data consider to omit certain bias estimations
     # which might be misleading because all reads of an amplicon have the sample start
-    # position, strand etc. (--omit-strand-bias, --omit-read-position-bias, 
+    # position, strand etc. (--omit-strand-bias, --omit-read-position-bias,
     # --omit-softclip-bias, --omit-read-orientation-bias).
     call: ""
     # Add extra arguments for varlociraptor preprocess. By default, we limit the depth to 200.
