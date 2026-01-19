@@ -1,8 +1,10 @@
 rule varpubs_deploy_db:
     input:
-        bcf="results/final-calls/{group}.{event}.variants.fdr-controlled.normal-probs.bcf",
+        bcf="results/final-calls/{group}/{group}.{event}.variants.fdr-controlled.normal-probs.bcf",
     output:
         "results/varpubs/{group}.{event}.duckdb",
+    resources:
+        varpubs_api=1
     conda:
         "../envs/varpubs.yaml"
     log:
@@ -13,7 +15,7 @@ rule varpubs_deploy_db:
 
 rule varpubs_summarize_variants:
     input:
-        bcf="results/final-calls/{group}.{event}.variants.fdr-controlled.normal-probs.bcf",
+        bcf="results/final-calls/{group}/{group}.{event}.variants.fdr-controlled.normal-probs.bcf",
         db_path="results/varpubs/{group}.{event}.duckdb",
         cache=get_unchanged_varpubs_cache(),
     output:
@@ -26,6 +28,8 @@ rule varpubs_summarize_variants:
         cache=lambda wc, input: f"--cache {input.cache}" if input.cache else ""
     conda:
         "../envs/varpubs.yaml"
+    resources:
+        varpubs_summarize=1
     log:
         "logs/varpub/summarize/{group}.{event}.log",
     threads: max(workflow.cores, 1)
