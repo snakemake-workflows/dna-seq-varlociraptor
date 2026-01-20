@@ -73,6 +73,10 @@ mutational_burden:
 # Quantify known mutational signatures (human only)
 mutational_signatures:
   activate: false
+  samples:
+    # Sample aliases to use for each group.
+    # Will be ignored if missing for a group.
+    - tumor
   events:
     # select events (callsets, defined under calling/fdr-control/events) to evaluate
     - some_id

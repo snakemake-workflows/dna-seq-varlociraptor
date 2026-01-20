@@ -3,6 +3,6 @@ channels:
   - bioconda
   - nodefaults
 dependencies:
-  - varlociraptor =8.9.2
+  - varlociraptor =8.9.3
   - vega-lite-cli =5.16
   - bcftools =1.21
