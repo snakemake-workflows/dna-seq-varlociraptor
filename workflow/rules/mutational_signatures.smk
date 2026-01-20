@@ -38,7 +38,7 @@ rule annotate_mutational_signatures:
         temp(
             expand(
                 "results/mutational_signatures/{{group}}.{{event}}.{{sample}}.{vaf}.tsv",
-                vaf=range(0, 101, 10),
+                vaf=range(5, 101, 5),
             )
         ),
     params:
