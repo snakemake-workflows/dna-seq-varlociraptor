@@ -44,6 +44,8 @@ delly_excluded_regions = {
     ("homo_sapiens", "GRCh37"): "human.hg19",
 }
 
+mutational_signature_vaf_thresholds = list(range(5, 101, 5))
+
 
 def _group_or_sample(row):
     group = row.get("group", None)
