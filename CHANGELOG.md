@@ -1,5 +1,13 @@
 # Changelog
 
+## [6.3.1](https://github.com/snakemake-workflows/dna-seq-varlociraptor/compare/v6.3.0...v6.3.1) (2026-01-21)
+
+
+### Bug Fixes
+
+* change mutation signature VAF range from 0-100 to 5-100 ([#420](https://github.com/snakemake-workflows/dna-seq-varlociraptor/issues/420)) ([2356be7](https://github.com/snakemake-workflows/dna-seq-varlociraptor/commit/2356be7d63d1d636992265c156aae7d8ac987b72))
+* fix CI ([#421](https://github.com/snakemake-workflows/dna-seq-varlociraptor/issues/421)) ([a7622e2](https://github.com/snakemake-workflows/dna-seq-varlociraptor/commit/a7622e296bb7872719e00a2336727f85e3c66fc7))
+
 ## [6.3.0](https://github.com/snakemake-workflows/dna-seq-varlociraptor/compare/v6.2.7...v6.3.0) (2026-01-17)
 
 
