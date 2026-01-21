@@ -93,7 +93,7 @@ jobs:
           snakefile: workflow/Snakefile
           args: >
             --conda-cleanup-pkgs cache --sdm conda --cores 10 ${{ matrix.case.args }}
-            --set-resources samtools_sort:mem_mb=8000
+            --set-resources sort_alignments:mem_mb=8000
           show-disk-usage-on-error: true
 
       - name: generate report
