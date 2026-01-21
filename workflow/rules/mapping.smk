@@ -144,7 +144,7 @@ rule sort_alignments:
         "logs/sort/{aligner}/{sample}.log",
     threads: 16
     resources:
-        mem_mb=64000,
+        mem_mb=32000,
     wrapper:
         "v8.1.1/bio/samtools/sort"
 
