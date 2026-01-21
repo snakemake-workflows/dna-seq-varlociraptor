@@ -74,7 +74,7 @@ jobs:
           # this might remove tools that are actually needed,
           # if set to "true" but frees about 6 GB
           tool-cache: false
-          
+
           # all of these default to true, but feel free to set to
           # "false" if necessary for your workflow
           android: true
@@ -92,7 +92,8 @@ jobs:
           directory: .test
           snakefile: workflow/Snakefile
           args: >
-            --conda-cleanup-pkgs cache --sdm conda --cores 10 ${{ matrix.case.args }} 
+            --conda-cleanup-pkgs cache --sdm conda --cores 10 ${{ matrix.case.args }}
+            --set-resources sort_alignments:mem_mb=8000
           show-disk-usage-on-error: true
 
       - name: generate report
