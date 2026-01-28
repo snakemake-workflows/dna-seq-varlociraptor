@@ -47,6 +47,7 @@ rule annotate_mutational_signatures:
         ),
     params:
         build=config["ref"]["build"],
+        min_vafs=mutational_signature_vaf_thresholds,
     log:
         "logs/mutational_signatures/annotate/{group}.{event}.{sample}.log",
     conda:
