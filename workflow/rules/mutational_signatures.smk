@@ -10,7 +10,8 @@ rule create_mutational_context_file:
     log:
         "logs/mutational_signatures/context/{group}.{event}.{sample}.log",
     params:
-        sample_alias=lookup(query="sample_name == '{sample}'", cols="alias", within=samples)
+        # TODO use first=True once lookup implements it
+        sample_alias=lambda w: lookup(query=f"sample_name == '{w.sample}'", cols="alias", within=samples)[0]
     conda:
         "../envs/pystats.yaml"
     script:
