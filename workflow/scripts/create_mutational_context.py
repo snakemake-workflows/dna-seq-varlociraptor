@@ -28,6 +28,7 @@ for bcf_record in bcf:
     variant_pos = bcf_record.pos - 1
     ref_base = bcf_record.ref
     alt_bases = bcf_record.alts
+    breakpoint()
     # alternatively check ANN field for VARIANT_CLASS == SNV?
     if len(alt_bases) > 1:
         print("Record has mutliple alterations", file=sys.stderr)
