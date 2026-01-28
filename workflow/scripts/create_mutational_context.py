@@ -16,6 +16,7 @@ def get_ref_triplet(ref_seq, variant_pos):
 bcf_path = snakemake.input.bcf
 reference = SeqIO.parse(snakemake.input.ref, "fasta")
 sample_alias = snakemake.params.sample_alias
+print(sample_alias)
 sample_name = f"{snakemake.wildcards.group}_{sample_alias}"
 bcf = pysam.VariantFile(bcf_path)
 current_chrom_id = None
