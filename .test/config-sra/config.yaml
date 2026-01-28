@@ -44,7 +44,7 @@ calling:
   # See http://snpeff.sourceforge.net/SnpSift.html#filter
   filter:
     candidates: "ANN['IMPACT'] in ['MODERATE', 'HIGH']"
-    moderate: "ANN['IMPACT'] == 'MODERATE'"
+    moderate: "'MODERATE' in ANN['IMPACT']"
   fdr-control:
     threshold: 0.05
     local: true
