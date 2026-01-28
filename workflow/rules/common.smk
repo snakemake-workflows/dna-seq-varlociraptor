@@ -1006,7 +1006,7 @@ wildcard_constraints:
     event="|".join(config["calling"]["fdr-control"]["events"].keys()),
     regions_type="|".join(["expanded", "covered"]),
     calling_type="|".join(["fusions", "variants"]),
-    sample_alias="[^\.]+",
+    sample_alias=r"[^\.]+",
 
 
 variant_caller = list(
