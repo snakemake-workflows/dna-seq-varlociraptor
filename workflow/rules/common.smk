@@ -19,7 +19,7 @@ samples = (
 )
 if not "mutational_burden_events" in samples.columns:
     samples["mutational_burden_events"] = pd.NA
-if samples["alias"].str.contains("."):
+if samples["alias"].str.contains(".").any():
     raise ValueError("The alias column in the sample sheet may not contain '.' characters.")
 
 # construct genome name
