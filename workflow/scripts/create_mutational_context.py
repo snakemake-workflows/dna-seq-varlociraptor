@@ -60,8 +60,8 @@ df["Sample"] = sample_name
 df.to_csv(snakemake.output.context, sep="\t", index=False)
 
 # Count mutations
-for min_vaf in np.arange(0, 1.1, 0.1):
-    temp_df = df[df["AF"] >= min_vaf]
+for min_vaf in snakemake.params.min_vafs:
+    temp_df = df[df["AF"] >= min_vaf / 100]
     mutation_counts.append((min_vaf, len(temp_df.index)))
 
 mutation_count_df = pd.DataFrame(mutation_counts, columns=["Minimum VAF", "Mutation Count"])
