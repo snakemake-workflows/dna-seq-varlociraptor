@@ -1,5 +1,12 @@
 # Changelog
 
+## [6.4.0](https://github.com/snakemake-workflows/dna-seq-varlociraptor/compare/v6.3.1...v6.4.0) (2026-01-28)
+
+
+### Features
+
+* add CADD score plugin implementation to VEP annotation ([#416](https://github.com/snakemake-workflows/dna-seq-varlociraptor/issues/416)) ([9937499](https://github.com/snakemake-workflows/dna-seq-varlociraptor/commit/9937499f4464784c9604b168764c0209cec17e4a))
+
 ## [6.3.1](https://github.com/snakemake-workflows/dna-seq-varlociraptor/compare/v6.3.0...v6.3.1) (2026-01-21)
 
 
