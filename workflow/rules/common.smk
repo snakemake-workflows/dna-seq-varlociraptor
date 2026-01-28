@@ -697,9 +697,9 @@ def get_mutational_signature_targets():
             if group_samples:
                 mutational_signature_targets.extend(
                     expand(
-                        "results/plots/mutational_signatures/{group}.{event}.html",
+                        "results/plots/mutational_signatures/{group}.{event}.{sample_alias}.html",
                         group=group,
-                        sample=group_samples,
+                        sample_alias=group_samples,
                         event=lookup("mutational_signatures/events", within=config),
                     )
                 )
