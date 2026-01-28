@@ -31,7 +31,7 @@ if (nrow(sample_substitutions) == 0) {
     prior <- rep(1, ncol(cosmic_signatures))
     for (i in seq_along(snakemake@output)) {
         output_file <- snakemake@output[[i]]
-        min_vaf <- snakemake@params[["min_vafs"]][[i]]
+        min_vaf <- snakemake@params[["min_vafs"]][[i]] / 100
         print(min_vaf)
         filtered_substitions <- (
             sample_substitutions
