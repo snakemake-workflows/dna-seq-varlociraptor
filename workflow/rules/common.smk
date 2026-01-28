@@ -692,6 +692,7 @@ def get_mutational_signature_targets():
     mutational_signature_targets = []
     if is_activated("mutational_signatures"):
         samples_to_consider = set(lookup("mutational_signatures/samples", within=config))
+        breakpoint()
         for group in variants_groups:
             group_samples = set(lookup(query=f"group == '{group}'", within=samples, cols="sample_name")) & samples_to_consider
             if group_samples:
