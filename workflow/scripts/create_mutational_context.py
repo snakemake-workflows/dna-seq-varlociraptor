@@ -15,7 +15,8 @@ def get_ref_triplet(ref_seq, variant_pos):
 
 bcf_path = snakemake.input.bcf
 reference = SeqIO.parse(snakemake.input.ref, "fasta")
-sample_name = bcf_path.split("/")[-1].split(".")[0]
+sample_alias = snakemake.params.sample_alias
+sample_name = f"{snakemake.wildcards.group}_{sample_alias}"
 bcf = pysam.VariantFile(bcf_path)
 current_chrom_id = None
 current_chrom_seq = None
@@ -49,7 +50,7 @@ for bcf_record in bcf:
             file=sys.stderr,
         )
         exit()
-    allele_frequency = float(bcf_record.samples["tumor"]["AF"][0])
+    allele_frequency = float(bcf_record.samples[sample_alias]["AF"][0])
     single_base_substitutions.append((ref_triplet, alt_bases[0], allele_frequency))
 
 df = pd.DataFrame(single_base_substitutions, columns=["Triplet", "Alt", "AF"])

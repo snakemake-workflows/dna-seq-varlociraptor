@@ -1,6 +1,6 @@
 rule create_mutational_context_file:
     input:
-        bcf="results/final-calls/{group}/{group}.{event}.{sample}.variants.fdr-controlled.bcf",
+        bcf="results/final-calls/{group}/{group}.{event}.variants.fdr-controlled.bcf",
         ref=genome,
         fai=genome_fai,
     output:
@@ -8,6 +8,8 @@ rule create_mutational_context_file:
         counts=temp("results/mutational_signatures/{group}.{event}.{sample}.counts.tsv"),
     log:
         "logs/mutational_signatures/context/{group}.{event}.{sample}.log",
+    params:
+        sample_alias=lookup(query="sample_name == '{sample}'", cols="alias", within=samples)
     conda:
         "../envs/pystats.yaml"
     script:
