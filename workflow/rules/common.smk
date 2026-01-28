@@ -19,6 +19,8 @@ samples = (
 )
 if not "mutational_burden_events" in samples.columns:
     samples["mutational_burden_events"] = pd.NA
+if samples["alias"].str.contains("."):
+    raise ValueError("The alias column in the sample sheet may not contain '.' characters.")
 
 # construct genome name
 datatype_genome = "dna"
@@ -1002,6 +1004,7 @@ wildcard_constraints:
     event="|".join(config["calling"]["fdr-control"]["events"].keys()),
     regions_type="|".join(["expanded", "covered"]),
     calling_type="|".join(["fusions", "variants"]),
+    sample_alias="[^\.]+",
 
 
 variant_caller = list(
