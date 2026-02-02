@@ -152,6 +152,29 @@ rule datavzrd_fusion_calls:
     wrapper:
         "v8.0.3/utils/datavzrd"
 
+rule datavzrd_varpubs:
+    input:
+        csv="results/varpubs/{batch}.{event}.csv",
+        config=workflow.source_path(
+            "../resources/datavzrd/varpubs-template.datavzrd.yaml"
+        ),
+        summary_formatter=workflow.source_path(
+            "../resources/datavzrd/summary_formatter.js"
+        ),
+    output:
+        report(
+            directory(
+                "results/datavzrd-report/varpubs/{batch}.{event}"
+            ),
+            htmlindex="index.html",
+            category="Summaries of variant publications",
+            labels=get_datavzrd_report_labels,
+            subcategory=get_datavzrd_report_subcategory,
+        ),
+    log:
+        "logs/datavzrd_report/varpubs/{batch}.{event}.log",
+    wrapper:
+        "v8.0.3/utils/datavzrd"
 
 rule bedtools_merge:
     input:

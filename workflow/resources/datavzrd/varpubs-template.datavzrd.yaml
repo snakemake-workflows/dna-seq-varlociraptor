@@ -1,0 +1,33 @@
+__use_yte__: true
+
+__definitions__:
+  - import os
+  - |
+    def read_file(path):
+        return open(path, 'r').read()
+
+name: Variant publication summaries
+
+default-view: Summaries
+
+datasets:
+  Summaries:
+    path: ?input.csv
+    separator: ","
+views:
+  Summaries:
+    dataset: Summaries
+    render-table:
+      columns:
+        summary:
+          custom: ?read_file(input.summary_formatter)
+        symbol:
+          display-mode: normal
+        hgvsp:
+          display-mode: normal
+        pmids:
+          display-mode: detail
+          plot:
+            pills:
+              separator: ","
+              range: ["blue"]

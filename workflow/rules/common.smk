@@ -250,7 +250,8 @@ def get_final_output(wildcards):
                 )
     final_output.extend(get_mutational_burden_targets())
     final_output.extend(get_mutational_signature_targets())
-
+    if is_activated("varpubs"):
+        final_output.extend(get_varpubs_targets(wildcards, target="report"))
     if is_activated("population/db"):
         final_output.append(lookup(dpath="population/db/path", within=config))
 
@@ -704,6 +705,51 @@ def get_mutational_signature_targets():
                     )
                 )
     return mutational_signature_targets
+
+
+def get_varpubs_events():
+    return [
+        event
+        for event in get_calling_events("variants")
+        if lookup(
+            dpath=f"calling/fdr-control/events/{event}/varpubs",
+            within=config,
+            default=True,
+        )
+    ]
+
+
+def get_unchanged_varpubs_cache():
+    cache = lookup(dpath="varpubs/cache", within=config)
+    if not cache.endswith(".duckdb"):
+        raise ValueError("Varpubs cache must be a duckdb file.")
+    if exists(cache):
+        return before_update(cache)
+    else:
+        return []
+
+
+def get_varpubs_targets(wc, target="report"):
+    varpubs_targets = []
+    if target == "report":
+        pattern = "results/datavzrd-report/varpubs/{group}.{event}"
+        varpubs_targets.append(
+            update(
+                lookup(dpath="varpubs/cache", within=config)
+            )
+        )
+    elif target == "cache":
+        pattern = "results/varpubs/caches/{group}.{event}.duckdb"
+    else:
+        raise ValueError("varpubs target must be either report or cache")
+    varpubs_targets.extend(
+        expand(
+            pattern,
+            group=variants_groups,
+            event=get_varpubs_events()
+        )
+    )
+    return varpubs_targets
 
 
 def get_scattered_calls(ext="bcf"):
