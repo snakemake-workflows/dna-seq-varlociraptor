@@ -3,7 +3,7 @@ rule map_reads_bwa:
         reads=get_map_reads_input,
         idx=access.random(rules.bwa_index.output),
     output:
-        temp("results/mapped/bwa/{sample}.bam"),
+        temp("results/mapped/bwa/{sample}.cram"),
     log:
         "logs/bwa_mem/{sample}.log",
     params:
@@ -55,7 +55,7 @@ rule map_reads_vg:
         hapl=access.random(f"{pangenome_prefix}.hapl"),
         paths=access.random("resources/reference_paths.txt"),
     output:
-        bam=temp("results/mapped/vg/{sample}.raw.bam"),
+        bam=temp("results/mapped/vg/{sample}.raw.cram"),
         indexes=temp(
             multiext(
                 f"{pangenome_prefix}.{{sample}}",
@@ -79,9 +79,9 @@ rule map_reads_vg:
 
 rule reheader_mapped_reads:
     input:
-        "results/mapped/vg/{sample}.raw.bam",
+        "results/mapped/vg/{sample}.raw.cram",
     output:
-        temp("results/mapped/vg/{sample}.reheadered.bam"),
+        temp("results/mapped/vg/{sample}.reheadered.cram"),
     params:
         build=config["ref"]["build"],
     conda:
@@ -96,16 +96,16 @@ rule reheader_mapped_reads:
 
 rule fix_mate:
     input:
-        "results/mapped/vg/{sample}.reheadered.bam",
+        "results/mapped/vg/{sample}.reheadered.cram",
     output:
-        temp("results/mapped/vg/{sample}.mate_fixed.bam"),
+        temp("results/mapped/vg/{sample}.mate_fixed.cram"),
     log:
         "logs/samtools/fix_mate/{sample}.log",
     threads: 8
     params:
         extra="",
     wrapper:
-        "v4.7.2/bio/samtools/fixmate"
+        "v8.1.0/bio/samtools/fixmate"
 
 
 # adding read groups is exclusive to vg mapped reads and
@@ -114,12 +114,12 @@ rule fix_mate:
 rule add_read_group:
     input:
         lambda wc: (
-            "results/mapped/vg/{sample}.mate_fixed.bam"
+            "results/mapped/vg/{sample}.mate_fixed.cram"
             if sample_has_primers(wc)
-            else "results/mapped/vg/{sample}.reheadered.bam"
+            else "results/mapped/vg/{sample}.reheadered.cram"
         ),
     output:
-        temp("results/mapped/vg/{sample}.bam"),
+        temp("results/mapped/vg/{sample}.cram"),
     log:
         "logs/samtools/add_rg/{sample}.log",
     params:
@@ -134,50 +134,55 @@ rule add_read_group:
         "samtools addreplacerg {input} -o {output} -r {params.read_group} "
         "-w {params.compression_threads} 2> {log}"
 
-
+# TODO Change to cram once umi_tools supports it
 rule sort_alignments:
     input:
-        "results/mapped/{aligner}/{sample}.bam",
+        "results/mapped/{aligner}/{sample}.cram",
     output:
-        temp("results/mapped/{aligner}/{sample}.sorted.bam"),
+        temp("results/mapped/{aligner}/{sample}.sorted.cram"),
     log:
         "logs/sort/{aligner}/{sample}.log",
+    params:
+        extra="--output-fmt-option version=3.0", # picard markduplicates does not support cram 3.1, need to wait for picard >3.4.0
     threads: 16
     resources:
         mem_mb=32000,
     wrapper:
         "v8.1.1/bio/samtools/sort"
 
-
+# TODO No support for cram
 rule annotate_umis:
     input:
-        bam="results/mapped/{aligner}/{sample}.sorted.bam",
-        idx="results/mapped/{aligner}/{sample}.sorted.bai",
+        bam="results/mapped/{aligner}/{sample}.sorted.cram",
+        idx="results/mapped/{aligner}/{sample}.sorted.crai",
+        ref=genome,
     output:
-        temp("results/mapped/{aligner}/{sample}.annotated.bam"),
+        temp("results/mapped/{aligner}/{sample}.annotated.cram"),
     conda:
         "../envs/umi_tools.yaml"
     log:
         "logs/annotate_bam/{aligner}/{sample}.log",
     shell:
-        "umi_tools group -I {input.bam} --paired --umi-separator : --output-bam -S {output} &> {log}"
+        "umi_tools group -I {input.bam} --paired --umi-separator : --output-bam -S {output}  &> {log}"
 
 
 rule mark_duplicates:
     input:
         bams=get_markduplicates_input,
+        ref=genome,
     output:
-        bam=temp("results/dedup/{sample}.bam"),
+        bam=temp("results/dedup/{sample}.cram"),
         metrics="results/qc/dedup/{sample}.metrics.txt",
     log:
         "logs/picard/dedup/{sample}.log",
     params:
         extra=get_markduplicates_extra,
+        samtools_opts="--output-fmt-option version=3.0", # gatk does not support cram 3.1, need to wait for gatk >4.6.2.0
     resources:
         #https://broadinstitute.github.io/picard/faq.html
         mem_mb=3000,
     wrapper:
-        "v2.5.0/bio/picard/markduplicates"
+        "v9.0.0/bio/picard/markduplicates"
 
 
 rule calc_consensus_reads:
@@ -187,7 +192,7 @@ rule calc_consensus_reads:
         consensus_r1=temp("results/consensus/fastq/{sample}.1.fq"),
         consensus_r2=temp("results/consensus/fastq/{sample}.2.fq"),
         consensus_se=temp("results/consensus/fastq/{sample}.se.fq"),
-        skipped=temp("results/consensus/{sample}.skipped.bam"),
+        skipped=temp("results/consensus/{sample}.skipped.cram"),
     log:
         "logs/consensus/{sample}.log",
     conda:
@@ -201,7 +206,7 @@ rule map_consensus_reads:
         reads=get_processed_consensus_input,
         idx=access.random(rules.bwa_index.output),
     output:
-        temp("results/consensus/{sample}.consensus.{read_type}.mapped.bam"),
+        temp("results/consensus/{sample}.consensus.{read_type}.mapped.cram"),
     params:
         index=lambda w, input: os.path.splitext(input.idx[0])[0],
         extra=lambda w: f"-C {get_read_group("-R")(w)}",
@@ -213,28 +218,28 @@ rule map_consensus_reads:
         "logs/bwa_mem/{sample}.{read_type}.consensus.log",
     threads: 8
     wrapper:
-        "v2.3.2/bio/bwa/mem"
+        "v8.1.0/bio/bwa/mem"
 
 
 rule merge_consensus_reads:
     input:
-        "results/consensus/{sample}.skipped.bam",
-        "results/consensus/{sample}.consensus.se.mapped.bam",
-        "results/consensus/{sample}.consensus.pe.mapped.bam",
+        "results/consensus/{sample}.skipped.cram",
+        "results/consensus/{sample}.consensus.se.mapped.cram",
+        "results/consensus/{sample}.consensus.pe.mapped.cram",
     output:
-        temp("results/consensus/{sample}.merged.bam"),
+        temp("results/consensus/{sample}.merged.cram"),
     log:
         "logs/samtools_merge/{sample}.log",
     threads: 8
     wrapper:
-        "v2.3.2/bio/samtools/merge"
+        "v8.1.0/bio/samtools/merge"
 
 
 rule sort_consensus_reads:
     input:
-        "results/consensus/{sample}.merged.bam",
+        "results/consensus/{sample}.merged.cram",
     output:
-        temp("results/consensus/{sample}.bam"),
+        temp("results/consensus/{sample}.cram"),
     log:
         "logs/samtools_sort/{sample}.log",
     threads: 16
@@ -248,13 +253,13 @@ rule sort_consensus_reads:
 rule splitncigarreads:
     input:
         bam=lambda wc: (
-            "results/dedup/{sample}.bam"
+            "results/dedup/{sample}.cram"
             if is_activated("remove_duplicates")
-            else "results/mapped/star/{sample}.bam"
+            else "results/mapped/star/{sample}.cram"
         ),
         ref=genome,
     output:
-        "results/split/{sample}.bam",
+        "results/split/{sample}.cram",
     log:
         "logs/gatk/splitNCIGARreads/{sample}.log",
     params:
@@ -263,13 +268,13 @@ rule splitncigarreads:
     resources:
         mem_mb=1024,
     wrapper:
-        "v3.1.0/bio/gatk/splitncigarreads"
+        "v8.1.0/bio/gatk/splitncigarreads"
 
 
 rule recalibrate_base_qualities:
     input:
         bam=get_recalibrate_quality_input,
-        bai=lambda w: get_recalibrate_quality_input(w, bai=True),
+        bai=lambda w: get_recalibrate_quality_input(w, crai=True),
         ref=genome,
         ref_dict=genome_dict,
         ref_fai=genome_fai,
@@ -281,7 +286,7 @@ rule recalibrate_base_qualities:
         extra=config["params"]["gatk"]["BaseRecalibrator"],
         java_opts="",
     resources:
-        mem_mb=1024,
+        mem_mb=4096,
     log:
         "logs/gatk/baserecalibrator/{sample}.log",
     threads: 8
@@ -295,18 +300,20 @@ ruleorder: apply_bqsr > bam_index
 rule apply_bqsr:
     input:
         bam=get_recalibrate_quality_input,
-        bai=lambda w: get_recalibrate_quality_input(w, bai=True),
+        bai=lambda w: get_recalibrate_quality_input(w, crai=True),
         ref=genome,
         ref_dict=genome_dict,
         ref_fai=genome_fai,
         recal_table="results/recal/{sample}.grp",
     output:
-        bam=protected("results/recal/{sample}.bam"),
-        bai="results/recal/{sample}.bai",
+        bam=protected("results/recal/{sample}.cram"),
+        bai="results/recal/{sample}.cram.bai",
     log:
         "logs/gatk/gatk_applybqsr/{sample}.log",
     params:
         extra=config["params"]["gatk"]["applyBQSR"],  # optional
         java_opts="",  # optional
+    resources:
+            mem_mb=2048,
     wrapper:
         "v2.3.2/bio/gatk/applybqsr"

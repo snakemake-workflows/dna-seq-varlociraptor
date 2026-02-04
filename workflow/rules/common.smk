@@ -455,13 +455,13 @@ def get_sample_datatype(sample):
 def get_markduplicates_input(wildcards):
     aligner = get_aligner(wildcards)
     if sample_has_umis(wildcards.sample):
-        return f"results/mapped/{aligner}/{{sample}}.annotated.bam"
+        return f"results/mapped/{aligner}/{{sample}}.annotated.cram"
     else:
-        return f"results/mapped/{aligner}/{{sample}}.sorted.bam"
+        return f"results/mapped/{aligner}/{{sample}}.sorted.cram"
 
 
-def get_recalibrate_quality_input(wildcards, bai=False):
-    ext = "bai" if bai else "bam"
+def get_recalibrate_quality_input(wildcards, crai=False):
+    ext = "crai" if crai else "cram"
     datatype = get_sample_datatype(wildcards.sample)
     if datatype == "rna":
         return "results/split/{{sample}}.{ext}".format(ext=ext)
@@ -469,19 +469,19 @@ def get_recalibrate_quality_input(wildcards, bai=False):
     if is_activated("calc_consensus_reads"):
         return "results/consensus/{{sample}}.{ext}".format(ext=ext)
     else:
-        return get_consensus_input(wildcards, bai)
+        return get_consensus_input(wildcards, crai)
 
 
-def get_consensus_input(wildcards, bai=False):
-    ext = "bai" if bai else "bam"
+def get_consensus_input(wildcards, crai=False):
+    ext = "crai" if crai else "cram"
     if sample_has_primers(wildcards):
         return f"results/trimmed/{{sample}}.trimmed.{ext}"
     else:
-        return get_trimming_input(wildcards, bai)
+        return get_trimming_input(wildcards, crai)
 
-
-def get_trimming_input(wildcards, bai=False):
-    ext = "bai" if bai else "bam"
+# genneralize ext once umi_tools supports cram
+def get_trimming_input(wildcards, crai=False):
+    ext = "crai" if crai else "cram"
     aligner = get_aligner(wildcards)
     if is_activated("remove_duplicates"):
         return "results/dedup/{{sample}}.{ext}".format(ext=ext)
@@ -583,8 +583,8 @@ def get_markduplicates_extra(wc):
     return f"{c} {b} {d}"
 
 
-def get_group_bams(wildcards, bai=False):
-    ext = "bai" if bai else "bam"
+def get_group_bams(wildcards, crai=False):
+    ext = "cram.bai" if crai else "cram"
     return expand(
         "results/recal/{sample}.{ext}",
         sample=get_group_samples(wildcards.group),
@@ -1600,13 +1600,13 @@ def get_fastqc_results(wildcards):
 
     # samtools idxstats
     yield from expand(
-        "results/qc/{sample}.bam.idxstats",
+        "results/qc/{sample}.cram.idxstats",
         sample=group_samples,
     )
 
     # samtools stats
     yield from expand(
-        "results/qc/{sample}.bam.stats",
+        "results/qc/{sample}.cram.stats",
         sample=group_samples,
     )
 
