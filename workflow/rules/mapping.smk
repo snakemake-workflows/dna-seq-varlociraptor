@@ -139,7 +139,7 @@ rule sort_alignments:
     input:
         "results/mapped/{aligner}/{sample}.cram",
     output:
-        temp("results/mapped/{aligner}/{sample}.sorted.bam"),
+        temp("results/mapped/{aligner}/{sample}.sorted.cram"),
     log:
         "logs/sort/{aligner}/{sample}.log",
     params:
@@ -153,11 +153,11 @@ rule sort_alignments:
 # TODO No support for cram
 rule annotate_umis:
     input:
-        bam="results/mapped/{aligner}/{sample}.sorted.bam",
-        idx="results/mapped/{aligner}/{sample}.sorted.bai",
+        bam="results/mapped/{aligner}/{sample}.sorted.cram",
+        idx="results/mapped/{aligner}/{sample}.sorted.crai",
         ref=genome,
     output:
-        temp("results/mapped/{aligner}/{sample}.annotated.bam"),
+        temp("results/mapped/{aligner}/{sample}.annotated.cram"),
     conda:
         "../envs/umi_tools.yaml"
     log:
@@ -182,7 +182,7 @@ rule mark_duplicates:
         #https://broadinstitute.github.io/picard/faq.html
         mem_mb=3000,
     wrapper:
-        "21cbbdb/bio/picard/markduplicates" # TODO: update wrapper once https://github.com/snakemake/snakemake-wrappers/pull/4788 is merged
+        "v9.0.0/bio/picard/markduplicates"
 
 
 rule calc_consensus_reads:
