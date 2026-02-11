@@ -167,7 +167,7 @@ def load_impact_scores():
         score_list = []
         for s in samples:
             score_list.append(
-                {"score": row["score"], "sample": s, "likelihood": row[s]}
+                {"score": row["score"], "sample": s, "frequency": row[s]}
             )
         return score_list  # Return list, not JSON string
 

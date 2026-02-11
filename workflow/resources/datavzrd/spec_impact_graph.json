@@ -1,32 +1,80 @@
 {
     "$schema": "https://vega.github.io/schema/vega-lite/v6.json",
     "width": 200,
-    "height": 200,
     "data": {
         "name": "scores"
     },
-    "mark": {
-        "type": "circle",
-        "size": 100
-    },
-    "encoding": {
-        "y": {
-            "field": "score",
-            "type": "quantitative",
-            "scale": { "domain": [0, 1] },
-            "title": "Score"
+    "transform": [
+        {
+            "window": [
+                {
+                    "op": "row_number",
+                    "as": "haplotype"
+                }
+            ]
+        }
+    ],
+    "layer": [
+        {
+            "mark": "bar",
+            "encoding": {
+                "y": {
+                    "field": "haplotype",
+                    "type": "ordinal",
+                    "title": "Haplotype"
+                },
+                "x": {
+                    "field": "score",
+                    "type": "quantitative",
+                    "scale": {
+                        "domain": [0, 1]
+                    },
+                    "title": "Score"
+                },
+                "color": {
+                    "field": "sample",
+                    "type": "nominal",
+                    "legend": {
+                        "title": "Sample"
+                    }
+                },
+                "tooltip": [
+                    {
+                        "field": "haplotype"
+                    },
+                    {
+                        "field": "sample"
+                    },
+                    {
+                        "field": "score"
+                    },
+                    {
+                        "field": "frequency"
+                    }
+                ]
+            }
         },
-        "color": {
-            "field": "sample",
-            "type": "nominal",
-            "legend": { "title": "Sample" }
-        },
-        "x": {
-            "field": "likelihood",
-            "type": "quantitative",
-            "scale": { "domain": [0, 1] },
-            "title": "Likelihood"
-        },
-        "tooltip": [{ "field": "score" }, { "field": "likelihood" }]
-    }
+        {
+            "mark": {
+                "type": "tick",
+                "color": "black",
+                "thickness": 2,
+                "size": 20
+            },
+            "encoding": {
+                "y": {
+                    "field": "haplotype",
+                    "type": "ordinal"
+                },
+                "x": {
+                    "field": "frequency",
+                    "type": "quantitative",
+                    "scale": {
+                        "domain": [0, 1]
+                    },
+                    "title": "Haplotype Frequency"
+                }
+            }
+        }
+    ]
 }
