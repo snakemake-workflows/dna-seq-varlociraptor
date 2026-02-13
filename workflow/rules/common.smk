@@ -1660,7 +1660,6 @@ def get_alignment_props(wildcards):
 
 
 def get_pangenome_url(datatype):
-    breakpoint()
     build = config["ref"]["build"].lower()
     source = config["ref"]["pangenome"]["source"]
     version = config["ref"]["pangenome"]["version"]
@@ -1672,4 +1671,5 @@ def get_pangenome_url(datatype):
         raise ValueError(
             "Unsupported pangenome source. Only 'hprc' is currently supported."
         )
+    print("test")
     return f"https://s3-us-west-2.amazonaws.com/human-pangenomics/pangenomes/freeze/freeze1/minigraph-cactus/hprc-{version}-mc-{build}/hprc-{version}-mc-{build}.{datatype}"
