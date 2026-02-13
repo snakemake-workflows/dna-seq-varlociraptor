@@ -1660,6 +1660,7 @@ def get_alignment_props(wildcards):
 
 
 def get_pangenome_url(datatype):
+    breakpoint()
     build = config["ref"]["build"].lower()
     source = config["ref"]["pangenome"]["source"]
     version = config["ref"]["pangenome"]["version"]
