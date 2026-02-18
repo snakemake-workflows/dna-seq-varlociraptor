@@ -1,5 +1,12 @@
 # Changelog
 
+## [6.4.2](https://github.com/snakemake-workflows/dna-seq-varlociraptor/compare/v6.4.1...v6.4.2) (2026-02-18)
+
+
+### Bug Fixes
+
+* format pangenome url in multiple lines ([#426](https://github.com/snakemake-workflows/dna-seq-varlociraptor/issues/426)) ([686ff81](https://github.com/snakemake-workflows/dna-seq-varlociraptor/commit/686ff81dcc276b45cc05bed59d556afd0fab07fa))
+
 ## [6.4.1](https://github.com/snakemake-workflows/dna-seq-varlociraptor/compare/v6.4.0...v6.4.1) (2026-02-13)
 
 
