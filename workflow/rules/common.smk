@@ -823,11 +823,19 @@ def get_merge_calls_input(ext="bcf"):
     return inner
 
 
-def get_plugin_aux(plugin, index=False):
+def get_plugin_aux(plugin, cadd_variant_type="snv", index=False):
     if plugin in config["annotations"]["vep"]["final_calls"]["plugins"]:
         if plugin == "REVEL":
             suffix = ".tbi" if index else ""
             return "resources/revel_scores.tsv.gz{suffix}".format(suffix=suffix)
+        if plugin == "CADD":
+            suffix = ".tbi" if index else ""
+            return "resources/cadd.{build}.{cadd_version}.{cadd_variant_type}.tsv.gz{suffix}".format(
+                build=lookup(within=config, dpath="ref/build"),
+                cadd_version=lookup(within=config, dpath="annotations/vep/final_calls/score_versions/cadd"),
+                cadd_variant_type=cadd_variant_type,
+                suffix=suffix,
+            )
     return []
 
 
@@ -1155,13 +1163,15 @@ def get_annotation_fields_for_tables(wildcards):
             if field not in annotation_fields
         ]
     )
-    for plugin in ["REVEL", "SpliceAI", "AlphaMissense"]:
+    for plugin in ["CADD", "REVEL", "SpliceAI", "AlphaMissense"]:
         if any(
             entry.startswith(plugin)
             for entry in config["annotations"]["vep"]["final_calls"]["plugins"]
         ):
             if plugin == "REVEL":
                 annotation_fields.append("REVEL")
+            elif plugin == "CADD":
+                annotation_fields.append("CADD_PHRED")
             elif plugin == "SpliceAI":
                 annotation_fields.extend(
                     [
@@ -1361,6 +1371,7 @@ def get_vembrane_config(wildcards, input):
         "ANN['gnomADg_AF']",
         "ANN['EXON'].raw",
         "ANN['REVEL']",
+        "ANN['CADD_PHRED']",
         # variants only, split-call-tables.py will select the column with the
         # highest score and will put it in the same place
         "ANN['SpliceAI_pred_DS_AG']",
@@ -1665,4 +1676,8 @@ def get_pangenome_url(datatype):
         raise ValueError(
             "Unsupported pangenome source. Only 'hprc' is currently supported."
         )
-    return f"https://s3-us-west-2.amazonaws.com/human-pangenomics/pangenomes/freeze/freeze1/minigraph-cactus/hprc-{version}-mc-{build}/hprc-{version}-mc-{build}.{datatype}"
+    return (
+        "https://s3-us-west-2.amazonaws.com/human-pangenomics/pangenomes/freeze/"
+        "freeze1/minigraph-cactus/"
+        f"hprc-{version}-mc-{build}/hprc-{version}-mc-{build}.{datatype}"
+    )

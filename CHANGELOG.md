@@ -1,5 +1,26 @@
 # Changelog
 
+## [6.4.2](https://github.com/snakemake-workflows/dna-seq-varlociraptor/compare/v6.4.1...v6.4.2) (2026-02-18)
+
+
+### Bug Fixes
+
+* format pangenome url in multiple lines ([#426](https://github.com/snakemake-workflows/dna-seq-varlociraptor/issues/426)) ([686ff81](https://github.com/snakemake-workflows/dna-seq-varlociraptor/commit/686ff81dcc276b45cc05bed59d556afd0fab07fa))
+
+## [6.4.1](https://github.com/snakemake-workflows/dna-seq-varlociraptor/compare/v6.4.0...v6.4.1) (2026-02-13)
+
+
+### Performance Improvements
+
+* Update varlociraptor version to 8.9.5 ([b19d1ea](https://github.com/snakemake-workflows/dna-seq-varlociraptor/commit/b19d1ea54574cd1c4d0c9ff79f3f98bd45a98156))
+
+## [6.4.0](https://github.com/snakemake-workflows/dna-seq-varlociraptor/compare/v6.3.1...v6.4.0) (2026-01-28)
+
+
+### Features
+
+* add CADD score plugin implementation to VEP annotation ([#416](https://github.com/snakemake-workflows/dna-seq-varlociraptor/issues/416)) ([9937499](https://github.com/snakemake-workflows/dna-seq-varlociraptor/commit/9937499f4464784c9604b168764c0209cec17e4a))
+
 ## [6.3.1](https://github.com/snakemake-workflows/dna-seq-varlociraptor/compare/v6.3.0...v6.3.1) (2026-01-21)
 
 
