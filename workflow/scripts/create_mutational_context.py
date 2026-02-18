@@ -15,7 +15,9 @@ def get_ref_triplet(ref_seq, variant_pos):
 
 bcf_path = snakemake.input.bcf
 reference = SeqIO.parse(snakemake.input.ref, "fasta")
-sample_name = bcf_path.split("/")[-1].split(".")[0]
+sample_alias = snakemake.wildcards.sample_alias
+# TODO rather use a combination of sample alias and group
+sample_name = snakemake.wildcards.group
 bcf = pysam.VariantFile(bcf_path)
 current_chrom_id = None
 current_chrom_seq = None
@@ -31,7 +33,7 @@ for bcf_record in bcf:
     if len(alt_bases) > 1:
         print("Record has mutliple alterations", file=sys.stderr)
         print(f"{variant_chrom}\t{variant_pos}", file=sys.stderr)
-        exit()
+        exit(1)
     if len(ref_base) != 1 or len(alt_bases[0]) != 1:
         print(
             f"Record skipped - No SNV: {variant_chrom}\t{variant_pos}",
@@ -49,7 +51,7 @@ for bcf_record in bcf:
             file=sys.stderr,
         )
         exit()
-    allele_frequency = float(bcf_record.samples["tumor"]["AF"][0])
+    allele_frequency = float(bcf_record.samples[sample_alias]["AF"][0])
     single_base_substitutions.append((ref_triplet, alt_bases[0], allele_frequency))
 
 df = pd.DataFrame(single_base_substitutions, columns=["Triplet", "Alt", "AF"])
@@ -58,7 +60,8 @@ df["Sample"] = sample_name
 df.to_csv(snakemake.output.context, sep="\t", index=False)
 
 # Count mutations
-for min_vaf in np.arange(0, 1.1, 0.1):
+for min_vaf in snakemake.params.min_vafs:
+    min_vaf = min_vaf / 100
     temp_df = df[df["AF"] >= min_vaf]
     mutation_counts.append((min_vaf, len(temp_df.index)))
 
