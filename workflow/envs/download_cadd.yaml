@@ -1,11 +1,11 @@
-name: get_genome
 channels:
   - conda-forge
   - bioconda
   - nodefaults
 dependencies:
   - coreutils =9.5
-  - gawk =5.3
+  - gawk =5.3.1
   - gzip =1.14
-  - htslib =1.22
-  - wget =1.25
+  - htslib =1.23
+  - wget =1.25.0
+name: get_genome

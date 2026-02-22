@@ -4,5 +4,5 @@ channels:
   - nodefaults
 dependencies:
   - varlociraptor =8.9.5
-  - vega-lite-cli =5.16
-  - bcftools =1.21
+  - vega-lite-cli =6.4.2
+  - bcftools =1.23
