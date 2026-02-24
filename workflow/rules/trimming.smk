@@ -4,6 +4,8 @@ rule get_sra:
         "sra/{accession}_2.fastq.gz",
     log:
         "logs/get-sra/{accession}.log",
+    params:
+        extra=get_get_sra_extra, 
     wrapper:
         "v7.6.0/bio/sra-tools/fasterq-dump"
 
