@@ -21,7 +21,15 @@
                 "y": {
                     "field": "haplotype",
                     "type": "ordinal",
-                    "title": "Haplotype"
+                    "title": "Haplotype",
+                    "axis": {
+                        "labels": false,
+                        "ticks": false
+                    },
+                    "sort": {
+                        "field": "frequency",
+                        "order": "descending"
+                    }
                 },
                 "x": {
                     "field": "score",
@@ -64,8 +72,19 @@
             "encoding": {
                 "y": {
                     "field": "haplotype",
-                    "type": "ordinal"
+                    "type": "ordinal",
+                    "axis": {
+                        "labels": false,
+                        "ticks": false
+                    },
+                    "sort": {
+                        "field": "frequency",
+                        "order": "descending"
+                    }
                 },
+                "tooltip": [
+                    {"field": "frequency"}
+                ],
                 "x": {
                     "field": "frequency",
                     "type": "quantitative",

@@ -332,7 +332,9 @@ views:
                 false_value: "False"
           impact_scores:
             optional: true
+            label: transcript-specific scores
             custom-plot:
+              vega-controls: true
               data: ?read_file(input.data_impact_graph)
               spec: ?read_file(input.spec_impact_graph)
             display-mode: detail
