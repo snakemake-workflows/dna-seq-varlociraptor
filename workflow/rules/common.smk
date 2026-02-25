@@ -323,11 +323,6 @@ def get_fastp_input(wildcards):
         return [get_reads("fq1"), get_reads("fq2")]
 
 
-def get_get_sra_extra():
-    extra = config["params"]["get_sra"]
-    return extra
-
-
 def get_sra_reads(sample, unit, fq):
     unit = units.loc[sample].loc[unit]
     # SRA sample (always paired-end for now)
