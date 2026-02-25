@@ -5,7 +5,7 @@ rule get_sra:
     log:
         "logs/get-sra/{accession}.log",
     params:
-        extra=get_get_sra_extra, 
+        extra=lookup(within=config, dpath="params/get_sra", default=""), 
     wrapper:
         "v7.6.0/bio/sra-tools/fasterq-dump"
 
