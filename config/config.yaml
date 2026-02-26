@@ -294,6 +294,8 @@ params:
   freebayes:
     min_alternate_fraction: 0.05 # Reduce for calling variants with lower VAFs
     extra: ""
+  get_sra:
+    extra: ""
 
 # If activated preprocessed alignment properties can be applied to each sample individually.
 # Paths to the alignment properties json files need to be set in a tsv file containing a property name and path.
