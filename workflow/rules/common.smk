@@ -19,6 +19,10 @@ samples = (
 )
 if not "mutational_burden_events" in samples.columns:
     samples["mutational_burden_events"] = pd.NA
+if samples["alias"].str.contains(".", regex=False).any():
+    raise ValueError(
+        f"The alias column in the sample sheet may not contain '.' characters."
+    )
 
 # construct genome name
 datatype_genome = "dna"
@@ -693,13 +697,13 @@ def get_mutational_signature_targets():
     if is_activated("mutational_signatures"):
         samples_to_consider = set(lookup("mutational_signatures/samples", within=config))
         for group in variants_groups:
-            group_samples = set(lookup(query=f"group == '{group}'", within=samples, cols="sample_name")) & samples_to_consider
+            group_samples = set(lookup(query=f"group == '{group}'", within=samples, cols="alias")) & samples_to_consider
             if group_samples:
                 mutational_signature_targets.extend(
                     expand(
-                        "results/plots/mutational_signatures/{group}.{event}.html",
+                        "results/plots/mutational_signatures/{group}.{event}.{sample_alias}.html",
                         group=group,
-                        sample=group_samples,
+                        sample_alias=group_samples,
                         event=lookup("mutational_signatures/events", within=config),
                     )
                 )
@@ -1010,6 +1014,7 @@ wildcard_constraints:
     event="|".join(config["calling"]["fdr-control"]["events"].keys()),
     regions_type="|".join(["expanded", "covered"]),
     calling_type="|".join(["fusions", "variants"]),
+    sample_alias=r"[^\.]+",
 
 
 variant_caller = list(
