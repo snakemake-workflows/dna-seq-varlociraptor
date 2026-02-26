@@ -4,16 +4,6 @@
     "data": {
         "name": "scores"
     },
-    "transform": [
-        {
-            "window": [
-                {
-                    "op": "row_number",
-                    "as": "haplotype"
-                }
-            ]
-        }
-    ],
     "layer": [
         {
             "mark": "bar",
@@ -22,10 +12,6 @@
                     "field": "haplotype",
                     "type": "ordinal",
                     "title": "Haplotype",
-                    "axis": {
-                        "labels": false,
-                        "ticks": false
-                    },
                     "sort": {
                         "field": "frequency",
                         "order": "descending"
@@ -73,10 +59,6 @@
                 "y": {
                     "field": "haplotype",
                     "type": "ordinal",
-                    "axis": {
-                        "labels": false,
-                        "ticks": false
-                    },
                     "sort": {
                         "field": "frequency",
                         "order": "descending"
