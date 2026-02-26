@@ -1,5 +1,17 @@
 # Changelog
 
+## [6.5.0](https://github.com/snakemake-workflows/dna-seq-varlociraptor/compare/v6.4.2...v6.5.0) (2026-02-26)
+
+
+### Features
+
+* Enable passing additional arguments to the get_sra rule ([#428](https://github.com/snakemake-workflows/dna-seq-varlociraptor/issues/428)) ([74ab1ee](https://github.com/snakemake-workflows/dna-seq-varlociraptor/commit/74ab1eeac89db5dd0328dfdb9a41b53ac4a6ba1b))
+
+
+### Bug Fixes
+
+* adapt mutational signature calling to latest changes and ensure that generalizations introduced in the configuration are properly considered ([#424](https://github.com/snakemake-workflows/dna-seq-varlociraptor/issues/424)) ([43d4543](https://github.com/snakemake-workflows/dna-seq-varlociraptor/commit/43d45433ea8ac660eb39221cb87a2c167b97c4b0))
+
 ## [6.4.2](https://github.com/snakemake-workflows/dna-seq-varlociraptor/compare/v6.4.1...v6.4.2) (2026-02-18)
 
 
