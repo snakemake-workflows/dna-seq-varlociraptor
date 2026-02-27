@@ -2,14 +2,14 @@ module fusion_calling:
     meta_wrapper:
         "v8.0.0/meta/bio/star_arriba"
     pathvars:
-        results="results", # Path to results directory
-        resources="resources", # Path to resources directory
-        logs="logs", # Path to logs directory
-        genome_sequence=genome, # Path to FASTA file with genome sequence
-        genome_annotation="resources/annotation.gtf", # Path to GTF file with genome annotation
-        reads_r1="...", # Overwritten with function below
-        reads_r2="...", # Overwritten with function below
-        per="{sample}", # Pattern for sample identifiers, e.g. ``"{sample}"``
+        results="results",  # Path to results directory
+        resources="resources",  # Path to resources directory
+        logs="logs",  # Path to logs directory
+        genome_sequence=genome,  # Path to FASTA file with genome sequence
+        genome_annotation="resources/annotation.gtf",  # Path to GTF file with genome annotation
+        reads_r1="...",  # Overwritten with function below
+        reads_r2="...",  # Overwritten with function below
+        per="{sample}",  # Pattern for sample identifiers, e.g. ``"{sample}"``
 
 
 use rule * from fusion_calling

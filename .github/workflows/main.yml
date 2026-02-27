@@ -13,8 +13,38 @@ concurrency:
 
 
 jobs:
+
+  Formatting:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+      - name: Formatting
+        uses: super-linter/super-linter@v8
+        env:
+          VALIDATE_ALL_CODEBASE: false
+          DEFAULT_BRANCH: master
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          VALIDATE_SNAKEMAKE_SNAKEFMT: true
+          VALIDATE_YAML_PRETTIER: true
+
+  Linting:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Lint workflow
+        uses: snakemake/snakemake-github-action@v2
+        with:
+          directory: .
+          snakefile: workflow/Snakefile
+          args: "--lint"
+
   Testing:
     runs-on: ubuntu-latest
+    needs:
+      - Formatting
+      - Linting
     strategy:
       fail-fast: true
       matrix:
@@ -84,7 +114,7 @@ jobs:
           docker-images: false
           swap-storage: true
 
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - name: run workflow
         uses: snakemake/snakemake-github-action@v2
