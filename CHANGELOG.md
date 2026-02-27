@@ -1,5 +1,17 @@
 # Changelog
 
+## [6.5.1](https://github.com/snakemake-workflows/dna-seq-varlociraptor/compare/v6.5.0...v6.5.1) (2026-02-27)
+
+
+### Bug Fixes
+
+* integrate tabix indexing for CADD with generic tabix rule ([#431](https://github.com/snakemake-workflows/dna-seq-varlociraptor/issues/431)) ([f3cc796](https://github.com/snakemake-workflows/dna-seq-varlociraptor/commit/f3cc79643007588f10adaf6c4f867f37fbc6e3e7))
+
+
+### Performance Improvements
+
+* Update datavzrd wrapper version to v9.2.0 ([#429](https://github.com/snakemake-workflows/dna-seq-varlociraptor/issues/429)) ([88326bc](https://github.com/snakemake-workflows/dna-seq-varlociraptor/commit/88326bcb60a4b8d7884cefa88cdbe3af26dba048))
+
 ## [6.5.0](https://github.com/snakemake-workflows/dna-seq-varlociraptor/compare/v6.4.2...v6.5.0) (2026-02-26)
 
 
