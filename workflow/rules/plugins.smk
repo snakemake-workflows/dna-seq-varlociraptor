@@ -64,14 +64,3 @@ rule download_cadd_scores_for_vep:
         "   bgzip -l1 -c "
         "   > {output.cadd} "
         ") 2>{log} "
-
-
-use rule tabix_known_variants as tabix_cadd_scores with:
-    input:
-        "resources/cadd.{build}.{cadd_version}.{variant_type}.tsv.gz",
-    output:
-        "resources/cadd.{build}.{cadd_version}.{variant_type}.tsv.gz.tbi",
-    params:
-        "-s 1 -b 2 -e 2",
-    log:
-        "logs/tabix/cadd.{build}.{cadd_version}.{variant_type}.log",

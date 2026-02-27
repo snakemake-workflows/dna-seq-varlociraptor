@@ -1103,7 +1103,8 @@ def get_annotation_vcfs(idx=False):
 def get_tabix_params(wildcards):
     if wildcards.format == "vcf":
         return "-p vcf"
-    if wildcards.format == "txt":
+    # txt for known variants, tsv for CADD scores
+    if wildcards.format in ["txt", "tsv"]:
         return "-s 1 -b 2 -e 2"
     raise ValueError("Invalid format for tabix: {}".format(wildcards.format))
 
