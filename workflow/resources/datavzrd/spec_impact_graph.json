@@ -23,27 +23,18 @@
                     "scale": {
                         "domain": [0, 1]
                     },
-                    "title": "Score"
+                    "title": "Score",
+                    "stack": false
                 },
                 "color": {
-                    "field": "sample",
-                    "type": "nominal",
-                    "legend": {
-                        "title": "Sample"
-                    }
+                    "value": "#a1a1a1"
                 },
                 "tooltip": [
                     {
                         "field": "haplotype"
                     },
                     {
-                        "field": "sample"
-                    },
-                    {
                         "field": "score"
-                    },
-                    {
-                        "field": "frequency"
                     }
                 ]
             }
@@ -51,9 +42,7 @@
         {
             "mark": {
                 "type": "tick",
-                "color": "black",
-                "thickness": 2,
-                "size": 20
+                "thickness": 2
             },
             "encoding": {
                 "y": {
@@ -63,6 +52,9 @@
                         "field": "frequency",
                         "order": "descending"
                     }
+                },
+                "color": {
+                    "field": "sample"
                 },
                 "tooltip": [
                     {"field": "frequency"}
