@@ -35,17 +35,6 @@ rule process_revel_scores:
         """
 
 
-use rule tabix_known_variants as tabix_revel_scores with:
-    input:
-        "resources/revel_scores.tsv.gz",
-    output:
-        "resources/revel_scores.tsv.gz.tbi",
-    params:
-        get_tabix_revel_params(),
-    log:
-        "logs/tabix/revel.log",
-
-
 rule download_cadd_scores_for_vep:
     output:
         cadd="resources/cadd.{build}.{cadd_version}.{variant_type}.tsv.gz",

@@ -1115,14 +1115,12 @@ def get_tabix_params(wildcards):
         return "-p vcf"
     # txt for known variants, tsv for CADD scores
     if wildcards.format in ["txt", "tsv"]:
-        return "-s 1 -b 2 -e 2"
+        # for REVEL-scores, non-GRCh37 files use column 3 instead of column 2
+        if "revel_scores" in wildcards.prefix and config["ref"]["build"] != "GRCh37":
+            return "-s 1 -b 3 -e 3"
+        else:
+            return "-s 1 -b 2 -e 2"
     raise ValueError("Invalid format for tabix: {}".format(wildcards.format))
-
-
-def get_tabix_revel_params():
-    # Indexing of REVEL-score file where the column depends on the reference
-    column = 2 if config["ref"]["build"] == "GRCh37" else 3
-    return f"-f -s 1 -b {column} -e {column}"
 
 
 def get_untrimmed_fastqs(wc):
