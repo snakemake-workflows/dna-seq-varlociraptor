@@ -54,7 +54,15 @@ rule download_cadd_scores_for_vep:
     conda:
         "../envs/download_cadd.yaml"
     params:
-        file_name=lambda wc: "whole_genome_SNVs" if wc.variant_type == "snv" else "gnomad.genomes.r4.0.indel" if wc.variant_type == "indels" else "unknown_variant_type_choose_snvs_or_indels"
+        file_name=lambda wc: (
+            "whole_genome_SNVs"
+            if wc.variant_type == "snv"
+            else (
+                "gnomad.genomes.r4.0.indel"
+                if wc.variant_type == "indels"
+                else "unknown_variant_type_choose_snvs_or_indels"
+            )
+        ),
     shell:
         "( wget --retry-connrefused --waitretry=10 --tries=10 --continue "
         '    "https://kircherlab.bihealth.org/download/CADD/{wildcards.cadd_version}/{wildcards.build}/{params.file_name}.tsv.gz" '

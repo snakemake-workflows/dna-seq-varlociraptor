@@ -32,9 +32,13 @@ rule annotate_variants:
         revel=lambda wc: get_plugin_aux("REVEL"),
         revel_tbi=lambda wc: get_plugin_aux("REVEL", index=True),
         cadd_snv=lambda wc: get_plugin_aux("CADD", cadd_variant_type="snv"),
-        cadd_snv_tbi=lambda wc: get_plugin_aux("CADD", cadd_variant_type="snv", index=True),
+        cadd_snv_tbi=lambda wc: get_plugin_aux(
+            "CADD", cadd_variant_type="snv", index=True
+        ),
         cadd_indel=lambda wc: get_plugin_aux("CADD", cadd_variant_type="indels"),
-        cadd_indel_tbi=lambda wc: get_plugin_aux("CADD", cadd_variant_type="indels", index=True),
+        cadd_indel_tbi=lambda wc: get_plugin_aux(
+            "CADD", cadd_variant_type="indels", index=True
+        ),
         fasta=access.random(genome),
         fai=genome_fai,
     output:
@@ -44,7 +48,11 @@ rule annotate_variants:
         # Pass a list of plugins to use, see https://www.ensembl.org/info/docs/tools/vep/script/vep_plugins.html
         # Plugin args can be added as well, e.g. via an entry "MyPlugin,1,FOO", see docs.
         plugins=lambda wc: [
-            p.replace("CADD", f"CADD,snv={get_plugin_aux('CADD', cadd_variant_type='snv')},indels={get_plugin_aux('CADD', cadd_variant_type='indels')}") for p in config["annotations"]["vep"]["final_calls"]["plugins"]
+            p.replace(
+                "CADD",
+                f"CADD,snv={get_plugin_aux('CADD', cadd_variant_type= 'snv')},indels={get_plugin_aux('CADD', cadd_variant_type= 'indels')}",
+            )
+            for p in config["annotations"]["vep"]["final_calls"]["plugins"]
         ],
         extra="{} --vcf_info_field ANN --hgvsg".format(
             config["annotations"]["vep"]["final_calls"]["params"]

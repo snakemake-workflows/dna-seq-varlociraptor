@@ -695,9 +695,14 @@ def get_mutational_burden_targets():
 def get_mutational_signature_targets():
     mutational_signature_targets = []
     if is_activated("mutational_signatures"):
-        samples_to_consider = set(lookup("mutational_signatures/samples", within=config))
+        samples_to_consider = set(
+            lookup("mutational_signatures/samples", within=config)
+        )
         for group in variants_groups:
-            group_samples = set(lookup(query=f"group == '{group}'", within=samples, cols="alias")) & samples_to_consider
+            group_samples = (
+                set(lookup(query=f"group == '{group}'", within=samples, cols="alias"))
+                & samples_to_consider
+            )
             if group_samples:
                 mutational_signature_targets.extend(
                     expand(
@@ -721,13 +726,12 @@ def get_scattered_calls(ext="bcf"):
 
     return inner
 
+
 def get_annotate_dgidb_input(wildcards):
     selection = "db_annotated" if is_activated("annotations/vcfs") else "vep_annotated"
-    return (
-        "results/calls/{selection}/{prefix}.bcf".format(
-            selection=selection,
-            prefix=wildcards.prefix,
-        )
+    return "results/calls/{selection}/{prefix}.bcf".format(
+        selection=selection,
+        prefix=wildcards.prefix,
     )
 
 
@@ -739,26 +743,29 @@ def get_final_selected_annotation():
         selection = "dgidb_annotated"
     return selection
 
+
 def get_annotated_bcf(wildcards, index=False):
     ext = ".csi" if index else ""
     selection = (
-        get_final_selected_annotation() if wildcards.calling_type == "variants" else "varlociraptor"
+        get_final_selected_annotation()
+        if wildcards.calling_type == "variants"
+        else "varlociraptor"
     )
-    return (
-        "results/calls/{selection}/{group}/{group}.{calling_type}.{scatteritem}.bcf{ext}".format(
-            group=wildcards.group,
-            calling_type=wildcards.calling_type,
-            selection=selection,
-            scatteritem=wildcards.scatteritem,
-            ext=ext,
-        )
+    return "results/calls/{selection}/{group}/{group}.{calling_type}.{scatteritem}.bcf{ext}".format(
+        group=wildcards.group,
+        calling_type=wildcards.calling_type,
+        selection=selection,
+        scatteritem=wildcards.scatteritem,
+        ext=ext,
     )
 
 
 def get_gather_annotated_calls_input(ext="bcf"):
     def inner(wildcards):
         selection = (
-            get_final_selected_annotation() if wildcards.calling_type == "variants" else "varlociraptor"
+            get_final_selected_annotation()
+            if wildcards.calling_type == "variants"
+            else "varlociraptor"
         )
         return gather.calling(
             "results/calls/{selection}/{{{{group}}}}/{{{{group}}}}.{{{{calling_type}}}}.{{scatteritem}}.{ext}".format(
@@ -832,7 +839,10 @@ def get_plugin_aux(plugin, cadd_variant_type="snv", index=False):
             suffix = ".tbi" if index else ""
             return "resources/cadd.{build}.{cadd_version}.{cadd_variant_type}.tsv.gz{suffix}".format(
                 build=lookup(within=config, dpath="ref/build"),
-                cadd_version=lookup(within=config, dpath="annotations/vep/final_calls/score_versions/cadd"),
+                cadd_version=lookup(
+                    within=config,
+                    dpath="annotations/vep/final_calls/score_versions/cadd",
+                ),
                 cadd_variant_type=cadd_variant_type,
                 suffix=suffix,
             )

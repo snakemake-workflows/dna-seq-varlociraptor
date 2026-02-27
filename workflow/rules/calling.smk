@@ -69,7 +69,9 @@ rule varlociraptor_call:
         obs=get_group_observations,
         scenario="results/scenarios/{group}.yaml",
     output:
-        temp("results/calls/varlociraptor/{caller}/{group}/{group}.{scatteritem}.unsorted.bcf"),
+        temp(
+            "results/calls/varlociraptor/{caller}/{group}/{group}.{scatteritem}.unsorted.bcf"
+        ),
     log:
         "logs/varlociraptor/call/{caller}/{group}.{scatteritem}.log",
     params:

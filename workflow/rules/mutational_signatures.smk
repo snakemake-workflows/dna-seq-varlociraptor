@@ -5,12 +5,16 @@ rule create_mutational_context_file:
         ref=genome,
         fai=genome_fai,
     output:
-        context=temp("results/mutational_signatures/{group}.{event}.{sample_alias}.context.tsv"),
-        counts=temp("results/mutational_signatures/{group}.{event}.{sample_alias}.counts.tsv"),
+        context=temp(
+            "results/mutational_signatures/{group}.{event}.{sample_alias}.context.tsv"
+        ),
+        counts=temp(
+            "results/mutational_signatures/{group}.{event}.{sample_alias}.counts.tsv"
+        ),
     log:
         "logs/mutational_signatures/context/{group}.{event}.{sample_alias}.log",
     params:
-        min_vafs=mutational_signature_vaf_thresholds
+        min_vafs=mutational_signature_vaf_thresholds,
     conda:
         "../envs/pystats.yaml"
     script:
