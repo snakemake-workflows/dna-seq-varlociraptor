@@ -126,7 +126,7 @@
                     ]
                 },
                 {
-                    "calculate": "replace(replace(datum.haplotype, '[', ''), ']', '')",
+                    "calculate": "replace(replace(datum.haplotype, 'c.[', ''), ']', '')",
                     "as": "haplotype_trimmed"
                 },
                 {
