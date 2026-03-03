@@ -143,6 +143,10 @@
                 },
                 {
                     "filter": "datum.variant !== ''"
+                },
+                {
+                  "calculate": "toNumber(replace(datum.variant, /[^0-9].*$/, ''))",
+                  "as": "position"
                 }
             ],
             "mark": {
@@ -171,7 +175,9 @@
                     "axis": {
                         "labelAngle": -90
                     },
-                    "sort": null
+                    "sort": {
+                        "field": "position"
+                    }
                 },
                 "color": {
                     "value": "#a1a1a1"
