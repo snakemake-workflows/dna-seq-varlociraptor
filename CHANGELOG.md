@@ -1,5 +1,12 @@
 # Changelog
 
+## [6.6.0](https://github.com/snakemake-workflows/dna-seq-varlociraptor/compare/v6.5.2...v6.6.0) (2026-03-06)
+
+
+### Features
+
+* cache CADD scores ([5840bfa](https://github.com/snakemake-workflows/dna-seq-varlociraptor/commit/5840bfa541a5848ec5d932b659045a8c5b64a19c))
+
 ## [6.5.2](https://github.com/snakemake-workflows/dna-seq-varlociraptor/compare/v6.5.1...v6.5.2) (2026-03-06)
 
 
