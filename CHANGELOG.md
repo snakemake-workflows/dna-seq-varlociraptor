@@ -1,5 +1,12 @@
 # Changelog
 
+## [6.5.2](https://github.com/snakemake-workflows/dna-seq-varlociraptor/compare/v6.5.1...v6.5.2) (2026-03-06)
+
+
+### Bug Fixes
+
+* store CADD versions in nested dir structure ([1407a96](https://github.com/snakemake-workflows/dna-seq-varlociraptor/commit/1407a966a192bbd6c4e29ca9ad0c5136d4e17d17))
+
 ## [6.5.1](https://github.com/snakemake-workflows/dna-seq-varlociraptor/compare/v6.5.0...v6.5.1) (2026-02-27)
 
 
