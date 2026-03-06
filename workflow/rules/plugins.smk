@@ -40,8 +40,6 @@ rule download_cadd_scores_for_vep:
         cadd="resources/cadd/{build}/{cadd_version}/{variant_type}.tsv.gz",
     log:
         "logs/cadd/{build}/{cadd_version}/{variant_type}.log",
-    conda:
-        "../envs/download_cadd.yaml"
     params:
         file_name=lambda wc: (
             "whole_genome_SNVs"
@@ -52,6 +50,9 @@ rule download_cadd_scores_for_vep:
                 else "unknown_variant_type_choose_snvs_or_indels"
             )
         ),
+    cache: "omit-software"
+    conda:
+        "../envs/download_cadd.yaml"
     shell:
         "( wget --retry-connrefused --waitretry=10 --tries=10 --continue "
         '    "https://kircherlab.bihealth.org/download/CADD/{wildcards.cadd_version}/{wildcards.build}/{params.file_name}.tsv.gz" '
