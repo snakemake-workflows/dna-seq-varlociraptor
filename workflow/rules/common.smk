@@ -837,7 +837,7 @@ def get_plugin_aux(plugin, cadd_variant_type="snv", index=False):
             return "resources/revel_scores.tsv.gz{suffix}".format(suffix=suffix)
         if plugin == "CADD":
             suffix = ".tbi" if index else ""
-            return "resources/cadd.{build}.{cadd_version}.{cadd_variant_type}.tsv.gz{suffix}".format(
+            return "resources/cadd/{build}/{cadd_version}/{cadd_variant_type}.tsv.gz{suffix}".format(
                 build=lookup(within=config, dpath="ref/build"),
                 cadd_version=lookup(
                     within=config,

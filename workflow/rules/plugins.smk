@@ -37,9 +37,9 @@ rule process_revel_scores:
 
 rule download_cadd_scores_for_vep:
     output:
-        cadd="resources/cadd.{build}.{cadd_version}.{variant_type}.tsv.gz",
+        cadd="resources/cadd/{build}/{cadd_version}/{variant_type}.tsv.gz",
     log:
-        "logs/cadd.{build}.{cadd_version}.{variant_type}.log",
+        "logs/cadd/{build}/{cadd_version}/{variant_type}.log",
     conda:
         "../envs/download_cadd.yaml"
     params:
