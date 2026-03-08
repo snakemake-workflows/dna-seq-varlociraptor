@@ -10,7 +10,7 @@ rule map_reads_bwa:
         extra=get_read_group("-R "),
     threads: 8
     wrapper:
-        "v3.8.0/bio/bwa/mem"
+        "v8.1.1/bio/bwa/mem"
 
 
 rule count_sample_kmers:
@@ -74,7 +74,7 @@ rule map_reads_vg:
         sorting="none",
     threads: 64
     wrapper:
-        "v6.1.0/bio/vg/giraffe"
+        "v8.1.1/bio/vg/giraffe"
 
 
 rule reheader_mapped_reads:
@@ -105,7 +105,7 @@ rule fix_mate:
     params:
         extra="",
     wrapper:
-        "v4.7.2/bio/samtools/fixmate"
+        "v8.1.1/bio/samtools/fixmate"
 
 
 # adding read groups is exclusive to vg mapped reads and
@@ -146,7 +146,7 @@ rule sort_alignments:
     resources:
         mem_mb=32000,
     wrapper:
-        "v8.1.1/bio/samtools/sort"
+        "v9.0.0/bio/samtools/sort"
 
 
 rule annotate_umis:
@@ -177,7 +177,7 @@ rule mark_duplicates:
         #https://broadinstitute.github.io/picard/faq.html
         mem_mb=3000,
     wrapper:
-        "v2.5.0/bio/picard/markduplicates"
+        "v9.0.0/bio/picard/markduplicates"
 
 
 rule calc_consensus_reads:
@@ -213,7 +213,7 @@ rule map_consensus_reads:
         "logs/bwa_mem/{sample}.{read_type}.consensus.log",
     threads: 8
     wrapper:
-        "v2.3.2/bio/bwa/mem"
+        "v8.1.1/bio/bwa/mem"
 
 
 rule merge_consensus_reads:
@@ -227,7 +227,7 @@ rule merge_consensus_reads:
         "logs/samtools_merge/{sample}.log",
     threads: 8
     wrapper:
-        "v2.3.2/bio/samtools/merge"
+        "v8.1.1/bio/samtools/merge"
 
 
 rule sort_consensus_reads:
@@ -241,7 +241,7 @@ rule sort_consensus_reads:
     resources:
         mem_mb=64000,
     wrapper:
-        "v8.1.1/bio/samtools/sort"
+        "v9.0.0/bio/samtools/sort"
 
 
 # TODO Does not use consensus reads
@@ -263,7 +263,7 @@ rule splitncigarreads:
     resources:
         mem_mb=1024,
     wrapper:
-        "v3.1.0/bio/gatk/splitncigarreads"
+        "v7.6.0/bio/gatk/splitncigarreads"
 
 
 rule recalibrate_base_qualities:
@@ -286,7 +286,7 @@ rule recalibrate_base_qualities:
         "logs/gatk/baserecalibrator/{sample}.log",
     threads: 8
     wrapper:
-        "v1.25.0/bio/gatk/baserecalibratorspark"
+        "v7.6.0/bio/gatk/baserecalibratorspark"
 
 
 ruleorder: apply_bqsr > bam_index
@@ -309,4 +309,4 @@ rule apply_bqsr:
         extra=config["params"]["gatk"]["applyBQSR"],  # optional
         java_opts="",  # optional
     wrapper:
-        "v2.3.2/bio/gatk/applybqsr"
+        "v9.1.0/bio/gatk/applybqsr"

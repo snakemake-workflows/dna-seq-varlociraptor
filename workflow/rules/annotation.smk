@@ -128,4 +128,4 @@ rule gather_annotated_calls:
     group:
         "annotation"
     wrapper:
-        "v2.3.2/bio/bcftools/concat"
+        "v8.1.1/bio/bcftools/concat"

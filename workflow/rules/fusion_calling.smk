@@ -1,6 +1,6 @@
 module fusion_calling:
     meta_wrapper:
-        "v8.0.0/meta/bio/star_arriba"
+        "v9.0.1/meta/bio/star_arriba"
     pathvars:
         results="results",  # Path to results directory
         resources="resources",  # Path to resources directory
@@ -95,7 +95,7 @@ rule sort_arriba_calls:
     resources:
         mem_mb=8000,
     wrapper:
-        "v1.21.0/bio/bcftools/sort"
+        "v8.1.1/bio/bcftools/sort"
 
 
 rule bcftools_concat_candidates:
@@ -113,4 +113,4 @@ rule bcftools_concat_candidates:
     resources:
         mem_mb=10,
     wrapper:
-        "v1.21.0/bio/bcftools/concat"
+        "v8.1.1/bio/bcftools/concat"
