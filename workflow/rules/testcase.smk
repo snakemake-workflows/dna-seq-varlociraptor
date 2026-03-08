@@ -14,7 +14,7 @@ rule gather_observations:
     resources:
         mem_mb=10,
     wrapper:
-        "v2.3.2/bio/bcftools/concat"
+        "v8.1.1/bio/bcftools/concat"
 
 
 rule testcase:

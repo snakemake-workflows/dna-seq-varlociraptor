@@ -19,7 +19,7 @@ rule bcf_to_vcf_gz:
     log:
         "logs/bcf-to-vcf/{prefix}.log",
     wrapper:
-        "v2.3.2/bio/bcftools/view"
+        "v8.1.1/bio/bcftools/view"
 
 
 rule bam_index:
@@ -30,7 +30,7 @@ rule bam_index:
     log:
         "logs/bam-index/{prefix}.log",
     wrapper:
-        "v2.3.2/bio/samtools/index"
+        "v8.1.1/bio/samtools/index"
 
 
 rule tabix_txt_tsv:
@@ -44,4 +44,4 @@ rule tabix_txt_tsv:
         get_tabix_params,
     cache: "omit-software"
     wrapper:
-        "v2.3.2/bio/tabix/index"
+        "v8.1.1/bio/tabix/index"
