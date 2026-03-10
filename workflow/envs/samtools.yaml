@@ -2,5 +2,5 @@ channels:
   - conda-forge
   - bioconda
 dependencies:
-  - samtools =1.21
+  - samtools =1.22
   - sed =4.8
