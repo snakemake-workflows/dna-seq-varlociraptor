@@ -161,13 +161,13 @@ def bin_max_vaf(df, samples):
 
 def load_impact_scores():
     df = pd.read_csv(snakemake.input.impact_graphs, sep="\t", dtype={"score": "str"})
-    samples = [c for c in df.columns if c not in ("transcript", "score", "haplotype")]
+    samples = [c.replace(":frequency", "") for c in df.columns if c.endswith(":frequency")]
 
     def format_scores(row):
         score_list = []
         for s in samples:
             score_list.append(
-                {"score": row["score"], "sample": s, "frequency": row[s], "haplotype": row["haplotype"]}
+                {"score": row["score"], "sample": s, "frequency": row[f"{s}:frequency"], "supporting_reads": row[f"{s}:supporting_reads"], "haplotype": row["haplotype"]}
             )
         return score_list  # Return list, not JSON string
 
