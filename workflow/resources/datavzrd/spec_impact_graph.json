@@ -1,0 +1,198 @@
+{
+    "$schema": "https://vega.github.io/schema/vega-lite/v6.json",
+    "data": {
+        "name": "scores"
+    },
+    "hconcat": [
+        {
+            "width": 200,
+            "layer": [
+                {
+                    "transform": [
+                        {
+                            "aggregate": [
+                                {
+                                    "op": "max",
+                                    "field": "score",
+                                    "as": "score"
+                                },
+                                {
+                                    "op": "max",
+                                    "field": "frequency",
+                                    "as": "frequency"
+                                }
+                            ],
+                            "groupby": [
+                                "haplotype"
+                            ]
+                        }
+                    ],
+                    "mark": "bar",
+                    "encoding": {
+                        "y": {
+                            "field": "haplotype",
+                            "type": "ordinal",
+                            "title": "Haplotype",
+                            "sort": {
+                                "field": "frequency",
+                                "order": "descending"
+                            }
+                        },
+                        "x": {
+                            "field": "score",
+                            "type": "quantitative",
+                            "scale": {
+                                "domain": [
+                                    0,
+                                    1
+                                ]
+                            },
+                            "title": "Score"
+                        },
+                        "color": {
+                            "value": "#a1a1a1"
+                        },
+                        "tooltip": [
+                            {
+                                "field": "haplotype"
+                            },
+                            {
+                                "field": "score"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "mark": {
+                        "type": "tick",
+                        "thickness": 2
+                    },
+                    "encoding": {
+                        "y": {
+                            "field": "haplotype",
+                            "type": "ordinal",
+                            "sort": {
+                                "field": "frequency",
+                                "order": "descending"
+                            },
+                            "axis": {
+                                "labels": false,
+                                "ticks": false
+                            }
+                        },
+                        "x": {
+                            "field": "frequency",
+                            "type": "quantitative",
+                            "scale": {
+                                "domain": [
+                                    0,
+                                    1
+                                ]
+                            },
+                            "title": "Frequency"
+                        },
+                        "color": {
+                            "field": "sample",
+                            "type": "nominal",
+                            "title": "Sample"
+                        },
+                        "tooltip": [
+                            {
+                                "field": "haplotype"
+                            },
+                            {
+                                "field": "sample"
+                            },
+                            {
+                                "field": "frequency"
+                            }
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "transform": [
+                {
+                    "aggregate": [
+                        {
+                            "op": "max",
+                            "field": "frequency",
+                            "as": "frequency"
+                        }
+                    ],
+                    "groupby": [
+                        "haplotype"
+                    ]
+                },
+                {
+                    "calculate": "replace(replace(datum.haplotype, 'c.[', ''), ']', '')",
+                    "as": "haplotype_trimmed"
+                },
+                {
+                    "calculate": "datum.haplotype_trimmed === '' ? [''] : split(datum.haplotype_trimmed, ';')",
+                    "as": "variants_array"
+                },
+                {
+                    "flatten": [
+                        "variants_array"
+                    ],
+                    "as": [
+                        "variant"
+                    ]
+                },
+                {
+                    "filter": "datum.variant !== ''"
+                },
+                {
+                  "calculate": "toNumber(replace(datum.variant, /[^0-9].*$/, ''))",
+                  "as": "position"
+                }
+            ],
+            "mark": {
+                "type": "rect",
+                "stroke": "white",
+                "strokeWidth": 1
+            },
+            "encoding": {
+                "y": {
+                    "field": "haplotype",
+                    "type": "ordinal",
+                    "axis": {
+                        "labels": false,
+                        "title": null,
+                        "ticks": false
+                    },
+                    "sort": {
+                        "field": "frequency",
+                        "order": "descending"
+                    }
+                },
+                "x": {
+                    "field": "variant",
+                    "type": "ordinal",
+                    "title": "Variant",
+                    "axis": {
+                        "labelAngle": -90
+                    },
+                    "sort": {
+                        "field": "position"
+                    }
+                },
+                "color": {
+                    "value": "#a1a1a1"
+                },
+                "tooltip": [
+                    {
+                        "field": "variant"
+                    }
+                ]
+            }
+        }
+    ],
+    "resolve": {
+        "scale": {
+            "y": "shared"
+        }
+    }
+}

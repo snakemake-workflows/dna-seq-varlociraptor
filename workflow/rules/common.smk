@@ -254,7 +254,6 @@ def get_final_output(wildcards):
                 )
     final_output.extend(get_mutational_burden_targets())
     final_output.extend(get_mutational_signature_targets())
-
     if is_activated("population/db"):
         final_output.append(lookup(dpath="population/db/path", within=config))
 
@@ -1158,6 +1157,7 @@ def get_annotation_fields_for_tables(wildcards):
         "HGVSp",
         "IMPACT",
         "MANE_PLUS_CLINICAL",
+        "ENSP",
         "Protein_position",
         "SWISSPROT",
         "SYMBOL",
@@ -1399,6 +1399,7 @@ def get_vembrane_config(wildcards, input):
         "ANN['Amino_acids']",
         "ANN['CANONICAL']",
         "ANN['MANE_PLUS_CLINICAL']",
+        "ANN['ENSP']",
         # fusions only
         "INFO['GENE_NAME']",
         "INFO['GENE_ID']",
