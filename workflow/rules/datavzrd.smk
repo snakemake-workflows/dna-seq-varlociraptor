@@ -1,12 +1,12 @@
 rule split_call_tables:
     input:
-        calls="results/tables/{group}.{event}.variants.fdr-controlled.tsv",
+        calls="results/tables/{group}/{group}.{event}.variants.fdr-controlled.tsv",
         impact_graphs="results/impact_graphs/{group}.tsv" if is_activated("impact_graphs") else [],
         population_db=get_cleaned_population_db(),
         population_db_idx=get_cleaned_population_db(idx=True),
     output:
-        coding="results/tables/{group}.{event}.coding.fdr-controlled.tsv",
-        noncoding="results/tables/{group}.{event}.noncoding.fdr-controlled.tsv",
+        coding="results/tables/{group}/{group}.{event}.coding.fdr-controlled.tsv",
+        noncoding="results/tables/{group}/{group}.{event}.noncoding.fdr-controlled.tsv",
     params:
         sorting=lambda wc: config["calling"]["fdr-control"]["events"][wc.event].get(
             "sort", list()
@@ -21,7 +21,7 @@ rule split_call_tables:
 
 rule process_fusion_call_tables:
     input:
-        varlociraptor="results/tables/{group}.{event}.fusions.fdr-controlled.tsv",
+        varlociraptor="results/tables/{group}/{group}.{event}.fusions.fdr-controlled.tsv",
         arriba=expand(
             "results/arriba/{sample}.fusions.annotated.tsv",
             sample=lookup(
@@ -31,7 +31,7 @@ rule process_fusion_call_tables:
             ),
         ),
     output:
-        fusions="results/tables/{group}.{event}.fusions.joined.fdr-controlled.tsv",
+        fusions="results/tables/{group}/{group}.{event}.fusions.joined.fdr-controlled.tsv",
     log:
         "logs/join_partner/{group}.{event}.log",
     conda:
@@ -118,7 +118,7 @@ rule datavzrd_variants_calls:
             dpath="calling/fdr-control/events/{event}/desc", within=config
         ),
     wrapper:
-        "v6.2.0/utils/datavzrd"
+        "v9.2.0/utils/datavzrd"
 
 
 rule datavzrd_fusion_calls:
@@ -157,7 +157,7 @@ rule datavzrd_fusion_calls:
         species=lookup(within=config, dpath="ref/species"),
         samples=samples,
     wrapper:
-        "v6.2.0/utils/datavzrd"
+        "v9.2.0/utils/datavzrd"
 
 
 rule bedtools_merge:
@@ -211,4 +211,4 @@ rule datavzrd_coverage:
     params:
         samples=lambda wc: get_group_samples(wc.group),
     wrapper:
-        "v6.2.0/utils/datavzrd"
+        "v9.2.0/utils/datavzrd"
