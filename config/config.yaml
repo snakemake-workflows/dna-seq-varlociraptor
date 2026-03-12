@@ -25,11 +25,11 @@ ref:
   release: 111
   # Genome build
   build: GRCh38
-  pangenome: 
+  pangenome:
     # if active, reads will be aligned to given pangenome instead of to the linear reference genome
     # Important: this is only supported for homo_sapiens so far
     activate: true
-    # Pangenome source and version: Only 'hprc' and v1.1 are supported for now. 
+    # Pangenome source and version: Only 'hprc' and v1.1 are supported for now.
     # see https://github.com/human-pangenomics/hpp_pangenome_resources/?tab=readme-ov-file#minigraph-cactus for details
     source: hprc
     version: v1.1
@@ -73,6 +73,10 @@ mutational_burden:
 # Quantify known mutational signatures (human only)
 mutational_signatures:
   activate: false
+  samples:
+    # Sample aliases to use for each group.
+    # Will be ignored if missing for a group.
+    - tumor
   events:
     # select events (callsets, defined under calling/fdr-control/events) to evaluate
     - some_id
@@ -129,7 +133,7 @@ calling:
     # (see gene_list_filter below). By this, you can e.g. conduct a virtual panel analysis
     # while massively speeding up the varlociraptor based evaluation of the variants.
     # See https://github.com/vembrane/vembrane
-    candidates: "ANN['IMPACT'] != 'LOW'"
+    candidates: "'MODERATE' in ANN['IMPACT']"
     # Add any number of named filters here (replace myfilter with a reasonable name,
     # and add more below). Filtering happens with the vembrane filter language
     # (see https://github.com/vembrane/vembrane), and you can refer to any fields that
@@ -138,7 +142,7 @@ calling:
     # Filters will be applied independenty, and can be referred in FDR control below
     # to generate calls for different events.
     # You can for example filter by ANN fields, ID or dbsnp annotations here.
-    impact_filter: "ANN['IMPACT'] == 'HIGH'"
+    impact_filter: "'HIGH' in ANN['IMPACT']"
     # If you need to use vembrane command line options beyond the filter expression,
     # please use the filter sub-structure with 'expression:' for the filter expression
     # and "aux-files:" for additional files with IDs for filtering. This can for example
@@ -244,13 +248,22 @@ annotations:
         # Plugin args can be passed as well, e.g. "LoFtool,path/to/custom/scores.txt".
         - LoFtool
         - REVEL
-        # For integration of SpliceAI preprocessed snv and indel scores (including index files) are required. 
+        # For integration of SpliceAI preprocessed snv and indel scores (including index files) are required.
         # Scores are available on https://basespace.illumina.com/s/otSPW8hnhaZR
         #- SpliceAI,snv=<path/to/spliceai_scores.raw.snv.hg38.vcf.gz,indel=<path/to/spliceai_scores.raw.indel.hg38.vcf.gz>
         # For annotation of AlphaMissense scores a tsv-file containing processed scores is required.
         # Scores are available on https://zenodo.org/records/10813168
         # A tabix index is required and can be created by calling `tabix -s 1 -b 2 -e 2 -f -S 1 AlphaMissense_hg38.tsv.gz`
         #- AlphaMissense,file=<path/to/AlphaMissense_hg38.tsv.gz>
+        # To add CADD_PHRED scores to all single nucleotide variants and many
+        # indels, uncomment the following and make sure to specify a `cadd`
+        # score version below:
+        # - CADD
+      score_versions:
+        # Uncomment the cadd_version if you use the CADD plugin for VEP.
+        # Available versions can be seen at:
+        # https://cadd.bihealth.org/
+        # cadd: v1.7
 
 # printing of variants in a table format (might be deprecated soon)
 tables:
@@ -283,6 +296,8 @@ params:
   delly: ""
   freebayes:
     min_alternate_fraction: 0.05 # Reduce for calling variants with lower VAFs
+    extra: ""
+  get_sra:
     extra: ""
 
 # If activated preprocessed alignment properties can be applied to each sample individually.

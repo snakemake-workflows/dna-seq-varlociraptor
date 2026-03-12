@@ -4,8 +4,10 @@ rule get_sra:
         "sra/{accession}_2.fastq.gz",
     log:
         "logs/get-sra/{accession}.log",
+    params:
+        extra=lookup(within=config, dpath="params/get_sra/extra", default=""),
     wrapper:
-        "v5.0.2/bio/sra-tools/fasterq-dump"
+        "v7.6.0/bio/sra-tools/fasterq-dump"
 
 
 rule fastp_pipe:

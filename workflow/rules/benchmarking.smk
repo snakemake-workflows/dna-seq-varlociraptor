@@ -31,13 +31,13 @@ rule chm_namesort:
         "resources/chm.bam",
     output:
         pipe("resources/chm.namesorted.bam"),
-    params:
-        "-n -m 4G",
     log:
         "logs/benchmarking/samtools-namesort.log",
-    threads: workflow.cores - 1
+    threads: 16
+    resources:
+        mem_mb=64000,
     wrapper:
-        "v2.3.2/bio/samtools/sort"
+        "v8.1.1/bio/samtools/sort"
 
 
 rule chm_to_fastq:
@@ -83,7 +83,7 @@ rule chromosome_map:
 
 rule rename_chromosomes:
     input:
-        bcf="results/final-calls/chm.{query}.fdr-controlled.bcf",
+        bcf="results/final-calls/chm/chm.{query}.fdr-controlled.bcf",
         map=f"resources/{genome_name}.chrmap.txt",
     output:
         "benchmarking/{query}.chr-mapped.vcf",

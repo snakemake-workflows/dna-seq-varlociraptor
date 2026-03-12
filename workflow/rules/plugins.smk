@@ -35,12 +35,30 @@ rule process_revel_scores:
         """
 
 
-use rule tabix_known_variants as tabix_revel_scores with:
-    input:
-        "resources/revel_scores.tsv.gz",
+rule download_cadd_scores_for_vep:
     output:
-        "resources/revel_scores.tsv.gz.tbi",
-    params:
-        get_tabix_revel_params(),
+        cadd="resources/cadd/{build}/{cadd_version}/{variant_type}.tsv.gz",
     log:
-        "logs/tabix/revel.log",
+        "logs/cadd/{build}/{cadd_version}/{variant_type}.log",
+    params:
+        file_name=lambda wc: (
+            "whole_genome_SNVs"
+            if wc.variant_type == "snv"
+            else (
+                "gnomad.genomes.r4.0.indel"
+                if wc.variant_type == "indels"
+                else "unknown_variant_type_choose_snvs_or_indels"
+            )
+        ),
+    cache: "omit-software"
+    conda:
+        "../envs/download_cadd.yaml"
+    shell:
+        "( wget --retry-connrefused --waitretry=10 --tries=10 --continue "
+        '    "https://kircherlab.bihealth.org/download/CADD/{wildcards.cadd_version}/{wildcards.build}/{params.file_name}.tsv.gz" '
+        "    -O - | "
+        "   gzip -d | "
+        "   cut -f1-4,6 | "
+        "   bgzip -l1 -c "
+        "   > {output.cadd} "
+        ") 2>{log} "
