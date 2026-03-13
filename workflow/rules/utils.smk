@@ -33,7 +33,7 @@ rule bam_index:
         "v2.3.2/bio/samtools/index"
 
 
-rule tabix_known_variants:
+rule tabix_txt_tsv:
     input:
         "resources/{prefix}.{format}.gz",
     output:

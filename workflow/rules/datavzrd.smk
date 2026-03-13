@@ -207,4 +207,4 @@ rule datavzrd_coverage:
     params:
         samples=lambda wc: get_group_samples(wc.group),
     wrapper:
-        "v8.0.3/utils/datavzrd"
+        "v9.2.0/utils/datavzrd"

@@ -19,6 +19,10 @@ samples = (
 )
 if not "mutational_burden_events" in samples.columns:
     samples["mutational_burden_events"] = pd.NA
+if samples["alias"].str.contains(".", regex=False).any():
+    raise ValueError(
+        f"The alias column in the sample sheet may not contain '.' characters."
+    )
 
 # construct genome name
 datatype_genome = "dna"
@@ -43,6 +47,8 @@ delly_excluded_regions = {
     ("homo_sapiens", "GRCh38"): "human.hg38",
     ("homo_sapiens", "GRCh37"): "human.hg19",
 }
+
+mutational_signature_vaf_thresholds = list(range(5, 101, 5))
 
 
 def _group_or_sample(row):
@@ -701,15 +707,20 @@ def get_mutational_burden_targets():
 def get_mutational_signature_targets():
     mutational_signature_targets = []
     if is_activated("mutational_signatures"):
-        samples_to_consider = set(lookup("mutational_signatures/samples", within=config))
+        samples_to_consider = set(
+            lookup("mutational_signatures/samples", within=config)
+        )
         for group in variants_groups:
-            group_samples = set(lookup(query=f"group == '{group}'", within=samples, cols="sample_name")) & samples_to_consider
+            group_samples = (
+                set(lookup(query=f"group == '{group}'", within=samples, cols="alias"))
+                & samples_to_consider
+            )
             if group_samples:
                 mutational_signature_targets.extend(
                     expand(
-                        "results/plots/mutational_signatures/{group}.{event}.html",
+                        "results/plots/mutational_signatures/{group}.{event}.{sample_alias}.html",
                         group=group,
-                        sample=group_samples,
+                        sample_alias=group_samples,
                         event=lookup("mutational_signatures/events", within=config),
                     )
                 )
@@ -868,11 +879,22 @@ def get_merge_calls_input(ext="bcf"):
     return inner
 
 
-def get_plugin_aux(plugin, index=False):
+def get_plugin_aux(plugin, cadd_variant_type="snv", index=False):
     if plugin in config["annotations"]["vep"]["final_calls"]["plugins"]:
         if plugin == "REVEL":
             suffix = ".tbi" if index else ""
             return "resources/revel_scores.tsv.gz{suffix}".format(suffix=suffix)
+        if plugin == "CADD":
+            suffix = ".tbi" if index else ""
+            return "resources/cadd/{build}/{cadd_version}/{cadd_variant_type}.tsv.gz{suffix}".format(
+                build=lookup(within=config, dpath="ref/build"),
+                cadd_version=lookup(
+                    within=config,
+                    dpath="annotations/vep/final_calls/score_versions/cadd",
+                ),
+                cadd_variant_type=cadd_variant_type,
+                suffix=suffix,
+            )
     return []
 
 
@@ -1051,6 +1073,7 @@ wildcard_constraints:
     event="|".join(config["calling"]["fdr-control"]["events"].keys()),
     regions_type="|".join(["expanded", "covered"]),
     calling_type="|".join(["fusions", "variants"]),
+    sample_alias=r"[^\.]+",
 
 
 variant_caller = list(
@@ -1139,15 +1162,14 @@ def get_annotation_vcfs(idx=False):
 def get_tabix_params(wildcards):
     if wildcards.format == "vcf":
         return "-p vcf"
-    if wildcards.format == "txt":
-        return "-s 1 -b 2 -e 2"
+    # txt for known variants, tsv for CADD scores
+    if wildcards.format in ["txt", "tsv"]:
+        # for REVEL-scores, non-GRCh37 files use column 3 instead of column 2
+        if "revel_scores" in wildcards.prefix and config["ref"]["build"] != "GRCh37":
+            return "-s 1 -b 3 -e 3"
+        else:
+            return "-s 1 -b 2 -e 2"
     raise ValueError("Invalid format for tabix: {}".format(wildcards.format))
-
-
-def get_tabix_revel_params():
-    # Indexing of REVEL-score file where the column depends on the reference
-    column = 2 if config["ref"]["build"] == "GRCh37" else 3
-    return f"-f -s 1 -b {column} -e {column}"
 
 
 def get_untrimmed_fastqs(wc):
@@ -1199,13 +1221,15 @@ def get_annotation_fields_for_tables(wildcards):
             if field not in annotation_fields
         ]
     )
-    for plugin in ["REVEL", "SpliceAI", "AlphaMissense"]:
+    for plugin in ["CADD", "REVEL", "SpliceAI", "AlphaMissense"]:
         if any(
             entry.startswith(plugin)
             for entry in config["annotations"]["vep"]["final_calls"]["plugins"]
         ):
             if plugin == "REVEL":
                 annotation_fields.append("REVEL")
+            elif plugin == "CADD":
+                annotation_fields.append("CADD_PHRED")
             elif plugin == "SpliceAI":
                 annotation_fields.extend(
                     [
@@ -1419,6 +1443,7 @@ def get_vembrane_config(wildcards, input):
         "ANN['gnomADg_AF']",
         "ANN['EXON'].raw",
         "ANN['REVEL']",
+        "ANN['CADD_PHRED']",
         # variants only, split-call-tables.py will select the column with the
         # highest score and will put it in the same place
         "ANN['SpliceAI_pred_DS_AG']",
@@ -1725,4 +1750,8 @@ def get_pangenome_url(datatype):
         raise ValueError(
             "Unsupported pangenome source. Only 'hprc' is currently supported."
         )
-    return f"https://s3-us-west-2.amazonaws.com/human-pangenomics/pangenomes/freeze/freeze1/minigraph-cactus/hprc-{version}-mc-{build}/hprc-{version}-mc-{build}.{datatype}"
+    return (
+        "https://s3-us-west-2.amazonaws.com/human-pangenomics/pangenomes/freeze/"
+        "freeze1/minigraph-cactus/"
+        f"hprc-{version}-mc-{build}/hprc-{version}-mc-{build}.{datatype}"
+    )
