@@ -4,7 +4,7 @@ rule varpubs_deploy_db:
     output:
         "results/varpubs/{group}/{group}.{event}.duckdb",
     resources:
-        varpubs=1
+        varpubs=1,
     conda:
         "../envs/varpubs.yaml"
     log:
@@ -29,7 +29,7 @@ rule varpubs_summarize_variants:
     conda:
         "../envs/varpubs.yaml"
     resources:
-        varpubs=1
+        varpubs=1,
     log:
         "logs/varpub/summarize/{group}.{event}.log",
     threads: max(workflow.cores, 1)
