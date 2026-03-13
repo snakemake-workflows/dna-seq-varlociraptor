@@ -249,11 +249,22 @@ def get_final_output(wildcards):
     final_output.extend(get_mutational_burden_targets())
     final_output.extend(get_mutational_signature_targets())
     if is_activated("varpubs"):
-        final_output.extend(get_varpubs_targets(wildcards, target="report"))
+        final_output.append(varpubs_update_cache())
     if is_activated("population/db"):
         final_output.append(lookup(dpath="population/db/path", within=config))
 
     return final_output
+
+
+def get_vembrane_table_input(wc):
+    if lookup(
+        dpath=f"calling/fdr-control/events/{wc.event}/varpubs",
+        within=config,
+        default=True,
+    ):
+        return "results/varpubs/{group}/{group}.{event}.bcf"
+    else:
+        return "results/final-calls/{group}/{group}.{event}.variants.fdr-controlled.normal-probs.bcf"
 
 
 def get_gather_calls_input(ext="bcf"):
@@ -722,27 +733,19 @@ def get_unchanged_varpubs_cache():
         return []
 
 
-def get_varpubs_targets(wc, target="report"):
-    varpubs_targets = []
-    if target == "report":
-        pattern = "results/datavzrd-report/varpubs/{group}.{event}"
-        varpubs_targets.append(
-            update(
-                lookup(dpath="varpubs/cache", within=config)
-            )
-        )
-    elif target == "cache":
-        pattern = "results/varpubs/caches/{group}.{event}.duckdb"
+def varpubs_update_cache():
+    if get_varpubs_events():
+        return update(lookup(dpath="varpubs/cache", within=config))
     else:
-        raise ValueError("varpubs target must be either report or cache")
-    varpubs_targets.extend(
-        expand(
-            pattern,
-            group=variants_groups,
-            event=get_varpubs_events()
-        )
+        return []
+
+
+def get_varpubs_targets():
+    return expand(
+        "results/varpubs/caches/{group}/{group}.{event}.duckdb",
+        group=variants_groups,
+        event=get_varpubs_events(),
     )
-    return varpubs_targets
 
 
 def get_scattered_calls(ext="bcf"):
@@ -756,13 +759,12 @@ def get_scattered_calls(ext="bcf"):
 
     return inner
 
+
 def get_annotate_dgidb_input(wildcards):
     selection = "db_annotated" if is_activated("annotations/vcfs") else "vep_annotated"
-    return (
-        "results/calls/{selection}/{prefix}.bcf".format(
-            selection=selection,
-            prefix=wildcards.prefix,
-        )
+    return "results/calls/{selection}/{prefix}.bcf".format(
+        selection=selection,
+        prefix=wildcards.prefix,
     )
 
 
@@ -774,26 +776,29 @@ def get_final_selected_annotation():
         selection = "dgidb_annotated"
     return selection
 
+
 def get_annotated_bcf(wildcards, index=False):
     ext = ".csi" if index else ""
     selection = (
-        get_final_selected_annotation() if wildcards.calling_type == "variants" else "varlociraptor"
+        get_final_selected_annotation()
+        if wildcards.calling_type == "variants"
+        else "varlociraptor"
     )
-    return (
-        "results/calls/{selection}/{group}/{group}.{calling_type}.{scatteritem}.bcf{ext}".format(
-            group=wildcards.group,
-            calling_type=wildcards.calling_type,
-            selection=selection,
-            scatteritem=wildcards.scatteritem,
-            ext=ext,
-        )
+    return "results/calls/{selection}/{group}/{group}.{calling_type}.{scatteritem}.bcf{ext}".format(
+        group=wildcards.group,
+        calling_type=wildcards.calling_type,
+        selection=selection,
+        scatteritem=wildcards.scatteritem,
+        ext=ext,
     )
 
 
 def get_gather_annotated_calls_input(ext="bcf"):
     def inner(wildcards):
         selection = (
-            get_final_selected_annotation() if wildcards.calling_type == "variants" else "varlociraptor"
+            get_final_selected_annotation()
+            if wildcards.calling_type == "variants"
+            else "varlociraptor"
         )
         return gather.calling(
             "results/calls/{selection}/{{{{group}}}}/{{{{group}}}}.{{{{calling_type}}}}.{{scatteritem}}.{ext}".format(
@@ -1209,6 +1214,12 @@ def get_annotation_fields_for_tables(wildcards):
                 annotation_fields.append(
                     "am_pathogenicity",
                 )
+    if lookup(
+        dpath=f"calling/fdr-control/events/{wildcards.event}/varpubs",
+        within=config,
+        default=True,
+    ):
+        annotation_fields += ["VARPUBS_PMIDS", "VARPUBS_SUMMARY"]
 
     return annotation_fields
 
@@ -1367,6 +1378,14 @@ def get_vembrane_config(wildcards, input):
                 "name": "alphamissense",
             },
         }
+        if lookup(
+            dpath=f"calling/fdr-control/events/{wildcards.event}/varpubs",
+            within=config,
+            default=True,
+        ):
+            rename_ann_fields["VARPUBS_PMIDS"] = {"name": "pubmed ids"}
+            rename_ann_fields["VARPUBS_SUMMARY"] = {"name": "varpubs summary"}
+
         annotation_fields = get_annotation_fields_for_tables(wildcards)
         append_items(
             annotation_fields,
@@ -1451,6 +1470,8 @@ def get_vembrane_config(wildcards, input):
             # only needed for variants in datavzrd_variants_calls
             "ANN['Feature']",
             "INFO['END']",
+            "ANN['VARPUBS_SUMMARY']",
+            "ANN['VARPUBS_PMIDS']",
         ]
     )
     # sort columns, keeping only those in sort_order

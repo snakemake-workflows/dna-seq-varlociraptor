@@ -35,7 +35,7 @@ if config["mutational_burden"]["activate"]:
             "../envs/varlociraptor.yaml"
         shell:
             "(varlociraptor estimate mutational-burden "
-            "--plot-mode {wildcards.mode} "
+            "--mode {wildcards.mode} "
             "--coding-genome-size $( cat {input.coverage_breadth} ) "
             "--events {params.events} "
             "--sample {wildcards.alias} "

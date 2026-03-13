@@ -85,6 +85,9 @@ rule datavzrd_variants_calls:
         gene_oncoprint=get_oncoprint("gene"),
         variant_oncoprints=get_oncoprint("variant"),
         oncoprint_sorted_datasets="results/tables/oncoprints/{batch}.{event}/label_sortings/",
+        summary_formatter=workflow.source_path(
+            "../resources/datavzrd/summary_formatter.js"
+        ),
     output:
         report(
             directory(
@@ -111,7 +114,7 @@ rule datavzrd_variants_calls:
             dpath="calling/fdr-control/events/{event}/desc", within=config
         ),
     wrapper:
-        "v8.0.3/utils/datavzrd"
+        "e726bc9/utils/datavzrd"
 
 
 rule datavzrd_fusion_calls:
@@ -150,31 +153,8 @@ rule datavzrd_fusion_calls:
         species=lookup(within=config, dpath="ref/species"),
         samples=samples,
     wrapper:
-        "v8.0.3/utils/datavzrd"
+        "e726bc9/utils/datavzrd"
 
-rule datavzrd_varpubs:
-    input:
-        csv="results/varpubs/{batch}.{event}.csv",
-        config=workflow.source_path(
-            "../resources/datavzrd/varpubs-template.datavzrd.yaml"
-        ),
-        summary_formatter=workflow.source_path(
-            "../resources/datavzrd/summary_formatter.js"
-        ),
-    output:
-        report(
-            directory(
-                "results/datavzrd-report/varpubs/{batch}.{event}"
-            ),
-            htmlindex="index.html",
-            category="Summaries of variant publications",
-            labels=get_datavzrd_report_labels,
-            subcategory=get_datavzrd_report_subcategory,
-        ),
-    log:
-        "logs/datavzrd_report/varpubs/{batch}.{event}.log",
-    wrapper:
-        "v8.0.3/utils/datavzrd"
 
 rule bedtools_merge:
     input:

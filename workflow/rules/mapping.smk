@@ -27,7 +27,7 @@ rule count_sample_kmers:
         "minimal"
     log:
         "logs/kmers/{sample}.log",
-    threads: min(max(workflow.cores, 1), 128) # kmc can use 128 threads at most
+    threads: min(max(workflow.cores, 1), 128)  # kmc can use 128 threads at most
     resources:
         mem="64GB",
     shell:
@@ -239,7 +239,7 @@ rule sort_consensus_reads:
         "logs/samtools_sort/{sample}.log",
     threads: 16
     resources:
-        mem_mb=64000
+        mem_mb=64000,
     wrapper:
         "v8.1.1/bio/samtools/sort"
 

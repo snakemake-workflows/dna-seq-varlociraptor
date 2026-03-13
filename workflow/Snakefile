@@ -53,6 +53,7 @@ include: "rules/population.smk"
 include: "rules/mutational_signatures.smk"
 include: "rules/varpubs.smk"
 
+
 batches = "all"
 if is_activated("report/stratify"):
     batches = samples[config["report"]["stratify"]["by-column"]].unique()
