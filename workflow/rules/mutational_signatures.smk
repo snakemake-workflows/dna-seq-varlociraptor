@@ -1,13 +1,13 @@
 rule create_mutational_context_file:
     input:
-        bcf="results/final-calls/{group}.{event}.variants.fdr-controlled.bcf",
+        bcf="results/final-calls/{group}/{group}.{event}.{sample}.variants.fdr-controlled.bcf",
         ref=genome,
         fai=genome_fai,
     output:
-        context=temp("results/mutational_signatures/{group}.{event}.context.tsv"),
-        counts=temp("results/mutational_signatures/{group}.{event}.counts.tsv"),
+        context=temp("results/mutational_signatures/{group}.{event}.{sample}.context.tsv"),
+        counts=temp("results/mutational_signatures/{group}.{event}.{sample}.counts.tsv"),
     log:
-        "logs/mutational_signatures/context/{group}.{event}.log",
+        "logs/mutational_signatures/context/{group}.{event}.{sample}.log",
     conda:
         "../envs/pystats.yaml"
     script:
@@ -33,18 +33,18 @@ rule download_cosmic_signatures:
 rule annotate_mutational_signatures:
     input:
         cosmic_signatures="resources/cosmic_signatures.txt",
-        context="results/mutational_signatures/{group}.{event}.context.tsv",
+        context="results/mutational_signatures/{group}.{event}.{sample}.context.tsv",
     output:
         temp(
             expand(
-                "results/mutational_signatures/{{group}}.{{event}}.{vaf}.tsv",
+                "results/mutational_signatures/{{group}}.{{event}}.{{sample}}.{vaf}.tsv",
                 vaf=range(0, 101, 10),
             )
         ),
     params:
         build=config["ref"]["build"],
     log:
-        "logs/mutational_signatures/annotate/{group}.{event}.log",
+        "logs/mutational_signatures/annotate/{group}.{event}.{sample}.log",
     conda:
         "../envs/siglasso.yaml"
     script:
@@ -54,13 +54,13 @@ rule annotate_mutational_signatures:
 rule join_mutational_signatures:
     input:
         expand(
-            "results/mutational_signatures/{{group}}.{{event}}.{vaf}.tsv",
+            "results/mutational_signatures/{{group}}.{{event}}.{{sample}}.{vaf}.tsv",
             vaf=range(0, 101, 10),
         ),
     output:
-        temp("results/mutational_signatures/{group}.{event}.tsv"),
+        temp("results/mutational_signatures/{group}.{event}.{sample}.tsv"),
     log:
-        "logs/mutational_signatures/join/{group}.{event}.log",
+        "logs/mutational_signatures/join/{group}.{event}.{sample}.log",
     shell:
         """
         cat <(echo "Signature\tFrequency\tMinimum VAF") {input} >> {output} 2> {log}
@@ -69,12 +69,12 @@ rule join_mutational_signatures:
 
 rule annotate_descriptions:
     input:
-        sig="results/mutational_signatures/{group}.{event}.tsv",
+        sig="results/mutational_signatures/{group}.{event}.{sample}.tsv",
         desc=workflow.source_path("../resources/cosmic_signature_desc_v3.4.tsv"),
     output:
-        "results/mutational_signatures/{group}.{event}.annotated.tsv",
+        "results/mutational_signatures/{group}.{event}.{sample}.annotated.tsv",
     log:
-        "logs/mutational_signatures/annotate/{group}.{event}.log",
+        "logs/mutational_signatures/annotate/{group}.{event}.{sample}.log",
     conda:
         "../envs/pandas.yaml"
     script:
@@ -83,17 +83,17 @@ rule annotate_descriptions:
 
 rule plot_mutational_signatures:
     input:
-        signatures="results/mutational_signatures/{group}.{event}.annotated.tsv",
-        counts="results/mutational_signatures/{group}.{event}.counts.tsv",
+        signatures="results/mutational_signatures/{group}.{event}.{sample}.annotated.tsv",
+        counts="results/mutational_signatures/{group}.{event}.{sample}.counts.tsv",
     output:
         report(
-            "results/plots/mutational_signatures/{group}.{event}.html",
+            "results/plots/mutational_signatures/{group}.{event}.{sample}.html",
             category="Mutational Signatures",
             subcategory="{event}",
-            labels={"group": "{group}"},
+            labels={"group": "{group}", "sample": "{sample}"},
         ),
     log:
-        "logs/mutational_signatures/{group}.{event}.log",
+        "logs/mutational_signatures/{group}.{event}.{sample}.log",
     conda:
         "../envs/pystats.yaml"
     script:

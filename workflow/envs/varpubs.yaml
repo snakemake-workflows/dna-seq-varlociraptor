@@ -14,4 +14,4 @@ dependencies:
   - pubgator >=0.3
   - hgvs >=1.5.6,<2
   - pip:
-    - git+https://github.com/koesterlab/varpubs.git@4ec0c82
+    - git+https://github.com/koesterlab/varpubs.git@b0abd75

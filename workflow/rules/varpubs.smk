@@ -3,6 +3,8 @@ rule varpubs_deploy_db:
         bcf="results/final-calls/{group}/{group}.{event}.variants.fdr-controlled.normal-probs.bcf",
     output:
         "results/varpubs/{group}/{group}.{event}.duckdb",
+    resources:
+        varpubs=1
     conda:
         "../envs/varpubs.yaml"
     log:
@@ -26,10 +28,10 @@ rule varpubs_summarize_variants:
         cache=lambda wc, input: f"--cache {input.cache}" if input.cache else "",
     conda:
         "../envs/varpubs.yaml"
+    resources:
+        varpubs=1
     log:
         "logs/varpub/summarize/{group}.{event}.log",
-    resources:
-        varpubs=1,
     threads: max(workflow.cores, 1)
     shell:
         "varpubs -v summarize-variants --db_path {input.db_path} --vcf_path {input.bcf} --llm_url {params.llm_url} --model {params.model} --api_key '{params.api_key}' --judges 'therapy related' {params.cache} --output {output.summaries} --output_cache {output.cache} &> {log}"
