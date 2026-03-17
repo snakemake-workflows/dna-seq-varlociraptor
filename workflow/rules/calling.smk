@@ -1,6 +1,3 @@
-import io
-
-
 rule render_scenario:
     input:
         template=local(
