@@ -4,7 +4,9 @@ import io
 rule render_scenario:
     input:
         template=local(
-            lookup("group == '{group}'", within=group_annotation, cols="scenario")
+            lookup(
+                query="group == '{group}'", within=group_annotation, cols="scenario"
+            )
         ),
     output:
         report(
