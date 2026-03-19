@@ -18,7 +18,7 @@ rule freebayes:
             config["params"]["freebayes"].get("min_alternate_fraction", "0.05"),
             config["params"]["freebayes"].get("extra", ""),
         ),
-    threads: 96
+    threads: 96  # with more cores, we expect freebayes to become too IO bound and memory hungry
     wrapper:
         "v2.7.0/bio/freebayes"
 
