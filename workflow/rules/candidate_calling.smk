@@ -18,7 +18,7 @@ rule freebayes:
             config["params"]["freebayes"].get("min_alternate_fraction", "0.05"),
             config["params"]["freebayes"].get("extra", ""),
         ),
-    threads: max(workflow.cores - 1, 1)  # use all available cores -1 (because of the pipe) for calling
+    threads: 96
     wrapper:
         "v2.7.0/bio/freebayes"
 
