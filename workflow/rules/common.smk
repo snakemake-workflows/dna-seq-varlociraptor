@@ -1693,7 +1693,6 @@ def get_pangenome_url(datatype):
 
 
 def get_cnvkit_batch_input(wildcards, sample_type="tumor", ext="bam"):
-    samples = dna_seq_varlociraptor.samples
     if sample_type == "tumor":
         sample_name = wildcards.sample
     elif sample_type == "normal":
@@ -1707,7 +1706,6 @@ def get_cnvkit_batch_input(wildcards, sample_type="tumor", ext="bam"):
 
 
 def get_cnvkit_purity_setting(wildcards):
-    samples = dna_seq_varlociraptor.samples
     if "purity" in samples.columns:
         purity = samples.loc[
             (samples["sample_name"] == wildcards.sample)
@@ -1727,11 +1725,11 @@ def get_cnvkit_bcf(wildcards):
 def get_sample_sex(wildcards):
     return lookup(
         query="group == '{wildcards.group}'",
-        within=dna_seq_varlociraptor.group_annotation,
+        within=group_annotation,
         cols="sex",
         group=lookup(
             query="sample_name == '{wildcards.sample}'",
-            within=dna_seq_varlociraptor.samples,
+            within=samples,
             cols="group"
         )
     )
