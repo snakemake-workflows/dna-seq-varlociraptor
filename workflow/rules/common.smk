@@ -1718,7 +1718,7 @@ def get_cnvkit_purity_setting(wildcards):
 
 
 def get_cnvkit_bcf(wildcards):
-    event = config["cnvkit"]["joint_event"]
+    event = lookup(dpath="params/cnvkit/joint_event", within=config),
     return f"results/calls/fdr-controlled/{wildcards.group}/{event}/{wildcards.group}.SNV.variants.bcf"
 
 
