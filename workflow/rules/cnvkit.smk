@@ -10,7 +10,7 @@ from os import path
 
 rule cnvkit_access:
     input:
-        fasta=dna_seq_varlociraptor.genome,
+        fasta=genome,
     output:
         "results/cnvkit/access-mappable.bed",
     conda:
@@ -89,7 +89,7 @@ rule cnvkit_batch:
         normal_bam=lambda w: get_cnvkit_batch_input(w, sample_type="normal"),
         tumor_bai=lambda w: get_cnvkit_batch_input(w, ext="bai"),
         normal_bai=lambda w: get_cnvkit_batch_input(w, sample_type="normal", ext="bai"),
-        fasta=dna_seq_varlociraptor.genome,
+        fasta=genome,
         targets=lookup(dpath="params/cnvkit/target_bed", within=config),
         access=rules.cnvkit_access.output,
         bed="resources/cnvkit/annotation.bed",
