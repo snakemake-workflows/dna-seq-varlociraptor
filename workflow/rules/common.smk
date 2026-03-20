@@ -1690,3 +1690,56 @@ def get_pangenome_url(datatype):
         "freeze1/minigraph-cactus/"
         f"hprc-{version}-mc-{build}/hprc-{version}-mc-{build}.{datatype}"
     )
+
+
+def get_cnvkit_batch_input(wildcards, sample_type="tumor", ext="bam"):
+    samples = dna_seq_varlociraptor.samples
+    if sample_type == "tumor":
+        sample_name = wildcards.sample
+    elif sample_type == "normal":
+        sample_name = samples.loc[(samples["group"] == wildcards.group) & (samples["alias"] == "normal"), "sample_name"].squeeze()
+    else:
+        raise ValueError(
+            f"Sample type {wildcards.sample_type} has to be from ['normal', 'tumor']."
+        )
+    bam_prefix = lookup(dpath="cnvkit/bam_prefix", within=config)
+    return f"{bam_prefix}results/recal/{sample_name}.{ext}"
+
+
+def get_cnvkit_purity_setting(wildcards):
+    samples = dna_seq_varlociraptor.samples
+    if "purity" in samples.columns:
+        purity = samples.loc[
+            (samples["sample_name"] == wildcards.sample)
+            & (samples["group"] == wildcards.group),
+            "purity",
+        ].squeeze()
+        if not math.isnan(purity):
+            return f"--purity {purity}"
+    return ""
+
+
+def get_cnvkit_bcf(wildcards):
+    event = config["cnvkit"]["joint_event"]
+    return f"results/calls/fdr-controlled/{wildcards.group}/{event}/{wildcards.group}.SNV.variants.bcf"
+
+
+def get_sample_sex(wildcards):
+    return lookup(
+        query="group == '{wildcards.group}'",
+        within=dna_seq_varlociraptor.group_annotation,
+        cols="sex",
+        group=lookup(
+            query="sample_name == '{wildcards.sample}'",
+            within=dna_seq_varlociraptor.samples,
+            cols="group"
+        )
+    )
+
+
+def get_cnvkit_sex(wildcards):
+    sex = get_sample_sex(wildcards)
+    if sex == "male":
+        return "-y"
+    else:
+        return ""

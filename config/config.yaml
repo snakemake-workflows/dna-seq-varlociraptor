@@ -108,7 +108,6 @@ maf:
   # optional: sample alias from scenario.yaml for normal sample
   # control_alias: "normal"
 
-
 calling:
   # Set to true to infer classical genotypes from Varlociraptor's VAF predictions
   infer_genotypes: false
@@ -296,6 +295,18 @@ params:
     extra: ""
   get_sra:
     extra: ""
+  cnvkit:
+    # BED file to specify the sequenced regions. Leave blank for WGS
+    target_bed: ""
+    # additional parameters passed to cnvkit_access. -s specifies the maximum size of inaccessible genome regions (only N in reference) that CNVKit is allowed to bridge
+    access_param: "-s 10000"
+    # additional parameters passed to cnvkit_batch
+    batch_param: ""
+    # additional parameters passed to cnvkit_call
+    call_param: ""
+    # This needs to be an event, configured for varlociraptor that calls all variants present in the tumor and normal sample.
+    # Usually, a catch-all event gathering all the events specified in the scenario.yaml file should be used.
+    joint_event: "some_id"
 
 # If activated preprocessed alignment properties can be applied to each sample individually.
 # Paths to the alignment properties json files need to be set in a tsv file containing a property name and path.
