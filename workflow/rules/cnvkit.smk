@@ -143,7 +143,10 @@ rule cnvkit_batch:
 
 rule genotype_snvs_to_vcf:
     input:
-        bcf=get_cnvkit_bcf,
+        bcf=expand(
+            "results/calls/fdr-controlled/{{group}}/{event}/{{group}}.SNV.variants.bcf",
+            event=lookup(dpath="params/cnvkit/joint_event", within=config),
+        )
     output:
         vcf=temp("results/cnvkit/annotate/{group}.genotyped.vcf"),
     log:

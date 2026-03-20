@@ -1717,11 +1717,6 @@ def get_cnvkit_purity_setting(wildcards):
     return ""
 
 
-def get_cnvkit_bcf(wildcards):
-    event = lookup(dpath="params/cnvkit/joint_event", within=config),
-    return f"results/calls/fdr-controlled/{wildcards.group}/{event}/{wildcards.group}.SNV.variants.bcf"
-
-
 def get_sample_sex(wildcards):
     return lookup(
         query="group == '{wildcards.group}'",
