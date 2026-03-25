@@ -336,19 +336,19 @@ properties:
         properties:
           min_allele_frequency:
             type: number
-        cnvkit:
-          type: object
-          properties:
-            target_bed:
-              type: string
-            access_param:
-              type: string
-            batch_param:
-              type: string
-            call_param:
-              type: string
-            joint_event:
-              type: string
+      cnvkit:
+        type: object
+        properties:
+          target_bed:
+            type: string
+          access_param:
+            type: string
+          batch_param:
+            type: string
+          call_param:
+            type: string
+          joint_event:
+            type: string
     required:
       - gatk
       - picard
