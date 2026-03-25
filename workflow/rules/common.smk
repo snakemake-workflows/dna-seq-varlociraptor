@@ -1696,13 +1696,23 @@ def get_cnvkit_batch_input(wildcards, sample_type="tumor", ext="bam"):
     if sample_type == "tumor":
         sample_name = wildcards.sample
     elif sample_type == "normal":
-        sample_name = samples.loc[
+        normal_samples = samples.loc[
             (samples["group"] == wildcards.group) & (samples["alias"] == "normal"),
             "sample_name",
-        ].squeeze()
+        ]
+        if len(normal_samples) == 1:
+            sample_name = normal_samples.iloc[0]
+        elif len(normal_samples) == 0:
+            raise ValueError(
+                f"Found no matching normal sample for {wildcards.sample}."
+            )
+        else:
+            raise ValueError(
+                f"Found multiple matching normal samples for {wildcards.sample}."
+            )
     else:
         raise ValueError(
-            f"Sample type {wildcards.sample_type} has to be from ['normal', 'tumor']."
+            f"Sample type {sample_type} has to be from ['normal', 'tumor']."
         )
     return f"results/recal/{sample_name}.{ext}"
 
@@ -1714,7 +1724,7 @@ def get_cnvkit_purity_setting(wildcards):
             & (samples["group"] == wildcards.group),
             "purity",
         ].squeeze()
-        if not math.isnan(purity):
+        if pd.notna(purity):
             return f"--purity {purity}"
     return ""
 
