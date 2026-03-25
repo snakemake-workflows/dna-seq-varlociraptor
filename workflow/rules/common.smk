@@ -1701,8 +1701,7 @@ def get_cnvkit_batch_input(wildcards, sample_type="tumor", ext="bam"):
         raise ValueError(
             f"Sample type {wildcards.sample_type} has to be from ['normal', 'tumor']."
         )
-    bam_prefix = lookup(dpath="cnvkit/bam_prefix", within=config)
-    return f"{bam_prefix}results/recal/{sample_name}.{ext}"
+    return f"results/recal/{sample_name}.{ext}"
 
 
 def get_cnvkit_purity_setting(wildcards):
