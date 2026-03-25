@@ -31,7 +31,7 @@ definitions:
     properties:
       varlociraptor:
         type: array
-        items: 
+        items:
           type: string
       filter:
         anyOf:
@@ -93,7 +93,7 @@ properties:
       trimming:
         type: object
         properties:
-          activate: 
+          activate:
             type: boolean
           primers_fq1:
             type: string
@@ -145,7 +145,7 @@ properties:
             type: string
           events:
             type: array
-            items: 
+            items:
               type: string
         required:
           - activate
@@ -164,8 +164,8 @@ properties:
             type: boolean
           annotation_fields:
             type: array
-            items: 
-               anyOf:
+            items:
+              anyOf:
                 - type: string
                 - type: object
                   properties:
@@ -193,7 +193,6 @@ properties:
         type: boolean
     required:
       - activate
-
 
   calling:
     type: object
@@ -224,7 +223,7 @@ properties:
             type: boolean
           mode:
             type: string
-            enum: 
+            enum:
               - local-smart
               - local-strict
               - global-smart
@@ -240,7 +239,7 @@ properties:
       - scenario
       - filter
       - fdr-control
-  
+
   remove_duplicates:
     type: object
     properties:
@@ -266,7 +265,7 @@ properties:
             type: boolean
           datasources:
             type: array
-            items: 
+            items:
               type: string
       vep:
         properties:
@@ -299,9 +298,6 @@ properties:
       - vep
       - vcfs
       - dgidb
-
-
-
 
   params:
     type: object
@@ -340,6 +336,19 @@ properties:
         properties:
           min_allele_frequency:
             type: number
+        cnvkit:
+          type: object
+          properties:
+            target_bed:
+              type: string
+            access_param:
+              type: string
+            batch_param:
+              type: string
+            call_param:
+              type: string
+            joint_event:
+              type: string
     required:
       - gatk
       - picard
@@ -356,7 +365,6 @@ properties:
         type: string
       tsv:
         type: string
-
 
 required:
   - samples
