@@ -291,8 +291,8 @@ def get_control_fdr_input(wildcards):
         return "results/final-calls/{group}/{group}.{calling_type}.annotated.bcf"
 
 
-def get_aligner(wildcards):
-    if get_sample_datatype(wildcards.sample) == "rna":
+def get_aligner(sample):
+    if get_sample_datatype(sample) == "rna":
         return "star"
     elif is_activated("ref/pangenome"):
         return "vg"
@@ -456,43 +456,43 @@ def get_sample_datatype(sample):
     return samples.loc[[sample], "datatype"].iloc[0]
 
 
-def get_markduplicates_input(wildcards):
-    aligner = get_aligner(wildcards)
-    if sample_has_umis(wildcards.sample):
+def get_markduplicates_input(sample):
+    aligner = get_aligner(sample)
+    if sample_has_umis(sample):
         return f"results/mapped/{aligner}/{{sample}}.annotated.bam"
     else:
         return f"results/mapped/{aligner}/{{sample}}.sorted.bam"
 
 
-def get_recalibrate_quality_input(wildcards, bai=False):
+def get_recalibrate_quality_input(sample, bai=False):
     ext = "bai" if bai else "bam"
-    datatype = get_sample_datatype(wildcards.sample)
+    datatype = get_sample_datatype(sample)
     if datatype == "rna":
-        return "results/split/{{sample}}.{ext}".format(ext=ext)
+        return f"results/split/{sample}.{ext}"
     # Post-processing of DNA samples
     if is_activated("calc_consensus_reads"):
-        return "results/consensus/{{sample}}.{ext}".format(ext=ext)
+        return f"results/consensus/{sample}.{ext}"
     else:
-        return get_consensus_input(wildcards, bai)
+        return get_consensus_input(sample, bai)
 
 
-def get_consensus_input(wildcards, bai=False):
+
+
+def get_consensus_input(sample, bai=False):
     ext = "bai" if bai else "bam"
-    if sample_has_primers(wildcards):
-        return f"results/trimmed/{{sample}}.trimmed.{ext}"
+    if sample_has_primers(sample):
+        return f"results/trimmed/{sample}.trimmed.{ext}"
     else:
-        return get_trimming_input(wildcards, bai)
+        return get_trimming_input(sample, bai)
 
 
-def get_trimming_input(wildcards, bai=False):
+def get_trimming_input(sample, bai=False):
     ext = "bai" if bai else "bam"
-    aligner = get_aligner(wildcards)
+    aligner = get_aligner(sample)
     if is_activated("remove_duplicates"):
-        return "results/dedup/{{sample}}.{ext}".format(ext=ext)
+        return f"results/dedup/{sample}.{ext}"
     else:
-        return "results/mapped/{aligner}/{{sample}}.sorted.{ext}".format(
-            aligner=aligner, ext=ext
-        )
+        return f"results/mapped/{aligner}/{sample}.sorted.{ext}"
 
 
 def get_primer_bed(wc):
@@ -589,11 +589,16 @@ def get_markduplicates_extra(wc):
 
 def get_group_bams(wildcards, bai=False):
     ext = "bai" if bai else "bam"
-    return expand(
-        "results/recal/{sample}.{ext}",
-        sample=get_group_samples(wildcards.group),
-        ext=ext,
-    )
+    if lookup("basequality_recalibration/activate", within=config):
+        return expand(
+            "results/recal/{sample}.{ext}",
+            sample=get_group_samples(wildcards.group),
+            ext=ext,
+        )
+
+    else:
+        return [get_recalibrate_quality_input(sample, bai)
+            for sample in get_group_samples(wildcards.group)]
 
 
 def get_arriba_group_candidates(wildcards, csi=False):
@@ -1462,16 +1467,14 @@ def get_umi_fastq(wildcards):
         )
 
 
-def sample_has_primers(wildcards):
-    sample_name = wildcards.sample
-
+def sample_has_primers(sample):
     if config["primers"]["trimming"].get("primers_fa1") or (
         "panel" in samples.columns
-        and samples.loc[samples["sample_name"] == sample_name, "panel"].notna().any()
+        and samples.loc[samples["sample_name"] == sample, "panel"].notna().any()
     ):
-        if not is_paired_end(sample_name):
+        if not is_paired_end(sample):
             raise WorkflowError(
-                f"Primer trimming is only available for paired-end data. Sample '{sample_name}' is not paired-end."
+                f"Primer trimming is only available for paired-end data. Sample '{sample}' is not paired-end."
             )
         return True
     return False
