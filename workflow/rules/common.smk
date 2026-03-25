@@ -476,8 +476,6 @@ def get_recalibrate_quality_input(sample, bai=False):
         return get_consensus_input(sample, bai)
 
 
-
-
 def get_consensus_input(sample, bai=False):
     ext = "bai" if bai else "bam"
     if sample_has_primers(sample):
@@ -597,8 +595,10 @@ def get_group_bams(wildcards, bai=False):
         )
 
     else:
-        return [get_recalibrate_quality_input(sample, bai)
-            for sample in get_group_samples(wildcards.group)]
+        return [
+            get_recalibrate_quality_input(sample, bai)
+            for sample in get_group_samples(wildcards.group)
+        ]
 
 
 def get_arriba_group_candidates(wildcards, csi=False):
