@@ -1703,9 +1703,7 @@ def get_cnvkit_batch_input(wildcards, sample_type="tumor", ext="bam"):
         if len(normal_samples) == 1:
             sample_name = normal_samples.iloc[0]
         elif len(normal_samples) == 0:
-            raise ValueError(
-                f"Found no matching normal sample for {wildcards.sample}."
-            )
+            raise ValueError(f"Found no matching normal sample for {wildcards.sample}.")
         else:
             raise ValueError(
                 f"Found multiple matching normal samples for {wildcards.sample}."
@@ -1731,16 +1729,12 @@ def get_cnvkit_purity_setting(wildcards):
 
 # TODO: Warning when CNVs called without sample-specific sex?
 def get_sample_sex(wildcards):
-    if group_annotation and "sex" in group_annotation.columns:
+    if "sex" in group_annotation.columns:
         return lookup(
-            query="group == '{wildcards.group}'",
+            query="group == '{group}'",
             within=group_annotation,
             cols="sex",
-            group=lookup(
-                query="sample_name == '{wildcards.sample}'",
-                within=samples,
-                cols="group",
-            ),
+            group=wildcards.group,
         )
     return "female"
 
