@@ -1,6 +1,6 @@
 # These rules are based on the existing workflow of Dawid Krzeciesa (@dawidkrzeciesa):
 # https://github.com/dawidkrzeciesa/dna-seq-cnv/
-# Extended by Daiv Lähnemann (@dlaehnemann) in a feature branch:
+# Extended by David Lähnemann (@dlaehnemann) in a feature branch:
 # https://github.com/dawidkrzeciesa/dna-seq-cnv/tree/crc_exome
 # Rules have been selected, edited and extended to fit the surrounding pipeline
 

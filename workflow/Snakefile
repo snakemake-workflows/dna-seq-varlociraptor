@@ -75,3 +75,11 @@ rule benchmark:
             "benchmarking/{query}.summary",
             query=config["calling"]["fdr-control"]["events"],
         ),
+
+
+rule cnv_calls:
+    input:
+        [
+            f"results/cnvkit/call/{sample.group}/{sample.sample_name}.final.cns"
+            for sample in samples.loc[samples["alias"] != "normal"].itertuples()
+        ],
