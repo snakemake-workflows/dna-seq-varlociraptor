@@ -13,10 +13,10 @@ rule cnvkit_access:
         fasta=genome,
     output:
         "results/cnvkit/access-mappable.bed",
-    conda:
-        "../envs/cnvkit.yaml"
     log:
         "logs/cnvkit/acces/access.log",
+    conda:
+        "../envs/cnvkit.yaml"
     params:
         access_param=lookup(dpath="params/cnvkit/access_param", within=config),
     shell:
@@ -26,15 +26,15 @@ rule cnvkit_access:
 rule download_annotation_gtf:
     output:
         "resources/cnvkit/annotation.gtf",
+    log:
+        "logs/cnvkit/download_annotation_gff3.log",
+    cache: "omit-software"  # save space and time with between workflow caching (see docs)
     params:
         species=lookup(within=config, dpath="ref/species"),
         build=lookup(within=config, dpath="ref/build"),
         release=lookup(within=config, dpath="ref/release"),
         flavor="",  # optional, e.g. chr_patch_hapl_scaff, see Ensembl FTP.
         # branch="plants",  # optional: specify branch
-    log:
-        "logs/cnvkit/download_annotation_gff3.log",
-    cache: "omit-software"  # save space and time with between workflow caching (see docs)
     wrapper:
         "v7.0.0/bio/reference/ensembl-annotation"
 
@@ -46,9 +46,9 @@ rule ensure_gene_name_for_all_entries:
         "resources/cnvkit/annotation.gene_name_for_all_entries.gtf",
     log:
         "logs/cnvkit/annotation.gene_name_for_all_entries.gtf",
+    threads: 4
     params:
         extra='--itsv --implicit-tsv-header --pass-comments --otsv --headerless-tsv-output put \'if (!strmatch($9,"gene_name")) {$9 = sub($9, "gene_id (\\"ENSG[^\\"]+\\");", "gene_id \\1; gene_name \\1;")}\'',
-    threads: 4
     wrapper:
         "v7.1.0/utils/miller"
 
@@ -75,9 +75,6 @@ rule convert_gtf_to_bed:
         "    --flatten "
         "    --output {output.bed} "
         ") >{log} 2>&1"
-
-
-# rules
 
 
 # TODO: Produces two unused files that would require to introduce another wildcard,
@@ -107,9 +104,18 @@ rule cnvkit_batch:
         targetbed="results/cnvkit/batch/{group}/{sample}/coding_regions.target.bed",
         cns="results/cnvkit/batch/{group}/{sample}/{sample}.cns",
         cnn="results/cnvkit/batch/{group}/{sample}/{sample}.cnn",
+    log:
+        "logs/cnvkit-batch/{group}/{sample}.log",
+    group:
+        "cnvkit_{group}"
+    conda:
+        "../envs/cnvkit.yaml"
+    threads: 64
     params:
         normal=lambda wc, input: (
-            f"--normal {input.normal_bam}" if input.normal_bam != input.tumor_bam else ""
+            f"--normal {input.normal_bam}"
+            if input.normal_bam != input.tumor_bam
+            else ""
         ),
         batch_param=lookup(dpath="params/cnvkit/batch_param", within=config),
         chr_sex=get_cnvkit_sex,
@@ -117,13 +123,6 @@ rule cnvkit_batch:
             f"--targets {input.targets}" if input.targets else "--method wgs"
         ),
         out_dir=lambda wc, output: path.dirname(output.cns),
-    conda:
-        "../envs/cnvkit.yaml"
-    log:
-        "logs/cnvkit-batch/{group}/{sample}.log",
-    threads: 64
-    group:
-        "cnvkit_{group}"
     shell:
         "cnvkit.py batch {input.tumor_bam}"
         "  {params.normal}"
@@ -146,7 +145,7 @@ rule genotype_snvs_to_vcf:
         bcf=expand(
             "results/calls/fdr-controlled/{{group}}/{event}/{{group}}.SNV.variants.bcf",
             event=lookup(dpath="params/cnvkit/joint_event", within=config),
-        )
+        ),
     output:
         vcf=temp("results/cnvkit/annotate/{group}.genotyped.vcf"),
     log:
@@ -189,9 +188,7 @@ rule bgzip_and_tabix_allele_depths:
     conda:
         "../envs/bcftools.yaml"
     shell:
-        "( bgzip {input.tsv}; "
-        "  tabix {output.gz} -b 2 -e 2;"
-        ") 2> {log}"
+        "( bgzip {input.tsv}; " "  tabix {output.gz} -b 2 -e 2;" ") 2> {log}"
 
 
 rule annotate_tumor_allele_depth:
@@ -221,16 +218,16 @@ rule cnvkit_call:
         vcf="results/cnvkit/annotate/{group}.genotyped.allele_depths.vcf",
     output:
         cns="results/cnvkit/call/{group}/{sample}.final.cns",
+    log:
+        "logs/cnvkit-call/{group}/{sample}.cns.log",
+    conda:
+        "../envs/cnvkit.yaml"
+    threads: 1
     params:
         call_param=lookup(dpath="params/cnvkit/call_param", within=config),
         tumor_purity=get_cnvkit_purity_setting,
         chr_sex=get_cnvkit_sex,
         sample_sex=get_sample_sex,
-    conda:
-        "../envs/cnvkit.yaml"
-    log:
-        "logs/cnvkit-call/{group}/{sample}.cns.log",
-    threads: 1
     shell:
         "(cnvkit.py call "
         "  -v {input.vcf} "

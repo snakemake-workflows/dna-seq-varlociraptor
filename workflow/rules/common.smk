@@ -1696,7 +1696,10 @@ def get_cnvkit_batch_input(wildcards, sample_type="tumor", ext="bam"):
     if sample_type == "tumor":
         sample_name = wildcards.sample
     elif sample_type == "normal":
-        sample_name = samples.loc[(samples["group"] == wildcards.group) & (samples["alias"] == "normal"), "sample_name"].squeeze()
+        sample_name = samples.loc[
+            (samples["group"] == wildcards.group) & (samples["alias"] == "normal"),
+            "sample_name",
+        ].squeeze()
     else:
         raise ValueError(
             f"Sample type {wildcards.sample_type} has to be from ['normal', 'tumor']."
@@ -1726,8 +1729,8 @@ def get_sample_sex(wildcards):
             group=lookup(
                 query="sample_name == '{wildcards.sample}'",
                 within=samples,
-                cols="group"
-            )
+                cols="group",
+            ),
         )
     return "female"
 
