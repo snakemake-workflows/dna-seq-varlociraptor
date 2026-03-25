@@ -1716,17 +1716,20 @@ def get_cnvkit_purity_setting(wildcards):
     return ""
 
 
+# TODO: Warning when CNVs called without sample-specific sex?
 def get_sample_sex(wildcards):
-    return lookup(
-        query="group == '{wildcards.group}'",
-        within=group_annotation,
-        cols="sex",
-        group=lookup(
-            query="sample_name == '{wildcards.sample}'",
-            within=samples,
-            cols="group"
+    if group_annotation and "sex" in group_annotation.columns:
+        return lookup(
+            query="group == '{wildcards.group}'",
+            within=group_annotation,
+            cols="sex",
+            group=lookup(
+                query="sample_name == '{wildcards.sample}'",
+                within=samples,
+                cols="group"
+            )
         )
-    )
+    return "female"
 
 
 def get_cnvkit_sex(wildcards):
