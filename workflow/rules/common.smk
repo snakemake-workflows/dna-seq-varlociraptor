@@ -1690,3 +1690,58 @@ def get_pangenome_url(datatype):
         "freeze1/minigraph-cactus/"
         f"hprc-{version}-mc-{build}/hprc-{version}-mc-{build}.{datatype}"
     )
+
+
+def get_cnvkit_batch_input(wildcards, sample_type="tumor", ext="bam"):
+    if sample_type == "tumor":
+        sample_name = wildcards.sample
+    elif sample_type == "normal":
+        normal_samples = samples.loc[
+            (samples["group"] == wildcards.group) & (samples["alias"] == "normal"),
+            "sample_name",
+        ]
+        if len(normal_samples) == 1:
+            sample_name = normal_samples.iloc[0]
+        elif len(normal_samples) == 0:
+            raise ValueError(f"Found no matching normal sample for {wildcards.sample}.")
+        else:
+            raise ValueError(
+                f"Found multiple matching normal samples for {wildcards.sample}."
+            )
+    else:
+        raise ValueError(
+            f"Sample type {sample_type} has to be from ['normal', 'tumor']."
+        )
+    return f"results/recal/{sample_name}.{ext}"
+
+
+def get_cnvkit_purity_setting(wildcards):
+    if "purity" in samples.columns:
+        purity = samples.loc[
+            (samples["sample_name"] == wildcards.sample)
+            & (samples["group"] == wildcards.group),
+            "purity",
+        ].squeeze()
+        if pd.notna(purity):
+            return f"--purity {purity}"
+    return ""
+
+
+# TODO: Warning when CNVs called without sample-specific sex?
+def get_sample_sex(wildcards):
+    if "sex" in group_annotation.columns:
+        return lookup(
+            query="group == '{group}'",
+            within=group_annotation,
+            cols="sex",
+            group=wildcards.group,
+        )
+    return "female"
+
+
+def get_cnvkit_sex(wildcards):
+    sex = get_sample_sex(wildcards)
+    if sex == "male":
+        return "-y"
+    else:
+        return ""

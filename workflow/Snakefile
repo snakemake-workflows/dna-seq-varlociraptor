@@ -51,6 +51,7 @@ include: "rules/fusion_calling.smk"
 include: "rules/testcase.smk"
 include: "rules/population.smk"
 include: "rules/mutational_signatures.smk"
+include: "rules/cnvkit.smk"
 
 
 batches = "all"
@@ -74,3 +75,15 @@ rule benchmark:
             "benchmarking/{query}.summary",
             query=config["calling"]["fdr-control"]["events"],
         ),
+
+
+rule cnv_calls:
+    input:
+        [
+            f"results/cnvkit/call/{sample.group}/{sample.sample_name}.final.cns"
+            for sample in samples.loc[
+                (samples["alias"] != "normal")
+                & (samples["datatype"] == "dna")
+                & (samples["calling"].str.contains("variants"))
+            ].itertuples()
+        ],
