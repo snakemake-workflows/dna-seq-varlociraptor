@@ -81,5 +81,9 @@ rule cnv_calls:
     input:
         [
             f"results/cnvkit/call/{sample.group}/{sample.sample_name}.final.cns"
-            for sample in samples.loc[samples["alias"] != "normal"].itertuples()
+            for sample in samples.loc[
+                (samples["alias"] != "normal")
+                & (samples["datatype"] == "dna")
+                & (samples["calling"].str.contains("variants"))
+            ].itertuples()
         ],
