@@ -117,7 +117,7 @@ jobs:
       - uses: actions/checkout@v5
 
       - name: run workflow
-        uses: snakemake/snakemake-github-action@v2
+        uses: snakemake/snakemake-github-action@master
         with:
           directory: .test
           snakefile: workflow/Snakefile
