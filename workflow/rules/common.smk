@@ -587,7 +587,7 @@ def get_markduplicates_extra(wc):
 
 def get_group_bams(wildcards, bai=False):
     ext = "bai" if bai else "bam"
-    if lookup("basequality_recalibration/activate", within=config):
+    if lookup("basequality_recalibration/activate", within=config, default=False):
         return expand(
             "results/recal/{sample}.{ext}",
             sample=get_group_samples(wildcards.group),

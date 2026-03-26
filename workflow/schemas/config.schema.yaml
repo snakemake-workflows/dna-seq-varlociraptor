@@ -371,4 +371,3 @@ required:
   - params
   - annotations
   - custom_alignment_properties
-  - basequality_recalibration
