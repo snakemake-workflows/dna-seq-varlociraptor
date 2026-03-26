@@ -360,7 +360,8 @@ properties:
   basequality_recalibration:
     type: object
     properties:
-      activate: true
+      activate:
+        type: boolean
 
 required:
   - samples
