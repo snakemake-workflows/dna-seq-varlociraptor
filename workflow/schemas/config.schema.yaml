@@ -357,6 +357,11 @@ properties:
       tsv:
         type: string
 
+  basequality_recalibration:
+    type: object
+    properties:
+      activate:
+        type: boolean
 
 required:
   - samples

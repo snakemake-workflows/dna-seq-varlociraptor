@@ -305,3 +305,6 @@ custom_alignment_properties:
   activate: false
   column: "panel"
   tsv: "config/alignment_properties.tsv"
+
+basequality_recalibration:
+  activate: true

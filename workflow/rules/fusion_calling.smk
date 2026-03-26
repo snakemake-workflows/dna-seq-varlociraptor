@@ -1,6 +1,4 @@
 module fusion_calling:
-    meta_wrapper:
-        "v8.0.0/meta/bio/star_arriba"
     pathvars:
         results="results",  # Path to results directory
         resources="resources",  # Path to resources directory
@@ -10,6 +8,8 @@ module fusion_calling:
         reads_r1="...",  # Overwritten with function below
         reads_r2="...",  # Overwritten with function below
         per="{sample}",  # Pattern for sample identifiers, e.g. ``"{sample}"``
+    meta_wrapper:
+        "v8.0.0/meta/bio/star_arriba"
 
 
 use rule * from fusion_calling
@@ -53,10 +53,10 @@ rule annotate_exons:
         annotation=rules.get_annotation.output,
     output:
         "results/arriba/{sample}.fusions.annotated.tsv",
-    conda:
-        "../envs/arriba.yaml"
     log:
         "logs/annotate_fusions/{sample}.log",
+    conda:
+        "../envs/arriba.yaml"
     shell:
         """
         annotate_exon_numbers.sh {input.fusions} {input.annotation} {output} 2> {log}
@@ -70,10 +70,10 @@ rule convert_fusions:
         fusions="results/arriba/{sample}.fusions.annotated.tsv",
     output:
         temp("results/candidate-calls/arriba/{sample}/{sample}.vcf"),
-    conda:
-        "../envs/arriba.yaml"
     log:
         "logs/convert_fusions/{sample}.log",
+    conda:
+        "../envs/arriba.yaml"
     shell:
         """
         convert_fusions_to_vcf.sh {input.fasta} {input.fusions} {output} 2> {log}
@@ -85,15 +85,15 @@ rule sort_arriba_calls:
         "results/candidate-calls/arriba/{sample}/{sample}.vcf",
     output:
         temp("results/candidate-calls/arriba/{sample}/{sample}.bcf"),
+    log:
+        "logs/bcf-sort/{sample}/{sample}.log",
+    resources:
+        mem_mb=8000,
     params:
         # Set to True, in case you want uncompressed BCF output
         uncompressed_bcf=False,
         # Extra arguments
         extras="",
-    log:
-        "logs/bcf-sort/{sample}/{sample}.log",
-    resources:
-        mem_mb=8000,
     wrapper:
         "v1.21.0/bio/bcftools/sort"
 
@@ -106,11 +106,11 @@ rule bcftools_concat_candidates:
         "results/candidate-calls/arriba/{group}/{group}.bcf",
     log:
         "logs/concat_candidates/{group}.log",
-    params:
-        uncompressed_bcf=False,
-        extra="-d exact -a",
     threads: 4
     resources:
         mem_mb=10,
+    params:
+        uncompressed_bcf=False,
+        extra="-d exact -a",
     wrapper:
         "v1.21.0/bio/bcftools/concat"
