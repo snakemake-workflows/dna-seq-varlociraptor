@@ -357,6 +357,10 @@ properties:
       tsv:
         type: string
 
+  basequality_recalibration:
+    type: object
+    properties:
+      activate: true
 
 required:
   - samples
@@ -367,3 +371,4 @@ required:
   - params
   - annotations
   - custom_alignment_properties
+  - basequality_recalibration
