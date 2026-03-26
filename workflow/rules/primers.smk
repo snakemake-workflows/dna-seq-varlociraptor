@@ -1,6 +1,6 @@
 rule assign_primers:
     input:
-        bam=get_trimming_input,
+        bam=lambda wc: get_trimming_input(wc.sample),
         primers=get_primer_regions,
     output:
         assigned=temp("results/primers/{sample}.assigned.bam"),
