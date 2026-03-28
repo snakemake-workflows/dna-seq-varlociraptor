@@ -5,7 +5,7 @@ rule freebayes:
         regions="results/regions/{group}.expanded_regions.filtered.bed",
         # you can have a list of samples here
         alns=access.random(lambda w: get_group_bams(w)),
-        idxs=lambda w: get_group_bams(w, bai=True),
+        idxs=lambda w: get_group_bams(w, crai=True),
     output:
         "results/candidate-calls/freebayes/{group}/{group}.bcf",
     log:
@@ -20,7 +20,7 @@ rule freebayes:
         ),
     threads: max(workflow.cores - 1, 1)  # use all available cores -1 (because of the pipe) for calling
     wrapper:
-        "v2.7.0/bio/freebayes"
+        "v8.0.3/bio/freebayes"
 
 
 rule delly:
@@ -28,7 +28,7 @@ rule delly:
         ref=access.random(genome),
         ref_idx=genome_fai,
         alns=access.random(lambda w: get_group_bams(w)),
-        index=lambda w: get_group_bams(w, bai=True),
+        index=lambda w: get_group_bams(w, crai=True),
         exclude=get_delly_excluded_regions(),
     output:
         "results/candidate-calls/delly/{group}/{group}.bcf",
@@ -38,7 +38,7 @@ rule delly:
         extra=config["params"].get("delly", ""),
     threads: lambda _, input: len(input.alns)  # delly parallelizes over the number of samples
     wrapper:
-        "v2.3.2/bio/delly"
+        "v8.0.3/bio/delly"
 
 
 # Delly breakends lead to invalid BCFs after VEP annotation (invalid RLEN). Therefore we exclude them for now.
