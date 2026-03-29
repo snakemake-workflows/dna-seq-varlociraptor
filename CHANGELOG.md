@@ -1,5 +1,17 @@
 # Changelog
 
+## [6.6.2](https://github.com/snakemake-workflows/dna-seq-varlociraptor/compare/v6.6.1...v6.6.2) (2026-03-29)
+
+
+### Bug Fixes
+
+* update JSON schemas to 2020-12 ([#438](https://github.com/snakemake-workflows/dna-seq-varlociraptor/issues/438)) ([85ca86e](https://github.com/snakemake-workflows/dna-seq-varlociraptor/commit/85ca86e64d0e1451542b43abae13ba64ad55ba1e))
+
+
+### Performance Improvements
+
+* reasonable maximum for freebayes cores ([#439](https://github.com/snakemake-workflows/dna-seq-varlociraptor/issues/439)) ([b275fef](https://github.com/snakemake-workflows/dna-seq-varlociraptor/commit/b275fefcb4c6c388e1cc12bda036a650d94c9be9))
+
 ## [6.6.1](https://github.com/snakemake-workflows/dna-seq-varlociraptor/compare/v6.6.0...v6.6.1) (2026-03-18)
 
 
