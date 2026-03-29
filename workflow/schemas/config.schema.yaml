@@ -1,4 +1,4 @@
-$schema: "http://json-schema.org/draft-07/schema#"
+$schema: "https://json-schema.org/draft/2020-12/schema"
 
 description: snakemake configuration file
 
@@ -31,7 +31,7 @@ definitions:
     properties:
       varlociraptor:
         type: array
-        items: 
+        items:
           type: string
       filter:
         anyOf:
@@ -93,7 +93,7 @@ properties:
       trimming:
         type: object
         properties:
-          activate: 
+          activate:
             type: boolean
           primers_fq1:
             type: string
@@ -145,7 +145,7 @@ properties:
             type: string
           events:
             type: array
-            items: 
+            items:
               type: string
         required:
           - activate
@@ -164,7 +164,7 @@ properties:
             type: boolean
           annotation_fields:
             type: array
-            items: 
+            items:
                anyOf:
                 - type: string
                 - type: object
@@ -224,7 +224,7 @@ properties:
             type: boolean
           mode:
             type: string
-            enum: 
+            enum:
               - local-smart
               - local-strict
               - global-smart
@@ -240,7 +240,7 @@ properties:
       - scenario
       - filter
       - fdr-control
-  
+
   remove_duplicates:
     type: object
     properties:
@@ -266,7 +266,7 @@ properties:
             type: boolean
           datasources:
             type: array
-            items: 
+            items:
               type: string
       vep:
         properties:
