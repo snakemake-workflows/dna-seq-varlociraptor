@@ -11,7 +11,7 @@ rule vembrane_table:
     log:
         "logs/vembrane-table/{group}.{event}.{calling_type}.log",
     shell:
-        'vembrane table --header "{params.config[header]}" "{params.config[expr]}" '
+        'vembrane table --wide --header "{params.config[header]}" "{params.config[expr]}" '
         "{input.bcf} > {output.bcf} 2> {log}"
 
 
