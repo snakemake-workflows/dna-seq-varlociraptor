@@ -264,6 +264,10 @@ def get_final_output(wildcards):
 
 def get_vembrane_table_input(wc):
     if lookup(
+        dpath="varpubs/activate",
+        within=config,
+        default=False,
+    ) and lookup(
         dpath=f"calling/fdr-control/events/{wc.event}/varpubs",
         within=config,
         default=True,
