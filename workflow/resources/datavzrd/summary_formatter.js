@@ -15,7 +15,7 @@ function wrapText(value) {
 
   out = out.replace(/\b\d{8}\b/g, id =>
     `<a href='https://pubmed.ncbi.nlm.nih.gov/${id}/' target='_blank'>${id}</a>`
-  );
+  ).replace(/%2C/g, ',');
 
   return `<div style="line-height:1.1 !important">${out}</div>`;
 }
