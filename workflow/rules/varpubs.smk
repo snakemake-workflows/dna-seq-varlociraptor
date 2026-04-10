@@ -3,12 +3,12 @@ rule varpubs_deploy_db:
         bcf="results/final-calls/{group}/{group}.{event}.variants.fdr-controlled.normal-probs.bcf",
     output:
         "results/varpubs/{group}/{group}.{event}.duckdb",
-    resources:
-        varpubs=1,
-    conda:
-        "../envs/varpubs.yaml"
     log:
         "logs/varpub/deploy/{group}.{event}.log",
+    conda:
+        "../envs/varpubs.yaml"
+    resources:
+        varpubs=1,
     shell:
         "varpubs -v deploy-db --db_path {output} --vcf_paths {input.bcf} &> {log}"
 
@@ -21,18 +21,18 @@ rule varpubs_summarize_variants:
     output:
         summaries="results/varpubs/{group}/{group}.{event}.bcf",
         cache="results/varpubs/caches/{group}/{group}.{event}.duckdb",
+    log:
+        "logs/varpub/summarize/{group}.{event}.log",
+    conda:
+        "../envs/varpubs.yaml"
+    threads: max(workflow.cores, 1)
+    resources:
+        varpubs=1,
     params:
         llm_url=lookup(dpath="varpubs/llm_url", within=config),
         model=lookup(dpath="varpubs/model", within=config),
         api_key=lookup(dpath="varpubs/api_key", within=config),
         cache=lambda wc, input: f"--cache {input.cache}" if input.cache else "",
-    conda:
-        "../envs/varpubs.yaml"
-    resources:
-        varpubs=1,
-    log:
-        "logs/varpub/summarize/{group}.{event}.log",
-    threads: max(workflow.cores, 1)
     shell:
         "varpubs -v summarize-variants --db_path {input.db_path} --vcf_path {input.bcf} --llm_url {params.llm_url} --model {params.model} --api_key '{params.api_key}' --judges 'therapy related' {params.cache} --output {output.summaries} --output_cache {output.cache} &> {log}"
 
