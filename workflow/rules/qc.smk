@@ -45,9 +45,9 @@ rule multiqc:
             caption="../report/multiqc.rst",
             labels={"Sample group": "{group}"},
         ),
-    params:
-        "--exclude snippy",
     log:
         "logs/multiqc/{group}.log",
+    params:
+        "--exclude snippy",
     wrapper:
         "v2.10.0/bio/multiqc"

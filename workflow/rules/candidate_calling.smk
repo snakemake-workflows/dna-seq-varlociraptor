@@ -10,6 +10,7 @@ rule freebayes:
         "results/candidate-calls/freebayes/{group}/{group}.bcf",
     log:
         "logs/freebayes/{group}.log",
+    threads: max(workflow.cores - 1, 1)  # use all available cores -1 (because of the pipe) for calling
     params:
         # genotyping is performed by varlociraptor, hence we deactivate it in freebayes by
         # always setting --pooled-continuous
@@ -34,9 +35,9 @@ rule delly:
         "results/candidate-calls/delly/{group}/{group}.bcf",
     log:
         "logs/delly/{group}.log",
+    threads: lambda _, input: len(input.alns)  # delly parallelizes over the number of samples
     params:
         extra=config["params"].get("delly", ""),
-    threads: lambda _, input: len(input.alns)  # delly parallelizes over the number of samples
     wrapper:
         "v2.3.2/bio/delly"
 
@@ -62,10 +63,10 @@ rule filter_offtarget_variants:
         regions="resources/target_regions/target_regions.bed",
     output:
         "results/candidate-calls/{caller}/filtered/{group}/{group}.bcf",
-    params:
-        extra="",
     log:
         "logs/filter_offtarget_variants/{group}/{group}.{caller}.log",
+    params:
+        extra="",
     wrapper:
         "v2.3.2/bio/bcftools/filter"
 
