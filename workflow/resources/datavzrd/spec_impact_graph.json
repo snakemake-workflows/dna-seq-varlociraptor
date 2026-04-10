@@ -1,198 +1,147 @@
 {
-    "$schema": "https://vega.github.io/schema/vega-lite/v6.json",
-    "data": {
-        "name": "scores"
-    },
-    "hconcat": [
+  "$schema": "https://vega.github.io/schema/vega-lite/v6.json",
+  "data": {
+      "name": "scores"
+  },
+  "hconcat": [
+    {
+      "width": 200,
+      "layer": [
         {
-            "width": 200,
-            "layer": [
-                {
-                    "transform": [
-                        {
-                            "aggregate": [
-                                {
-                                    "op": "max",
-                                    "field": "score",
-                                    "as": "score"
-                                },
-                                {
-                                    "op": "max",
-                                    "field": "frequency",
-                                    "as": "frequency"
-                                }
-                            ],
-                            "groupby": [
-                                "haplotype"
-                            ]
-                        }
-                    ],
-                    "mark": "bar",
-                    "encoding": {
-                        "y": {
-                            "field": "haplotype",
-                            "type": "ordinal",
-                            "title": "Haplotype",
-                            "sort": {
-                                "field": "frequency",
-                                "order": "descending"
-                            }
-                        },
-                        "x": {
-                            "field": "score",
-                            "type": "quantitative",
-                            "scale": {
-                                "domain": [
-                                    0,
-                                    1
-                                ]
-                            },
-                            "title": "Score"
-                        },
-                        "color": {
-                            "value": "#a1a1a1"
-                        },
-                        "tooltip": [
-                            {
-                                "field": "haplotype"
-                            },
-                            {
-                                "field": "score"
-                            }
-                        ]
-                    }
-                },
-                {
-                    "mark": {
-                        "type": "tick",
-                        "thickness": 2
-                    },
-                    "encoding": {
-                        "y": {
-                            "field": "haplotype",
-                            "type": "ordinal",
-                            "sort": {
-                                "field": "frequency",
-                                "order": "descending"
-                            },
-                            "axis": {
-                                "labels": false,
-                                "ticks": false
-                            }
-                        },
-                        "x": {
-                            "field": "frequency",
-                            "type": "quantitative",
-                            "scale": {
-                                "domain": [
-                                    0,
-                                    1
-                                ]
-                            },
-                            "title": "Frequency"
-                        },
-                        "color": {
-                            "field": "sample",
-                            "type": "nominal",
-                            "title": "Sample"
-                        },
-                        "tooltip": [
-                            {
-                                "field": "haplotype"
-                            },
-                            {
-                                "field": "sample"
-                            },
-                            {
-                                "field": "frequency"
-                            }
-                        ]
-                    }
-                }
-            ]
+          "transform": [
+            {"filter": "datum.row_type === 'score_row'"},
+            {
+              "aggregate": [
+                {"op": "max", "field": "score", "as": "score"},
+                {"op": "max", "field": "frequency", "as": "frequency"}
+              ],
+              "groupby": ["haplotype"]
+            }
+          ],
+          "mark": "bar",
+          "encoding": {
+            "y": {
+              "field": "haplotype",
+              "type": "ordinal",
+              "title": "Haplotype",
+              "sort": {"field": "frequency", "order": "descending"}
+            },
+            "x": {
+              "field": "score",
+              "type": "quantitative",
+              "scale": {"domain": [0, 1]},
+              "title": "Score"
+            },
+            "color": {"value": "#a1a1a1"},
+            "tooltip": [{"field": "haplotype"}, {"field": "score"}]
+          }
         },
         {
-            "transform": [
-                {
-                    "aggregate": [
-                        {
-                            "op": "max",
-                            "field": "frequency",
-                            "as": "frequency"
-                        }
-                    ],
-                    "groupby": [
-                        "haplotype"
-                    ]
-                },
-                {
-                    "calculate": "replace(replace(datum.haplotype, 'c.[', ''), ']', '')",
-                    "as": "haplotype_trimmed"
-                },
-                {
-                    "calculate": "datum.haplotype_trimmed === '' ? [''] : split(datum.haplotype_trimmed, ';')",
-                    "as": "variants_array"
-                },
-                {
-                    "flatten": [
-                        "variants_array"
-                    ],
-                    "as": [
-                        "variant"
-                    ]
-                },
-                {
-                    "filter": "datum.variant !== ''"
-                },
-                {
-                  "calculate": "toNumber(replace(datum.variant, /[^0-9].*$/, ''))",
-                  "as": "position"
-                }
-            ],
-            "mark": {
-                "type": "rect",
-                "stroke": "white",
-                "strokeWidth": 1
+          "transform": [
+            {"filter": "datum.row_type === 'score_row'"}
+          ],
+          "mark": {"type": "tick", "thickness": 2},
+          "encoding": {
+            "y": {
+              "field": "haplotype",
+              "type": "ordinal",
+              "sort": {"field": "frequency", "order": "descending"},
+              "axis": {"labels": false, "ticks": false}
             },
-            "encoding": {
-                "y": {
-                    "field": "haplotype",
-                    "type": "ordinal",
-                    "axis": {
-                        "labels": false,
-                        "title": null,
-                        "ticks": false
-                    },
-                    "sort": {
-                        "field": "frequency",
-                        "order": "descending"
-                    }
-                },
-                "x": {
-                    "field": "variant",
-                    "type": "ordinal",
-                    "title": "Variant",
-                    "axis": {
-                        "labelAngle": -90
-                    },
-                    "sort": {
-                        "field": "position"
-                    }
-                },
-                "color": {
-                    "value": "#a1a1a1"
-                },
-                "tooltip": [
-                    {
-                        "field": "variant"
-                    }
-                ]
+            "x": {
+              "field": "frequency",
+              "type": "quantitative",
+              "scale": {"domain": [0, 1]},
+              "title": "Frequency"
+            },
+            "color": {"field": "sample", "type": "nominal", "title": "Sample"},
+            "tooltip": [
+              {"field": "haplotype"},
+              {"field": "sample"},
+              {"field": "frequency"}
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "layer": [
+        {
+          "transform": [
+            {"filter": "datum.row_type === 'score_row'"},
+            {
+              "aggregate": [
+                {"op": "max", "field": "frequency", "as": "frequency"}
+              ],
+              "groupby": ["haplotype"]
+            },
+            {
+              "calculate": "replace(replace(datum.haplotype, 'c.[', ''), ']', '')",
+              "as": "haplotype_trimmed"
+            },
+            {
+              "calculate": "datum.haplotype_trimmed === '' ? [''] : split(datum.haplotype_trimmed, ';')",
+              "as": "variants_array"
+            },
+            {"flatten": ["variants_array"], "as": ["variant"]},
+            {"filter": "datum.variant !== ''"},
+            {
+              "calculate": "toNumber(replace(datum.variant, /[^0-9].*$/, ''))",
+              "as": "position"
             }
+          ],
+          "mark": {"type": "rect", "stroke": "white", "strokeWidth": 1},
+          "encoding": {
+            "y": {
+              "field": "haplotype",
+              "type": "ordinal",
+              "axis": {"labels": false, "title": null, "ticks": false},
+              "sort": {"field": "frequency", "order": "descending"}
+            },
+            "x": {
+              "field": "variant",
+              "type": "ordinal",
+              "title": "Variant",
+              "axis": {"labelAngle": -90},
+              "sort": {"field": "position"}
+            },
+            "color": {"value": "#a1a1a1"},
+            "tooltip": [{"field": "variant"}]
+          }
+        },
+        {
+          "transform": [
+            {"filter": "datum.row_type === 'edge_row'"},
+            {"filter": "datum.total_reads > 0"}
+          ],
+          "mark": {"type": "rule", "opacity": 0.8},
+          "encoding": {
+            "x": {
+              "field": "variant_from",
+              "type": "ordinal",
+              "sort": {"field": "from_position"}
+            },
+            "x2": {"field": "variant_to"},
+            "y": {
+              "field": "haplotype",
+              "type": "ordinal",
+              "sort": {"field": "max_frequency", "order": "descending"}
+            },
+            "strokeWidth": {
+              "field": "total_reads",
+              "type": "quantitative",
+              "legend": {"title": "Total supporting reads"}
+            },
+            "color": {"value": "#e45756"},
+            "tooltip": [
+              {"field": "total_reads", "title": "Total reads"},
+              {"field": "reads_tooltip", "title": "Per sample"}
+            ]
+          }
         }
-    ],
-    "resolve": {
-        "scale": {
-            "y": "shared"
-        }
+      ],
+      "resolve": {"scale": {"x": "shared"}}
     }
+  ],
+  "resolve": {"scale": {"y": "shared"}}
 }
