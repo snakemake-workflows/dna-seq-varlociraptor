@@ -290,6 +290,7 @@ views:
           feature:
             display-mode: hidden
           binned max vaf:
+            optional: true
             display-mode: hidden
           swissprot:
             optional: true
@@ -490,6 +491,7 @@ views:
           feature:
             display-mode: hidden
           binned max vaf:
+            optional: true
             display-mode: hidden
           hgvsg:
             optional: true
