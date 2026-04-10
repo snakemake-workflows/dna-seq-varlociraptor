@@ -374,6 +374,17 @@ views:
           population:
             optional: true
             custom: ?make_popover
+          pubmed ids:
+            optional: true
+            display-mode: detail
+            plot:
+              pills:
+                separator: "&"
+                range: ["blue"]
+          varpubs summary:
+            custom: ?read_file(input.summary_formatter)
+            optional: true
+            display-mode: detail
         add-columns:
           build:
             value: ?f"function() {{ return `{params.build}` }}"

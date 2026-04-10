@@ -6,14 +6,14 @@ rule split_call_tables:
     output:
         coding="results/tables/{group}/{group}.{event}.coding.fdr-controlled.tsv",
         noncoding="results/tables/{group}/{group}.{event}.noncoding.fdr-controlled.tsv",
-    params:
-        sorting=lambda wc: config["calling"]["fdr-control"]["events"][wc.event].get(
-            "sort", list()
-        ),
     log:
         "logs/split_tables/{group}.{event}.log",
     conda:
         "../envs/split_call_tables.yaml"
+    params:
+        sorting=lambda wc: config["calling"]["fdr-control"]["events"][wc.event].get(
+            "sort", list()
+        ),
     script:
         "../scripts/split-call-tables.py"
 
@@ -53,11 +53,11 @@ rule prepare_oncoprint:
         ),
     log:
         "logs/prepare_oncoprint/{batch}.{event}.log",
+    conda:
+        "../envs/oncoprint.yaml"
     params:
         groups=get_report_batch("variants"),
         labels=get_heterogeneous_labels(),
-    conda:
-        "../envs/oncoprint.yaml"
     script:
         "../scripts/oncoprint.py"
 
@@ -85,6 +85,9 @@ rule datavzrd_variants_calls:
         gene_oncoprint=get_oncoprint("gene"),
         variant_oncoprints=get_oncoprint("variant"),
         oncoprint_sorted_datasets="results/tables/oncoprints/{batch}.{event}/label_sortings/",
+        summary_formatter=workflow.source_path(
+            "../resources/datavzrd/summary_formatter.js"
+        ),
     output:
         report(
             directory(
@@ -111,7 +114,7 @@ rule datavzrd_variants_calls:
             dpath="calling/fdr-control/events/{event}/desc", within=config
         ),
     wrapper:
-        "v9.2.0/utils/datavzrd"
+        "e726bc9/utils/datavzrd"
 
 
 rule datavzrd_fusion_calls:
@@ -150,7 +153,7 @@ rule datavzrd_fusion_calls:
         species=lookup(within=config, dpath="ref/species"),
         samples=samples,
     wrapper:
-        "v9.2.0/utils/datavzrd"
+        "e726bc9/utils/datavzrd"
 
 
 rule bedtools_merge:
@@ -159,11 +162,11 @@ rule bedtools_merge:
         right="results/regions/{group}.covered_regions.bed",
     output:
         "results/coverage/{group}/{sample}.regions.filtered.bed",
+    log:
+        "logs/bedtools/{group}/{sample}.log",
     params:
         ## Add optional parameters
         extra="-wa",
-    log:
-        "logs/bedtools/{group}/{sample}.log",
     wrapper:
         "v2.6.0/bio/bedtools/intersect"
 
@@ -176,12 +179,12 @@ rule coverage_table:
         ),
     output:
         "results/coverage/{group}.csv",
-    params:
-        min_cov=config["gene_coverage"].get("min_avg_coverage", 0),
-    conda:
-        "../envs/pandas.yaml"
     log:
         "logs/coverage/{group}_coverage_table.log",
+    conda:
+        "../envs/pandas.yaml"
+    params:
+        min_cov=config["gene_coverage"].get("min_avg_coverage", 0),
     script:
         "../scripts/coverage_table.py"
 
