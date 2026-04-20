@@ -1,7 +1,9 @@
+# TODO Support for cram required https://github.com/fulcrumgenomics/fgbio/pull/1121
 rule assign_primers:
     input:
         bam=get_trimming_input,
         primers=get_primer_regions,
+        ref=genome,
     output:
         assigned=temp("results/primers/{sample}.assigned.bam"),
         metric="results/primers/{sample}.metric.bam",
@@ -10,7 +12,7 @@ rule assign_primers:
     log:
         "logs/primers/assignment/{sample}.log",
     shell:
-        "fgbio AssignPrimers -i {input.bam} -p {input.primers} -m {output.metric} -o {output.assigned} &> {log}"
+        "fgbio --cram-ref-fasta {input.ref} AssignPrimers -i {input.bam} -p {input.primers} -m {output.metric} -o {output.assigned} &> {log}"
 
 
 rule filter_primerless_reads:
@@ -26,13 +28,14 @@ rule filter_primerless_reads:
     script:
         "../scripts/filter_primers.rs"
 
-
+# Check if piping works
 rule trim_primers:
     input:
         bam="results/primers/{sample}.primers.bam",
         primers=get_primer_regions,
+        ref=genome,
     output:
-        trimmed=temp("results/trimmed/{sample}.trimmed.bam"),
+        trimmed=temp("results/trimmed/{sample}.trimmed.cram"),
     params:
         sort_order="Coordinate",
         single_primer=get_single_primer_flag,
@@ -41,7 +44,7 @@ rule trim_primers:
     log:
         "logs/trimming/{sample}.log",
     shell:
-        "fgbio TrimPrimers -H -i {input.bam} -p {input.primers} -s {params.sort_order} {params.single_primer} -o {output.trimmed} &> {log}"
+        "fgbio --cram-ref-fasta {input.ref} TrimPrimers -H -i {input.bam} -p {input.primers} -s {params.sort_order} {params.single_primer} -o {output.trimmed} &> {log}"
 
 
 rule map_primers:
@@ -49,7 +52,7 @@ rule map_primers:
         reads=lambda wc: get_panel_primer_input(wc.panel),
         idx=access.random(rules.bwa_index.output),
     output:
-        "results/primers/{panel}_primers.bam",
+        "results/primers/{panel}_primers.cram",
     log:
         "logs/bwa_mem/{panel}.log",
     params:
@@ -64,9 +67,9 @@ rule map_primers:
 
 rule filter_unmapped_primers:
     input:
-        "results/primers/{panel}_primers.bam",
+        "results/primers/{panel}_primers.cram",
     output:
-        "results/primers/{panel}_primers.filtered.bam",
+        "results/primers/{panel}_primers.filtered.cram",
     params:
         extra=get_filter_params,
     log:
@@ -77,7 +80,7 @@ rule filter_unmapped_primers:
 
 rule primer_to_bed:
     input:
-        "results/primers/{panel}_primers.filtered.bam",
+        "results/primers/{panel}_primers.filtered.cram",
     output:
         "results/primers/{panel}_primers.{ext}",
     wildcard_constraints:
