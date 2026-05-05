@@ -10,10 +10,20 @@ units: config/units.tsv
 # group is a patient or individual).
 # The given data will be shown in the header of the reported
 # variant call overview tables.
-# groups: config/groups.tsv
+
+#example working config for hla typing.
+
+groups: config/groups.tsv
 
 # Optional BED file with target regions
 # target_regions: "path/to/taget-regions.bed"
+
+events:
+  __definitions__:
+    - somatic_tumor = "normal:0.0 & tumor:]0.0,1.0]"
+    - somatic_resection = "normal:0.0 & tumor:0.0 & resection:]0.0,1.0]"
+    - germline = "normal:0.5 | normal:1.0"
+    - somatic_normal = "normal:]0.0,0.5["
 
 ref:
   # Number of chromosomes to consider for calling.
@@ -22,7 +32,7 @@ ref:
   # Ensembl species name
   species: homo_sapiens
   # Ensembl release
-  release: 111
+  release: 108
   # Genome build
   build: GRCh38
   pangenome: 
@@ -66,25 +76,24 @@ mutational_burden:
   # considering the sum of the posterior probabilties of the
   # given events.
   events:
-    - somatic_tumor_low
-    - somatic_tumor_medium
-    - somatic_tumor_high
+    - somatic_tumor
 
 # Quantify known mutational signatures (human only)
 mutational_signatures:
   activate: false
   events:
     # select events (callsets, defined under calling/fdr-control/events) to evaluate
-    - some_id
+    - somatic_tumor
 
 
 hla_typing:
-  activate: false
+  activate: true
   loci: 
     - "A"
     - "B"
     - "C"
     - "DQB1"
+  prior: diploid #can only be diploid, diploid-subclonal and uniform
 
 # Sets the minimum average coverage for each gene.
 # Genes with lower average coverage will not be concidered in gene coverage datavzrd report
@@ -96,7 +105,7 @@ gene_coverage:
 report:
   # if stratification is deactivated, one report for all
   # samples will be created.
-  activate: true
+  activate: false
   max_read_depth: 250
   stratify:
     activate: false
@@ -185,9 +194,8 @@ calling:
           # Add varlociraptor events to aggregated over.
           # The probability for the union of these events is used for controlling
           # the FDR.
-          - present
-          - somatic_tumor_high
-          - somatic_tumor_medium
+          - somatic_tumor
+          - somatic_normal
         filter: # myfilter
           # Add any number of filters here.
           # A single filter can be set as string.
@@ -218,8 +226,7 @@ population:
     fdr: 0.05
     # Varlociraptor events to be used.
     events:
-      - somatic_tumor_high
-      - somatic_tumor_medium
+      - somatic_tumor
 
 annotations:
   vcfs:

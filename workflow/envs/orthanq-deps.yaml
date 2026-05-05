@@ -1,0 +1,6 @@
+channels:
+  - conda-forge
+  - bioconda
+dependencies:
+  - samtools >=1.23
+  - minimap2 >=2.30

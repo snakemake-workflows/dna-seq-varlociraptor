@@ -2,3 +2,4 @@ channels:
   - conda-forge
 dependencies:
   - vega-lite-cli =5.16
+  - vl-convert =1.2.0

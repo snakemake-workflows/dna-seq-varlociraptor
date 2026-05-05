@@ -155,6 +155,41 @@ def get_heterogeneous_labels():
 
 
 def get_final_output(wildcards):
+
+    final_output = []
+    
+    if is_activated("hla_typing"):
+        loci = [f"orthanq-{locus}" for locus in config["hla_typing"].get("loci", [])]
+
+        for group in samples["group"].unique():
+            aliases = get_group_aliases(group)
+
+            for alias in aliases:
+                # prior = "diploid" if alias == "normal" else "diploid-subclonal" #todo: reactivate once the diploid-subclonal is ready.
+                prior = "diploid"
+
+                final_output.extend(
+                    expand(
+                        [
+                            "results/hla-typing/{group}-{locus}/{alias}/{prior}/predictions.csv",
+                            "results/hla-typing/{group}-{locus}/{alias}/{prior}/3_field_solutions.html",
+                            "results/hla-typing/{group}-{locus}/{alias}/{prior}/3_field_solutions.svg",
+                            "results/hla-typing/{group}-{locus}/{alias}/{prior}/2_field_solutions.html",
+                            "results/hla-typing/{group}-{locus}/{alias}/{prior}/2_field_solutions.svg",
+                            "results/hla-typing/{group}-{locus}/{alias}/{prior}/arrow_plot.html",
+                            "results/hla-typing/{group}-{locus}/{alias}/{prior}/arrow_plot.svg",
+                            "results/hla-typing/{group}-{locus}/{alias}/{prior}/best_solution.html",
+                            "results/hla-typing/{group}-{locus}/{alias}/{prior}/best_solution.svg",
+                        ],
+                        alias=alias,
+                        group=group,
+                        locus=loci,
+                        prior=prior,
+                    )
+                )
+
+    return final_output
+
     final_output = expand(
         "results/qc/multiqc/{group}.html",
         group=groups,
@@ -166,18 +201,6 @@ def get_final_output(wildcards):
             group=groups,
         )
     )
-
-    if is_activated("hla_typing"):
-        loci = [f"orthanq-{locus}" for locus in config["hla_typing"].get("loci", [])]
-        for group in samples["group"].unique():
-            final_output.extend(
-                expand(
-                    "results/hla-typing/{group}-{locus}/{alias}/",
-                    alias=get_group_aliases(group),
-                    group=group,
-                    locus=loci,
-                )
-            )
 
     for calling_type in calling_types:
         if config["report"]["activate"]:
@@ -1686,3 +1709,20 @@ def get_pangenome_url(datatype):
             "Unsupported pangenome source. Only 'hprc' is currently supported."
         )
     return f"https://s3-us-west-2.amazonaws.com/human-pangenomics/pangenomes/freeze/freeze1/minigraph-cactus/hprc-{version}-mc-{build}/hprc-{version}-mc-{build}.{datatype}"
+
+def get_events(wildcards):
+    group_samples = samples[samples["group"] == wildcards.group]
+
+    has_biopsy = "tumor_biopsy" in group_samples["alias"].values
+
+    if wildcards.alias == "normal":
+        return "germline somatic_normal"
+
+    elif wildcards.alias == "tumor_biopsy":
+        return "somatic_tumor germline somatic_normal"
+
+    elif wildcards.alias == "tumor_resection":
+        if has_biopsy:
+            return "somatic_resection somatic_tumor germline somatic_normal"
+        else:
+            return "somatic_resection germline somatic_normal"

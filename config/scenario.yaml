@@ -8,27 +8,73 @@
 # In addition, a variable `group_annotation` is available, which holds the row of the group
 # from the group annotation table (if specified in the config) as a pandas Series.
 
+#example working config for hla typing.
+
 __definitions__:
-  - samples = params.samples.set_index("alias")
+  - samples = params.samples
   - |
-    def contamination():
-      return 1.0 - float(samples.loc["tumor", "purity"])
+    def contamination(alias):
+      return 1.0 - samples.loc[samples["alias"] == alias, "purity"].squeeze()
+  - sex = params.annotation["sex"]
+  - has_biopsy = (samples["alias"] == "tumor_biopsy").any()
+  - resection_aliases = samples.loc[samples["alias"].str.startswith("tumor_resection"), "alias"]
+  - n_resection_aliases = len(resection_aliases)
+
+species:
+  heterozygosity: 0.001
+  ploidy:
+    male:
+      all: 2
+      X: 1
+      Y: 1
+    female:
+      all: 2
+      X: 2
+      Y: 0
 
 samples:
-  tumor:
-    resolution: 0.01
-    universe: "[0.0,1.0]"
-    contamination:
-      by: normal
-      fraction: ?contamination()
   normal:
     resolution: 0.1
-    universe: "0.0 | 0.5 | 1.0 | ]0.0,0.5["
+    sex: ?sex
+    somatic-effective-mutation-rate: 1e-6
+  ?for ralias in resection_aliases:
+    ?ralias:
+      resolution: 0.01
+      sex: ?sex
+      somatic-effective-mutation-rate: 1e-6
+      inheritance:
+        ?if has_biopsy:
+          subclonal:
+            from: tumor_biopsy
+        ?else:
+          clonal:
+            from: normal
+            somatic: true
+      ?if contamination(ralias) > 0.0:
+        contamination:
+          by: normal
+          fraction: ?float(contamination(ralias))
+  ?if has_biopsy:
+    tumor_biopsy:
+      resolution: 0.01
+      sex: ?sex
+      somatic-effective-mutation-rate: 1e-6
+      inheritance:
+        clonal:
+          from: normal
+          somatic: true
+      ?if contamination("tumor_biopsy") > 0.0:
+        contamination:
+          by: normal
+          fraction: ?float(contamination('tumor_biopsy'))
 
 events:
-  somatic_tumor_low: "tumor:]0.0,0.1[ & normal:0.0"
-  somatic_tumor_medium: "tumor:[0.1,0.3[ & normal:0.0"
-  somatic_tumor_high: "tumor:[0.3,1.0] & normal:0.0"
+  ?if n_resection_aliases > 0 and has_biopsy:
+    somatic_tumor: "normal:0.0 & tumor_biopsy:]0.0,1.0]"
+    somatic_resection: "normal:0.0 & tumor_biopsy:0.0 & tumor_resection:]0.0,1.0]"
+  ?elif n_resection_aliases > 0:
+    somatic_resection: "normal:0.0 & tumor_resection:]0.0,1.0]"
+  ?elif has_biopsy:
+    somatic_tumor: "normal:0.0 & tumor_biopsy:]0.0,1.0]"
+  germline: "normal:0.5 | normal:1.0"
   somatic_normal: "normal:]0.0,0.5["
-  germline_hom: "normal:1.0"
-  germline_het: "normal:0.5"

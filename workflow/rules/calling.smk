@@ -59,7 +59,7 @@ rule varlociraptor_preprocess:
     conda:
         "../envs/varlociraptor.yaml"
     shell:
-        "varlociraptor preprocess variants --candidates {input.candidates} {params.extra} "
+        "varlociraptor preprocess variants --omit-mapq-adjustment --candidates {input.candidates} {params.extra} "
         "--alignment-properties {input.alignment_props} {input.ref} --bam {input.bam} --output {output} "
         "2> {log}"
 
