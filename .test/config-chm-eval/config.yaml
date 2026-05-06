@@ -43,6 +43,10 @@ varpubs:
   model: mistral:latest
   api_key: ""
   mail: "some_email@example.com"
+  judges:
+    - therapy related
+    - oncogenicity
+    - phenotypic effect
 
 calling:
   delly:
