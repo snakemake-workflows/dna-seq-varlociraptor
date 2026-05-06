@@ -2,4 +2,4 @@ channels:
   - conda-forge
   - bioconda
 dependencies:
-  - varpubs >=1.0,<2.0
+  - varpubs >=1.1,<2.0
