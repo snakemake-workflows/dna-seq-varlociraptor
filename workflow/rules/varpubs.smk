@@ -32,9 +32,10 @@ rule varpubs_summarize_variants:
         llm_url=lookup(dpath="varpubs/llm_url", within=config),
         model=lookup(dpath="varpubs/model", within=config),
         api_key=lookup(dpath="varpubs/api_key", within=config),
+        judges==lookup(dpath="varpubs/judges", within=config),
         cache=lambda wc, input: f"--cache {input.cache}" if input.cache else "",
     shell:
-        "varpubs -v summarize-variants --db_path {input.db_path} --vcf_path {input.bcf} --llm_url {params.llm_url} --model {params.model} --api_key '{params.api_key}' --judges 'therapy related' {params.cache} --output {output.summaries} --output_cache {output.cache} &> {log}"
+        "varpubs -v summarize-variants --db_path {input.db_path} --vcf_path {input.bcf} --llm_url {params.llm_url} --model {params.model} --api_key '{params.api_key}' --judges {params.judges} {params.cache} --output {output.summaries} --output_cache {output.cache} &> {log}"
 
 
 rule merge_caches:
