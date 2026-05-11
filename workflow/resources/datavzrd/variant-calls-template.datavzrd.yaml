@@ -124,7 +124,8 @@ views:
                     heatmap:
                       scale: ordinal
                       color-scheme: category20
-                      legend: true
+                      legend:
+                        title: ?f"{annotation}"
           columns:
             symbol:
               link-to-url:
@@ -338,7 +339,7 @@ views:
               optional: true
               custom: |
                 function link_obs(value, row) {
-                  const base = "http://localhost:8501/";
+                  const base = "https://varlociraptor.github.io/varlociraptor-inspect/";
                   const params = new URLSearchParams();
                   params.append(`OBS_${alias}`, value);
                   Object.keys(row).forEach(key => {
@@ -526,7 +527,7 @@ views:
               optional: true
               custom: |
                 function link_obs(value, row) {
-                  const base = "http://localhost:8501/";
+                  const base = "https://varlociraptor.github.io/varlociraptor-inspect/";
                   const params = new URLSearchParams();
                   params.append(`OBS_${alias}`, value);
                   Object.keys(row).forEach(key => {
