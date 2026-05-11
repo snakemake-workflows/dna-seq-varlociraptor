@@ -119,10 +119,12 @@ views:
               ?for i, annotation in enumerate(labels):
                 ?i + 1:
                   label: ?annotation
+                  ellipsis: 0
                   plot:
                     heatmap:
                       scale: ordinal
                       color-scheme: category20
+                      legend: true
           columns:
             symbol:
               link-to-url:
@@ -331,18 +333,22 @@ views:
               with:
                 true_value: "True"
                 false_value: "False"
-          ?for alias in params.samples.loc[params.samples["group"] == group, "alias"]:
-            '?f"{alias}: short observations"':
-              optional: true
-              custom-plot:
-                data: ?read_file(input.data_short_observations)
-                spec: ?read_file(input.spec_short_observations)
-              display-mode: detail
+            ?for alias in params.samples.loc[params.samples["group"] == group, "alias"]:
             '?f"{alias}: observations"':
               optional: true
-              custom-plot:
-                data: ?read_file(input.data_observations)
-                spec: ?read_file(input.spec_observations)
+              custom: |
+                function link_obs(value, row) {
+                  const base = "http://localhost:8501/";
+                  const params = new URLSearchParams();
+                  params.append(`OBS_${alias}`, value);
+                  Object.keys(row).forEach(key => {
+                    if (key.startsWith("prob: ")) {
+                      const event = "PROB_" + key.replace("prob: ", "").toUpperCase();
+                      params.append(event, row[key]);
+                    }
+                  });
+                  return `<a href="${base}?${params}" target="_blank">${value}</a>`;
+                }
               display-mode: detail
           spliceai:
             optional: true
@@ -516,17 +522,21 @@ views:
                 true_value: "True"
                 false_value: "False"
           ?for alias in params.samples.loc[params.samples["group"] == group, "alias"]:
-            '?f"{alias}: short observations"':
-              optional: true
-              custom-plot:
-                data: ?read_file(input.data_short_observations)
-                spec: ?read_file(input.spec_short_observations)
-              display-mode: detail
             '?f"{alias}: observations"':
               optional: true
-              custom-plot:
-                data: ?read_file(input.data_observations)
-                spec: ?read_file(input.spec_observations)
+              custom: |
+                function link_obs(value, row) {
+                  const base = "http://localhost:8501/";
+                  const params = new URLSearchParams();
+                  params.append(`OBS_${alias}`, value);
+                  Object.keys(row).forEach(key => {
+                    if (key.startsWith("prob: ")) {
+                      const event = "PROB_" + key.replace("prob: ", "").toUpperCase();
+                      params.append(event, row[key]);
+                    }
+                  });
+                  return `<a href="${base}?${params}" target="_blank">${value}</a>`;
+                }
               display-mode: detail
           spliceai:
             optional: true
