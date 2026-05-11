@@ -56,6 +56,22 @@ __definitions__:
         return `<span data-toggle="popover" data-content="${{value}}">${{len}}</span>`;
       }}
     """
+  - |
+    def make_inspect_link(alias):
+        return f"""
+          function link_obs(value, row) {{
+            const base = "https://varlociraptor.github.io/varlociraptor-inspect/";
+            const params = new URLSearchParams();
+            params.append(`OBS_{alias}`, value);
+            Object.keys(row).forEach(key => {{
+              if (key.startsWith("prob: ")) {{
+                const event = "PROB_" + key.replace("prob: ", "").toUpperCase();
+                params.append(event, row[key]);
+              }}
+            }});
+            return `<a href="${{base}}?${{params}}" target="_blank">${{value}}</a>`;
+          }}
+        """
 
 datasets:
   ?if input.variant_oncoprints:
@@ -334,22 +350,10 @@ views:
               with:
                 true_value: "True"
                 false_value: "False"
-            ?for alias in params.samples.loc[params.samples["group"] == group, "alias"]:
+          ?for alias in params.samples.loc[params.samples["group"] == group, "alias"]:
             '?f"{alias}: observations"':
               optional: true
-              custom: |
-                function link_obs(value, row) {
-                  const base = "https://varlociraptor.github.io/varlociraptor-inspect/";
-                  const params = new URLSearchParams();
-                  params.append(`OBS_${alias}`, value);
-                  Object.keys(row).forEach(key => {
-                    if (key.startsWith("prob: ")) {
-                      const event = "PROB_" + key.replace("prob: ", "").toUpperCase();
-                      params.append(event, row[key]);
-                    }
-                  });
-                  return `<a href="${base}?${params}" target="_blank">${value}</a>`;
-                }
+              custom: ?make_inspect_link(alias)
               display-mode: detail
           spliceai:
             optional: true
@@ -525,19 +529,7 @@ views:
           ?for alias in params.samples.loc[params.samples["group"] == group, "alias"]:
             '?f"{alias}: observations"':
               optional: true
-              custom: |
-                function link_obs(value, row) {
-                  const base = "https://varlociraptor.github.io/varlociraptor-inspect/";
-                  const params = new URLSearchParams();
-                  params.append(`OBS_${alias}`, value);
-                  Object.keys(row).forEach(key => {
-                    if (key.startsWith("prob: ")) {
-                      const event = "PROB_" + key.replace("prob: ", "").toUpperCase();
-                      params.append(event, row[key]);
-                    }
-                  });
-                  return `<a href="${base}?${params}" target="_blank">${value}</a>`;
-                }
+              custom: ?make_inspect_link(alias)
               display-mode: detail
           spliceai:
             optional: true
