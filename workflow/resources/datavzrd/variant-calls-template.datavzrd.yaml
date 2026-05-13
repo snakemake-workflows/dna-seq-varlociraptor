@@ -530,7 +530,7 @@ views:
             '?f"{alias}: observations"':
               optional: true
               custom: ?make_inspect_link(alias)
-              display-mode: detail
+              display-mode: normal
           spliceai:
             optional: true
             plot:
