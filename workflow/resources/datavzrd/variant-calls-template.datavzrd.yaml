@@ -69,7 +69,7 @@ __definitions__:
                 params.append(event, row[key]);
               }}
             }});
-            return `<a href="${{base}}?${{params}}" target="_blank">${{value}}</a>`;
+            return `<a href="${{base}}?${{params}}" target="_blank">varlociraptor-inspect</a>`;
           }}
         """
 
