@@ -1223,6 +1223,7 @@ def get_format_fields_for_tables(wildcards):
         format_fields.extend(
             [
                 "OBS",
+                "AFD",
             ]
         )
 
@@ -1272,6 +1273,7 @@ def get_vembrane_config(wildcards, input):
     # FORMAT fields
     format_fields_names = {
         "AF": "allele frequency",
+        "AFD": "allele frequency distribution",
         "DP": "read depth",
         "SROBS": "short ref observations",
         "SAOBS": "short alt observations",

@@ -63,6 +63,10 @@ __definitions__:
             const base = "https://varlociraptor.github.io/varlociraptor-inspect/";
             const params = new URLSearchParams();
             params.append(`OBS_{alias}`, value);
+            const afdKey = `{alias}: allele frequency distribution`;
+            if (row[afdKey] !== undefined) {{
+              params.append(`AFD_{alias}`, row[afdKey]);
+            }}
             Object.keys(row).forEach(key => {{
               if (key.startsWith("prob: ")) {{
                 const event = "PROB_" + key.replace("prob: ", "").toUpperCase();
