@@ -1206,7 +1206,7 @@ def get_info_fusion_fields_for_tables(wildcards):
             "GENE_ID",
             "EXON_NUMBER",
         ]
-    else:
+    else
         return []
 
 
@@ -1413,6 +1413,8 @@ def get_vembrane_config(wildcards, input):
         # MAIN column for fusions & variants
         # gets moved ahead of consequence column for variants
         "FORMAT['AF']",
+        # MAIN column for fusions, COLLAPSED column for variants
+        "FORMAT['AFD']",
         # MAIN column for fusions, COLLAPSED column for variants
         "FORMAT['DP']",
         # COLLAPSED columns
