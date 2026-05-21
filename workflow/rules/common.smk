@@ -1211,7 +1211,7 @@ def get_info_fusion_fields_for_tables(wildcards):
 
 
 def get_format_fields_for_tables(wildcards):
-    format_fields = ["AF", "DP"]
+    format_fields = ["AF", "AFD", "DP"]
 
     if (
         lookup(dpath="tables/output/short_observations", within=config, default=False)
