@@ -1206,7 +1206,7 @@ def get_info_fusion_fields_for_tables(wildcards):
             "GENE_ID",
             "EXON_NUMBER",
         ]
-    else
+    else:
         return []
 
 
