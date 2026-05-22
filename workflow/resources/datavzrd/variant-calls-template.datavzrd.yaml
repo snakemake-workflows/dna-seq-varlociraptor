@@ -264,7 +264,7 @@ views:
                 range:
                   - white
                   - "#ff5555"
-          "regex('.+: allele frequency')":
+          "regex('.+: allele frequency$')":
             plot:
               ticks:
                 scale: "linear"
@@ -445,7 +445,7 @@ views:
                   - "#ec5300"
                   - "#ec9b00"
                   - "#ecca00"
-          "regex('.+: allele frequency')":
+          "regex('.+: allele frequency$')":
             plot:
               ticks:
                 scale: "linear"
