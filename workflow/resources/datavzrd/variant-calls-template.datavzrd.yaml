@@ -73,7 +73,9 @@ __definitions__:
             Object.keys(row).forEach(key => {{
               if (key.startsWith("prob: ")) {{
                 const event = "PROB_" + key.replace("prob: ", "").toUpperCase();
-                params.append(event, row[key]);
+                const prob = parseFloat(row[key]);
+                const phred = prob <= 0 ? Infinity : -10 * Math.log10(prob);
+                params.append(event, phred);
               }}
             }});
             return `<a href="${{base}}?${{params}}" target="_blank">varlociraptor-inspect</a>`;
