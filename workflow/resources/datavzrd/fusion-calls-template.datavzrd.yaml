@@ -17,8 +17,11 @@ __definitions__:
             const params = new URLSearchParams();
             params.append(`OBS_{alias}`, value);
             const afdKey = `{alias}: allele frequency distribution`;
-            if (row[afdKey] !== undefined) {{
-              params.append(`AFD_{alias}`, row[afdKey]);
+            if (row[afdKey] !== undefined && row[afdKey] !== null && row[afdKey] !== "") {{
+              const afdValue = row[afdKey].replace(/^\(|\)$/g, '').replace(/'/g, '').replace(/,\s+/g, ',');
+              if (afdValue && afdValue !== ".") {{
+                params.append(`AFD_{alias}`, afdValue);
+              }}
             }}
             Object.keys(row).forEach(key => {{
               if (key.startsWith("prob: ")) {{
