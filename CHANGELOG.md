@@ -1,5 +1,23 @@
 # Changelog
 
+## [6.7.0](https://github.com/snakemake-workflows/dna-seq-varlociraptor/compare/v6.6.1...v6.7.0) (2026-05-25)
+
+
+### Features
+
+* add varlociraptor-inspect linkout and ellipsis to oncoprint headers ([#445](https://github.com/snakemake-workflows/dna-seq-varlociraptor/issues/445)) ([8ebd5b5](https://github.com/snakemake-workflows/dna-seq-varlociraptor/commit/8ebd5b5e80e6854946240aa56b0676a20421196f))
+
+
+### Bug Fixes
+
+* Add optional field to variant calls template ([#444](https://github.com/snakemake-workflows/dna-seq-varlociraptor/issues/444)) ([419a6a7](https://github.com/snakemake-workflows/dna-seq-varlociraptor/commit/419a6a75eb72e621ee7b693798cdd4b0c90e9ef1))
+* update JSON schemas to 2020-12 ([#438](https://github.com/snakemake-workflows/dna-seq-varlociraptor/issues/438)) ([85ca86e](https://github.com/snakemake-workflows/dna-seq-varlociraptor/commit/85ca86e64d0e1451542b43abae13ba64ad55ba1e))
+
+
+### Performance Improvements
+
+* reasonable maximum for freebayes cores ([#439](https://github.com/snakemake-workflows/dna-seq-varlociraptor/issues/439)) ([b275fef](https://github.com/snakemake-workflows/dna-seq-varlociraptor/commit/b275fefcb4c6c388e1cc12bda036a650d94c9be9))
+
 ## [6.6.1](https://github.com/snakemake-workflows/dna-seq-varlociraptor/compare/v6.6.0...v6.6.1) (2026-03-18)
 
 
