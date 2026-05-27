@@ -1560,7 +1560,7 @@ def get_annotate_umis_params(wildcards):
         read=translate_param[
             extract_unique_sample_column_value(wildcards.sample, "umi_read")
         ],
-        umi_len=str(extract_unique_sample_column_value(wildcards.sample, "umi_len")),
+        umi_len=int(extract_unique_sample_column_value(wildcards.sample, "umi_len")),
     )
 
 
