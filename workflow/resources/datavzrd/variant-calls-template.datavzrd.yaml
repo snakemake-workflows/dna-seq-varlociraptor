@@ -56,6 +56,47 @@ __definitions__:
         return `<span data-toggle="popover" data-content="${{value}}">${{len}}</span>`;
       }}
     """
+  - |
+    def make_inspect_link(alias):
+        return f"""
+          function link_obs(value, row) {{
+            const base = "https://varlociraptor.github.io/varlociraptor-inspect/";
+            const params = new URLSearchParams();
+            params.append(`OBS_{alias}`, value);
+            const afdKey = `{alias}: allele frequency distribution`;
+            if (row[afdKey] !== undefined && row[afdKey] !== null && row[afdKey] !== "") {{
+              const afdValue = row[afdKey].replace(/^\(|\)$/g, '').replace(/'/g, '').replace(/,\s+/g, ',');
+              if (afdValue && afdValue !== ".") {{
+                params.append(`AFD_{alias}`, afdValue);
+              }}
+            }}
+            Object.keys(row).forEach(key => {{
+              if (key.startsWith("prob: ")) {{
+                const event = "PROB_" + key.replace("prob: ", "").toUpperCase();
+                const prob = parseFloat(row[key]);
+                const phred = prob <= 0 ? Infinity : -10 * Math.log10(prob);
+                params.append(event, phred);
+              }}
+            }});
+            return `
+              <a
+                href="${{base}}?${{params}}"
+                target="_blank"
+                class="btn btn-sm btn-outline-secondary py-0 px-1"
+                title="Open in varlociraptor-inspect"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg"
+                     width="14"
+                     height="14"
+                     fill="currentColor"
+                     class="bi bi-bar-chart-fill"
+                     viewBox="0 0 16 16">
+                  <path d="M1 11a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v3a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1zm5-4a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v7a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1zm5-5a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1h-2a1 1 0 0 1-1-1z"/>
+                </svg>
+              </a>
+            `;
+          }}
+        """
 
 datasets:
   ?if input.variant_oncoprints:
@@ -119,10 +160,13 @@ views:
               ?for i, annotation in enumerate(labels):
                 ?i + 1:
                   label: ?annotation
+                  ellipsis: 0
                   plot:
                     heatmap:
                       scale: ordinal
                       color-scheme: category20
+                      legend:
+                        title: ?f"{annotation}"
           columns:
             symbol:
               link-to-url:
@@ -238,7 +282,7 @@ views:
                 range:
                   - white
                   - "#ff5555"
-          "regex('.+: allele frequency')":
+          "regex('.+: allele frequency$')":
             plot:
               ticks:
                 scale: "linear"
@@ -253,6 +297,8 @@ views:
                   - "#ff7f0e"
                   - "#a8d2f0"
                   - "#1f77b4"
+          "regex('.+: allele frequency distribution')":
+            display-mode: hidden
           "regex('.+: read depth')":
             plot:
               ticks:
@@ -332,18 +378,10 @@ views:
                 true_value: "True"
                 false_value: "False"
           ?for alias in params.samples.loc[params.samples["group"] == group, "alias"]:
-            '?f"{alias}: short observations"':
-              optional: true
-              custom-plot:
-                data: ?read_file(input.data_short_observations)
-                spec: ?read_file(input.spec_short_observations)
-              display-mode: detail
             '?f"{alias}: observations"':
               optional: true
-              custom-plot:
-                data: ?read_file(input.data_observations)
-                spec: ?read_file(input.spec_observations)
-              display-mode: detail
+              custom: ?make_inspect_link(alias)
+              display-mode: normal
           spliceai:
             optional: true
             plot:
@@ -436,7 +474,7 @@ views:
                   - "#ec5300"
                   - "#ec9b00"
                   - "#ecca00"
-          "regex('.+: allele frequency')":
+          "regex('.+: allele frequency$')":
             plot:
               ticks:
                 scale: "linear"
@@ -527,18 +565,10 @@ views:
                 true_value: "True"
                 false_value: "False"
           ?for alias in params.samples.loc[params.samples["group"] == group, "alias"]:
-            '?f"{alias}: short observations"':
-              optional: true
-              custom-plot:
-                data: ?read_file(input.data_short_observations)
-                spec: ?read_file(input.spec_short_observations)
-              display-mode: detail
             '?f"{alias}: observations"':
               optional: true
-              custom-plot:
-                data: ?read_file(input.data_observations)
-                spec: ?read_file(input.spec_observations)
-              display-mode: detail
+              custom: ?make_inspect_link(alias)
+              display-mode: normal
           spliceai:
             optional: true
             plot:
