@@ -17,7 +17,7 @@ rule count_sample_kmers:
     input:
         reads=get_map_reads_input,
     output:
-        "results/kmers/{sample}.kff",
+        temp("results/kmers/{sample}.kff"),
     params:
         out_file=lambda wc, output: os.path.splitext(output[0])[0],
         mem=lambda wc, resources: resources.mem[:-2],
@@ -38,7 +38,7 @@ rule count_sample_kmers:
 
 rule create_reference_paths:
     output:
-        "resources/reference_paths.txt",
+        temp("resources/reference_paths.txt"),
     params:
         build=config["ref"]["build"],
     log:
@@ -254,7 +254,7 @@ rule splitncigarreads:
         ),
         ref=genome,
     output:
-        "results/split/{sample}.bam",
+        temp("results/split/{sample}.bam"),
     log:
         "logs/gatk/splitNCIGARreads/{sample}.log",
     params:
