@@ -1216,7 +1216,7 @@ def get_info_fusion_fields_for_tables(wildcards):
 
 
 def get_format_fields_for_tables(wildcards):
-    format_fields = ["AF", "DP"]
+    format_fields = ["AF", "AFD", "DP"]
 
     if (
         lookup(dpath="tables/output/short_observations", within=config, default=False)
@@ -1228,6 +1228,7 @@ def get_format_fields_for_tables(wildcards):
         format_fields.extend(
             [
                 "OBS",
+                "AFD",
             ]
         )
 
@@ -1277,6 +1278,7 @@ def get_vembrane_config(wildcards, input):
     # FORMAT fields
     format_fields_names = {
         "AF": "allele frequency",
+        "AFD": "allele frequency distribution",
         "DP": "read depth",
         "SROBS": "short ref observations",
         "SAOBS": "short alt observations",
@@ -1416,6 +1418,8 @@ def get_vembrane_config(wildcards, input):
         # MAIN column for fusions & variants
         # gets moved ahead of consequence column for variants
         "FORMAT['AF']",
+        # MAIN column for fusions, COLLAPSED column for variants
+        "FORMAT['AFD']",
         # MAIN column for fusions, COLLAPSED column for variants
         "FORMAT['DP']",
         # COLLAPSED columns
