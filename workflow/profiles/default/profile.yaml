@@ -1,0 +1,5 @@
+resources:
+  varpubs: 1
+
+consider-ancient:
+  varpubs_summarize_variants: cache
