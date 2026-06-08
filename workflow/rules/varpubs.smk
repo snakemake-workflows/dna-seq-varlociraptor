@@ -17,7 +17,7 @@ rule varpubs_summarize_variants:
     input:
         bcf="results/final-calls/{group}/{group}.{event}.variants.fdr-controlled.normal-probs.bcf",
         db_path="results/varpubs/{group}/{group}.{event}.duckdb",
-        cache=get_unchanged_varpubs_cache(),
+        cache=ancient(get_unchanged_varpubs_cache()),
     output:
         summaries="results/varpubs/{group}/{group}.{event}.bcf",
         cache="results/varpubs/caches/{group}/{group}.{event}.duckdb",

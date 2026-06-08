@@ -2,7 +2,7 @@ if is_activated("population/db"):
 
     rule clean_population_db:
         input:
-            get_population_db(use_before_update=True),
+            ancient(get_population_db(use_before_update=True)),
         output:
             temp("results/population_db.cleaned.bcf"),
         conda:
