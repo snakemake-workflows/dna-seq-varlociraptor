@@ -382,6 +382,9 @@ views:
               optional: true
               custom: ?make_inspect_link(alias)
               display-mode: normal
+            '?f"{alias}: short observations"':
+              optional: true
+              display-mode: hidden
           spliceai:
             optional: true
             plot:
@@ -489,6 +492,8 @@ views:
                   - "#ff7f0e"
                   - "#a8d2f0"
                   - "#1f77b4"
+          "regex('.+: allele frequency distribution')":
+            display-mode: hidden
           "regex('.+: read depth')":
             plot:
               ticks:
@@ -569,6 +574,9 @@ views:
               optional: true
               custom: ?make_inspect_link(alias)
               display-mode: normal
+            '?f"{alias}: short observations"':
+              optional: true
+              display-mode: hidden
           spliceai:
             optional: true
             plot:
