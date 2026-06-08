@@ -1,5 +1,17 @@
 # Changelog
 
+## [6.8.0](https://github.com/snakemake-workflows/dna-seq-varlociraptor/compare/v6.7.0...v6.8.0) (2026-06-08)
+
+
+### Features
+
+* add GeneBe and Decipher Genomics links ([#446](https://github.com/snakemake-workflows/dna-seq-varlociraptor/issues/446)) ([0e2ae3d](https://github.com/snakemake-workflows/dna-seq-varlociraptor/commit/0e2ae3d23977c51fef46d8de8ac16fd7f641b30d))
+
+
+### Bug Fixes
+
+* Fix datavzrd config for non-coding variants view and hide short observations ([#450](https://github.com/snakemake-workflows/dna-seq-varlociraptor/issues/450)) ([b038d37](https://github.com/snakemake-workflows/dna-seq-varlociraptor/commit/b038d37d0a603de325e3146ca6536fd362af11a0))
+
 ## [6.7.0](https://github.com/snakemake-workflows/dna-seq-varlociraptor/compare/v6.6.1...v6.7.0) (2026-05-25)
 
 
