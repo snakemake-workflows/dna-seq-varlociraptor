@@ -50,7 +50,7 @@ function hgvsc_dropdown(value, row) {
       return ``
     }
 
-    function decipther_genomics_link(row) {
+    function decipher_genomics_link(row) {
         gene = row.gene;
         return `https://www.deciphergenomics.org/gene/${gene}/overview/management-therapies/therapies`
     }
@@ -91,8 +91,8 @@ function hgvsc_dropdown(value, row) {
       links = `${links}<a class="dropdown-item" href='${genebe_viewer_url}' target='_blank' rel='noopener noreferrer' >GeneBe Viewer</a>`
   }
 
-  let decipther_genomics_url = decipther_genomics_link(row);
-  links = `${links}<a class="dropdown-item" href='${decipther_genomics_url}' target='_blank' rel='noopener noreferrer' >Decipher Genomics</a>`
+  let decipher_genomics_url = decipher_genomics_link(row);
+  links = `${links}<a class="dropdown-item" href='${decipher_genomics_url}' target='_blank' rel='noopener noreferrer' >Decipher Genomics</a>`
 
   let varsome_url = varsome_link(row);
   if (varsome_url != "") {
