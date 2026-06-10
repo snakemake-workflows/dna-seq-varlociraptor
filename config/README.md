@@ -32,6 +32,15 @@ Automatic adapter trimming can be enabled by setting the keyword `auto_trim` (Pl
 
 Missing values can be specified by empty columns or by writing `NA`. Lines can be commented out with `#`.
 
+# Group sheet
+
+Optionally, a group sheet (`config/groups.tsv`) can be specified.
+In the group sheet, there has to be a column "group", with one entry for each group occurring in the sample sheet above.
+Any additional columns may be added to provide metadata for groups (e.g. if each group is a patient or individual).
+The given data will be shown in the header of the reported variant call overview tables.
+Moreover, it is possible to specify a scenario template for any group via the column `scenario`.
+This template will override the global template given in the config file (default location `config/scenario.yaml`).
+
 # Calling scenario
 
 Varlociraptor supports integrated uncertainty aware calling and filtering of variants for arbitrary scenarios. These are defined as so-called scenarios, via a [variant calling grammar](https://varlociraptor.github.io/docs/calling#generic-variant-calling).

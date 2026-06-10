@@ -1,9 +1,10 @@
-import io
-
-
 rule render_scenario:
     input:
-        template=local(config["calling"]["scenario"]),
+        template=local(
+            lookup(
+                query="group == '{group}'", within=group_annotation, cols="scenario"
+            )
+        ),
     output:
         report(
             "results/scenarios/{group}.yaml",
