@@ -9,6 +9,7 @@ import pandas as pd
 import numpy as np
 
 from sklearn.feature_selection import chi2
+from statsmodels.stats.nonparametric import rank_compare_2indep
 from statsmodels.stats.multitest import fdrcorrection
 
 
@@ -162,11 +163,31 @@ def sort_oncoprint_labels(data):
             # target vector: label values, converted into factors
             target_vector = labels_df.loc[label]
             # ignore any NA in the target vector and correspondingly remove the rows in the feature matrix
-            not_na_target_vector = target_vector[~pd.isna(target_vector)].astype("category")
+            not_na_target_vector = target_vector[~pd.isna(target_vector)]
+            
+            target_is_numeric = pd.api.types.is_numeric_dtype(not_na_target_vector)
+            if target_is_numeric:
+                not_na_target_vector = not_na_target_vector.astype(float)
+            else:
+                not_na_target_vector = not_na_target_vector.astype("category")
             feature_matrix = feature_matrix.loc[not_na_target_vector.index]
 
-            # calculate mutual information for 100 times and take the mean for each feature
-            _, pvals = chi2(feature_matrix, not_na_target_vector)
+            if target_is_numeric:
+                # partition target vector by each row of the (binary) feature_matrix
+                # perform Brunner-Munzel test for each feature row and collect p-values
+
+                def test_independence(feature_matrix_row):
+                    group1 = not_na_target_vector[feature_matrix_row]
+                    group2 = not_na_target_vector[~feature_matrix_row]
+                    if len(group1) > 0 and len(group2) > 0:
+                        pval = rank_compare_2indep(group1, group2, use_t=False).pvalue
+                    else:
+                        pval = 1.0  # if one of the groups is empty, we cannot perform the test, so we assign a non-significant p-value
+                    return pval
+
+                pvals = feature_matrix.apply(test_independence, axis="columns")
+            else:
+                _, pvals = chi2(feature_matrix, not_na_target_vector)
             sorted_idx = np.argsort(pvals)
 
             _, fdr = fdrcorrection(pvals)
