@@ -26,7 +26,7 @@ rule bam_index:
     input:
         "{prefix}.bam",
     output:
-        "{prefix}.bai",
+        temp("{prefix}.bai"),
     log:
         "logs/bam-index/{prefix}.log",
     wrapper:

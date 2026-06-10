@@ -134,7 +134,7 @@ rule bedtools_merge:
         left="results/regions/{group}/{sample}.regions.bed.gz",
         right="results/regions/{group}.covered_regions.bed",
     output:
-        "results/coverage/{group}/{sample}.regions.filtered.bed",
+        temp("results/coverage/{group}/{sample}.regions.filtered.bed"),
     log:
         "logs/bedtools/{group}/{sample}.log",
     params:
