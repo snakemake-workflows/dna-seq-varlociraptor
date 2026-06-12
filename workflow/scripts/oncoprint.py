@@ -188,7 +188,7 @@ def sort_oncoprint_labels(data):
                         pval = 1.0  # if the test fails for some reason (e.g. all values are identical), we assign a non-significant p-value
                     return pval
 
-                pvals = feature_matrix.apply(test_independence, axis="rows")
+                pvals = feature_matrix.apply(test_independence, axis="rows").values
             else:
                 _, pvals = chi2(feature_matrix, not_na_target_vector)
             sorted_idx = np.argsort(pvals)
@@ -204,7 +204,7 @@ def sort_oncoprint_labels(data):
 
             # add mutual information
             sorted_data.insert(0, "FDR dependency", fdr)
-            sorted_data.insert(0, "p-value dependency", pvals.values)
+            sorted_data.insert(0, "p-value dependency", pvals)
 
             outdata = sorted_data.iloc[sorted_idx]
         outpath = os.path.join(snakemake.output.gene_oncoprint_sortings, f"{label}.tsv")
