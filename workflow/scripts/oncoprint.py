@@ -183,7 +183,7 @@ def sort_oncoprint_labels(data):
                     group2 = not_na_target_vector[~feature_matrix_row]
                     if len(group1) > 10 and len(group2) > 10:
                         pval = rank_compare_2indep(group1, group2, use_t=False).pvalue
-                    elif len(group1) > 6 and len(group2) > 6:
+                    elif len(group1) > 3 and len(group2) > 3:
                         _, pval = permuted_brunnermunzel(group1, group2)
                     else:
                         pval = 1.0  # if one of the groups is empty, we cannot perform the test, so we assign a non-significant p-value
