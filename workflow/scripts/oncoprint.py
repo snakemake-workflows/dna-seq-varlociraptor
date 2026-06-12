@@ -184,6 +184,8 @@ def sort_oncoprint_labels(data):
                         pval = rank_compare_2indep(group1, group2, use_t=False).pvalue
                     else:
                         pval = 1.0  # if one of the groups is empty, we cannot perform the test, so we assign a non-significant p-value
+                    if np.isnan(pval):
+                        pval = 1.0  # if the test fails for some reason (e.g. all values are identical), we assign a non-significant p-value
                     return pval
 
                 breakpoint()

@@ -149,7 +149,9 @@ views:
           desc: |
             ?f"""
             Rows are sorted by their statistical dependency on {view}, which is determined by a 
-            [Chi² test](https://scikit-learn.org/stable/modules/generated/sklearn.feature_selection.chi2.html).
+            [Chi² test](https://en.wikipedia.org/wiki/Chi-squared_test)
+            for categorical data and a [Brunner-Munzel test](https://en.wikipedia.org/wiki/Brunner_Munzel_Test)
+            for numerical data.
             The corresponding p-value and Benjamini-Hochberg corrected FDR is shown in the last two columns.
             They represent the probability to observe an at least as strong dependency by chance.
             Rows with highest dependency are shown first.
