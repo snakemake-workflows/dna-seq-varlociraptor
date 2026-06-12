@@ -186,6 +186,7 @@ def sort_oncoprint_labels(data):
                         pval = 1.0  # if one of the groups is empty, we cannot perform the test, so we assign a non-significant p-value
                     return pval
 
+                breakpoint()
                 pvals = feature_matrix.apply(test_independence, axis="rows")
             else:
                 _, pvals = chi2(feature_matrix, not_na_target_vector)
