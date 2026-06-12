@@ -168,7 +168,7 @@ views:
                     heatmap:
                       ?if pd.api.types.is_numeric_dtype(params.group_annotations[annotation].infer_objects()):
                         scale: ordinal
-                        color-scheme: viridis
+                        color-scheme: blues
                       ?else:
                         scale: ordinal
                         color-scheme: category20
@@ -220,7 +220,7 @@ views:
                     heatmap:
                       ?if pd.api.types.is_numeric_dtype(params.group_annotations[annotation].infer_objects()):
                         scale: ordinal
-                        color-scheme: viridis
+                        color-scheme: blues
                       ?else:
                         scale: ordinal
                         color-scheme: category20
