@@ -7,6 +7,7 @@ max-in-memory-rows: 1500
 
 __definitions__:
   - import os
+  - import pandas as pd
   - |
     def read_file(path):
         return open(path, 'r').read()
@@ -163,8 +164,12 @@ views:
                   ellipsis: 0
                   plot:
                     heatmap:
-                      scale: ordinal
-                      color-scheme: category20
+                      ?if pd.api.types.is_numeric_dtype(params.group_annotations[annotation].infer_objects()):
+                        scale: linear
+                        color-scheme: viridis
+                      ?else:
+                        scale: ordinal
+                        color-scheme: category20
                       legend:
                         title: ?f"{annotation}"
           columns:
