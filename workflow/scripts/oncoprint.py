@@ -203,8 +203,8 @@ def sort_oncoprint_labels(data):
             sorted_data = sorted_data[sorted_target_vector.index]
 
             # add mutual information
-            sorted_data.insert(0, "FDR dependency", np.around(fdr, 3).values)
-            sorted_data.insert(0, "p-value dependency", np.around(pvals, 3).values)
+            sorted_data.insert(0, "FDR dependency", fdr.values)
+            sorted_data.insert(0, "p-value dependency", pvals.values)
 
             outdata = sorted_data.iloc[sorted_idx]
         outpath = os.path.join(snakemake.output.gene_oncoprint_sortings, f"{label}.tsv")
