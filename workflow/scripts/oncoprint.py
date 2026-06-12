@@ -146,7 +146,7 @@ def store(data, output, labels_df, label_idx=None):
     # restore column order
     data = data[cols]
 
-    data.to_csv(output, sep="\t")
+    data.to_csv(output, sep="\t", float_format="{:.2g}".format)
 
 
 def sort_oncoprint_labels(data):
@@ -188,7 +188,6 @@ def sort_oncoprint_labels(data):
                         pval = 1.0  # if the test fails for some reason (e.g. all values are identical), we assign a non-significant p-value
                     return pval
 
-                breakpoint()
                 pvals = feature_matrix.apply(test_independence, axis="rows")
             else:
                 _, pvals = chi2(feature_matrix, not_na_target_vector)
@@ -204,8 +203,8 @@ def sort_oncoprint_labels(data):
             sorted_data = sorted_data[sorted_target_vector.index]
 
             # add mutual information
-            sorted_data.insert(0, "FDR dependency", np.around(fdr, 3))
-            sorted_data.insert(0, "p-value dependency", np.around(pvals, 3))
+            sorted_data.insert(0, "FDR dependency", np.around(fdr, 3).values)
+            sorted_data.insert(0, "p-value dependency", np.around(pvals, 3).values)
 
             outdata = sorted_data.iloc[sorted_idx]
         outpath = os.path.join(snakemake.output.gene_oncoprint_sortings, f"{label}.tsv")
