@@ -167,7 +167,7 @@ views:
                   plot:
                     heatmap:
                       ?if pd.api.types.is_numeric_dtype(params.group_annotations[annotation].infer_objects()):
-                        scale: linear
+                        scale: ordinal
                         color-scheme: viridis
                       ?else:
                         scale: ordinal
@@ -191,6 +191,9 @@ views:
                     scale: ordinal
                     color-scheme: paired
                     aux-domain-columns: ?list(params.groups)
+                    legend:
+                      title: variant
+                ellipsis: 0
             p-value dependency:
               plot:
                 ticks:
@@ -215,8 +218,12 @@ views:
                   label: ?annotation
                   plot:
                     heatmap:
-                      scale: ordinal
-                      color-scheme: category20
+                      ?if pd.api.types.is_numeric_dtype(params.group_annotations[annotation].infer_objects()):
+                        scale: ordinal
+                        color-scheme: viridis
+                      ?else:
+                        scale: ordinal
+                        color-scheme: category20
           columns:
             consequence:
               plot:
@@ -230,6 +237,7 @@ views:
                     scale: ordinal
                     color-scheme: paired
                     aux-domain-columns: ?list(params.groups)
+                ellipsis: 0
             hgvsg:
               display-mode: hidden
             hgvsc:
