@@ -166,6 +166,7 @@ def sort_oncoprint_labels(data):
             not_na_target_vector = target_vector[~pd.isna(target_vector)]
             
             target_is_numeric = pd.api.types.is_numeric_dtype(not_na_target_vector)
+            breakpoint()
             if target_is_numeric:
                 not_na_target_vector = not_na_target_vector.astype(float)
             else:
