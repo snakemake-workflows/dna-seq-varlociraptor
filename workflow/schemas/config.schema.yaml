@@ -112,6 +112,17 @@ properties:
       min_avg_coverage:
         type: integer
 
+  enrichment:
+    type: object
+    properties:
+      activate:
+        type: boolean
+      min_gene_coverage:
+        type: integer
+      enrichr_libraries:
+        type: array
+        items:
+          type: string
   report:
     type: object
     properties:
