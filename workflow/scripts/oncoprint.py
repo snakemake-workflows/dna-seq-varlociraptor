@@ -159,6 +159,7 @@ def sort_oncoprint_labels(data):
             feature_matrix = data.reset_index(drop=True).T.copy()
             feature_matrix[~pd.isna(feature_matrix)] = True
             feature_matrix[pd.isna(feature_matrix)] = False
+            feature_matrix = feature_matrix.astype(bool)
 
             # target vector: label values, converted into factors
             target_vector = labels_df.loc[label]
@@ -188,7 +189,6 @@ def sort_oncoprint_labels(data):
                         pval = 1.0  # if the test fails for some reason (e.g. all values are identical), we assign a non-significant p-value
                     return pval
                 pvals = feature_matrix.apply(test_independence, axis="rows").values
-                breakpoint()
             else:
                 _, pvals = chi2(feature_matrix, not_na_target_vector)
             sorted_idx = np.argsort(pvals)
