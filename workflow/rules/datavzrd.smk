@@ -98,6 +98,8 @@ rule datavzrd_variants_calls:
         event_desc=lookup(
             dpath="calling/fdr-control/events/{event}/desc", within=config
         ),
+    conda:
+        "../envs/datavzrd.yaml"
     wrapper:
         "v9.2.0/utils/datavzrd"
 
