@@ -187,7 +187,6 @@ def sort_oncoprint_labels(data):
                     if np.isnan(pval):
                         pval = 1.0  # if the test fails for some reason (e.g. all values are identical), we assign a non-significant p-value
                     return pval
-                breakpoint()
                 pvals = feature_matrix.apply(test_independence, axis="rows").values
             else:
                 _, pvals = chi2(feature_matrix, not_na_target_vector)
