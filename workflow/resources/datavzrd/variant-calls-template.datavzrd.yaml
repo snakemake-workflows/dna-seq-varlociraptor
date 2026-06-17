@@ -194,16 +194,18 @@ views:
                     legend:
                       title: variant
                 ellipsis: 0
-            p-value dependency:
-              plot:
-                ticks:
-                  scale: linear
+            p-value independence:
               optional: true
-            FDR dependency:
-              plot:
-                ticks:
-                  scale: linear
+              spell:
+                url: v1.6.0/stats/p-value
+                with:
+                  significance_threshold: 0.05
+            FDR independence:
               optional: true
+              spell:
+                url: v1.6.0/stats/p-value
+                with:
+                  significance_threshold: 0.05
 
     ?for gene, path in params.variant_oncoprints:
       ?f"overview-{gene}":
