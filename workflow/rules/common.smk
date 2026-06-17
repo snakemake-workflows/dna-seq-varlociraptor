@@ -258,6 +258,14 @@ def get_final_output(wildcards):
     if is_activated("population/db"):
         final_output.append(lookup(dpath="population/db/path", within=config))
 
+    if is_activated("enrichment"):
+        final_output.extend(
+            expand(
+                "results/enrichment/{group}/{library}",
+                group=groups,
+                library=config["enrichment"].get("enrichr_libraries", []),
+            )
+        )
     return final_output
 
 
