@@ -100,7 +100,7 @@ __definitions__:
         """
   - |
     if params.genebe_genome_build is not None:
-      genebe_gene_url = f"https://genebe.com/{params.genebe_genome_build}/gene/{{value}}"
+      genebe_gene_url = f"https://genebe.net/gene/{params.genebe_genome_build}/{{value}}"
     else:
       genebe_gene_url = None
 
