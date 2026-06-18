@@ -92,6 +92,7 @@ rule datavzrd_variants_calls:
         coding_calls=get_datavzrd_data(impact="coding"),
         noncoding_calls=get_datavzrd_data(impact="noncoding"),
         build=config["ref"]["build"],
+        genebe_genome_build=genebe_genome_build,
         samples=samples,
         group_annotations=group_annotation,
         labels=get_heterogeneous_labels(),

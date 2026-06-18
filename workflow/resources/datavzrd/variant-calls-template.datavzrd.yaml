@@ -98,6 +98,11 @@ __definitions__:
             `;
           }}
         """
+  - |
+    if params.genebe_genome_build is not None:
+      genebe_gene_url = f"https://genebe.com/{params.genebe_genome_build}/gene/{{value}}"
+    else:
+      genebe_gene_url = None
 
 datasets:
   ?if input.variant_oncoprints:
@@ -179,6 +184,8 @@ views:
               link-to-url:
                 ensembl:
                   url: https://www.ensembl.org/Homo_sapiens/Gene/Summary?g={value}
+                ?if genebe_gene_url:
+                  GeneBe: ?genebe_gene_url
             consequence:
               plot:
                 heatmap:
@@ -264,6 +271,8 @@ views:
             link-to-url:
               ensembl:
                 url: https://www.ensembl.org/Homo_sapiens/Transcript/Summary?t={feature}
+              ?if genebe_gene_url:
+                  GeneBe: ?genebe_gene_url
           'clinical significance':
             optional: true
             spell:
@@ -459,6 +468,8 @@ views:
             link-to-url:
               ensembl:
                 url: https://www.ensembl.org/Homo_sapiens/Transcript/Summary?t={feature}
+              ?if genebe_gene_url:
+                  GeneBe: ?genebe_gene_url
           hgvsc:
             optional: true
             custom: ?read_file(input.linkouts)
