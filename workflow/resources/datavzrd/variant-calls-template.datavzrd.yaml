@@ -218,6 +218,7 @@ views:
               ?for i, annotation in enumerate(params.group_annotations.columns.values):
                 ?i + 1:
                   label: ?annotation
+                  ellipsis: 0
                   plot:
                     heatmap:
                       ?if pd.api.types.is_numeric_dtype(params.group_annotations[annotation].infer_objects()):
@@ -226,6 +227,8 @@ views:
                       ?else:
                         scale: ordinal
                         color-scheme: category20
+                    legend:
+                      title: ?f"{annotation}"
           columns:
             consequence:
               plot:
