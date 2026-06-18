@@ -235,8 +235,8 @@ views:
                       ?else:
                         scale: ordinal
                         color-scheme: category20
-                    legend:
-                      title: ?f"{annotation}"
+                      legend:
+                        title: ?f"{annotation}"
           columns:
             consequence:
               plot:
