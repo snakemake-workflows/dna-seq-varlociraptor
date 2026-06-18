@@ -185,7 +185,8 @@ views:
                 ensembl:
                   url: https://www.ensembl.org/Homo_sapiens/Gene/Summary?g={value}
                 ?if genebe_gene_url:
-                  GeneBe: ?genebe_gene_url
+                  GeneBe:
+                    url: ?genebe_gene_url
             consequence:
               plot:
                 heatmap:
@@ -272,7 +273,8 @@ views:
               ensembl:
                 url: https://www.ensembl.org/Homo_sapiens/Transcript/Summary?t={feature}
               ?if genebe_gene_url:
-                  GeneBe: ?genebe_gene_url
+                  GeneBe:
+                    url: ?genebe_gene_url
           'clinical significance':
             optional: true
             spell:
@@ -469,7 +471,8 @@ views:
               ensembl:
                 url: https://www.ensembl.org/Homo_sapiens/Transcript/Summary?t={feature}
               ?if genebe_gene_url:
-                  GeneBe: ?genebe_gene_url
+                  GeneBe:
+                    url: ?genebe_gene_url
           hgvsc:
             optional: true
             custom: ?read_file(input.linkouts)
