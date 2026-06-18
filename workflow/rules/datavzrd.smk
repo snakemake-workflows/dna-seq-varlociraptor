@@ -63,7 +63,7 @@ rule prepare_oncoprint:
 
 rule datavzrd_variants_calls:
     input:
-        calls=get_datavzrd_data(calling_type="coding"),
+        calls=get_datavzrd_data(calling_type="variants"),
         linkouts=workflow.source_path("../resources/datavzrd/linkouts.js"),
         config=workflow.source_path(
             "../resources/datavzrd/variant-calls-template.datavzrd.yaml"
