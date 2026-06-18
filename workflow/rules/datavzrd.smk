@@ -1,21 +1,20 @@
-rule split_call_tables:
+rule process_call_tables:
     input:
         calls="results/tables/{group}/{group}.{event}.variants.fdr-controlled.tsv",
         population_db=get_cleaned_population_db(),
         population_db_idx=get_cleaned_population_db(idx=True),
     output:
-        coding="results/tables/{group}/{group}.{event}.coding.fdr-controlled.tsv",
-        noncoding="results/tables/{group}/{group}.{event}.noncoding.fdr-controlled.tsv",
+        "results/tables/{group}/{group}.{event}.variants.postprocessed.fdr-controlled.tsv",
     log:
-        "logs/split_tables/{group}.{event}.log",
+        "logs/process_call_tables/{group}.{event}.log",
     conda:
-        "../envs/split_call_tables.yaml"
+        "../envs/process_call_tables.yaml"
     params:
         sorting=lambda wc: config["calling"]["fdr-control"]["events"][wc.event].get(
             "sort", list()
         ),
     script:
-        "../scripts/split-call-tables.py"
+        "../scripts/process-call-tables.py"
 
 
 rule process_fusion_call_tables:
@@ -64,8 +63,7 @@ rule prepare_oncoprint:
 
 rule datavzrd_variants_calls:
     input:
-        coding_calls=get_datavzrd_data(impact="coding"),
-        noncoding_calls=get_datavzrd_data(impact="noncoding"),
+        calls=get_datavzrd_data(impact="coding"),
         linkouts=workflow.source_path("../resources/datavzrd/linkouts.js"),
         config=workflow.source_path(
             "../resources/datavzrd/variant-calls-template.datavzrd.yaml"

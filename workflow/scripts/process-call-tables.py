@@ -280,23 +280,7 @@ canonical = calls["canonical"].notnull()
 mane_plus_clinical = calls["mane_plus_clinical"].notnull()
 canonical_mane = canonical | mane_plus_clinical
 
-noncoding_calls = calls[~coding & canonical_mane]
-noncoding_calls = cleanup_dataframe(noncoding_calls)
-write(noncoding_calls, snakemake.output.noncoding)
-
-coding_calls = calls[coding & canonical_mane].drop(
-    [
-        "id",
-    ],
-    axis="columns",
-)
-coding_calls = cleanup_dataframe(coding_calls)
-
-# coding variants
-# Here we have all variant info in hgvsp,
-# hence we can drop the other variant specific columns.
-write(
-    coding_calls,
-    snakemake.output.coding,
-)
+final_calls = calls[canonical_mane]
+final_calls = cleanup_dataframe(final_calls)
+write(final_calls, snakemake.output[0])
 # TODO add possibility to also see non-canoncical or non-mane+clinical transcripts (low priority, once everything else works).

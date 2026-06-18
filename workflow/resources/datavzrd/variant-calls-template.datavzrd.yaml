@@ -255,7 +255,8 @@ views:
               display-mode: hidden
             hgvsc:
               optional: true
-              display-mode: hidden
+            hgvsp:
+              optional: true
 
   ?for group in params.groups:
     ?f"{group}-coding":
@@ -281,6 +282,7 @@ views:
               url: v1.2.2/med/clin-sig
           hgvsp:
             custom: ?hgvs_content
+            optional: true
           hgvsc:
             custom: ?read_file(input.linkouts)
           vartype:
@@ -453,184 +455,3 @@ views:
           ensembl_protein_id:
             value: ?protein_id
             display-mode: detail
-
-
-    ?f"{group}-noncoding":
-      desc: |
-        ?f"""
-        Variants in non-coding regions.\n{params.event_desc}
-        SpliceAI scores are probabilities of a variant being splice-altering.\n
-        AlphaMissense scores are classified as: likely benign (<0.34), ambiguous (0.34<=, <=0.564), likely pathogenic (0.564<).
-        """
-      dataset: ?f"{group}-noncoding"
-      render-table:
-        columns:
-          symbol:
-            optional: true
-            link-to-url:
-              ensembl:
-                url: https://www.ensembl.org/Homo_sapiens/Transcript/Summary?t={feature}
-              ?if genebe_gene_url:
-                  GeneBe:
-                    url: ?genebe_gene_url
-          hgvsc:
-            optional: true
-            custom: ?read_file(input.linkouts)
-          consequence:
-            plot:
-              heatmap:
-                color-scheme: category20
-                scale: ordinal
-          vartype:
-            display-mode: hidden
-          swissprot:
-            optional: true
-            display-mode: hidden
-          impact:
-            plot:
-              heatmap:
-                scale: ordinal
-                domain:
-                  - HIGH
-                  - MODERATE
-                  - LOW
-                  - MODIFIER
-                range:
-                  - "#ec0000"
-                  - "#ec5300"
-                  - "#ec9b00"
-                  - "#ecca00"
-          "regex('.+: allele frequency$')":
-            plot:
-              ticks:
-                scale: "linear"
-                domain: [0.0, 1.0]
-                aux-domain-columns:
-                  - "regex('.+: allele frequency')"
-                color:
-                  scale: "linear"
-                  domain: [0.0, 0.05, 0.0500000001, 1.0]
-                  range:
-                  - "#ffd6b3"
-                  - "#ff7f0e"
-                  - "#a8d2f0"
-                  - "#1f77b4"
-          "regex('.+: allele frequency distribution')":
-            display-mode: hidden
-          "regex('.+: read depth')":
-            plot:
-              ticks:
-                scale: "linear"
-                aux-domain-columns:
-                  - "regex('.+: read depth')"
-          "regex('prob: (?!artifact|absent)')":
-            plot:
-              heatmap:
-                scale: linear
-                domain: [0.0, 1.0]
-                range:
-                  - white
-                  - "#1f77b4"
-          "regex('prob: (artifact|absent)')":
-            plot:
-              heatmap:
-                scale: linear
-                domain: [0.0, 1.0]
-                range:
-                  - white
-                  - "#d4322c"
-          "gnomad genome af":
-            optional: true
-            plot:
-              heatmap:
-                scale: "linear"
-                domain: [0.0, 0.01, 1.0]
-                range:
-                  - white
-                  - "#adebad"
-                  - "#29a329"
-          id:
-            optional: true
-            display-mode: hidden
-          gene:
-            display-mode: hidden
-          feature:
-            display-mode: hidden
-          binned max vaf:
-            optional: true
-            display-mode: hidden
-          hgvsg:
-            optional: true
-            display-mode: hidden
-          chromosome:
-            display-mode: detail
-          end position:
-            display-mode: detail
-          position:
-            display-mode: detail
-          reference allele:
-            display-mode: detail
-            spell:
-              url: v1.5.0/med/alleles
-          alternative allele:
-            display-mode: detail
-            spell:
-              url: v1.5.0/med/alleles
-          canonical:
-            optional: true
-            display-mode: detail
-            spell:
-              url: v1.2.1/logic/boolean
-              with:
-                true_value: "True"
-                false_value: "False"
-          mane_plus_clinical:
-            optional: true
-            display-mode: detail
-            spell:
-              url: v1.2.1/logic/boolean
-              with:
-                true_value: "True"
-                false_value: "False"
-          ?for alias in params.samples.loc[params.samples["group"] == group, "alias"]:
-            '?f"{alias}: observations"':
-              optional: true
-              custom: ?make_inspect_link(alias)
-              display-mode: normal
-            '?f"{alias}: short observations"':
-              optional: true
-              display-mode: hidden
-          spliceai:
-            optional: true
-            plot:
-              heatmap:
-                scale: "linear"
-                domain: [0.0, 0.2, 0.5, 0.8, 1.0]
-                range:
-                  - "#22964"
-                  - "#f9f7ae"
-                  - "#fcac63"
-                  - "#f16e43"
-                  - "#d4322c"
-                custom-content: ?spliceai_content
-          spliceai_effect:
-            optional: true
-            display-mode: hidden
-          alphamissense:
-            optional: true
-            plot:
-              heatmap:
-                scale: "linear"
-                domain: [0.0, 0.34, 0.564, 1.0]
-                range:
-                  - "#22964"
-                  - "#d7ee82"
-                  - "#fedd8e"
-                  - "#d4322c"
-          population:
-            optional: true
-            custom: ?make_popover
-        add-columns:
-          build:
-            value: ?f"function() {{ return `{params.build}` }}"
-            display-mode: hidden
