@@ -1552,7 +1552,7 @@ def get_datavzrd_data(calling_type="variants"):
     def inner(wildcards):
         return expand(
             pattern,
-            impact=impact,
+            filetype=filetype,
             event=wildcards.event,
             group=get_report_batch(calling_type),
         )
