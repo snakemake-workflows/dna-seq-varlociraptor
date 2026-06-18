@@ -2,7 +2,7 @@ __use_yte__: true
 
 name: ?f"Variant calls {wildcards.event}"
 
-default-view: ?"overview" if input.variant_oncoprints else f"{params.groups[0]}-coding"
+default-view: ?"overview" if input.variant_oncoprints else f"{params.groups[0]}"
 max-in-memory-rows: 1500
 
 __definitions__:
@@ -127,16 +127,12 @@ datasets:
         links:
           ?for group in params.groups:
             ?group:
-              column: hgvsp
-              table-row: ?f"{group}-coding/hgvsp"
+              column: hgvsc
+              table-row: ?f"{group}/hgvsc"
               optional: true
 
-  ?for group, path in zip(params.groups, input.coding_calls):
-    ?f"{group}-coding":
-      path: ?path
-      separator: "\t"
-  ?for group, path in zip(params.groups, input.noncoding_calls):
-    ?f"{group}-noncoding":
+  ?for group, path in zip(params.groups, input.calls):
+    ?group:
       path: ?path
       separator: "\t"
 
@@ -259,14 +255,14 @@ views:
               optional: true
 
   ?for group in params.groups:
-    ?f"{group}-coding":
+    ?group:
       desc: |
         ?f"""
-        Variants in coding regions.\n{params.event_desc}\n
+        Variant calls.\n{params.event_desc}\n
         SpliceAI scores are probabilities of a variant being splice-altering.\n
         AlphaMissense scores are classified as: likely benign (<0.34), ambiguous (0.34<=, <=0.564), likely pathogenic (>0.564).
         """
-      dataset: ?f"{group}-coding"
+      dataset: ?group
       render-table:
         columns:
           symbol:
