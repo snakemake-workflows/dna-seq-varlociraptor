@@ -16,6 +16,45 @@ function hgvsc_dropdown(value, row) {
     return ``
   }
 
+  function genebe_link(row) {
+    let ref = row["reference allele"];
+    let alt = row["alternative allele"];
+    if ( alt && ref) {
+      let chr = row.chromosome;
+      let pos = row.position;
+      let build = ( row.build === "GRCh38" ) ? "hg38/" : "hg19/";
+      const url = "https://genebe.net/variant/";
+      let aa_regex = /^[ACGTacgt]+$/;
+      if ( ref.match(aa_regex) && alt.match(aa_regex)) {
+        let descriptor = `${chr}-${pos}-${ref}-${alt}`
+        return `${url}${build}${descriptor}`;
+      }
+    }
+    return ``
+    }
+
+    function genebe_viewer_link(row) {
+      let ref = row["reference allele"];
+      let alt = row["alternative allele"];
+      if ( alt && ref) {
+        let chr = row.chromosome;
+        let pos = row.position;
+        let gene = row.hgvsc.split('.')[0];
+        const url = "https://genebe.net/tools/mutation-effect-viewer/";
+        let aa_regex = /^[ACGTacgt]+$/;
+        if ( ref.match(aa_regex) && alt.match(aa_regex)) {
+          let descriptor = `${chr}-${pos}-${ref}-${alt}`
+          return `${url}${gene}?mutations=${descriptor}`;
+        }
+      }
+      return ``
+    }
+
+    function decipher_genomics_link(row) {
+        gene = row.gene;
+        return `https://www.deciphergenomics.org/gene/${gene}/overview/management-therapies/therapies`
+    }
+
   function genomenexus_link(row) {
       let hgvsg = row.hgvsg
       if ( hgvsg ) {
@@ -41,9 +80,23 @@ function hgvsc_dropdown(value, row) {
   let hgvsc = ( value ) ? value.match(hgvs_regex)[2].replace('%3D', '=') : "-";
   let links = "";
 
+
+  let genebe_url = genebe_link(row);
+  if (genebe_url != "") {
+      links = `<a class="dropdown-item" href='${genebe_url}' target='_blank' rel='noopener noreferrer' >GeneBe</a>`
+  }
+
+  let genebe_viewer_url = genebe_viewer_link(row);
+  if (genebe_viewer_url != "") {
+      links = `${links}<a class="dropdown-item" href='${genebe_viewer_url}' target='_blank' rel='noopener noreferrer' >GeneBe Viewer</a>`
+  }
+
+  let decipher_genomics_url = decipher_genomics_link(row);
+  links = `${links}<a class="dropdown-item" href='${decipher_genomics_url}' target='_blank' rel='noopener noreferrer' >Decipher Genomics</a>`
+
   let varsome_url = varsome_link(row);
   if (varsome_url != "") {
-      links = `<a class="dropdown-item" href='${varsome_url}' target='_blank' rel='noopener noreferrer' >VarSome</a>`
+      links = `${links}<a class="dropdown-item" href='${varsome_url}' target='_blank' rel='noopener noreferrer' >VarSome</a>`
   }
 
   let genomenexus_url = genomenexus_link(row)
