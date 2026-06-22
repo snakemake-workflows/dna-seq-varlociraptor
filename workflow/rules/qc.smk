@@ -14,10 +14,10 @@ rule fastqc:
 
 rule samtools_idxstats:
     input:
-        bam="results/recal/{sample}.bam",
-        idx="results/recal/{sample}.bai",
+        bam="results/recal/{sample}.cram",
+        idx="results/recal/{sample}.crai",
     output:
-        "results/qc/{sample}.bam.idxstats",
+        "results/qc/{sample}.cram.idxstats",
     log:
         "logs/samtools/idxstats/{sample}.log",
     wrapper:
@@ -26,13 +26,14 @@ rule samtools_idxstats:
 
 rule samtools_stats:
     input:
-        bam="results/recal/{sample}.bam",
+        bam="results/recal/{sample}.cram",
+        ref=genome,
     output:
-        "results/qc/{sample}.bam.stats",
+        "results/qc/{sample}.cram.stats",
     log:
         "logs/samtools/stats/{sample}.log",
     wrapper:
-        "v2.3.2/bio/samtools/stats"
+        "v7.6.0/bio/samtools/stats"
 
 
 rule multiqc:
