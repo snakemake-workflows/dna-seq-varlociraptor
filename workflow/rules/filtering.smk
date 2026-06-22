@@ -6,11 +6,11 @@ rule filter_candidates_by_annotation:
         "results/candidate-calls/{caller}/filtered/{group}/{group}.{scatteritem}.bcf",
     log:
         "logs/filter-calls/annotation/{caller}/{group}/{group}.{scatteritem}.log",
+    conda:
+        "../envs/vembrane.yaml"
     params:
         filter=get_candidate_filter_expression,
         aux=get_candidate_filter_aux,
-    conda:
-        "../envs/vembrane.yaml"
     shell:
         "(bcftools norm -Ou --do-not-normalize --multiallelics -any {input} | "
         'vembrane filter {params.aux} "{params.filter}" | bcftools sort -Ob > {output}) &> {log}'
@@ -25,11 +25,11 @@ rule filter_by_annotation:
         "results/calls/filtered/filtered_ann/{group}/{event}/{group}.{calling_type}.{scatteritem}.bcf",
     log:
         "logs/filter-calls/annotation/{group}/{event}/{group}.{calling_type}.{scatteritem}.log",
+    conda:
+        "../envs/vembrane.yaml"
     params:
         filter=get_annotation_filter_expression,
         aux=get_annotation_filter_aux,
-    conda:
-        "../envs/vembrane.yaml"
     shell:
         'vembrane filter {params.aux} "{params.filter}" {input.bcf} --output-fmt bcf --output {output} &> {log}'
 
@@ -39,14 +39,14 @@ rule filter_odds:
         "results/calls/filtered/filtered_ann/{group}/{event}/{group}.{calling_type}.{scatteritem}.bcf",
     output:
         "results/calls/filtered/filtered_odds/{group}/{event}/{group}.{calling_type}.{scatteritem}.bcf",
-    params:
-        events=lambda wc: config["calling"]["fdr-control"]["events"][wc.event][
-            "varlociraptor"
-        ],
     log:
         "logs/filter-calls/posterior_odds/{group}/{event}/{group}.{calling_type}.{scatteritem}.log",
     conda:
         "../envs/varlociraptor.yaml"
+    params:
+        events=lambda wc: config["calling"]["fdr-control"]["events"][wc.event][
+            "varlociraptor"
+        ],
     shell:
         "varlociraptor filter-calls posterior-odds --events {params.events} --odds barely < {input} > {output} 2> {log}"
 
@@ -72,10 +72,10 @@ rule control_fdr:
         "results/calls/fdr-controlled/{group}/{event}/{group}.{vartype}.{calling_type}.bcf",
     log:
         "logs/control-fdr/{group}/{event}/{group}.{vartype}.{calling_type}.log",
-    params:
-        query=get_fdr_control_params,
     conda:
         "../envs/varlociraptor.yaml"
+    params:
+        query=get_fdr_control_params,
     shell:
         "varlociraptor filter-calls control-fdr {input} {params.query[mode]} --var {wildcards.vartype} "
         "--events {params.query[events]} --fdr {params.query[threshold]} {params.query[retain_artifacts]} > {output} 2> {log}"

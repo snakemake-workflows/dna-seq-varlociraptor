@@ -1,8 +1,8 @@
 rule get_target_regions:
     """
-    Targets can be defined in one or multiple BED files. In the
-    case of multiple BED files, these need to be merged.
-    """
+Targets can be defined in one or multiple BED files. In the
+case of multiple BED files, these need to be merged.
+"""
     input:
         config.get("target_regions", []),
     output:
@@ -92,13 +92,13 @@ rule filter_group_regions:
         fai=genome_fai,
     output:
         "results/regions/{group}.{regions_type}_regions.filtered.bed",
+    log:
+        "logs/regions/{group}.{regions_type}_regions.filtered.log",
     conda:
         "../envs/awk_bedtools.yaml"
     params:
         chroms=config["ref"]["n_chromosomes"],
         filter_targets=get_filter_targets,
-    log:
-        "logs/regions/{group}.{regions_type}_regions.filtered.log",
     shell:
         "cat {input.regions} | grep -f <(head -n {params.chroms} {input.fai} | "
         'awk \'{{print "^"$1"\\t"}}\') {params.filter_targets} | sort -k1,1 -k2,2n '
@@ -108,9 +108,9 @@ rule filter_group_regions:
 rule download_delly_excluded_regions:
     output:
         "results/regions/{species}.{build}.delly_excluded.bed",
-    params:
-        url="https://raw.githubusercontent.com/dellytools/delly/main/excludeTemplates/{species}.{build}.excl.tsv",
     log:
         "logs/download_delly_regions/{species}_{build}.log",
+    params:
+        url="https://raw.githubusercontent.com/dellytools/delly/main/excludeTemplates/{species}.{build}.excl.tsv",
     shell:
         "curl {params.url} -o {output} &> {log}"

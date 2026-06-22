@@ -87,6 +87,19 @@ mutational_signatures:
 gene_coverage:
   min_avg_coverage: 5
 
+# summary of Pubmed articles for called variants
+varpubs:
+  activate: false
+  cache: /media/HDD/varpubs_cache/varpubs_cache.duckdb
+  llm_url: http://localhost:11434/v1
+  model: mistral:latest
+  api_key: ""
+  mail: "some_email@example.com"
+  judges:
+    - therapy related
+    - oncogenicity
+    - phenotypic effect
+
 # printing of variants in interactive tables
 report:
   # if stratification is deactivated, one report for all

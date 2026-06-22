@@ -13,10 +13,10 @@ rule create_mutational_context_file:
         ),
     log:
         "logs/mutational_signatures/context/{group}.{event}.{sample_alias}.log",
-    params:
-        min_vafs=mutational_signature_vaf_thresholds,
     conda:
         "../envs/pystats.yaml"
+    params:
+        min_vafs=mutational_signature_vaf_thresholds,
     script:
         "../scripts/create_mutational_context.py"
 
@@ -24,15 +24,15 @@ rule create_mutational_context_file:
 rule download_cosmic_signatures:
     output:
         "resources/cosmic_signatures.txt",
+    log:
+        "logs/mutational_signatures/download_cosmic.log",
+    conda:
+        "../envs/curl.yaml"
     params:
         # when updating signature version here, also update workflow/resources/cosmic_signature_desc_v3.4.tsv
         url=lambda wc: "https://cog.sanger.ac.uk/cosmic-signatures-production/documents/COSMIC_v3.4_SBS_{}.txt".format(
             config["ref"]["build"]
         ),
-    log:
-        "logs/mutational_signatures/download_cosmic.log",
-    conda:
-        "../envs/curl.yaml"
     shell:
         "curl {params.url} -o {output} &> {log}"
 
@@ -48,13 +48,13 @@ rule annotate_mutational_signatures:
                 vaf=mutational_signature_vaf_thresholds,
             )
         ),
-    params:
-        build=config["ref"]["build"],
-        min_vafs=mutational_signature_vaf_thresholds,
     log:
         "logs/mutational_signatures/annotate/{group}.{event}.{sample_alias}.log",
     conda:
         "../envs/siglasso.yaml"
+    params:
+        build=config["ref"]["build"],
+        min_vafs=mutational_signature_vaf_thresholds,
     script:
         "../scripts/annotate_mutational_signatures.R"
 
