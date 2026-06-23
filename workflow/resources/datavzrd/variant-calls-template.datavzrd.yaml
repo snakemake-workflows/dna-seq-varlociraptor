@@ -393,8 +393,10 @@ views:
               url: v1.5.0/med/alleles
           protein position:
             display-mode: detail
+            optional: true
           protein alteration (short):
             display-mode: detail
+            optional: true
           canonical:
             optional: true
             display-mode: detail
