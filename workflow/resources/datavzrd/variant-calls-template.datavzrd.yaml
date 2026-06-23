@@ -183,13 +183,13 @@ views:
                 ?if genebe_gene_url:
                   GeneBe:
                     url: ?genebe_gene_url
-              disply-mode: pinned
+              display-mode: pinned
             consequence:
               plot:
                 heatmap:
                   scale: ordinal
                   color-scheme: category20
-              disply-mode: pinned
+              display-mode: pinned
             ?for group in params.groups:
               ?group:
                 plot:
@@ -241,7 +241,7 @@ views:
                 heatmap:
                   scale: ordinal
                   color-scheme: category20
-              disply-mode: pinned
+              display-mode: pinned
             ?for group in params.groups:
               ?group:
                 plot:
@@ -254,10 +254,10 @@ views:
               display-mode: hidden
             hgvsc:
               optional: true
-              disply-mode: pinned
+              display-mode: pinned
             hgvsp:
               optional: true
-              disply-mode: pinned
+              display-mode: pinned
 
   ?for group in params.groups:
     ?group:
