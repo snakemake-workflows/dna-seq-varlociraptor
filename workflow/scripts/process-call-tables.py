@@ -15,10 +15,9 @@ def write(df, path):
     df["mane_plus_clinical"][df["mane_plus_clinical"].notna()] = True
     if not df.empty:
         remaining_columns = df.dropna(how="all", axis="columns").columns.tolist()
-        if path == snakemake.output.coding:
-            # ensure that these columns are kept, even if they contain only NAs in a coding setting
-            remaining_columns.extend(["revel", "hgvsp", "symbol"])
-            remaining_columns = [col for col in df.columns if col in remaining_columns]
+        # ensure that these columns are always kept
+        remaining_columns.extend(["revel", "hgvsp", "symbol"])
+        remaining_columns = [col for col in df.columns if col in remaining_columns]
         df = df[remaining_columns]
     df.to_csv(path, index=False, sep="\t")
 
@@ -275,7 +274,6 @@ if calls.columns.str.endswith(": short ref observations").any():
 if calls.columns.str.startswith("spliceai").any():
     calls = select_spliceai_effect(calls)
 
-coding = ~pd.isna(calls["hgvsp"])
 canonical = calls["canonical"].notnull()
 mane_plus_clinical = calls["mane_plus_clinical"].notnull()
 canonical_mane = canonical | mane_plus_clinical
