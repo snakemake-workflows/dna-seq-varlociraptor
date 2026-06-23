@@ -16,7 +16,7 @@ def write(df, path):
     if not df.empty:
         remaining_columns = df.dropna(how="all", axis="columns").columns.tolist()
         # ensure that these columns are always kept
-        remaining_columns.extend(["revel", "hgvsp", "symbol"])
+        remaining_columns.extend(["revel", "hgvsp", "symbol", "hgvsc"])
         remaining_columns = [col for col in df.columns if col in remaining_columns]
         df = df[remaining_columns]
     df.to_csv(path, index=False, sep="\t")

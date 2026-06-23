@@ -286,6 +286,7 @@ views:
             optional: true
           hgvsc:
             custom: ?read_file(input.linkouts)
+            optional: true
           vartype:
             display-mode: hidden
           impact:
