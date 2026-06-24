@@ -2,11 +2,12 @@ __use_yte__: true
 
 name: ?f"Variant calls {wildcards.event}"
 
-default-view: ?"overview" if input.variant_oncoprints else f"{params.groups[0]}-coding"
+default-view: ?"overview" if input.variant_oncoprints else f"{params.groups[0]}"
 max-in-memory-rows: 1500
 
 __definitions__:
   - import os
+  - import pandas as pd
   - |
     def read_file(path):
         return open(path, 'r').read()
@@ -15,8 +16,12 @@ __definitions__:
       function(value, row) {{
         let hgvs_regex = /^(.+?):(.+)$/;
         // discard protein id
-        let hgvs = value.match(hgvs_regex)[2].replace('%3D', '=');
-        return hgvs
+        let res = value.match(hgvs_regex);
+        if (res === null) {{
+          return value
+        }}
+        let hgvs = res[2].replace('%3D', '=');
+        return hgvs;
       }}
     """
   - |
@@ -65,7 +70,7 @@ __definitions__:
             params.append(`OBS_{alias}`, value);
             const afdKey = `{alias}: allele frequency distribution`;
             if (row[afdKey] !== undefined && row[afdKey] !== null && row[afdKey] !== "") {{
-              const afdValue = row[afdKey].replace(/^\(|\)$/g, '').replace(/'/g, '').replace(/,\s+/g, ',');
+              const afdValue = row[afdKey].replace(/^\\(|\\)$/g, '').replace(/'/g, '').replace(/,\\s+/g, ',');
               if (afdValue && afdValue !== ".") {{
                 params.append(`AFD_{alias}`, afdValue);
               }}
@@ -97,6 +102,11 @@ __definitions__:
             `;
           }}
         """
+  - |
+    if params.genebe_genome_build is not None:
+      genebe_gene_url = f"https://genebe.net/gene/{params.genebe_genome_build}/{{value}}"
+    else:
+      genebe_gene_url = None
 
 datasets:
   ?if input.variant_oncoprints:
@@ -113,6 +123,10 @@ datasets:
         path: ?os.path.join(input.oncoprint_sorted_datasets, f"{label}.tsv")
         separator: "\t"
         headers: 2
+        links:
+          gene details:
+            column: symbol
+            view: "overview-{value}"
     ?for gene, path in params.variant_oncoprints:
       ?f"variant-oncoprint-{gene}":
         path: ?path
@@ -121,16 +135,12 @@ datasets:
         links:
           ?for group in params.groups:
             ?group:
-              column: hgvsp
-              table-row: ?f"{group}-coding/hgvsp"
+              column: hgvsg
+              table-row: ?f"{group}/hgvsg"
               optional: true
 
-  ?for group, path in zip(params.groups, input.coding_calls):
-    ?f"{group}-coding":
-      path: ?path
-      separator: "\t"
-  ?for group, path in zip(params.groups, input.noncoding_calls):
-    ?f"{group}-noncoding":
+  ?for group, path in zip(params.groups, input.calls):
+    ?group:
       path: ?path
       separator: "\t"
 
@@ -141,14 +151,16 @@ views:
         labels: ?params.group_annotations.columns.values.tolist() if view == "gene-oncoprint" else [view]
       ?"overview" if view == "gene-oncoprint" else f"by {view}":
         ?if view == "gene-oncoprint":
-          desc: |
+          desc: >
             Overview table showing all discovered variants in all samples. Use link
             button to jump to detail views for the respective genes.
         ?else:
-          desc: |
+          desc: >
             ?f"""
             Rows are sorted by their statistical dependency on {view}, which is determined by a 
-            [Chi² test](https://scikit-learn.org/stable/modules/generated/sklearn.feature_selection.chi2.html).
+            [Chi² test](https://en.wikipedia.org/wiki/Chi-squared_test)
+            for categorical data and a [Brunner-Munzel test](https://en.wikipedia.org/wiki/Brunner_Munzel_Test)
+            for numerical data.
             The corresponding p-value and Benjamini-Hochberg corrected FDR is shown in the last two columns.
             They represent the probability to observe an at least as strong dependency by chance.
             Rows with highest dependency are shown first.
@@ -163,8 +175,12 @@ views:
                   ellipsis: 0
                   plot:
                     heatmap:
-                      scale: ordinal
-                      color-scheme: category20
+                      ?if pd.api.types.is_numeric_dtype(params.group_annotations[annotation].infer_objects()):
+                        scale: linear
+                        color-scheme: viridis
+                      ?else:
+                        scale: ordinal
+                        color-scheme: category20
                       legend:
                         title: ?f"{annotation}"
           columns:
@@ -172,11 +188,17 @@ views:
               link-to-url:
                 ensembl:
                   url: https://www.ensembl.org/Homo_sapiens/Gene/Summary?g={value}
+                ?if genebe_gene_url:
+                  GeneBe:
+                    url: ?genebe_gene_url
+              display-mode: pinned
             consequence:
               plot:
-                heatmap:
-                  scale: ordinal
+                pills:
+                  separator: ","
                   color-scheme: category20
+                  ellipsis: 10
+              display-mode: pinned
             ?for group in params.groups:
               ?group:
                 plot:
@@ -184,16 +206,21 @@ views:
                     scale: ordinal
                     color-scheme: paired
                     aux-domain-columns: ?list(params.groups)
+                    legend:
+                      title: variant
+                ellipsis: 0
             p-value dependency:
-              plot:
-                ticks:
-                  scale: linear
               optional: true
+              spell:
+                url: v1.6.0/stats/p-value
+                with:
+                  significance_threshold: 0.05
             FDR dependency:
-              plot:
-                ticks:
-                  scale: linear
               optional: true
+              spell:
+                url: v1.6.0/stats/p-value
+                with:
+                  significance_threshold: 0.05
 
     ?for gene, path in params.variant_oncoprints:
       ?f"overview-{gene}":
@@ -206,16 +233,25 @@ views:
               ?for i, annotation in enumerate(params.group_annotations.columns.values):
                 ?i + 1:
                   label: ?annotation
+                  ellipsis: 0
                   plot:
                     heatmap:
-                      scale: ordinal
-                      color-scheme: category20
+                      ?if pd.api.types.is_numeric_dtype(params.group_annotations[annotation].infer_objects()):
+                        scale: linear
+                        color-scheme: viridis
+                      ?else:
+                        scale: ordinal
+                        color-scheme: category20
+                      legend:
+                        title: ?f"{annotation}"
           columns:
             consequence:
               plot:
-                heatmap:
-                  scale: ordinal
+                pills:
+                  separator: ","
                   color-scheme: category20
+                  ellipsis: 10
+              display-mode: pinned
             ?for group in params.groups:
               ?group:
                 plot:
@@ -223,35 +259,46 @@ views:
                     scale: ordinal
                     color-scheme: paired
                     aux-domain-columns: ?list(params.groups)
+                ellipsis: 0
             hgvsg:
               display-mode: hidden
             hgvsc:
               optional: true
-              display-mode: hidden
+              display-mode: pinned
+              custom: ?read_file(input.linkouts)
+            hgvsp:
+              optional: true
+              display-mode: pinned
+              custom: ?hgvs_content
 
   ?for group in params.groups:
-    ?f"{group}-coding":
+    ?group:
       desc: |
         ?f"""
-        Variants in coding regions.\n{params.event_desc}\n
+        Variant calls.\n{params.event_desc}\n
         SpliceAI scores are probabilities of a variant being splice-altering.\n
         AlphaMissense scores are classified as: likely benign (<0.34), ambiguous (0.34<=, <=0.564), likely pathogenic (>0.564).
         """
-      dataset: ?f"{group}-coding"
+      dataset: ?group
       render-table:
         columns:
           symbol:
             link-to-url:
               ensembl:
                 url: https://www.ensembl.org/Homo_sapiens/Transcript/Summary?t={feature}
+              ?if genebe_gene_url:
+                  GeneBe:
+                    url: ?genebe_gene_url
           'clinical significance':
             optional: true
             spell:
               url: v1.2.2/med/clin-sig
           hgvsp:
             custom: ?hgvs_content
+            optional: true
           hgvsc:
             custom: ?read_file(input.linkouts)
+            optional: true
           vartype:
             display-mode: hidden
           impact:
@@ -359,8 +406,10 @@ views:
               url: v1.5.0/med/alleles
           protein position:
             display-mode: detail
+            optional: true
           protein alteration (short):
             display-mode: detail
+            optional: true
           canonical:
             optional: true
             display-mode: detail
@@ -422,181 +471,3 @@ views:
           ensembl_protein_id:
             value: ?protein_id
             display-mode: detail
-
-
-    ?f"{group}-noncoding":
-      desc: |
-        ?f"""
-        Variants in non-coding regions.\n{params.event_desc}
-        SpliceAI scores are probabilities of a variant being splice-altering.\n
-        AlphaMissense scores are classified as: likely benign (<0.34), ambiguous (0.34<=, <=0.564), likely pathogenic (0.564<).
-        """
-      dataset: ?f"{group}-noncoding"
-      render-table:
-        columns:
-          symbol:
-            optional: true
-            link-to-url:
-              ensembl:
-                url: https://www.ensembl.org/Homo_sapiens/Transcript/Summary?t={feature}
-          hgvsc:
-            optional: true
-            custom: ?read_file(input.linkouts)
-          consequence:
-            plot:
-              heatmap:
-                color-scheme: category20
-                scale: ordinal
-          vartype:
-            display-mode: hidden
-          swissprot:
-            optional: true
-            display-mode: hidden
-          impact:
-            plot:
-              heatmap:
-                scale: ordinal
-                domain:
-                  - HIGH
-                  - MODERATE
-                  - LOW
-                  - MODIFIER
-                range:
-                  - "#ec0000"
-                  - "#ec5300"
-                  - "#ec9b00"
-                  - "#ecca00"
-          "regex('.+: allele frequency$')":
-            plot:
-              ticks:
-                scale: "linear"
-                domain: [0.0, 1.0]
-                aux-domain-columns:
-                  - "regex('.+: allele frequency')"
-                color:
-                  scale: "linear"
-                  domain: [0.0, 0.05, 0.0500000001, 1.0]
-                  range:
-                  - "#ffd6b3"
-                  - "#ff7f0e"
-                  - "#a8d2f0"
-                  - "#1f77b4"
-          "regex('.+: allele frequency distribution')":
-            display-mode: hidden
-          "regex('.+: read depth')":
-            plot:
-              ticks:
-                scale: "linear"
-                aux-domain-columns:
-                  - "regex('.+: read depth')"
-          "regex('prob: (?!artifact|absent)')":
-            plot:
-              heatmap:
-                scale: linear
-                domain: [0.0, 1.0]
-                range:
-                  - white
-                  - "#1f77b4"
-          "regex('prob: (artifact|absent)')":
-            plot:
-              heatmap:
-                scale: linear
-                domain: [0.0, 1.0]
-                range:
-                  - white
-                  - "#d4322c"
-          "gnomad genome af":
-            optional: true
-            plot:
-              heatmap:
-                scale: "linear"
-                domain: [0.0, 0.01, 1.0]
-                range:
-                  - white
-                  - "#adebad"
-                  - "#29a329"
-          id:
-            optional: true
-            display-mode: hidden
-          gene:
-            display-mode: hidden
-          feature:
-            display-mode: hidden
-          binned max vaf:
-            optional: true
-            display-mode: hidden
-          hgvsg:
-            optional: true
-            display-mode: hidden
-          chromosome:
-            display-mode: detail
-          end position:
-            display-mode: detail
-          position:
-            display-mode: detail
-          reference allele:
-            display-mode: detail
-            spell:
-              url: v1.5.0/med/alleles
-          alternative allele:
-            display-mode: detail
-            spell:
-              url: v1.5.0/med/alleles
-          canonical:
-            optional: true
-            display-mode: detail
-            spell:
-              url: v1.2.1/logic/boolean
-              with:
-                true_value: "True"
-                false_value: "False"
-          mane_plus_clinical:
-            optional: true
-            display-mode: detail
-            spell:
-              url: v1.2.1/logic/boolean
-              with:
-                true_value: "True"
-                false_value: "False"
-          ?for alias in params.samples.loc[params.samples["group"] == group, "alias"]:
-            '?f"{alias}: observations"':
-              optional: true
-              custom: ?make_inspect_link(alias)
-              display-mode: normal
-            '?f"{alias}: short observations"':
-              optional: true
-              display-mode: hidden
-          spliceai:
-            optional: true
-            plot:
-              heatmap:
-                scale: "linear"
-                domain: [0.0, 0.2, 0.5, 0.8, 1.0]
-                range:
-                  - "#22964"
-                  - "#f9f7ae"
-                  - "#fcac63"
-                  - "#f16e43"
-                  - "#d4322c"
-                custom-content: ?spliceai_content
-          spliceai_effect:
-            optional: true
-            display-mode: hidden
-          alphamissense:
-            optional: true
-            plot:
-              heatmap:
-                scale: "linear"
-                domain: [0.0, 0.34, 0.564, 1.0]
-                range:
-                  - "#22964"
-                  - "#d7ee82"
-                  - "#fedd8e"
-                  - "#d4322c"
-          population:
-            optional: true
-            custom: ?make_popover
-        add-columns:
-          build:
-            value: ?f"function() {{ return `{params.build}` }}"
-            display-mode: hidden

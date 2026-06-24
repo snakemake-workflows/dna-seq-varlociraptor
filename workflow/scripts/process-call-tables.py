@@ -1,3 +1,4 @@
+from functools import partial
 import sys
 
 sys.stderr = open(snakemake.log[0], "w")
@@ -15,10 +16,9 @@ def write(df, path):
     df["mane_plus_clinical"][df["mane_plus_clinical"].notna()] = True
     if not df.empty:
         remaining_columns = df.dropna(how="all", axis="columns").columns.tolist()
-        if path == snakemake.output.coding:
-            # ensure that these columns are kept, even if they contain only NAs in a coding setting
-            remaining_columns.extend(["revel", "hgvsp", "symbol"])
-            remaining_columns = [col for col in df.columns if col in remaining_columns]
+        # ensure that these columns are always kept
+        remaining_columns.extend(["revel", "hgvsp", "symbol", "hgvsc", "hgvsg"])
+        remaining_columns = [col for col in df.columns if col in remaining_columns]
         df = df[remaining_columns]
     df.to_csv(path, index=False, sep="\t")
 
@@ -239,9 +239,10 @@ calls["clinical significance"] = (
     calls["clinical significance"]
     .apply(eval)
     .apply(sorted)
-    .apply(", ".join)
+    .apply(",".join)
     .replace("", np.nan)
 )
+calls["consequence"] = calls["consequence"].apply(lambda value: value.replace("_", " "))
 
 calls["protein alteration (short)"] = (
     calls["protein alteration (short)"].apply(eval).apply("/".join).replace("", np.nan)
@@ -275,28 +276,11 @@ if calls.columns.str.endswith(": short ref observations").any():
 if calls.columns.str.startswith("spliceai").any():
     calls = select_spliceai_effect(calls)
 
-coding = ~pd.isna(calls["hgvsp"])
 canonical = calls["canonical"].notnull()
 mane_plus_clinical = calls["mane_plus_clinical"].notnull()
 canonical_mane = canonical | mane_plus_clinical
 
-noncoding_calls = calls[~coding & canonical_mane]
-noncoding_calls = cleanup_dataframe(noncoding_calls)
-write(noncoding_calls, snakemake.output.noncoding)
-
-coding_calls = calls[coding & canonical_mane].drop(
-    [
-        "id",
-    ],
-    axis="columns",
-)
-coding_calls = cleanup_dataframe(coding_calls)
-
-# coding variants
-# Here we have all variant info in hgvsp,
-# hence we can drop the other variant specific columns.
-write(
-    coding_calls,
-    snakemake.output.coding,
-)
+final_calls = calls[canonical_mane]
+final_calls = cleanup_dataframe(final_calls)
+write(final_calls, snakemake.output[0])
 # TODO add possibility to also see non-canoncical or non-mane+clinical transcripts (low priority, once everything else works).

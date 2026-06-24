@@ -33,10 +33,10 @@ rule fastp_se:
         json="results/trimmed/{sample}/{unit}.single.json",
     log:
         "logs/fastp/se/{sample}_{unit}.log",
+    threads: 8
     params:
         adapters=get_fastp_adapters,
         extra=get_fastp_extra,
-    threads: 8
     wrapper:
         "v6.2.0/bio/fastp"
 
@@ -53,10 +53,10 @@ rule fastp_pe:
         json="results/trimmed/{sample}/{unit}.paired.json",
     log:
         "logs/fastp/pe/{sample}_{unit}.log",
+    threads: 8
     params:
         adapters=get_fastp_adapters,
         extra=get_fastp_extra,
-    threads: 8
     wrapper:
         "v6.2.0/bio/fastp"
 
