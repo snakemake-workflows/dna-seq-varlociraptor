@@ -115,10 +115,9 @@ def gene_oncoprint(calls):
 
 
 def variant_oncoprint(gene_calls, group_annotation):
-    if gene_calls["hgvsp"].str.contains("ENSP00000358335").any():
-        breakpoint()
     gene_calls = gene_calls[["group", "hgvsp", "hgvsc", "hgvsg", "consequence"]]
     gene_calls.loc[:, "exists"] = "X"
+    breakpoint()
 
     gene_calls = gene_calls.drop_duplicates()
     is_protein_impact = gene_calls["hgvsp"].isna()
