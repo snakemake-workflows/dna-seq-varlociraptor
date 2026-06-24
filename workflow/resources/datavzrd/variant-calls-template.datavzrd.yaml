@@ -209,13 +209,13 @@ views:
                     legend:
                       title: variant
                 ellipsis: 0
-            p-value independence:
+            p-value dependency:
               optional: true
               spell:
                 url: v1.6.0/stats/p-value
                 with:
                   significance_threshold: 0.05
-            FDR independence:
+            FDR dependency:
               optional: true
               spell:
                 url: v1.6.0/stats/p-value
