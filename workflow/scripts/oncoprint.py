@@ -36,7 +36,7 @@ def join_gene_vartypes(df):
 
 def load_calls(path, group):
     calls = pd.read_csv(
-        path, sep="\t", usecols=["symbol", "vartype", "hgvsp", "hgvsg", "consequence"]
+        path, sep="\t", usecols=["symbol", "vartype", "hgvsp", "hgvsc", "hgvsg", "consequence"]
     )
     calls["group"] = group
     calls.loc[:, "consequence"] = calls["consequence"].str.replace("&", ",")
