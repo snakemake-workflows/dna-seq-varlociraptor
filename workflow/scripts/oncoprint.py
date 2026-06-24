@@ -119,7 +119,12 @@ def variant_oncoprint(gene_calls, group_annotation):
         breakpoint()
     gene_calls = gene_calls[["group", "hgvsp", "hgvsc", "hgvsg", "consequence"]]
     gene_calls.loc[:, "exists"] = "X"
-    grouped = gene_calls.drop_duplicates().groupby(["hgvsp"]).apply(join_group_hgvsgs)
+
+    gene_calls = gene_calls.drop_duplicates()
+    is_protein_impact = gene_calls["hgvsp"].isna()
+    gene_calls.loc[~is_protein_impact, "id"] = gene_calls.loc[:, "hgvsg"]
+    gene_calls.loc[is_protein_impact, "id"] = gene_calls.loc[:, "hgvsp"]
+    grouped = gene_calls.drop_duplicates().groupby(["id"]).apply(join_group_hgvsgs).drop(["id"], axis="columns")
     matrix = grouped.set_index(
         ["hgvsp", "hgvsc", "hgvsg", "consequence", "group"]
     ).unstack(level="group")
