@@ -8,7 +8,7 @@ rule process_call_tables:
     log:
         "logs/process_call_tables/{group}.{event}.log",
     conda:
-        "../envs/process_call_tables.yaml"
+        "../envs/pystats.yaml"
     params:
         sorting=lambda wc: config["calling"]["fdr-control"]["events"][wc.event].get(
             "sort", list()
