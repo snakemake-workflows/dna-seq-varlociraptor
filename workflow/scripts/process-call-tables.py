@@ -244,9 +244,6 @@ calls["clinical significance"] = (
 )
 calls["consequence"] = (
     calls["consequence"]
-    .apply(eval)
-    .apply(sorted)
-    .apply(",".join)
     .apply(lambda value: value.replace("_", " "))
     .replace("", np.nan)
 )
