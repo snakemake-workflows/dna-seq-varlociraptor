@@ -84,7 +84,7 @@ rule annotate_descriptions:
     log:
         "logs/mutational_signatures/annotate/{group}.{event}.{sample_alias}.log",
     conda:
-        "../envs/pandas.yaml"
+        "../envs/pystats.yaml"
     script:
         "../scripts/annotate_descriptions.py"
 

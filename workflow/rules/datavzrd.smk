@@ -33,7 +33,7 @@ rule process_fusion_call_tables:
     log:
         "logs/join_partner/{group}.{event}.log",
     conda:
-        "../envs/pandas.yaml"
+        "../envs/pystats.yaml"
     script:
         "../scripts/create_fusions_table_per_group.py"
 
@@ -53,7 +53,7 @@ rule prepare_oncoprint:
     log:
         "logs/prepare_oncoprint/{batch}.{event}.log",
     conda:
-        "../envs/oncoprint.yaml"
+        "../envs/pystats.yaml"
     params:
         groups=get_report_batch("variants"),
         labels=get_heterogeneous_labels(),
@@ -152,7 +152,7 @@ rule coverage_table:
     log:
         "logs/coverage/{group}_coverage_table.log",
     conda:
-        "../envs/pandas.yaml"
+        "../envs/pystats.yaml"
     params:
         min_cov=config["gene_coverage"].get("min_avg_coverage", 0),
     script:

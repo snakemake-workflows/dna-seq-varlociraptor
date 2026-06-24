@@ -100,6 +100,6 @@ rule build_primer_regions:
     log:
         "logs/primers/build_{panel}_primer_regions.log",
     conda:
-        "../envs/pandas.yaml"
+        "../envs/pystats.yaml"
     script:
         "../scripts/build_primer_regions.py"
