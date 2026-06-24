@@ -123,6 +123,10 @@ datasets:
         path: ?os.path.join(input.oncoprint_sorted_datasets, f"{label}.tsv")
         separator: "\t"
         headers: 2
+        links:
+          gene details:
+            column: symbol
+            view: "overview-{value}"
     ?for gene, path in params.variant_oncoprints:
       ?f"variant-oncoprint-{gene}":
         path: ?path
