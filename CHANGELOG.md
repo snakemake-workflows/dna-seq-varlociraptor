@@ -1,5 +1,12 @@
 # Changelog
 
+## [6.9.0](https://github.com/snakemake-workflows/dna-seq-varlociraptor/compare/v6.8.0...v6.9.0) (2026-06-24)
+
+
+### Features
+
+* test independence for numeric labels using Brunner-Munzel test ([#452](https://github.com/snakemake-workflows/dna-seq-varlociraptor/issues/452)) ([b0dc0d8](https://github.com/snakemake-workflows/dna-seq-varlociraptor/commit/b0dc0d8a0f40c2e79b70c0c32fd92772339ef45d))
+
 ## [6.8.0](https://github.com/snakemake-workflows/dna-seq-varlociraptor/compare/v6.7.0...v6.8.0) (2026-06-08)
 
 
