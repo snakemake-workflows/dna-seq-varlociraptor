@@ -151,11 +151,11 @@ views:
         labels: ?params.group_annotations.columns.values.tolist() if view == "gene-oncoprint" else [view]
       ?"overview" if view == "gene-oncoprint" else f"by {view}":
         ?if view == "gene-oncoprint":
-          desc: |
+          desc: >
             Overview table showing all discovered variants in all samples. Use link
             button to jump to detail views for the respective genes.
         ?else:
-          desc: |
+          desc: >
             ?f"""
             Rows are sorted by their statistical dependency on {view}, which is determined by a 
             [Chi² test](https://en.wikipedia.org/wiki/Chi-squared_test)
