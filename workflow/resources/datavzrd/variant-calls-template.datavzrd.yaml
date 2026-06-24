@@ -16,8 +16,12 @@ __definitions__:
       function(value, row) {{
         let hgvs_regex = /^(.+?):(.+)$/;
         // discard protein id
-        let hgvs = value.match(hgvs_regex)[2].replace('%3D', '=');
-        return hgvs
+        let res = value.match(hgvs_regex);
+        if (res === null) {{
+          return value
+        }}
+        let hgvs = res[2].replace('%3D', '=');
+        return hgvs;
       }}
     """
   - |
