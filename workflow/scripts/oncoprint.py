@@ -120,7 +120,7 @@ def variant_oncoprint(gene_calls, group_annotation):
     breakpoint()
 
     gene_calls = gene_calls.drop_duplicates()
-    is_protein_impact = gene_calls["hgvsp"].isna()
+    is_protein_impact = ~gene_calls["hgvsp"].isna()
     gene_calls.loc[~is_protein_impact, "id"] = gene_calls.loc[:, "hgvsg"]
     gene_calls.loc[is_protein_impact, "id"] = gene_calls.loc[:, "hgvsp"]
     grouped = gene_calls.drop_duplicates().groupby(["id"]).apply(join_group_hgvsgs).drop(["id"], axis="columns")
