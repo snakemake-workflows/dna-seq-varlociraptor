@@ -127,8 +127,8 @@ datasets:
         links:
           ?for group in params.groups:
             ?group:
-              column: hgvsc
-              table-row: ?f"{group}/hgvsc"
+              column: hgvsg
+              table-row: ?f"{group}/hgvsg"
               optional: true
 
   ?for group, path in zip(params.groups, input.calls):
