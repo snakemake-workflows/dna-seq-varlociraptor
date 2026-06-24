@@ -1,3 +1,4 @@
+from functools import partial
 import sys
 
 sys.stderr = open(snakemake.log[0], "w")
@@ -238,7 +239,15 @@ calls["clinical significance"] = (
     calls["clinical significance"]
     .apply(eval)
     .apply(sorted)
-    .apply(", ".join)
+    .apply(",".join)
+    .replace("", np.nan)
+)
+calls["consequence"] = (
+    calls["consequence"]
+    .apply(eval)
+    .apply(sorted)
+    .apply(",".join)
+    .apply(lambda value: value.replace("_", " "))
     .replace("", np.nan)
 )
 

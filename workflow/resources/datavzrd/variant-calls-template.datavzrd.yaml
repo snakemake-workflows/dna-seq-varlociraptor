@@ -194,9 +194,9 @@ views:
               display-mode: pinned
             consequence:
               plot:
-                heatmap:
-                  scale: ordinal
-                  color-scheme: category20
+                pills:
+                    separator: ","
+                    color-scheme: category20
               display-mode: pinned
             ?for group in params.groups:
               ?group:
@@ -246,9 +246,9 @@ views:
           columns:
             consequence:
               plot:
-                heatmap:
-                  scale: ordinal
-                  color-scheme: category20
+                pills:
+                    separator: ","
+                    color-scheme: category20
               display-mode: pinned
             ?for group in params.groups:
               ?group:
@@ -263,9 +263,11 @@ views:
             hgvsc:
               optional: true
               display-mode: pinned
+              custom: ?hgvs_content
             hgvsp:
               optional: true
               display-mode: pinned
+              custom: ?hgvs_content
 
   ?for group in params.groups:
     ?group:
