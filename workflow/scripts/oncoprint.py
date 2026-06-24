@@ -118,6 +118,7 @@ def variant_oncoprint(gene_calls, group_annotation):
     if gene_calls["hgvsp"].str.contains("ENSP00000358335").any():
         breakpoint()
     gene_calls = gene_calls[["group", "hgvsp", "hgvsc", "hgvsg", "consequence"]]
+    breakpoint()
     gene_calls.loc[:, "exists"] = "X"
     grouped = gene_calls.drop_duplicates().groupby(["hgvsp"]).apply(join_group_hgvsgs)
     matrix = grouped.set_index(["hgvsp", "hgvsg", "consequence", "group"]).unstack(
