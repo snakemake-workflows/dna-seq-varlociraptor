@@ -245,7 +245,6 @@ calls["clinical significance"] = (
 calls["consequence"] = (
     calls["consequence"]
     .apply(lambda value: value.replace("_", " "))
-    .replace("", np.nan)
 )
 
 calls["protein alteration (short)"] = (
