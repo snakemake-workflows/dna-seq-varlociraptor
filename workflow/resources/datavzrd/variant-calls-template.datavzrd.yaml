@@ -265,7 +265,9 @@ views:
             hgvsc:
               optional: true
               display-mode: pinned
-              custom: ?hgvs_content
+              hgvsc:
+                custom: ?read_file(input.linkouts)
+                optional: true
             hgvsp:
               optional: true
               display-mode: pinned
