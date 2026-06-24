@@ -36,7 +36,9 @@ def join_gene_vartypes(df):
 
 def load_calls(path, group):
     calls = pd.read_csv(
-        path, sep="\t", usecols=["symbol", "vartype", "hgvsp", "hgvsc", "hgvsg", "consequence"]
+        path,
+        sep="\t",
+        usecols=["symbol", "vartype", "hgvsp", "hgvsc", "hgvsg", "consequence"],
     )
     calls["group"] = group
     calls.loc[:, "consequence"] = calls["consequence"].str.replace("&", ",")
@@ -120,9 +122,16 @@ def variant_oncoprint(gene_calls, group_annotation):
 
     gene_calls = gene_calls.drop_duplicates()
     is_protein_impact = ~gene_calls["hgvsp"].isna()
-    gene_calls.loc[~is_protein_impact, "id"] = gene_calls.loc[~is_protein_impact, "hgvsg"]
+    gene_calls.loc[~is_protein_impact, "id"] = gene_calls.loc[
+        ~is_protein_impact, "hgvsg"
+    ]
     gene_calls.loc[is_protein_impact, "id"] = gene_calls.loc[is_protein_impact, "hgvsp"]
-    grouped = gene_calls.drop_duplicates().groupby(["id"]).apply(join_group_hgvsgs).drop(["id"], axis="columns")
+    grouped = (
+        gene_calls.drop_duplicates()
+        .groupby(["id"])
+        .apply(join_group_hgvsgs)
+        .drop(["id"], axis="columns")
+    )
     matrix = grouped.set_index(
         ["hgvsp", "hgvsc", "hgvsg", "consequence", "group"]
     ).unstack(level="group")
@@ -170,8 +179,10 @@ def sort_oncoprint_labels(data):
             target_vector = labels_df.loc[label]
             # ignore any NA in the target vector and correspondingly remove the rows in the feature matrix
             # infer_objects ensures that all values are interpreted by the best fitting type (e.g. float)
-            not_na_target_vector = target_vector[~pd.isna(target_vector)].infer_objects()
-            
+            not_na_target_vector = target_vector[
+                ~pd.isna(target_vector)
+            ].infer_objects()
+
             target_is_numeric = pd.api.types.is_numeric_dtype(not_na_target_vector)
             if target_is_numeric:
                 not_na_target_vector = not_na_target_vector.astype(float)
@@ -193,6 +204,7 @@ def sort_oncoprint_labels(data):
                     if np.isnan(pval):
                         pval = 1.0  # if the test fails for some reason (e.g. all values are identical), we assign a non-significant p-value
                     return pval
+
                 pvals = feature_matrix.apply(test_independence, axis="rows").values
             else:
                 _, pvals = chi2(feature_matrix, not_na_target_vector)

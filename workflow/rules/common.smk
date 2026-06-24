@@ -118,7 +118,9 @@ primer_panels = (
 )
 
 genome_build = lookup("ref/build", within=config)
-genebe_genome_build = "hg38" if build == "GRCh38" else "hg19" if build == "GRCh37" else None
+genebe_genome_build = (
+    "hg38" if build == "GRCh38" else "hg19" if build == "GRCh37" else None
+)
 
 
 def is_activated(xpath):
