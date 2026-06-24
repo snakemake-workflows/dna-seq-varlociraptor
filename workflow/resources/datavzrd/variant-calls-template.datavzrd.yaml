@@ -195,8 +195,9 @@ views:
             consequence:
               plot:
                 pills:
-                    separator: ","
-                    color-scheme: category20
+                  separator: ","
+                  color-scheme: category20
+                  ellipsis: 10
               display-mode: pinned
             ?for group in params.groups:
               ?group:
@@ -247,8 +248,9 @@ views:
             consequence:
               plot:
                 pills:
-                    separator: ","
-                    color-scheme: category20
+                  separator: ","
+                  color-scheme: category20
+                  ellipsis: 10
               display-mode: pinned
             ?for group in params.groups:
               ?group:
