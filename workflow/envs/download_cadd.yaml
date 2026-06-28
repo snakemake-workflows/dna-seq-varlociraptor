@@ -4,7 +4,7 @@ channels:
   - nodefaults
 dependencies:
   - coreutils =9.5
-  - gawk =5.3
+  - gawk =5.4.0
   - gzip =1.14
-  - htslib =1.22
-  - wget =1.25
+  - htslib =1.23.1
+  - wget =1.25.0

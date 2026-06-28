@@ -3,5 +3,5 @@ channels:
   - bioconda
   - nodefaults
 dependencies:
-  - samblaster =0.1.24
-  - sambamba =0.7.0
+  - samblaster =0.1.26
+  - sambamba =1.0.1
