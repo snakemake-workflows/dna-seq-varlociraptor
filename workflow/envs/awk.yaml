@@ -2,4 +2,4 @@ channels:
   - conda-forge
   - nodefaults
 dependencies:
-  - gawk =5.1
+  - gawk =5.4.0

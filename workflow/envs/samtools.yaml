@@ -3,5 +3,5 @@ channels:
   - bioconda
   - nodefaults
 dependencies:
-  - samtools =1.21
-  - sed =4.8
+  - samtools =1.23.1
+  - sed =4.10
