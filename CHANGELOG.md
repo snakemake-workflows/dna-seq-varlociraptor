@@ -1,5 +1,12 @@
 # Changelog
 
+## [6.9.1](https://github.com/snakemake-workflows/dna-seq-varlociraptor/compare/v6.9.0...v6.9.1) (2026-06-30)
+
+
+### Miscellaneous Chores
+
+* release 6.9.1 (updated datavzrd) ([56053db](https://github.com/snakemake-workflows/dna-seq-varlociraptor/commit/56053dbc3c466166f6b97e79452c105d5154497c))
+
 ## [6.9.0](https://github.com/snakemake-workflows/dna-seq-varlociraptor/compare/v6.8.0...v6.9.0) (2026-06-24)
 
 
