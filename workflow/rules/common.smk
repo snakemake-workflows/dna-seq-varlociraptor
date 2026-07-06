@@ -93,9 +93,7 @@ default_scenario = lookup("calling/scenario", within=config)
 if "scenario" not in group_annotation.columns:
     group_annotation["scenario"] = default_scenario
 else:
-    group_annotation["scenario"] = group_annotation["scenario"].fillna(
-        default_scenario, inplace=True
-    )
+    group_annotation["scenario"] = group_annotation["scenario"].fillna(default_scenario)
 
 units = (
     pd.read_csv(
