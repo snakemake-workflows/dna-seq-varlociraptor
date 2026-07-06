@@ -40,8 +40,8 @@ rule tabix_txt_tsv:
         "resources/{prefix}.{format}.gz.tbi",
     log:
         "logs/tabix/{prefix}.{format}.log",
+    cache: "omit-software"
     params:
         get_tabix_params,
-    cache: "omit-software"
     wrapper:
         "v2.3.2/bio/tabix/index"

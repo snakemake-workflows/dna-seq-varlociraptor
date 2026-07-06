@@ -7,12 +7,12 @@ rule gather_observations:
         "results/observations/{caller}/{group}/{sample}.all.bcf",
     log:
         "logs/gather-observations/{caller}/{group}/{sample}.log",
-    params:
-        uncompressed_bcf=False,
-        extra="",
     threads: 4
     resources:
         mem_mb=10,
+    params:
+        uncompressed_bcf=False,
+        extra="",
     wrapper:
         "v2.3.2/bio/bcftools/concat"
 
@@ -29,11 +29,11 @@ rule testcase:
         directory("results/testcases/{group}/{caller}/{locus}"),
     log:
         "logs/varlociraptor/testcase/{group}/{caller}/{locus}.log",
+    conda:
+        "../envs/varlociraptor.yaml"
     params:
         obs=get_varlociraptor_obs_args,
         extra=config["params"]["varlociraptor"]["call"],
-    conda:
-        "../envs/varlociraptor.yaml"
     shell:
         "varlociraptor "
         "call variants --testcase-prefix {output} --testcase-locus {wildcards.locus} "

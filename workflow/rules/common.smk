@@ -121,6 +121,11 @@ primer_panels = (
     else None
 )
 
+genome_build = lookup("ref/build", within=config)
+genebe_genome_build = (
+    "hg38" if build == "GRCh38" else "hg19" if build == "GRCh37" else None
+)
+
 
 def is_activated(xpath):
     c = config
@@ -1215,7 +1220,7 @@ def get_info_fusion_fields_for_tables(wildcards):
 
 
 def get_format_fields_for_tables(wildcards):
-    format_fields = ["AF", "DP"]
+    format_fields = ["AF", "AFD", "DP"]
 
     if (
         lookup(dpath="tables/output/short_observations", within=config, default=False)
@@ -1227,6 +1232,7 @@ def get_format_fields_for_tables(wildcards):
         format_fields.extend(
             [
                 "OBS",
+                "AFD",
             ]
         )
 
@@ -1276,6 +1282,7 @@ def get_vembrane_config(wildcards, input):
     # FORMAT fields
     format_fields_names = {
         "AF": "allele frequency",
+        "AFD": "allele frequency distribution",
         "DP": "read depth",
         "SROBS": "short ref observations",
         "SAOBS": "short alt observations",
@@ -1416,6 +1423,8 @@ def get_vembrane_config(wildcards, input):
         # gets moved ahead of consequence column for variants
         "FORMAT['AF']",
         # MAIN column for fusions, COLLAPSED column for variants
+        "FORMAT['AFD']",
+        # MAIN column for fusions, COLLAPSED column for variants
         "FORMAT['DP']",
         # COLLAPSED columns
         # fusions only, join key in join_fusion_partner.py
@@ -1537,17 +1546,19 @@ def get_primer_extra(wc, input):
     return extra
 
 
-def get_datavzrd_data(impact="coding"):
-    calling_type = "variants"
-    if impact == "fusions":
-        impact = "fusions.joined"
-        calling_type = "fusions"
-    pattern = "results/tables/{group}/{group}.{event}.{impact}.fdr-controlled.tsv"
+def get_datavzrd_data(calling_type="variants"):
+    if calling_type == "fusions":
+        filetype = "fusions.joined"
+    elif calling_type == "variants":
+        filetype = "variants.postprocessed"
+    else:
+        raise ValueError(f"Unsupported calling type: {calling_type}")
+    pattern = "results/tables/{group}/{group}.{event}.{filetype}.fdr-controlled.tsv"
 
     def inner(wildcards):
         return expand(
             pattern,
-            impact=impact,
+            filetype=filetype,
             event=wildcards.event,
             group=get_report_batch(calling_type),
         )
@@ -1558,7 +1569,7 @@ def get_datavzrd_data(impact="coding"):
 def get_oncoprint_input(wildcards):
     groups = get_report_batch("variants")
     return expand(
-        "results/tables/{group}/{group}.{event}.coding.fdr-controlled.tsv",
+        "results/tables/{group}/{group}.{event}.variants.postprocessed.fdr-controlled.tsv",
         group=groups,
         event=wildcards.event,
     )

@@ -8,18 +8,18 @@ rule annotate_candidate_variants:
     output:
         calls="results/candidate-calls/{caller}/{group}/{group}.{scatteritem}.annotated.bcf",
         stats="results/candidate-calls/{caller}/{group}/{group}.{scatteritem}.stats.html",
+    log:
+        "logs/vep/{caller}/{group}/{group}.{scatteritem}.annotate_candidates.log",
+    benchmark:
+        "benchmarks/vep/{caller}/{group}/{group}.{scatteritem}.annotate_candidates.tsv"
+    group:
+        "candidate-annotation"
+    threads: 4
     params:
         plugins=config["annotations"]["vep"]["candidate_calls"]["plugins"],
         extra="{} --vcf_info_field ANN ".format(
             config["annotations"]["vep"]["candidate_calls"]["params"]
         ),
-    log:
-        "logs/vep/{caller}/{group}/{group}.{scatteritem}.annotate_candidates.log",
-    benchmark:
-        "benchmarks/vep/{caller}/{group}/{group}.{scatteritem}.annotate_candidates.tsv"
-    threads: 4
-    group:
-        "candidate-annotation"
     wrapper:
         "v8.0.0/bio/vep/annotate"
 
@@ -44,6 +44,11 @@ rule annotate_variants:
     output:
         calls="results/calls/vep_annotated/{group}/{group}.{calling_type}.{scatteritem}.bcf",
         stats="results/calls/vep_annotated/{group}/{group}.{calling_type}.{scatteritem}.stats.html",
+    log:
+        "logs/vep/{group}.{calling_type}.{scatteritem}.annotate.log",
+    group:
+        "annotation"
+    threads: 4
     params:
         # Pass a list of plugins to use, see https://www.ensembl.org/info/docs/tools/vep/script/vep_plugins.html
         # Plugin args can be added as well, e.g. via an entry "MyPlugin,1,FOO", see docs.
@@ -57,11 +62,6 @@ rule annotate_variants:
         extra="{} --vcf_info_field ANN --hgvsg".format(
             config["annotations"]["vep"]["final_calls"]["params"]
         ),
-    log:
-        "logs/vep/{group}.{calling_type}.{scatteritem}.annotate.log",
-    threads: 4
-    group:
-        "annotation"
     wrapper:
         "v8.0.0/bio/vep/annotate"
 
@@ -76,13 +76,13 @@ rule annotate_vcfs:
         "results/calls/db_annotated/{prefix}.bcf",
     log:
         "logs/annotate-vcfs/{prefix}.log",
-    params:
-        pipes=get_annotation_pipes,
+    group:
+        "annotation"
     conda:
         "../envs/snpsift.yaml"
     threads: 4
-    group:
-        "annotation"
+    params:
+        pipes=get_annotation_pipes,
     shell:
         "(bcftools view --threads {threads} {input.bcf} {params.pipes} | "
         "bcftools view --threads {threads} -Ob > {output}) 2> {log}"
@@ -91,18 +91,18 @@ rule annotate_vcfs:
 rule annotate_dgidb:
     input:
         get_annotate_dgidb_input,
-    params:
-        datasources=get_dgidb_datasources(),
     output:
         "results/calls/dgidb_annotated/{prefix}.bcf",
     log:
         "logs/annotate-dgidb/{prefix}.log",
+    group:
+        "annotation"
     conda:
         "../envs/rbt.yaml"
     resources:
         dgidb_requests=1,
-    group:
-        "annotation"
+    params:
+        datasources=get_dgidb_datasources(),
     shell:
         "rbt vcf-annotate-dgidb {input} {params.datasources} > {output} 2> {log}"
 
@@ -123,9 +123,9 @@ rule gather_annotated_calls:
         "results/final-calls/{group}/{group}.{calling_type}.annotated.bcf",
     log:
         "logs/gather-annotated-calls/{group}/{group}.{calling_type}.log",
-    params:
-        extra="-a",
     group:
         "annotation"
+    params:
+        extra="-a",
     wrapper:
         "v2.3.2/bio/bcftools/concat"

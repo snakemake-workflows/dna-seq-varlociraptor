@@ -1,21 +1,20 @@
-rule split_call_tables:
+rule process_call_tables:
     input:
         calls="results/tables/{group}/{group}.{event}.variants.fdr-controlled.tsv",
         population_db=get_cleaned_population_db(),
         population_db_idx=get_cleaned_population_db(idx=True),
     output:
-        coding="results/tables/{group}/{group}.{event}.coding.fdr-controlled.tsv",
-        noncoding="results/tables/{group}/{group}.{event}.noncoding.fdr-controlled.tsv",
+        "results/tables/{group}/{group}.{event}.variants.postprocessed.fdr-controlled.tsv",
+    log:
+        "logs/process_call_tables/{group}.{event}.log",
+    conda:
+        "../envs/pystats.yaml"
     params:
         sorting=lambda wc: config["calling"]["fdr-control"]["events"][wc.event].get(
             "sort", list()
         ),
-    log:
-        "logs/split_tables/{group}.{event}.log",
-    conda:
-        "../envs/split_call_tables.yaml"
     script:
-        "../scripts/split-call-tables.py"
+        "../scripts/process-call-tables.py"
 
 
 rule process_fusion_call_tables:
@@ -34,7 +33,7 @@ rule process_fusion_call_tables:
     log:
         "logs/join_partner/{group}.{event}.log",
     conda:
-        "../envs/pandas.yaml"
+        "../envs/pystats.yaml"
     script:
         "../scripts/create_fusions_table_per_group.py"
 
@@ -53,32 +52,19 @@ rule prepare_oncoprint:
         ),
     log:
         "logs/prepare_oncoprint/{batch}.{event}.log",
+    conda:
+        "../envs/pystats.yaml"
     params:
         groups=get_report_batch("variants"),
         labels=get_heterogeneous_labels(),
-    conda:
-        "../envs/oncoprint.yaml"
     script:
         "../scripts/oncoprint.py"
 
 
 rule datavzrd_variants_calls:
     input:
-        coding_calls=get_datavzrd_data(impact="coding"),
-        noncoding_calls=get_datavzrd_data(impact="noncoding"),
+        calls=get_datavzrd_data(calling_type="variants"),
         linkouts=workflow.source_path("../resources/datavzrd/linkouts.js"),
-        spec_observations=workflow.source_path(
-            "../resources/datavzrd/spec_observations.json"
-        ),
-        data_observations=workflow.source_path(
-            "../resources/datavzrd/data_observations.js"
-        ),
-        spec_short_observations=workflow.source_path(
-            "../resources/datavzrd/spec_short_observations.json"
-        ),
-        data_short_observations=workflow.source_path(
-            "../resources/datavzrd/data_short_observations.js"
-        ),
         config=workflow.source_path(
             "../resources/datavzrd/variant-calls-template.datavzrd.yaml"
         ),
@@ -101,9 +87,8 @@ rule datavzrd_variants_calls:
     params:
         variant_oncoprints=get_variant_oncoprint_tables,
         groups=get_report_batch("variants"),
-        coding_calls=get_datavzrd_data(impact="coding"),
-        noncoding_calls=get_datavzrd_data(impact="noncoding"),
         build=config["ref"]["build"],
+        genebe_genome_build=genebe_genome_build,
         samples=samples,
         group_annotations=group_annotation,
         labels=get_heterogeneous_labels(),
@@ -111,24 +96,12 @@ rule datavzrd_variants_calls:
             dpath="calling/fdr-control/events/{event}/desc", within=config
         ),
     wrapper:
-        "v9.2.0/utils/datavzrd"
+        "v9.12.0/utils/datavzrd"
 
 
 rule datavzrd_fusion_calls:
     input:
-        fusion_calls=get_datavzrd_data(impact="fusions"),
-        spec_observations=workflow.source_path(
-            "../resources/datavzrd/spec_observations.json"
-        ),
-        data_observations=workflow.source_path(
-            "../resources/datavzrd/data_observations.js"
-        ),
-        spec_short_observations=workflow.source_path(
-            "../resources/datavzrd/spec_short_observations.json"
-        ),
-        data_short_observations=workflow.source_path(
-            "../resources/datavzrd/data_short_observations.js"
-        ),
+        fusion_calls=get_datavzrd_data(calling_type="fusions"),
         config=workflow.source_path(
             "../resources/datavzrd/fusion-calls-template.datavzrd.yaml"
         ),
@@ -150,7 +123,7 @@ rule datavzrd_fusion_calls:
         species=lookup(within=config, dpath="ref/species"),
         samples=samples,
     wrapper:
-        "v9.2.0/utils/datavzrd"
+        "v9.12.0/utils/datavzrd"
 
 
 rule bedtools_merge:
@@ -159,11 +132,11 @@ rule bedtools_merge:
         right="results/regions/{group}.covered_regions.bed",
     output:
         "results/coverage/{group}/{sample}.regions.filtered.bed",
+    log:
+        "logs/bedtools/{group}/{sample}.log",
     params:
         ## Add optional parameters
         extra="-wa",
-    log:
-        "logs/bedtools/{group}/{sample}.log",
     wrapper:
         "v2.6.0/bio/bedtools/intersect"
 
@@ -176,12 +149,12 @@ rule coverage_table:
         ),
     output:
         "results/coverage/{group}.csv",
-    params:
-        min_cov=config["gene_coverage"].get("min_avg_coverage", 0),
-    conda:
-        "../envs/pandas.yaml"
     log:
         "logs/coverage/{group}_coverage_table.log",
+    conda:
+        "../envs/pystats.yaml"
+    params:
+        min_cov=config["gene_coverage"].get("min_avg_coverage", 0),
     script:
         "../scripts/coverage_table.py"
 
@@ -204,4 +177,4 @@ rule datavzrd_coverage:
     params:
         samples=lambda wc: get_group_samples(wc.group),
     wrapper:
-        "v9.2.0/utils/datavzrd"
+        "v9.12.0/utils/datavzrd"

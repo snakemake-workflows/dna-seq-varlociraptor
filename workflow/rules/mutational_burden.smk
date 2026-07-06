@@ -6,10 +6,10 @@ if config["mutational_burden"]["activate"]:
             coding="resources/coding_regions.bed.gz",
         output:
             "results/regions/{group}.covered_regions.filtered.coding.coverage_breadth.txt",
-        conda:
-            "../envs/awk_bedtools.yaml"
         log:
             "logs/regions/{group}.covered_regions.filtered.coding.coverage_breadth.log",
+        conda:
+            "../envs/awk_bedtools.yaml"
         shell:
             "( bedtools intersect -a {input.covered} -b {input.coding} | "
             "  awk '{{ covered += $3 - $2 }} END {{ print covered }}' >{output} "
@@ -29,10 +29,10 @@ if config["mutational_burden"]["activate"]:
             ),
         log:
             "logs/estimate-mutational-burden/{group}.{alias}.{mode}.log",
-        params:
-            events=" ".join(config["mutational_burden"]["events"]),
         conda:
             "../envs/varlociraptor.yaml"
+        params:
+            events=" ".join(config["mutational_burden"]["events"]),
         shell:
             "(varlociraptor estimate mutational-burden "
             "--mode {wildcards.mode} "
