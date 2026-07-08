@@ -1,5 +1,31 @@
 # Changelog
 
+## [6.9.1](https://github.com/snakemake-workflows/dna-seq-varlociraptor/compare/v6.9.0...v6.9.1) (2026-06-30)
+
+
+### Miscellaneous Chores
+
+* release 6.9.1 (updated datavzrd) ([56053db](https://github.com/snakemake-workflows/dna-seq-varlociraptor/commit/56053dbc3c466166f6b97e79452c105d5154497c))
+
+## [6.9.0](https://github.com/snakemake-workflows/dna-seq-varlociraptor/compare/v6.8.0...v6.9.0) (2026-06-24)
+
+
+### Features
+
+* test independence for numeric labels using Brunner-Munzel test ([#452](https://github.com/snakemake-workflows/dna-seq-varlociraptor/issues/452)) ([b0dc0d8](https://github.com/snakemake-workflows/dna-seq-varlociraptor/commit/b0dc0d8a0f40c2e79b70c0c32fd92772339ef45d))
+
+## [6.8.0](https://github.com/snakemake-workflows/dna-seq-varlociraptor/compare/v6.7.0...v6.8.0) (2026-06-08)
+
+
+### Features
+
+* add GeneBe and Decipher Genomics links ([#446](https://github.com/snakemake-workflows/dna-seq-varlociraptor/issues/446)) ([0e2ae3d](https://github.com/snakemake-workflows/dna-seq-varlociraptor/commit/0e2ae3d23977c51fef46d8de8ac16fd7f641b30d))
+
+
+### Bug Fixes
+
+* Fix datavzrd config for non-coding variants view and hide short observations ([#450](https://github.com/snakemake-workflows/dna-seq-varlociraptor/issues/450)) ([b038d37](https://github.com/snakemake-workflows/dna-seq-varlociraptor/commit/b038d37d0a603de325e3146ca6536fd362af11a0))
+
 ## [6.7.0](https://github.com/snakemake-workflows/dna-seq-varlociraptor/compare/v6.6.1...v6.7.0) (2026-05-25)
 
 

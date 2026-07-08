@@ -10,7 +10,7 @@ rule freebayes:
         "results/candidate-calls/freebayes/{group}/{group}.bcf",
     log:
         "logs/freebayes/{group}.log",
-    threads: max(workflow.cores - 1, 1)  # use all available cores -1 (because of the pipe) for calling
+    threads: 96  # with more cores, we expect freebayes to become too IO bound and memory hungry
     params:
         # genotyping is performed by varlociraptor, hence we deactivate it in freebayes by
         # always setting --pooled-continuous
@@ -19,7 +19,6 @@ rule freebayes:
             config["params"]["freebayes"].get("min_alternate_fraction", "0.05"),
             config["params"]["freebayes"].get("extra", ""),
         ),
-    threads: 96  # with more cores, we expect freebayes to become too IO bound and memory hungry
     wrapper:
         "v2.7.0/bio/freebayes"
 
@@ -53,7 +52,9 @@ rule fix_delly_calls:
     conda:
         "../envs/bcftools.yaml"
     shell:
-        """bcftools view -e 'INFO/SVTYPE="BND"' {input} -Ob > {output} 2> {log}"""
+        """
+        bcftools view -e 'INFO/SVTYPE="BND"' {input} -Ob >{output} 2>{log}
+        """
 
 
 rule filter_offtarget_variants:

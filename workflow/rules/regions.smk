@@ -13,8 +13,11 @@ case of multiple BED files, these need to be merged.
         "../envs/awk_bedtools.yaml"
     shell:
         """
-        (cat {input} | sort -k1,1 -k2,2n - | mergeBed -i - | awk \'{{sub("^chr","", $0); print}}\' > {output} \
-        && if [[ ! -s {output} ]]; then >&2 echo 'Empty output: target file appears to be invalid'; exit 1; fi) 2> {log}
+        (cat {input} | sort -k1,1 -k2,2n - | mergeBed -i - | awk \'{{sub("^chr","", $0); print}}\' >{output} \
+            && if [[ ! -s {output} ]]; then
+                >&2 echo 'Empty output: target file appears to be invalid'
+                exit 1
+            fi) 2>{log}
         """
 
 

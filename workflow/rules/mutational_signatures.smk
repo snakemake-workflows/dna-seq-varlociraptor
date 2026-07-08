@@ -71,7 +71,7 @@ rule join_mutational_signatures:
         "logs/mutational_signatures/join/{group}.{event}.{sample_alias}.log",
     shell:
         """
-        cat <(echo "Signature\tFrequency\tMinimum VAF") {input} >> {output} 2> {log}
+        cat <(echo "Signature\tFrequency\tMinimum VAF") {input} >>{output} 2>{log}
         """
 
 
@@ -84,7 +84,7 @@ rule annotate_descriptions:
     log:
         "logs/mutational_signatures/annotate/{group}.{event}.{sample_alias}.log",
     conda:
-        "../envs/pandas.yaml"
+        "../envs/pystats.yaml"
     script:
         "../scripts/annotate_descriptions.py"
 

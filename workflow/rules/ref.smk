@@ -87,13 +87,14 @@ rule determine_coding_regions:
     shell:
         # filter for `exon` entries, but unclear how to exclude pseudogene exons...
         """
-        ( cat {input} | \\
-          awk 'BEGIN {{ IFS = "\\t"}} {{ if ($3 == "exon") {{ print $0 }} }}' | \\
-          grep 'transcript_biotype "protein_coding"' | \\
-          grep 'gene_biotype "protein_coding"' | \\
-          awk 'BEGIN {{ IFS = "\\t"; OFS = "\\t"}}  {{ print $1,$4-1,$5 }}' | \\
-          gzip > {output} \\
-        ) 2> {log}
+        (
+            cat {input} | \\
+            awk 'BEGIN {{ IFS = "\\t"}} {{ if ($3 == "exon") {{ print $0 }} }}' | \\
+            grep 'transcript_biotype "protein_coding"' | \\
+            grep 'gene_biotype "protein_coding"' | \\
+            awk 'BEGIN {{ IFS = "\\t"; OFS = "\\t"}}  {{ print $1,$4-1,$5 }}' | \\
+            gzip >{output} \\
+        ) 2>{log}
         """
 
 
