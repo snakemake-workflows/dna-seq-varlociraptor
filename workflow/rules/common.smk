@@ -464,6 +464,15 @@ def get_markduplicates_input(sample):
         return f"results/mapped/{aligner}/{{sample}}.sorted.bam"
 
 
+def get_sample_bam(wc, bai=False):
+    ext="bai" if bai else "bam"
+    return branch(
+        lookup("basequality_recalibration/activate", within=config, default=False),
+        then="results/recal/{{sample}}.{ext}",
+        otherwise=get_recalibrate_quality_input(wc.sample, bai),
+    )
+
+
 def get_recalibrate_quality_input(sample, bai=False):
     ext = "bai" if bai else "bam"
     datatype = get_sample_datatype(sample)
@@ -593,7 +602,6 @@ def get_group_bams(wildcards, bai=False):
             sample=get_group_samples(wildcards.group),
             ext=ext,
         )
-
     else:
         return [
             get_recalibrate_quality_input(sample, bai)
