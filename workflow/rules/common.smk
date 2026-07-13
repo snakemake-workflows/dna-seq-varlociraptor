@@ -1600,7 +1600,7 @@ def get_datavzrd_report_subcategory(wildcards):
     return event.get("subcategory", None)
 
 
-def get_fastqc_results(wildcards):
+def get_multiqc_input(wildcards):
     group_samples = get_group_samples(wildcards.group)
     sample_units = units.loc[group_samples]
     sra_units = pd.isna(sample_units["fq1"])
