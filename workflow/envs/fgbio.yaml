@@ -1,5 +1,6 @@
 channels:
   - conda-forge
   - bioconda
+  - nodefaults
 dependencies:
   - fgbio-minimal =2.2

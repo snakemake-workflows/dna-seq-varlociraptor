@@ -13,11 +13,11 @@ rule render_scenario:
         ),
     log:
         "logs/render-scenario/{group}.log",
+    conda:
+        None
     params:
         samples=lambda wc: samples[samples["group"] == wc.group],
         annotation=lambda wc: group_annotation.loc[wc.group],
-    conda:
-        None
     template_engine:
         "yte"
 
@@ -48,16 +48,16 @@ rule varlociraptor_preprocess:
         alignment_props=get_alignment_props,
     output:
         "results/observations/{caller}/{group}/{sample}.{scatteritem}.bcf",
-    params:
-        extra=lambda wc: get_varlociraptor_params(
-            wc, config["params"]["varlociraptor"]["preprocess"]
-        ),
     log:
         "logs/varlociraptor/preprocess/{group}/{sample}.{caller}.{scatteritem}.log",
     benchmark:
         "benchmarks/varlociraptor/preprocess/{group}/{sample}.{caller}.{scatteritem}.tsv"
     conda:
         "../envs/varlociraptor.yaml"
+    params:
+        extra=lambda wc: get_varlociraptor_params(
+            wc, config["params"]["varlociraptor"]["preprocess"]
+        ),
     shell:
         "varlociraptor preprocess variants --candidates {input.candidates} {params.extra} "
         "--alignment-properties {input.alignment_props} {input.ref} --bam {input.bam} --output {output} "
@@ -74,6 +74,10 @@ rule varlociraptor_call:
         ),
     log:
         "logs/varlociraptor/call/{caller}/{group}.{scatteritem}.log",
+    benchmark:
+        "benchmarks/varlociraptor/call/{group}/{group}.{caller}.{scatteritem}.tsv"
+    conda:
+        "../envs/varlociraptor.yaml"
     params:
         obs=get_varlociraptor_obs_args,
         # Add -o as workaround to separate info field entries from subcommand
@@ -86,10 +90,6 @@ rule varlociraptor_call:
             if not config["calling"].get("infer_genotypes")
             else "| varlociraptor genotype >"
         ),
-    conda:
-        "../envs/varlociraptor.yaml"
-    benchmark:
-        "benchmarks/varlociraptor/call/{group}/{group}.{caller}.{scatteritem}.tsv"
     shell:
         "(varlociraptor call variants {params.extra} generic --obs {params.obs}"
         " --scenario {input.scenario} {params.postprocess} {output}) 2> {log}"
@@ -100,15 +100,15 @@ rule sort_calls:
         "results/calls/varlociraptor/{caller}/{group}/{group}.{scatteritem}.unsorted.bcf",
     output:
         temp("results/calls/varlociraptor/{caller}/{group}/{group}.{scatteritem}.bcf"),
+    log:
+        "logs/bcf-sort/{group}/{group}.{caller}.{scatteritem}.log",
+    resources:
+        mem_mb=8000,
     params:
         # Set to True, in case you want uncompressed BCF output
         uncompressed_bcf=False,
         # Extra arguments
         extras="",
-    log:
-        "logs/bcf-sort/{group}/{group}.{caller}.{scatteritem}.log",
-    resources:
-        mem_mb=8000,
     wrapper:
         "v2.6.0/bio/bcftools/sort"
 

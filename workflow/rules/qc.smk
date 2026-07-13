@@ -37,7 +37,7 @@ rule samtools_stats:
 
 rule multiqc:
     input:
-        get_fastqc_results,
+        get_multiqc_input,
     output:
         report(
             "results/qc/multiqc/{group}.html",
@@ -45,9 +45,10 @@ rule multiqc:
             caption="../report/multiqc.rst",
             labels={"Sample group": "{group}"},
         ),
-    params:
-        "--exclude snippy",
     log:
         "logs/multiqc/{group}.log",
+    params:
+        extra="--exclude snippy",
+        use_input_files_only=True,
     wrapper:
-        "v2.10.0/bio/multiqc"
+        "v9.9.0/bio/multiqc"
