@@ -1626,7 +1626,7 @@ def get_multiqc_input(wildcards):
 
     # fastp
     if sample_units["adapters"].notna().all():
-        pattern = "results/trimmed/{unit.sample_name}/{unit.unit_name}.{mode}.qc.html"
+        pattern = "results/trimmed/{unit.sample_name}/{unit.unit_name}.{mode}.json"
         yield from expand(
             pattern, unit=sample_units[paired_end_units].itertuples(), mode="paired"
         )

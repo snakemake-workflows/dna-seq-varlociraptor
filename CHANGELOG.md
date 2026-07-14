@@ -1,5 +1,13 @@
 # Changelog
 
+## [6.9.2](https://github.com/snakemake-workflows/dna-seq-varlociraptor/compare/v6.9.1...v6.9.2) (2026-07-13)
+
+
+### Bug Fixes
+
+* get correctly restricted multiqc input ([#459](https://github.com/snakemake-workflows/dna-seq-varlociraptor/issues/459)) ([115f729](https://github.com/snakemake-workflows/dna-seq-varlociraptor/commit/115f729c0374933d8599174eaa4a90efd5e6914a))
+* use correct output file for collecting QC info from fastp ([35ff815](https://github.com/snakemake-workflows/dna-seq-varlociraptor/commit/35ff81596db09a91ef069857ccea62d8a01fb7ea))
+
 ## [6.9.1](https://github.com/snakemake-workflows/dna-seq-varlociraptor/compare/v6.9.0...v6.9.1) (2026-06-30)
 
 
