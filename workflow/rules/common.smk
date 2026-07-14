@@ -424,6 +424,33 @@ def get_map_reads_input(wildcards):
     return "results/merged/{sample}_single.fastq.gz"
 
 
+def get_sample_pangenome_prefix(wildcards):
+    group = lookup(query="sample_name == '{sample}'", within=samples, cols="group")
+    return f"results/pangenomes/{group}"
+
+
+def get_haplotype_args(wildcards, input):
+    with open(input.scenario) as scenario:
+        scenario = yaml.safe_load(scenario)
+        alias = samples.loc[wildcards.sample, "alias"]
+
+        try:
+            settings = scenario["samples"][alias]
+        except KeyError:
+            raise ValueError(
+                f"Sample alias {sample.alias} does not occur in scenario of group {wildcards.group}"
+            )
+
+        is_diploid = (
+            "[" not in settings.get("universe", "")
+            and "somatic-effective-mutation-rate" not in settings
+        )
+        if is_diploid:
+            return "--diploid-sampling"
+        else:
+            return "--num-haplotypes 32"
+
+
 def get_star_reads_input(wildcards, r2=False):
     match (bool(is_paired_end(wildcards.sample)), r2):
         case (True, False):

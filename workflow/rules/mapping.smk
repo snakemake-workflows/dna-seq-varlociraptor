@@ -36,6 +36,50 @@ rule count_sample_kmers:
         "rm -r $tmpdir || (rm -r $tmpdir && exit 1)"
 
 
+rule obtain_sample_pangenome:
+    input:
+        kmers=access.sequential("results/kmers/{sample}.kff"),
+        graph=access.random(f"{pangenome_prefix}.gbz"),
+        hapl=access.random(f"{pangenome_prefix}.hapl"),
+        scenario=lookup(query="sample_name == '{sample}'", cols="group", within=samples),
+    output:
+        temp("results/pangenomes/by_sample/{sample}.gbz"),
+    log:
+        "logs/vg_haplotypes/{sample}.log",
+    threads: 64
+    params:
+        haplotype_args=get_haplotype_args,
+    shell:
+        "vg haplotypes --threads {threads} -k {input.kmers} -i {input.hapl} "
+        "{params.haplotype_args} --include-reference -g {output} 2> {log}"
+
+
+rule merge_sample_pangenomes:
+    input:
+        per_sample=access.random(
+            collect(
+                "results/pangenomes/by_sample/{sample}.gbz",
+                sample=lookup(
+                    query="group == '{group}'", cols="sample_name", within=samples
+                ),
+            )
+        ),
+        full=access.random(f"{pangenome_prefix}.gbz"),
+    output:
+        gbz=temp("results/pangenomes/by_group/{group}.gbz"),
+        dist=temp("results/pangenomes/by_group/{group}.dist"),
+        min=temp("results/pangenomes/by_group/{group}.min"),
+    log:
+        "logs/vg_gbwt/{group}.log",
+    threads: 64
+    shell:
+        "(vg gbwt --gbz-input --num-jobs 1 --num-threads {threads} -x {input.full} "
+        " -g {output.gbz} -m {input.per_sample};  "
+        " vg index --threads {threads} -j {output.dist} {output.gbz}; "
+        " vg minimizer -p --threads {threads} -o {output.min} "
+        " -d {output.dist} {output.gbz}) 2> {log}"
+
+
 rule create_reference_paths:
     output:
         "resources/reference_paths.txt",
@@ -50,21 +94,13 @@ rule create_reference_paths:
 rule map_reads_vg:
     input:
         reads=get_map_reads_input,
-        graph=access.random(f"{pangenome_prefix}.gbz"),
-        kmers=access.random("results/kmers/{sample}.kff"),
+        graph=access.random(subpath(get_sample_pangenome_prefix, with_suffix=".gbz")),
+        dist=access.random(subpath(get_sample_pangenome_prefix, with_suffix=".dist")),
+        min=access.random(subpath(get_sample_pangenome_prefix, with_suffix=".min")),
         hapl=access.random(f"{pangenome_prefix}.hapl"),
         paths=access.random("resources/reference_paths.txt"),
     output:
         bam=temp("results/mapped/vg/{sample}.raw.bam"),
-        indexes=temp(
-            multiext(
-                f"{pangenome_prefix}.{{sample}}",
-                ".gbz",
-                ".dist",
-                ".shortread.withzip.min",
-                ".shortread.zipcodes",
-            )
-        ),
     log:
         "logs/mapped/vg/{sample}.log",
     benchmark:
