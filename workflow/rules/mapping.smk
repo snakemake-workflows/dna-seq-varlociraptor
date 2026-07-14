@@ -41,7 +41,7 @@ rule obtain_sample_pangenome:
         kmers=access.sequential("results/kmers/{sample}.kff"),
         graph=access.random(f"{pangenome_prefix}.gbz"),
         hapl=access.random(f"{pangenome_prefix}.hapl"),
-        scenario=lookup(query="sample_name == '{sample}'", cols="group", within=samples),
+        scenario=get_sample_scenario,
     output:
         temp("results/pangenomes/by_sample/{sample}.gbz"),
     log:

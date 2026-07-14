@@ -425,8 +425,13 @@ def get_map_reads_input(wildcards):
 
 
 def get_sample_pangenome_prefix(wildcards):
-    group = lookup(query="sample_name == '{sample}'", within=samples, cols="group")
-    return f"results/pangenomes/{group}"
+    group = samples.loc[wildcards.sample, "group"]
+    return f"results/pangenomes/by_group/{group}"
+
+
+def get_sample_scenario(wildcards):
+    group = samples.loc[wildcards.sample, "group"]
+    return f"results/scenarios/{group}.yaml"
 
 
 def get_haplotype_args(wildcards, input):
@@ -1642,7 +1647,7 @@ def get_multiqc_input(wildcards):
 
     # fastp
     if sample_units["adapters"].notna().all():
-        pattern = "results/trimmed/{unit.sample_name}/{unit.unit_name}.{mode}.qc.json"
+        pattern = "results/trimmed/{unit.sample_name}/{unit.unit_name}.{mode}.json"
         yield from expand(
             pattern, unit=sample_units[paired_end_units].itertuples(), mode="paired"
         )
