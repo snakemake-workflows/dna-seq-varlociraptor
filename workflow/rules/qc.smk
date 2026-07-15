@@ -54,25 +54,24 @@ rule multiqc:
         "v9.9.0/bio/multiqc"
 
 
-rule obtain_somalier_informative_variants:
+rule somalier_find_sites:
     input:
         "resources/variation.vcf.gz"
     output:
-        "resources/variation.somalier.bcf"
+        "resources/somalier/sites.vcf.gz"
     log:
-        "logs/extract_somalier_variants.log"
+        "logs/somalier_find_sites.log"
     conda:
-        "../envs/vembrane.yaml"
+        "../envs/somalier.yaml"
     shell:
-        "vembrane filter --output-fmt bcf -o {output} "
-        "'\"MAF\" in INFO and INFO[\"MAF\"] >=0.45 and INFO[\"MAF\"] <= 0.55' {input} 2> {log}"
+        "somalier find-sites --min-AF 0.45 --min-AN 0 --AF-field MAF --AN-field MAC --output-vcf {output} {input} 2> {log}"
 
 
 rule somalier_extract:
     input:
         bam="results/recal/{sample}.bam",
-        bcf="resources/variation.somalier.bcf",
-        fasta=genome,
+        sites="resources/somalier/sites.vcf.gz",
+        reference=genome,
     output:
         data="results/somalier/data/{sample}.somalier"
     log:
@@ -82,8 +81,8 @@ rule somalier_extract:
     params:
         outdir=subpath(output.data, parent=True),
     shell:
-        "somalier extract -d {params.outdir} --sites {input.bcf} "
-        "-f {input.fasta} {input.bam} 2> {log}"
+        "somalier extract -d {params.outdir} --sites {input.sites} "
+        "-f {input.reference} {input.bam} 2> {log}"
 
 
 rule somalier_relate:
