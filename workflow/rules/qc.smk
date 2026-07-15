@@ -74,7 +74,7 @@ rule somalier_extract:
         bcf="resources/variation.somalier.bcf",
         fasta=genome,
     output:
-        data="results/somalier/{sample}.somalier"
+        data="results/somalier/data/{sample}.somalier"
     log:
         "logs/somalier_extract/{sample}.log"
     conda:
