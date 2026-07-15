@@ -86,21 +86,36 @@ rule merge_sample_pangenomes:
         " -d {output.dist} {output.gbz}) 2> {log}"
 
 
-rule index_pangenome:
+rule pangenome_index:
     input:
         "results/pangenomes/{infix}.gbz",
     output:
         dist="results/pangenomes/{infix}.dist",
-        min="results/pangenomes/{infix}.min",
     log:
-        "logs/vg_index_minimizer/{infix}.log"
+        "logs/vg_index/{infix}.log"
     threads: 64
     conda:
         "../envs/vg.yaml"
     shell:
-        "(vg index --threads {threads} -j {output.dist} {input}; "
-        " vg minimizer -k 29 -w 11 -p --threads {threads} -o {output.min} "
-        " -d {output.dist} {input}) 2> {log}"
+        "vg index --threads {threads} -j {output.dist} {input} 2> {log}"
+
+
+rule pangenome_minimizers:
+    input:
+        gbz="results/pangenomes/{infix}.gbz",
+        dist="results/pangenomes/{infix}.dist",
+    output:
+        min="results/pangenomes/{infix}.min",
+        zipcodes="results/pangenomes/{infix}.zipcodes",
+    log:
+        "logs/vg_minimizer/{infix}.log"
+    threads: 64
+    conda:
+        "../envs/vg.yaml"
+    shell:
+        # TODO, for long reads, we need different k and w params!
+        "vg minimizer -k 29 -w 11 -p --threads {threads} -o {output.min} "
+        "-z {output.zipcodes} -d {input.dist} {input.gbz} 2> {log}"
 
 
 rule create_reference_paths:
@@ -120,6 +135,7 @@ rule map_reads_vg:
         graph=access.random(subpath(get_sample_pangenome_prefix, with_suffix=".gbz")),
         dist=access.random(subpath(get_sample_pangenome_prefix, with_suffix=".dist")),
         min=access.random(subpath(get_sample_pangenome_prefix, with_suffix=".min")),
+        zipcodes=access.random(subpath(get_sample_pangenome_prefix, with_suffix=".zipcodes")),
         hapl=access.random(f"{pangenome_prefix}.hapl"),
         paths=access.random("resources/reference_paths.txt"),
     output:
@@ -130,10 +146,10 @@ rule map_reads_vg:
         "benchmarks/vg_giraffe/{sample}.tsv"
     threads: 64
     params:
-        extra=lambda wc, input: f"--ref-paths {input.paths}",
+        extra=lambda w, input: f"--ref-paths {input.paths} --dist-name {input.dist} --zipcode-name {input.zipcodes} --minimizer-name {input.min}",
         sorting="none",
     wrapper:
-        "v6.1.0/bio/vg/giraffe"
+        "v9.9.0/bio/vg/giraffe"
 
 
 rule reheader_mapped_reads:
