@@ -1635,6 +1635,10 @@ def get_multiqc_input(wildcards):
         sample=group_samples,
     )
 
+    # somalier output
+    yield "results/somalier/all.samples.tsv"
+    yield "results/somalier/all.pairs.tsv"
+
 
 def get_variant_oncoprints(wildcards):
     if len(_get_report_batch("variants", wildcards.batch)) > 1:
