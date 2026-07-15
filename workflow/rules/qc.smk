@@ -56,7 +56,7 @@ rule multiqc:
 
 rule somalier_find_sites:
     input:
-        "resources/variation.vcf.gz"
+        "resources/variation.noiupac.vcf.gz"
     output:
         "resources/somalier/sites.vcf.gz"
     log:
