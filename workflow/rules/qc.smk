@@ -64,7 +64,7 @@ rule somalier_find_sites:
     conda:
         "../envs/somalier.yaml"
     shell:
-        "somalier find-sites --min-AF 0.45 --min-AN 0 --AF-field MAF --AN-field MAC --output-vcf {output} {input} 2> {log}"
+        "somalier find-sites --min-AF 0.45 --min-AN 2000 --AF-field MAF --AN-field MAC --output-vcf {output} {input} 2> {log}"
 
 
 rule somalier_extract:
