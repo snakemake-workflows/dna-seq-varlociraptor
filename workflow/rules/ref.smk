@@ -151,13 +151,55 @@ rule get_vep_plugins:
 
 rule get_pangenome:
     output:
-        f"{pangenome_prefix}.{{ext}}",
+        f"{pangenome_prefix}.gbz",
     log:
-        "logs/pangenome/{ext}.log",
-    wildcard_constraints:
-        ext="hapl|gbz",
+        "logs/get_pangenome.log",
     cache: "omit-software"
     params:
-        url=lambda wc: get_pangenome_url(wc.ext),
+        url=get_pangenome_url(),
     shell:
         "curl -o {output} {params.url} 2> {log}"
+
+
+rule pangenome_dist_index:
+    input:
+        f"{pangenome_prefix}.gbz",
+    output:
+        f"{pangenome_prefix}.dist"
+    log:
+        "logs/pangenome_dist_index.log"
+    conda:
+        "../envs/vg.yaml"
+    threads: 16
+    shell:
+        "vg index --threads {threads} -j {output} --no-nested-distance {input} 2> {log}"
+
+
+rule pangenome_r_index:
+    input:
+        f"{pangenome_prefix}.gbz",
+    output:
+        f"{pangenome_prefix}.ri"
+    log:
+        "logs/pangenome_r_index.log"
+    conda:
+        "../envs/vg.yaml"
+    threads: 16
+    shell:
+        "vg gbwt --num-threads {threads} -r {output} -Z {input} 2> {log}"
+
+
+rule pangenome_hapl_index:
+    input:
+        gbz=f"{pangenome_prefix}.gbz",
+        ri=f"{pangenome_prefix}.ri",
+        dist=f"{pangenome_prefix}.dist",
+    output:
+        f"{pangenome_prefix}.hapl"
+    log:
+        "logs/pangenome_hapl_index.log"
+    conda:
+        "../envs/vg.yaml"
+    threads: 16
+    shell:
+        "vg haplotypes --threads {threads} -H {output} {input.gbz} 2> {log}"

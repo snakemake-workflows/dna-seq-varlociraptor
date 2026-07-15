@@ -46,12 +46,14 @@ rule obtain_sample_pangenome:
         temp("results/pangenomes/by_sample/{sample}.gbz"),
     log:
         "logs/vg_haplotypes/{sample}.log",
-    threads: 64
+    threads: 16 # vg only allows up to 16 threads
+    conda:
+        "../envs/vg.yaml"
     params:
         haplotype_args=get_haplotype_args,
     shell:
         "vg haplotypes --threads {threads} -k {input.kmers} -i {input.hapl} "
-        "{params.haplotype_args} --include-reference -g {output} 2> {log}"
+        "{params.haplotype_args} --include-reference -g {output} {input.graph} 2> {log}"
 
 
 rule merge_sample_pangenomes:
@@ -72,12 +74,33 @@ rule merge_sample_pangenomes:
     log:
         "logs/vg_gbwt/{group}.log",
     threads: 64
+    conda:
+        "../envs/vg.yaml"
+    params:
+        to_merge=expand("<({sample_graph})", sample_graph=input.per_sample),
     shell:
-        "(vg gbwt --gbz-input --num-jobs 1 --num-threads {threads} -x {input.full} "
-        " -g {output.gbz} -m {input.per_sample};  "
+        "(vg gbwt --gbz-format --num-jobs 1 --num-threads {threads} -x {input.full} "
+        " -g {output.gbz} -m {params.to_merge}; "
         " vg index --threads {threads} -j {output.dist} {output.gbz}; "
         " vg minimizer -p --threads {threads} -o {output.min} "
         " -d {output.dist} {output.gbz}) 2> {log}"
+
+
+rule index_pangenome:
+    input:
+        "results/pangenomes/{infix}.gbz",
+    output:
+        dist="results/pangenomes/{infix}.dist",
+        min="results/pangenomes/{infix}.min",
+    log:
+        "logs/vg_index_minimizer/{infix}.log"
+    threads: 64
+    conda:
+        "../envs/vg.yaml"
+    shell:
+        "(vg index --threads {threads} -j {output.dist} {input}; "
+        " vg minimizer -k 29 -w 11 -p --threads {threads} -o {output.min} "
+        " -d {output.dist} {input}) 2> {log}"
 
 
 rule create_reference_paths:

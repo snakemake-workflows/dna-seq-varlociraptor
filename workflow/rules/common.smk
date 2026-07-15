@@ -426,7 +426,11 @@ def get_map_reads_input(wildcards):
 
 def get_sample_pangenome_prefix(wildcards):
     group = samples.loc[wildcards.sample, "group"]
-    return f"results/pangenomes/by_group/{group}"
+    if len(samples.loc[samples["group"] == group]) > 1:
+        return f"results/pangenomes/by_group/{group}"
+    else:
+        # No need to create group pangenome
+        return f"results/pangenomes/by_sample/{wildcards.sample}"
 
 
 def get_sample_scenario(wildcards):
@@ -1716,7 +1720,7 @@ def get_alignment_props(wildcards):
     return f"results/alignment-properties/{wildcards.group}/{wildcards.sample}.json"
 
 
-def get_pangenome_url(datatype):
+def get_pangenome_url():
     build = config["ref"]["build"].lower()
     source = config["ref"]["pangenome"]["source"]
     version = config["ref"]["pangenome"]["version"]
@@ -1731,5 +1735,5 @@ def get_pangenome_url(datatype):
     return (
         "https://s3-us-west-2.amazonaws.com/human-pangenomics/pangenomes/freeze/"
         "freeze1/minigraph-cactus/"
-        f"hprc-{version}-mc-{build}/hprc-{version}-mc-{build}.{datatype}"
+        f"hprc-{version}-mc-{build}/hprc-{version}-mc-{build}.gbz"
     )
