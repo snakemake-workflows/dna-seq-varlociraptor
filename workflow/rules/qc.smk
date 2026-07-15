@@ -64,7 +64,7 @@ rule obtain_somalier_informative_variants:
     conda:
         "../envs/vembrane.yaml"
     shell:
-        "vembrane filter --output-fmt bcf"
+        "vembrane filter --output-fmt bcf "
         "'\"MAF\" in INFO and INFO[\"MAF\"] >=0.45 and INFO[\"MAF\"] <= 0.55' 2> {log}"
 
 
