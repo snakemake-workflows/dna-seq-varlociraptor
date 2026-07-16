@@ -92,7 +92,7 @@ else:
 
 if "scenario" in group_annotation.columns:
     scenarios = group_annotation.loc[:, ["scenario"]]
-    group_annotation.drop("scenario", axis="columns")
+    group_annotation.drop("scenario", axis="columns", inplace=True)
 else:
     scenarios = pd.DataFrame({"group": groups, "scenario": pd.NA}, dtype=str).set_index(
         "group"
