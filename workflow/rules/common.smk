@@ -1414,6 +1414,10 @@ def get_vembrane_config(wildcards, input):
             },
         }
         if lookup(
+            dpath="varpubs/activate",
+            within=config,
+            default=False
+        ) and lookup(
             dpath=f"calling/fdr-control/events/{wildcards.event}/varpubs",
             within=config,
             default=True,
