@@ -89,16 +89,14 @@ if "groups" in config:
 else:
     group_annotation = pd.DataFrame({"group": groups}).set_index("group")
 
-default_scenario = lookup("calling/scenario", within=config, default=None)
-if "scenario" not in group_annotation.columns:
-    if default_scenario is None:
-        raise ValueError(
-            "No scenario column provided in group annotation and no "
-            "default scenario given in config."
-        )
-    group_annotation["scenario"] = default_scenario
+
+if "scenario" in group_annotation.columns:
+    scenarios = group_annotation["scenarios"]
+    group_annotation.drop("scenarios", axis="columns")
 else:
-    group_annotation["scenario"] = group_annotation["scenario"].fillna(default_scenario)
+    scenarios = pd.Series(index=groups, dtype=str)
+scenarios.fillna(lookup("calling/scenario", within=config, default=None), inplace=True)
+
 
 units = (
     pd.read_csv(
