@@ -56,11 +56,11 @@ rule multiqc:
 
 rule somalier_find_sites:
     input:
-        "resources/variation.noiupac.vcf.gz"
+        "resources/variation.noiupac.vcf.gz",
     output:
-        "resources/somalier/sites.vcf.gz"
+        "resources/somalier/sites.vcf.gz",
     log:
-        "logs/somalier_find_sites.log"
+        "logs/somalier_find_sites.log",
     conda:
         "../envs/somalier.yaml"
     shell:
@@ -73,9 +73,9 @@ rule somalier_extract:
         sites="resources/somalier/sites.vcf.gz",
         reference=genome,
     output:
-        data="results/somalier/data/{sample}.somalier"
+        data="results/somalier/data/{sample}.somalier",
     log:
-        "logs/somalier_extract/{sample}.log"
+        "logs/somalier_extract/{sample}.log",
     conda:
         "../envs/somalier.yaml"
     params:
@@ -87,17 +87,19 @@ rule somalier_extract:
 
 rule somalier_relate:
     input:
-        collect("results/somalier/data/{sample}.somalier", sample=samples["sample_name"]),
+        collect(
+            "results/somalier/data/{sample}.somalier", sample=samples["sample_name"]
+        ),
     output:
         samples="results/somalier/all.samples.tsv",
         pairs="results/somalier/all.pairs.tsv",
         groups="results/somalier/all.groups.tsv",
         html="results/somalier/all.html",
     log:
-        "logs/somalier_relate.log"
+        "logs/somalier_relate.log",
     conda:
         "../envs/somalier.yaml"
     params:
-        outdir=subpath(output.samples, parent=True)
+        outdir=subpath(output.samples, parent=True),
     shell:
         "somalier relate -o {params.outdir}/all {input} 2> {log}"
