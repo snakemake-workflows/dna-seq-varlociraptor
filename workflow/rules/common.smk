@@ -91,10 +91,12 @@ else:
 
 
 if "scenario" in group_annotation.columns:
-    scenarios = group_annotation["scenarios"]
-    group_annotation.drop("scenarios", axis="columns")
+    scenarios = group_annotation.loc[:, ["scenario"]]
+    group_annotation.drop("scenario", axis="columns")
 else:
-    scenarios = pd.Series(index=groups, dtype=str)
+    scenarios = pd.DataFrame({"group": groups, "scenario": pd.NA}, dtype=str).set_index(
+        "group"
+    )
 scenarios.fillna(lookup("calling/scenario", within=config, default=None), inplace=True)
 
 

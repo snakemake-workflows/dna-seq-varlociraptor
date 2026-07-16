@@ -1,9 +1,7 @@
 rule render_scenario:
     input:
         template=local(
-            lookup(
-                query="group == '{group}'", within=group_annotation, cols="scenario"
-            )
+            lookup(query="group == '{group}'", within=scenarios, cols="scenario")
         ),
     output:
         report(
