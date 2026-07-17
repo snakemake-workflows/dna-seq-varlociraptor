@@ -274,6 +274,8 @@ def get_final_output(wildcards):
     if is_activated("population/db"):
         final_output.append(lookup(dpath="population/db/path", within=config))
 
+    final_output.append("results/somalier/all.html")
+
     return final_output
 
 
