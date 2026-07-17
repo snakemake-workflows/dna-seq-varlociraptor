@@ -64,7 +64,8 @@ rule somalier_find_sites:
     conda:
         "../envs/somalier.yaml"
     shell:
-        "somalier find-sites --min-AF 0.45 --min-AN 2000 --AF-field MAF --AN-field MAC --output-vcf {output} {input} 2> {log}"
+        "somalier find-sites --min-AF 0.45 --min-AN 2000 --AF-field MAF --AN-field MAC "
+        "--output-vcf {output} {input} 2> {log}"
 
 
 rule somalier_extract:
@@ -87,9 +88,10 @@ rule somalier_extract:
 
 rule somalier_relate:
     input:
-        collect(
+        data=collect(
             "results/somalier/data/{sample}.somalier", sample=samples["sample_name"]
         ),
+        sites="resources/somalier/sites.vcf.gz",
     output:
         samples="results/somalier/all.samples.tsv",
         pairs="results/somalier/all.pairs.tsv",
@@ -102,4 +104,5 @@ rule somalier_relate:
     params:
         outdir=subpath(output.samples, parent=True),
     shell:
-        "somalier relate -o {params.outdir}/all {input} 2> {log}"
+        "somalier relate --sites {input.sites} -o {params.outdir}/all "
+        "{input.data} 2> {log}"
