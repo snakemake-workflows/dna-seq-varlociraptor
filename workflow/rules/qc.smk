@@ -95,7 +95,6 @@ rule somalier_relate:
     output:
         samples="results/somalier/all.samples.tsv",
         pairs="results/somalier/all.pairs.tsv",
-        groups="results/somalier/all.groups.tsv",
         html="results/somalier/all.html",
     log:
         "logs/somalier_relate.log",
