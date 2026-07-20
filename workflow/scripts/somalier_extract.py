@@ -2,6 +2,7 @@ import tempfile
 from snakemake.shell import shell
 
 with tempfile.NamedTemporaryFile(dir="/dev/shm", suffix=".bam") as microbam:
+    print(microbam)
     # use samtools to constrain input bam, it can read faster on non SSD (network, HDD)
     shell(
         "samtools view -u -M -L "
