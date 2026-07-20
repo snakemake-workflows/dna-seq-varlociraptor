@@ -71,6 +71,7 @@ rule somalier_find_sites:
 rule somalier_extract:
     input:
         bam="results/recal/{sample}.bam",
+        bai="results/recal/{sample}.bai",
         sites="resources/somalier/sites.vcf.gz",
         reference=genome,
     output:
