@@ -416,12 +416,23 @@ def is_paired_end(sample):
 
 
 def get_map_reads_input(wildcards):
-    if is_paired_end(wildcards.sample):
+    return get_sample_fastqs(wildcards.sample)
+
+
+def get_sample_fastqs(sample):
+    if is_paired_end(sample):
         return [
-            "results/merged/{sample}_R1.fastq.gz",
-            "results/merged/{sample}_R2.fastq.gz",
+            f"results/merged/{sample}_R1.fastq.gz",
+            f"results/merged/{sample}_R2.fastq.gz",
         ]
-    return "results/merged/{sample}_single.fastq.gz"
+    return f"results/merged/{sample}_single.fastq.gz"
+
+
+def get_count_group_kmers_input(wildcards):
+    group_samples = lookup(query=f"group == '{wildcards.group}'", within=samples, cols="sample_name")
+    return [
+        get_sample_fastqs(sample) for sample in group_samples
+    ]
 
 
 def get_sample_pangenome_prefix(wildcards):
@@ -433,31 +444,28 @@ def get_sample_pangenome_prefix(wildcards):
         return f"results/pangenomes/by_sample/{wildcards.sample}"
 
 
-def get_sample_scenario(wildcards):
-    group = samples.loc[wildcards.sample, "group"]
-    return f"results/scenarios/{group}.yaml"
-
-
 def get_haplotype_args(wildcards, input):
     with open(input.scenario) as scenario:
         scenario = yaml.safe_load(scenario)
-        alias = samples.loc[wildcards.sample, "alias"]
+        aliases = lookup(query=f"group == '{wildcards.group}'", within=samples, cols="alias")
 
-        try:
-            settings = scenario["samples"][alias]
-        except KeyError:
-            raise ValueError(
-                f"Sample alias {sample.alias} does not occur in scenario of group {wildcards.group}"
+        def is_diploid(alias):
+            try:
+                settings = scenario["samples"][alias]
+            except KeyError:
+                raise ValueError(
+                    f"Sample alias {sample.alias} does not occur in scenario of group {wildcards.group}"
+                )
+
+            return (
+                "[" not in settings.get("universe", "")
+                and "somatic-effective-mutation-rate" not in settings
             )
 
-        is_diploid = (
-            "[" not in settings.get("universe", "")
-            and "somatic-effective-mutation-rate" not in settings
-        )
-        if is_diploid:
+        if len(aliases) == 1 and is_diploid(aliases[0]):
             return "--diploid-sampling"
         else:
-            return "--num-haplotypes 32"
+            return f"--num-haplotypes 4"
 
 
 def get_star_reads_input(wildcards, r2=False):
