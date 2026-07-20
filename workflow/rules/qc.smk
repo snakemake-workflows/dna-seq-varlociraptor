@@ -73,7 +73,7 @@ rule somalier_extract:
         bam="results/recal/{sample}.bam",
         bai="results/recal/{sample}.bai",
         sites="resources/somalier/sites.vcf.gz",
-        reference=genome,
+        ref=genome,
     output:
         data="results/somalier/data/{sample}.somalier",
     log:
@@ -82,12 +82,8 @@ rule somalier_extract:
         "../envs/somalier.yaml"
     params:
         outdir=subpath(output.data, parent=True),
-    shell:
-        # use samtools to constrain input bam, it can read faster on non SSD (network, HDD)
-        "(samtools view -u -M -L "
-        " <(zcat {input.sites} | awk '!/^#/{{print $1\"\\t\"$2-1\"\\t\"$2}}') "
-        " {input.bam} | somalier extract -d {params.outdir} --sites {input.sites} "
-        " --sample-prefix {wildcards.sample} -f {input.reference} /dev/stdin) 2> {log}"
+    script:
+        "../scripts/somalier_extract.py"
 
 
 rule somalier_relate:
