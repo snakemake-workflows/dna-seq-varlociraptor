@@ -454,7 +454,7 @@ def get_haplotype_args(wildcards, input):
                 settings = scenario["samples"][alias]
             except KeyError:
                 raise ValueError(
-                    f"Sample alias {sample.alias} does not occur in scenario of group {wildcards.group}"
+                    f"Sample alias {alias} does not occur in scenario of group {wildcards.group}"
                 )
 
             return (

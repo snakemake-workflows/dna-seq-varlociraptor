@@ -60,14 +60,14 @@ rule pangenome_index:
     input:
         "results/pangenomes/{infix}.gbz",
     output:
-        dist="results/pangenomes/{infix}.dist",
+        temp("results/pangenomes/{infix}.dist"),
     log:
         "logs/vg_index/{infix}.log"
     threads: 64
     conda:
         "../envs/vg.yaml"
     shell:
-        "vg index --threads {threads} -j {output.dist} {input} 2> {log}"
+        "vg index --threads {threads} -j {output} {input} 2> {log}"
 
 
 rule pangenome_minimizers:
@@ -75,8 +75,8 @@ rule pangenome_minimizers:
         gbz="results/pangenomes/{infix}.gbz",
         dist="results/pangenomes/{infix}.dist",
     output:
-        min="results/pangenomes/{infix}.min",
-        zipcodes="results/pangenomes/{infix}.zipcodes",
+        min=temp("results/pangenomes/{infix}.min"),
+        zipcodes=temp("results/pangenomes/{infix}.zipcodes"),
     log:
         "logs/vg_minimizer/{infix}.log"
     threads: 64
