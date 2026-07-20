@@ -425,13 +425,13 @@ def get_sample_fastqs(sample):
             f"results/merged/{sample}_R1.fastq.gz",
             f"results/merged/{sample}_R2.fastq.gz",
         ]
-    return f"results/merged/{sample}_single.fastq.gz"
+    return [f"results/merged/{sample}_single.fastq.gz"]
 
 
 def get_count_group_kmers_input(wildcards):
     group_samples = lookup(query=f"group == '{wildcards.group}'", within=samples, cols="sample_name")
     return [
-        get_sample_fastqs(sample) for sample in group_samples
+        fq for sample in group_samples for fq in get_sample_fastqs(sample)
     ]
 
 
