@@ -117,7 +117,7 @@ rule map_reads_vg:
         "benchmarks/vg_giraffe/{sample}.tsv"
     threads: 64
     params:
-        extra=lambda w, input: f"--ref-paths {input.paths} --dist-name {input.dist} --zipcode-name {input.zipcodes} --minimizer-name {input.min}",
+        extra=lambda w, input: f"--ref-paths {input.paths} --dist-name {input.dist} --zipcode-name {input.zipcodes} --minimizer-name {input.min} --max-multimaps 2",
         sorting="none",
     wrapper:
         "v9.9.0/bio/vg/giraffe"
