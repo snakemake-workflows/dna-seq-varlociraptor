@@ -58,11 +58,11 @@ rule obtain_group_pangenome:
 
 rule pangenome_index:
     input:
-        "results/pangenomes/{infix}.gbz",
+        "results/pangenomes/{group}.gbz",
     output:
-        temp("results/pangenomes/{infix}.dist"),
+        temp("results/pangenomes/{group}.dist"),
     log:
-        "logs/vg_index/{infix}.log"
+        "logs/vg_index/{group}.log"
     threads: 64
     conda:
         "../envs/vg.yaml"
@@ -72,13 +72,13 @@ rule pangenome_index:
 
 rule pangenome_minimizers:
     input:
-        gbz="results/pangenomes/{infix}.gbz",
-        dist="results/pangenomes/{infix}.dist",
+        gbz="results/pangenomes/{group}.gbz",
+        dist="results/pangenomes/{group}.dist",
     output:
-        min=temp("results/pangenomes/{infix}.min"),
-        zipcodes=temp("results/pangenomes/{infix}.zipcodes"),
+        min=temp("results/pangenomes/{group}.min"),
+        zipcodes=temp("results/pangenomes/{group}.zipcodes"),
     log:
-        "logs/vg_minimizer/{infix}.log"
+        "logs/vg_minimizer/{group}.log"
     threads: 64
     conda:
         "../envs/vg.yaml"

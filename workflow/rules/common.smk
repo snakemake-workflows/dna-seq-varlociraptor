@@ -437,11 +437,7 @@ def get_count_group_kmers_input(wildcards):
 
 def get_sample_pangenome_prefix(wildcards):
     group = samples.loc[wildcards.sample, "group"]
-    if len(samples.loc[samples["group"] == group]) > 1:
-        return f"results/pangenomes/by_group/{group}"
-    else:
-        # No need to create group pangenome
-        return f"results/pangenomes/by_sample/{wildcards.sample}"
+    return f"results/pangenomes/{group}"
 
 
 def get_haplotype_args(wildcards, input):
