@@ -4,3 +4,4 @@ channels:
   - nodefaults
 dependencies:
   - somalier =0.3.2
+  - samtools =1.24

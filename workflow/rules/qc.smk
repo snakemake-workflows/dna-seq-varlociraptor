@@ -82,8 +82,11 @@ rule somalier_extract:
     params:
         outdir=subpath(output.data, parent=True),
     shell:
-        "somalier extract -d {params.outdir} --sites {input.sites} "
-        "--sample-prefix {wildcards.sample} -f {input.reference} {input.bam} 2> {log}"
+        # use samtools to constrain input bam, it can read faster on non SSD (network, HDD)
+        "(samtools view -b -M -L "
+        " <(zcat {input.sites} | awk '!/^#/{{print $1\"\\t\"$2-1\"\\t\"$2}}') "
+        " {input.bam} | somalier extract -d {params.outdir} --sites {input.sites} "
+        " --sample-prefix {wildcards.sample} -f {input.reference} /dev/stdin) 2> {log}"
 
 
 rule somalier_relate:
