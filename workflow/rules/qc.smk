@@ -70,7 +70,7 @@ rule somalier_find_sites:
 
 rule somalier_extract:
     input:
-        bam="results/recal/{sample}.bam",
+        bam=access.random("results/recal/{sample}.bam"),
         bai="results/recal/{sample}.bai",
         sites="resources/somalier/sites.vcf.gz",
         ref=genome,
@@ -82,8 +82,10 @@ rule somalier_extract:
         "../envs/somalier.yaml"
     params:
         outdir=subpath(output.data, parent=True),
-    script:
-        "../scripts/somalier_extract.py"
+    shell:
+        "somalier extract -d {params.outdir} "
+        "--sites {input.sites} --sample-prefix {wildcards.sample} "
+        "-f {input.ref} {input.bam} 2> {log}"
 
 
 rule somalier_relate:
