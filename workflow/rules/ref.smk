@@ -158,7 +158,7 @@ rule get_pangenome:
     params:
         url=get_pangenome_url(),
     shell:
-        "curl -o {output} {params.url} 2> {log}"
+        "curl --fail -o {output} {params.url} 2> {log}"
 
 
 rule pangenome_index:
