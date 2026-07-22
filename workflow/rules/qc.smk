@@ -88,7 +88,19 @@ rule somalier_extract:
         "--sites {input.sites} --sample-prefix {wildcards.sample} "
         "-f {input.fasta} {input.bam} 2> {log}"
 
-breakpoint()
+
+rule somalier_groups:
+    output:
+        "resources/somalier/groups.txt"
+    run:
+        samples.groupby("group").apply(
+            lambda df: ",".join(df["sample_name"]
+        ), include_groups=False).to_csv(
+            output[0],
+            index=False,
+            header=False,
+            sep="\t"
+        )
 
 
 rule somalier_relate:
@@ -97,6 +109,7 @@ rule somalier_relate:
             "results/somalier/data/{sample}.somalier", sample=samples["sample_name"]
         ),
         sites="resources/somalier/sites.vcf.gz",
+        groups="resources/somalier/groups.txt",
     output:
         samples="results/somalier/all.samples.tsv",
         pairs="results/somalier/all.pairs.tsv",
@@ -108,5 +121,5 @@ rule somalier_relate:
     params:
         outdir=subpath(output.samples, parent=True),
     shell:
-        "somalier relate --sites {input.sites} -o {params.outdir}/all "
+        "somalier relate --groups {input.groups} --sites {input.sites} -o {params.outdir}/all "
         "{input.data} 2> {log}"
