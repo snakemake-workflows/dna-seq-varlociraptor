@@ -86,15 +86,17 @@ rule somalier_extract:
     shell:
         "somalier extract -d {params.outdir} "
         "--sites {input.sites} "
-        "--sample-prefix {wildcards.sample} -f {input.fasta} {input.bam} 2> {log}" # TODO remove sample prefix
+        "-f {input.fasta} {input.bam} 2> {log}"
 
 
 rule somalier_groups:
     output:
-        "resources/somalier/groups.txt"
+        temp("resources/somalier/groups.txt")
+    params:
+        samples=samples
     run:
-        samples.groupby("group").apply(
-            lambda df: ",".join([item + item for item in df["sample_name"]] # TODO remove double item
+        params.samples.groupby("group").apply(
+            lambda df: ",".join(df["sample_name"])
         ), include_groups=False).to_csv(
             output[0],
             index=False,
