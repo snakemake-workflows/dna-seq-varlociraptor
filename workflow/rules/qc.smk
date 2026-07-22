@@ -94,7 +94,7 @@ rule somalier_groups:
         "resources/somalier/groups.txt"
     run:
         samples.groupby("group").apply(
-            lambda df: ",".join(df["sample_name"]
+            lambda df: ",".join([item + item for item in df["sample_name"]]
         ), include_groups=False).to_csv(
             output[0],
             index=False,
