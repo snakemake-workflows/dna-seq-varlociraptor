@@ -85,7 +85,7 @@ rule somalier_extract:
         outdir=subpath(output.data, parent=True),
     shell:
         "somalier extract -d {params.outdir} "
-        "--sites {input.sites} --sample-prefix {wildcards.sample} "
+        "--sites {input.sites} "
         "-f {input.fasta} {input.bam} 2> {log}"
 
 
