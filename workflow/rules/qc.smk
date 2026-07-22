@@ -88,6 +88,8 @@ rule somalier_extract:
         "--sites {input.sites} --sample-prefix {wildcards.sample} "
         "-f {input.fasta} {input.bam} 2> {log}"
 
+breakpoint()
+
 
 rule somalier_relate:
     input:
