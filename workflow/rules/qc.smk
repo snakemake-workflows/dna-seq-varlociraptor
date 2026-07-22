@@ -73,7 +73,8 @@ rule somalier_extract:
         bam=access.random("results/recal/{sample}.bam"),
         bai="results/recal/{sample}.bai",
         sites="resources/somalier/sites.vcf.gz",
-        ref=genome,
+        fasta=genome,
+        fai=genome_fai,
     output:
         data="results/somalier/data/{sample}.somalier",
     log:
@@ -85,7 +86,7 @@ rule somalier_extract:
     shell:
         "somalier extract -d {params.outdir} "
         "--sites {input.sites} --sample-prefix {wildcards.sample} "
-        "-f {input.ref} {input.bam} 2> {log}"
+        "-f {input.fasta} {input.bam} 2> {log}"
 
 
 rule somalier_relate:
