@@ -92,12 +92,14 @@ rule somalier_extract:
 rule somalier_groups:
     output:
         temp("resources/somalier/groups.txt"),
+    log:
+        "logs/somalier_groups.log",
+    conda:
+        "../envs/pystats.yaml"
     params:
         samples=samples,
-    run:
-        params.samples.groupby("group").apply(
-            lambda df: ",".join(df["sample_name"]), include_groups=False
-        ).to_csv(output[0], index=False, header=False, sep="\t")
+    script:
+        "../scripts/somalier_groups.py"
 
 
 rule somalier_relate:
