@@ -1742,17 +1742,17 @@ def get_pangenome_url():
         raise ValueError(
             f"Invalid pangenome version {version}, has to start with v (e.g. v2.0)"
         )
-    version = tuple(map(int, version[1:].split(".")))
+    parsed_version = tuple(map(int, version[1:].split(".")))
 
-    if version >= (2, 0):
-        major = version[0]
+    if parsed_version >= (2, 0):
+        major = parsed_version[0]
         prefix = f"https://human-pangenomics.s3.amazonaws.com/pangenomes/freeze/release{major}/minigraph-cactus"
     else:
         prefix = (
             "https://s3-us-west-2.amazonaws.com/human-pangenomics/pangenomes/"
-            "freeze/freeze1/minigraph-cactus"
+            f"freeze/freeze1/minigraph-cactus/hprc-{version}-mc-{build}"
         )
 
     return (
-        f"{prefix}/hprc-{version}-mc-{build}/hprc-v{'.'.join(version)}-mc-{build}.gbz"
+        f"{prefix}/hprc-{version}-mc-{build}.gbz"
     )
