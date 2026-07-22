@@ -429,10 +429,10 @@ def get_sample_fastqs(sample):
 
 
 def get_count_group_kmers_input(wildcards):
-    group_samples = lookup(query=f"group == '{wildcards.group}'", within=samples, cols="sample_name")
-    return [
-        fq for sample in group_samples for fq in get_sample_fastqs(sample)
-    ]
+    group_samples = lookup(
+        query=f"group == '{wildcards.group}'", within=samples, cols="sample_name"
+    )
+    return [fq for sample in group_samples for fq in get_sample_fastqs(sample)]
 
 
 def get_sample_pangenome_prefix(wildcards):
@@ -443,7 +443,9 @@ def get_sample_pangenome_prefix(wildcards):
 def get_haplotype_args(wildcards, input):
     with open(input.scenario) as scenario:
         scenario = yaml.safe_load(scenario)
-        aliases = lookup(query=f"group == '{wildcards.group}'", within=samples, cols="alias")
+        aliases = lookup(
+            query=f"group == '{wildcards.group}'", within=samples, cols="alias"
+        )
 
         def is_diploid(alias):
             try:
@@ -1736,8 +1738,21 @@ def get_pangenome_url():
         raise ValueError(
             "Unsupported pangenome source. Only 'hprc' is currently supported."
         )
+    if not version.startswith("v"):
+        raise ValueError(
+            f"Invalid pangenome version {version}, has to start with v (e.g. v2.0)"
+        )
+    version = tuple(map(int, version[1:].split(".")))
+
+    if version >= (2, 0):
+        major = version[0]
+        prefix = f"https://human-pangenomics.s3.amazonaws.com/pangenomes/freeze/release{major}/minigraph-cactus"
+    else:
+        prefix = (
+            "https://s3-us-west-2.amazonaws.com/human-pangenomics/pangenomes/"
+            "freeze/freeze1/minigraph-cactus"
+        )
+
     return (
-        "https://s3-us-west-2.amazonaws.com/human-pangenomics/pangenomes/freeze/"
-        "freeze1/minigraph-cactus/"
-        f"hprc-{version}-mc-{build}/hprc-{version}-mc-{build}.gbz"
+        f"{prefix}/hprc-{version}-mc-{build}/hprc-v{'.'.join(version)}-mc-{build}.gbz"
     )

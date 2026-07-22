@@ -13,102 +13,14 @@ rule map_reads_bwa:
         "v3.8.0/bio/bwa/mem"
 
 
-rule count_group_kmers:
-    input:
-        reads=get_count_group_kmers_input,
-    output:
-        "results/kmers/{group}.kff",
-    log:
-        "logs/kmers/{group}.log",
-    shadow:
-        "minimal"
-    conda:
-        "../envs/kmc.yaml"
-    threads: min(max(workflow.cores, 1), 128)  # kmc can use 128 threads at most
-    resources:
-        mem="64GB",
-    params:
-        out_file=lambda wc, output: os.path.splitext(output[0])[0],
-        mem=lambda wc, resources: resources.mem[:-2],
-    shell:
-        "tmpdir=$(mktemp -d); "
-        "kmc -k29 -m{params.mem} -sm -okff -t{threads} -v @<(ls {input.reads}) {params.out_file} $tmpdir &> {log} && "
-        "rm -r $tmpdir || (rm -r $tmpdir && exit 1)"
-
-
-rule obtain_group_pangenome:
-    input:
-        kmers=access.sequential("results/kmers/{group}.kff"),
-        graph=access.random(f"{pangenome_prefix}.gbz"),
-        hapl=access.random(f"{pangenome_prefix}.hapl"),
-        scenario=ancient("results/scenarios/{group}.yaml"), # changes in the derived params will trigger reruns instead
-    output:
-        temp("results/pangenomes/{group}.gbz"),
-    log:
-        "logs/vg_haplotypes/{group}.log",
-    threads: 16 # vg only allows up to 16 threads
-    conda:
-        "../envs/vg.yaml"
-    params:
-        haplotype_args=get_haplotype_args,
-    shell:
-        "vg haplotypes --threads {threads} -k {input.kmers} -i {input.hapl} "
-        "{params.haplotype_args} --include-reference -g {output} {input.graph} 2> {log}"
-
-
-rule pangenome_index:
-    input:
-        "results/pangenomes/{group}.gbz",
-    output:
-        temp("results/pangenomes/{group}.dist"),
-    log:
-        "logs/vg_index/{group}.log"
-    threads: 64
-    conda:
-        "../envs/vg.yaml"
-    shell:
-        "vg index --threads {threads} -j {output} {input} 2> {log}"
-
-
-rule pangenome_minimizers:
-    input:
-        gbz="results/pangenomes/{group}.gbz",
-        dist="results/pangenomes/{group}.dist",
-    output:
-        min=temp("results/pangenomes/{group}.min"),
-        zipcodes=temp("results/pangenomes/{group}.zipcodes"),
-    log:
-        "logs/vg_minimizer/{group}.log"
-    threads: 64
-    conda:
-        "../envs/vg.yaml"
-    shell:
-        # TODO, for long reads, we need different k and w params!
-        "vg minimizer -k 29 -w 11 -p --threads {threads} -o {output.min} "
-        "-z {output.zipcodes} -d {input.dist} {input.gbz} 2> {log}"
-
-
-rule create_reference_paths:
-    output:
-        "resources/reference_paths.txt",
-    log:
-        "logs/reference/paths.log",
-    params:
-        build=config["ref"]["build"],
-    shell:
-        'for chrom in {{1..22}} X Y M; '
-        'do echo "{params.build}#0#chr$chrom"; '
-        'done > {output} 2> {log}'
-
-
 rule map_reads_vg:
     input:
         reads=get_map_reads_input,
-        graph=access.random(subpath(get_sample_pangenome_prefix, with_suffix=".gbz")),
-        dist=access.random(subpath(get_sample_pangenome_prefix, with_suffix=".dist")),
-        min=access.random(subpath(get_sample_pangenome_prefix, with_suffix=".min")),
-        zipcodes=access.random(subpath(get_sample_pangenome_prefix, with_suffix=".zipcodes")),
-        paths=access.random("resources/reference_paths.txt"),
+        graph=f"{pangenome_prefix}.gbz",
+        dist=access.random(f"{pangenome_prefix}.dist"),
+        min=f"{pangenome_prefix}.min",
+        zipcodes=f"{pangenome_prefix}.zipcodes",
+        paths="resources/reference_paths.txt",
     output:
         bam=temp("results/mapped/vg/{sample}.raw.bam"),
     log:

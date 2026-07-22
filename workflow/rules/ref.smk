@@ -161,45 +161,47 @@ rule get_pangenome:
         "curl -o {output} {params.url} 2> {log}"
 
 
-rule pangenome_dist_index:
+rule pangenome_index:
     input:
         f"{pangenome_prefix}.gbz",
     output:
-        f"{pangenome_prefix}.dist"
+        f"{pangenome_prefix}.dist",
     log:
-        "logs/pangenome_dist_index.log"
+        "logs/vg_index.log",
+    cache: True
     conda:
         "../envs/vg.yaml"
-    threads: 16
+    threads: 64
     shell:
-        "vg index --threads {threads} -j {output} --no-nested-distance {input} 2> {log}"
+        "vg index --threads {threads} -j {output} {input} 2> {log}"
 
 
-rule pangenome_r_index:
-    input:
-        f"{pangenome_prefix}.gbz",
-    output:
-        f"{pangenome_prefix}.ri"
-    log:
-        "logs/pangenome_r_index.log"
-    conda:
-        "../envs/vg.yaml"
-    threads: 16
-    shell:
-        "vg gbwt --num-threads {threads} -r {output} -Z {input} 2> {log}"
-
-
-rule pangenome_hapl_index:
+rule pangenome_minimizers:
     input:
         gbz=f"{pangenome_prefix}.gbz",
-        ri=f"{pangenome_prefix}.ri",
         dist=f"{pangenome_prefix}.dist",
     output:
-        f"{pangenome_prefix}.hapl"
+        min=f"{pangenome_prefix}.min",
+        zipcodes=f"{pangenome_prefix}.zipcodes",
     log:
-        "logs/pangenome_hapl_index.log"
+        "logs/vg_minimizer.log",
     conda:
         "../envs/vg.yaml"
-    threads: 16
+    threads: 64
     shell:
-        "vg haplotypes --threads {threads} -H {output} {input.gbz} 2> {log}"
+        # TODO, for long reads, we need different k and w params!
+        "vg minimizer -k 29 -w 11 -p --threads {threads} -o {output.min} "
+        "-z {output.zipcodes} -d {input.dist} {input.gbz} 2> {log}"
+
+
+rule create_reference_paths:
+    output:
+        "resources/reference_paths.txt",
+    log:
+        "logs/reference/paths.log",
+    params:
+        build=config["ref"]["build"],
+    shell:
+        "for chrom in {{1..22}} X Y M; "
+        'do echo "{params.build}#0#chr$chrom"; '
+        "done > {output} 2> {log}"
