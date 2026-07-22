@@ -86,7 +86,7 @@ rule somalier_extract:
     shell:
         "somalier extract -d {params.outdir} "
         "--sites {input.sites} "
-        "--sample-prefix {wildcards.sample} -f {input.fasta} {input.bam} 2> {log}"
+        "--sample-prefix {wildcards.sample} -f {input.fasta} {input.bam} 2> {log}" # TODO remove sample prefix
 
 
 rule somalier_groups:
