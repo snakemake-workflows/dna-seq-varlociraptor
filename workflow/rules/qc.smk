@@ -91,18 +91,13 @@ rule somalier_extract:
 
 rule somalier_groups:
     output:
-        temp("resources/somalier/groups.txt")
+        temp("resources/somalier/groups.txt"),
     params:
-        samples=samples
+        samples=samples,
     run:
         params.samples.groupby("group").apply(
-            lambda df: ",".join(df["sample_name"])
-        ), include_groups=False).to_csv(
-            output[0],
-            index=False,
-            header=False,
-            sep="\t"
-        )
+            lambda df: ",".join(df["sample_name"]), include_groups=False
+        ).to_csv(output[0], index=False, header=False, sep="\t")
 
 
 rule somalier_relate:
