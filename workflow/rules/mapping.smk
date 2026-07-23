@@ -17,7 +17,7 @@ rule count_sample_kmers:
     input:
         reads=get_map_reads_input,
     output:
-        "results/kmers/{sample}.kff",
+        temp("results/kmers/{sample}.kff"),
     log:
         "logs/kmers/{sample}.log",
     shadow:
@@ -38,7 +38,7 @@ rule count_sample_kmers:
 
 rule create_reference_paths:
     output:
-        "resources/reference_paths.txt",
+        temp("resources/reference_paths.txt"),
     log:
         "logs/reference/paths.log",
     params:
@@ -254,7 +254,7 @@ rule splitncigarreads:
         ),
         ref=genome,
     output:
-        "results/split/{sample}.bam",
+        temp("results/split/{sample}.bam"),
     log:
         "logs/gatk/splitNCIGARreads/{sample}.log",
     resources:

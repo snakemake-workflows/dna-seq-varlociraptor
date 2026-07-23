@@ -237,7 +237,6 @@ properties:
     required:
       - delly
       - freebayes
-      - scenario
       - filter
       - fdr-control
 
