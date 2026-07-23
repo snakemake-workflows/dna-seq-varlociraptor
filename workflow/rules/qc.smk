@@ -15,7 +15,7 @@ rule fastqc:
 rule samtools_idxstats:
     input:
         bam=get_sample_bam,
-        idx=subpath(get_sample_bam, strip_suffix=".bam", with_suffix=".bai"),
+        idx=subpath(get_sample_bam, with_suffix=".bai"),
     output:
         "results/qc/{sample}.bam.idxstats",
     log:

@@ -296,7 +296,7 @@ rule apply_bqsr:
     input:
         bam=lambda wc: get_recalibrate_quality_input(wc.sample),
         bai=subpath(
-            get_recalibrate_quality_input, strip_suffix=".bam", with_suffix=".bai"
+            get_recalibrate_quality_input, with_suffix=".bai"
         ),
         ref=genome,
         ref_dict=genome_dict,
