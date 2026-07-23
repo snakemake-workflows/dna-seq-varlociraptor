@@ -165,7 +165,7 @@ rule annotate_umis:
 
 rule mark_duplicates:
     input:
-        bams=lambda wc: get_markduplicates_input(wc.sample),
+        bams=get_markduplicates_input,
     output:
         bam=temp("results/dedup/{sample}.bam"),
         metrics="results/qc/dedup/{sample}.metrics.txt",
@@ -182,7 +182,7 @@ rule mark_duplicates:
 
 rule calc_consensus_reads:
     input:
-        lambda wc: get_consensus_input(wc.sample),
+        get_consensus_input,
     output:
         consensus_r1=temp("results/consensus/fastq/{sample}.1.fq"),
         consensus_r2=temp("results/consensus/fastq/{sample}.2.fq"),
@@ -268,7 +268,7 @@ rule splitncigarreads:
 
 rule recalibrate_base_qualities:
     input:
-        bam=lambda wc: get_recalibrate_quality_input(wc.sample),
+        bam=get_recalibrate_quality_input,
         bai=subpath(get_recalibrate_quality_input, with_suffix=".bai"),
         ref=genome,
         ref_dict=genome_dict,
@@ -294,7 +294,7 @@ ruleorder: apply_bqsr > bam_index
 
 rule apply_bqsr:
     input:
-        bam=lambda wc: get_recalibrate_quality_input(wc.sample),
+        bam=get_recalibrate_quality_input,
         bai=subpath(get_recalibrate_quality_input, with_suffix=".bai"),
         ref=genome,
         ref_dict=genome_dict,
