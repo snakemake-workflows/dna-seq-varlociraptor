@@ -483,7 +483,7 @@ def get_markduplicates_input(sample):
 def get_sample_bam(wc):
     return branch(
         lookup("basequality_recalibration/activate", within=config, default=False),
-        then="results/recal/{{sample}}.bam",
+        then=f"results/recal/{wc.sample}.bam",
         otherwise=get_recalibrate_quality_input(wc.sample),
     )
 
