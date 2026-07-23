@@ -480,42 +480,38 @@ def get_markduplicates_input(sample):
         return f"results/mapped/{aligner}/{{sample}}.sorted.bam"
 
 
-def get_sample_bam(wc, bai=False):
-    ext = "bai" if bai else "bam"
+def get_sample_bam(wc):
     return branch(
         lookup("basequality_recalibration/activate", within=config, default=False),
-        then="results/recal/{{sample}}.{ext}",
-        otherwise=get_recalibrate_quality_input(wc.sample, bai),
+        then="results/recal/{{sample}}.bam",
+        otherwise=get_recalibrate_quality_input(wc.sample),
     )
 
 
-def get_recalibrate_quality_input(sample, bai=False):
-    ext = "bai" if bai else "bam"
+def get_recalibrate_quality_input(sample):
     datatype = get_sample_datatype(sample)
     if datatype == "rna":
-        return f"results/split/{sample}.{ext}"
+        return f"results/split/{sample}.bam"
     # Post-processing of DNA samples
     if is_activated("calc_consensus_reads"):
-        return f"results/consensus/{sample}.{ext}"
+        return f"results/consensus/{sample}.bam"
     else:
-        return get_consensus_input(sample, bai)
+        return get_consensus_input(sample)
 
 
-def get_consensus_input(sample, bai=False):
-    ext = "bai" if bai else "bam"
+def get_consensus_input(sample):
     if sample_has_primers(sample):
-        return f"results/trimmed/{sample}.trimmed.{ext}"
+        return f"results/trimmed/{sample}.trimmed.bam"
     else:
-        return get_trimming_input(sample, bai)
+        return get_trimming_input(sample)
 
 
-def get_trimming_input(sample, bai=False):
-    ext = "bai" if bai else "bam"
+def get_trimming_input(sample):
     aligner = get_aligner(sample)
     if is_activated("remove_duplicates"):
-        return f"results/dedup/{sample}.{ext}"
+        return f"results/dedup/{sample}.bam"
     else:
-        return f"results/mapped/{aligner}/{sample}.sorted.{ext}"
+        return f"results/mapped/{aligner}/{sample}.sorted.bam"
 
 
 def get_primer_bed(wc):
@@ -610,17 +606,15 @@ def get_markduplicates_extra(wc):
     return f"{c} {b} {d}"
 
 
-def get_group_bams(wildcards, bai=False):
-    ext = "bai" if bai else "bam"
+def get_group_bams(wildcards):
     if lookup("basequality_recalibration/activate", within=config, default=False):
         return expand(
-            "results/recal/{sample}.{ext}",
+            "results/recal/{sample}.bam",
             sample=get_group_samples(wildcards.group),
-            ext=ext,
         )
     else:
         return [
-            get_recalibrate_quality_input(sample, bai)
+            get_recalibrate_quality_input(sample)
             for sample in get_group_samples(wildcards.group)
         ]
 
