@@ -481,7 +481,7 @@ def get_markduplicates_input(sample):
 
 
 def get_sample_bam(wc, bai=False):
-    ext="bai" if bai else "bam"
+    ext = "bai" if bai else "bam"
     return branch(
         lookup("basequality_recalibration/activate", within=config, default=False),
         then="results/recal/{{sample}}.{ext}",
