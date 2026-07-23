@@ -269,7 +269,7 @@ rule splitncigarreads:
 rule recalibrate_base_qualities:
     input:
         bam=lambda wc: get_recalibrate_quality_input(wc.sample),
-        bai=lambda wc: get_recalibrate_quality_input(wc.sample, bai=True),
+        bai=subpath(get_recalibrate_quality_input, with_suffix=".bai"),
         ref=genome,
         ref_dict=genome_dict,
         ref_fai=genome_fai,
@@ -295,7 +295,7 @@ ruleorder: apply_bqsr > bam_index
 rule apply_bqsr:
     input:
         bam=lambda wc: get_recalibrate_quality_input(wc.sample),
-        bai=lambda wc: get_recalibrate_quality_input(wc.sample, bai=True),
+        bai=subpath(get_recalibrate_quality_input, with_suffix=".bai"),
         ref=genome,
         ref_dict=genome_dict,
         ref_fai=genome_fai,
