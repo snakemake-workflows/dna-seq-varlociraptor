@@ -468,12 +468,12 @@ def get_group_sample_aliases(wildcards, controls=True):
     ]["alias"]
 
 
-def get_sample_datatype(wc):
-    return samples.loc[[wc.sample], "datatype"].iloc[0]
+def get_sample_datatype(wildcards):
+    return samples.loc[[wildcards.sample], "datatype"].iloc[0]
 
 
-def get_markduplicates_input(wc):
-    sample = wc.sample
+def get_markduplicates_input(wildcards):
+    sample = wildcards.sample
     aligner = get_aligner(sample)
     if sample_has_umis(sample):
         return f"results/mapped/{aligner}/{{sample}}.annotated.bam"
@@ -481,16 +481,16 @@ def get_markduplicates_input(wc):
         return f"results/mapped/{aligner}/{{sample}}.sorted.bam"
 
 
-def get_sample_bam(wc):
+def get_sample_bam(wildcards):
     return branch(
         lookup("basequality_recalibration/activate", within=config, default=False),
-        then=f"results/recal/{wc.sample}.bam",
-        otherwise=get_recalibrate_quality_input(wc.sample),
+        then=f"results/recal/{wildcards.sample}.bam",
+        otherwise=get_recalibrate_quality_input(wildcards.sample),
     )
 
 
-def get_recalibrate_quality_input(wc):
-    sample = wc.sample
+def get_recalibrate_quality_input(wildcards):
+    sample = wildcards.sample
     datatype = get_sample_datatype(sample)
     if datatype == "rna":
         return f"results/split/{sample}.bam"
@@ -501,16 +501,16 @@ def get_recalibrate_quality_input(wc):
         return get_consensus_input(sample)
 
 
-def get_consensus_input(wc):
-    sample = wc.sample
+def get_consensus_input(wildcards):
+    sample = wildcards.sample
     if sample_has_primers(sample):
         return f"results/trimmed/{sample}.trimmed.bam"
     else:
-        return get_trimming_input(sample)
+        return get_trimming_input(wildcards)
 
 
-def get_trimming_input(wc):
-    sample = wc.sample
+def get_trimming_input(wildcards):
+    sample = wildcards.sample
     aligner = get_aligner(sample)
     if is_activated("remove_duplicates"):
         return f"results/dedup/{sample}.bam"
@@ -566,7 +566,8 @@ def get_sample_primer_fastas(sample):
         return config["primers"]["trimming"]["primers_fa1"]
 
 
-def get_panel_primer_input(panel):
+def get_panel_primer_input(wildcards):
+    panel = wildcards.panel
     if panel == "uniform":
         if config["primers"]["trimming"].get("primers_fa2", ""):
             return [
@@ -587,9 +588,9 @@ def input_is_fasta(primers):
     return True if primers.endswith(fasta_suffixes) else False
 
 
-def get_primer_regions(wc):
+def get_primer_regions(wildcards):
     if isinstance(primer_panels, pd.DataFrame):
-        panel = extract_unique_sample_column_value(wc.sample, "panel")
+        panel = extract_unique_sample_column_value(wildcards.sample, "panel")
         return f"results/primers/{panel}_primer_regions.tsv"
     return "results/primers/uniform_primer_regions.tsv"
 

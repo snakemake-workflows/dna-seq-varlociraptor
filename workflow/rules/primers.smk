@@ -1,6 +1,6 @@
 rule assign_primers:
     input:
-        bam=lambda wc: get_trimming_input(wc.sample),
+        bam=get_trimming_input,
         primers=get_primer_regions,
     output:
         assigned=temp("results/primers/{sample}.assigned.bam"),
@@ -46,7 +46,7 @@ rule trim_primers:
 
 rule map_primers:
     input:
-        reads=lambda wc: get_panel_primer_input(wc.panel),
+        reads=get_panel_primer_input,
         idx=access.random(rules.bwa_index.output),
     output:
         "results/primers/{panel}_primers.bam",
