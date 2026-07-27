@@ -22,7 +22,7 @@ graph = nx.from_pandas_edgelist(pairs, source="sample_a", target="sample_b")
 
 # reduce to connected components that are impure
 impure_subset = set()
-for component in graph.connected_components():
+for component in nx.connected_components(graph):
     if (
         samples.filter(pl.col("sample_name").is_in(component))
         .get_column("group")
