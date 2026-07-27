@@ -11,8 +11,8 @@ pairs = (
     .join(samples, left_on="sample_b", right_on="sample_name", how="left", suffix="_b")
     .filter(
         pl.col("relatedness") >= 0.9
-        or pl.col("concordance") >= 0.9
-        or pl.col("group_a") == pl.col("group_b")
+        & pl.col("concordance") >= 0.9
+        & pl.col("group_a") == pl.col("group_b")
     )
 )
 
