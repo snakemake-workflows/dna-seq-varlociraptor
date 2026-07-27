@@ -46,8 +46,11 @@ coords = pl.DataFrame(
 data = samples.join(coords, how="inner", on="sample_name")
 
 # plot
-base = alt.Chart(data).encode(alt.X("x"), alt.Y("y"))
+base = alt.Chart(data).encode(alt.X("x").axis(None), alt.Y("y").axis(None))
 (
     base.mark_circle(tooltip=True).encode(alt.Color("group"))
     + base.mark_text(dx=5, dy=5).encode(alt.Text("sample_name"))
+).interactive().properties(
+    width="container",
+    height="container",
 ).save(snakemake.output[0])
