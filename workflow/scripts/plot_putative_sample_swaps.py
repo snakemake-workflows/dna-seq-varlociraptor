@@ -45,10 +45,49 @@ coords = pl.DataFrame(
 # add coords to sample sheet and only keep samples that are of interest
 data = samples.join(coords, how="inner", on="sample_name")
 
+# add edges for visualization and encode strength
+edges = (
+    pairs.filter(
+        pl.col("sample_a").is_in(impure_subset) & pl.col("sample_b").is_in(impure_subset)
+    )
+    .select(
+        "sample_a",
+        "sample_b",
+        "relatedness",
+        "concordance",
+        pl.max_horizontal("relatedness", "concordance").alias("edge_strength"),
+    )
+    .join(
+        coords.rename({"sample_name": "sample_a", "x": "x_a", "y": "y_a"}),
+        on="sample_a",
+        how="inner",
+    )
+    .join(
+        coords.rename({"sample_name": "sample_b", "x": "x_b", "y": "y_b"}),
+        on="sample_b",
+        how="inner",
+    )
+)
+
 # plot
 base = alt.Chart(data).encode(alt.X("x").axis(None), alt.Y("y").axis(None))
+edge_base = alt.Chart(edges).encode(
+    alt.X("x_a").axis(None),
+    alt.Y("y_a").axis(None),
+    alt.X2("x_b"),
+    alt.Y2("y_b"),
+)
 (
-    base.mark_circle(tooltip=True, clip=False, size=30).encode(
+    edge_base.mark_line(clip=False, color="black")
+    .encode(
+        alt.Opacity("edge_strength").scale(domain=[0, 1]),
+        alt.Tooltip("sample_a"),
+        alt.Tooltip("sample_b"),
+        alt.Tooltip("relatedness"),
+        alt.Tooltip("concordance"),
+        alt.Tooltip("edge_strength"),
+    )
+    + base.mark_circle(tooltip=True, clip=False, size=30).encode(
         alt.Color("group").scale(scheme="category20")
     )
     + base.mark_text(dx=5, dy=5, clip=False, align="left").encode(
