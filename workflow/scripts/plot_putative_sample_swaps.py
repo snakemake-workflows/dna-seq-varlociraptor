@@ -49,8 +49,12 @@ data = samples.join(coords, how="inner", on="sample_name")
 base = alt.Chart(data).encode(alt.X("x").axis(None), alt.Y("y").axis(None))
 (
     base.mark_circle(tooltip=True).encode(alt.Color("group"))
-    + base.mark_text(dx=5, dy=5).encode(alt.Text("sample_name"))
+    + base.mark_text(dx=5, dy=5, clip=False, align="left").encode(alt.Text("sample_name"))
 ).interactive().properties(
     width="container",
     height=700,
-).save(snakemake.output[0])
+).configure_view(
+    stroke=None
+).save(
+    snakemake.output[0]
+)
