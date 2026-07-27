@@ -12,7 +12,7 @@ pairs = (
     .filter(
         (pl.col("relatedness") >= 0.9)
         & (pl.col("concordance") >= 0.9)
-        & (pl.col("group_a") == pl.col("group_b"))
+        & (pl.col("group") == pl.col("group_b"))
     )
 )
 
