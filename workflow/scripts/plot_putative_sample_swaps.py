@@ -27,6 +27,7 @@ coords = pl.DataFrame(
         "y": [pos[1] for pos in layout.values()],
     }
 ).cast({"sample_name": str})
+breakpoint()
 
 base = alt.Chart(
     samples.join(coords, on="sample_name")
