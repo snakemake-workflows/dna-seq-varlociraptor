@@ -12,3 +12,4 @@ dependencies:
   - scikit-learn =1.9
   - statsmodels =0.14
   - networkx =3.6
+  - pyarrow =25.0
