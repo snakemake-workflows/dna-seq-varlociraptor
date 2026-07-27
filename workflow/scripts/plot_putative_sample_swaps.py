@@ -16,7 +16,7 @@ pairs = (
     )
 )
 
-graph = nx.from_pandas_edgelist(pairs, src="sample_a", dst="sample_b")
+graph = nx.from_pandas_edgelist(pairs, source="sample_a", target="sample_b")
 
 layout = nx.spring_layout(seed=2798791)
 
