@@ -29,6 +29,7 @@ coords = pl.DataFrame(
 )
 
 data = samples.join(coords, on="sample_name")
+breakpoint()
 
 base = alt.Chart(data).encode(alt.X("x"), alt.Y("y"))
 
