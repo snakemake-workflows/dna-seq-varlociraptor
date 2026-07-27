@@ -4,6 +4,7 @@ import altair as alt
 
 samples = pl.from_pandas(snakemake.params.samples).select("sample_name", "group")
 
+# read pair data and restrict to pairs that have a high concordance
 pairs = (
     pl.read_csv(snakemake.input[0], separator="\t")
     .rename({"#sample_a": "sample_a"})
@@ -16,10 +17,23 @@ pairs = (
     )
 )
 
+# obtain graph
 graph = nx.from_pandas_edgelist(pairs, source="sample_a", target="sample_b")
 
-layout = nx.spring_layout(graph, seed=2798791)
+# reduce to connected components that are impure
+impure_subset = set()
+for component in graph.connected_components():
+    if (
+        samples.filter(pl.col("sample_name").is_in(component))
+        .get_column("group")
+        .unique()
+        .len()
+        > 1
+    ):
+        impure_subset.update(component)
 
+# generate layout
+layout = nx.spring_layout(graph.subgraph(impure_subset), seed=2798791)
 coords = pl.DataFrame(
     {
         "sample_name": layout.keys(),
@@ -28,11 +42,11 @@ coords = pl.DataFrame(
     }
 )
 
-data = samples.join(coords, on="sample_name")
-breakpoint()
+# add coords to sample sheet and only keep samples that are of interest
+data = samples.join(coords, how="inner", on="sample_name")
 
+# plot
 base = alt.Chart(data).encode(alt.X("x"), alt.Y("y"))
-
 (
     base.mark_circle(tooltip=True).encode(alt.Color("group"))
     + base.mark_text(dx=5, dy=5).encode(alt.Text("sample_name"))
