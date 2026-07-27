@@ -128,7 +128,7 @@ rule plot_putative_sample_swaps:
     input:
         "results/somalier/all.pairs.tsv"
     output:
-        "results/somalier/all.putative_swaps.html"
+        "results/plots/all.putative_swaps.html"
     conda:
         "../envs/pystats.yaml"
     params:
