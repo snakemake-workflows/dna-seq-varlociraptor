@@ -81,11 +81,13 @@ edge_base = alt.Chart(edges).encode(
     edge_base.mark_line(clip=False, color="black")
     .encode(
         alt.Opacity("edge_strength").scale(domain=[0, 1]),
-        alt.Tooltip("sample_a"),
-        alt.Tooltip("sample_b"),
-        alt.Tooltip("relatedness"),
-        alt.Tooltip("concordance"),
-        alt.Tooltip("edge_strength"),
+        tooltip=[
+            alt.Tooltip("sample_a"),
+            alt.Tooltip("sample_b"),
+            alt.Tooltip("relatedness"),
+            alt.Tooltip("concordance"),
+            alt.Tooltip("edge_strength"),
+        ],
     )
     + base.mark_circle(tooltip=True, clip=False, size=30).encode(
         alt.Color("group").scale(scheme="category20")
