@@ -28,12 +28,11 @@ coords = pl.DataFrame(
     }
 )
 
-base = alt.Chart(
-    samples.join(coords, on="sample_name")
-).encode(alt.X("x"), alt.Y("y"))
+data = samples.join(coords, on="sample_name")
+
+base = alt.Chart(data).encode(alt.X("x"), alt.Y("y"))
 
 (
-    base.mark_circle(tooltip=True).encode(
-        alt.Color("group")
-    ) + base.mark_text(dx=5, dy=5).encode(alt.Text("sample"))
+    base.mark_circle(tooltip=True).encode(alt.Color("group"))
+    + base.mark_text(dx=5, dy=5).encode(alt.Text("sample"))
 ).save(snakemake.output[0])
