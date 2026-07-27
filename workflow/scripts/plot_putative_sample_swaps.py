@@ -47,6 +47,7 @@ data = samples.join(coords, how="inner", on="sample_name")
 
 # add edges for visualization and encode strength
 edges = (
+    # keep edges within the impure subgraph used for layout/plotting
     pairs.filter(
         pl.col("sample_a").is_in(impure_subset) & pl.col("sample_b").is_in(impure_subset)
     )
@@ -79,8 +80,7 @@ edge_base = alt.Chart(edges).encode(
     alt.Y2("y_b"),
 )
 (
-    edge_base.mark_line(clip=False, color="black")
-    .encode(
+    edge_base.mark_line(clip=False, color="black").encode(
         alt.Opacity("edge_strength").scale(domain=[0, 1]),
         tooltip=[
             alt.Tooltip("sample_a"),
