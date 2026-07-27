@@ -55,6 +55,7 @@ edges = (
         "sample_b",
         "relatedness",
         "concordance",
+        # use strongest similarity signal available for visual edge confidence
         pl.max_horizontal("relatedness", "concordance").alias("edge_strength"),
     )
     .join(
