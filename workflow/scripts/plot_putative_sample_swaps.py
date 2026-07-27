@@ -18,7 +18,7 @@ pairs = (
 
 graph = nx.from_pandas_edgelist(pairs, source="sample_a", target="sample_b")
 
-layout = nx.spring_layout(seed=2798791)
+layout = nx.spring_layout(graph, seed=2798791)
 
 coords = pl.DataFrame(
     {
