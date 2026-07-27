@@ -52,5 +52,5 @@ base = alt.Chart(data).encode(alt.X("x").axis(None), alt.Y("y").axis(None))
     + base.mark_text(dx=5, dy=5).encode(alt.Text("sample_name"))
 ).interactive().properties(
     width="container",
-    height="container",
+    height=700,
 ).save(snakemake.output[0])
