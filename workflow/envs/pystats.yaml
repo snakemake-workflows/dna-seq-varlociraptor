@@ -7,6 +7,8 @@ dependencies:
   - pysam =0.24
   - python =3.12
   - pandas =2.3
+  - polars =1.43
   - altair =6.2
   - scikit-learn =1.9
   - statsmodels =0.14
+  - networkx =3.6

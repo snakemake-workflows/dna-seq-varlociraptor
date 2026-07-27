@@ -122,3 +122,16 @@ rule somalier_relate:
     shell:
         "somalier relate --groups {input.groups} --sites {input.sites} -o {params.outdir}/all "
         "{input.data} 2> {log}"
+
+
+rule plot_putative_sample_swaps:
+    input:
+        "results/somalier/all.pairs.tsv"
+    output:
+        "results/somalier/all.putative_swaps.html"
+    conda:
+        "../envs/pystats.yaml"
+    params:
+        samples=samples,
+    script:
+        "../scripts/plot_putative_sample_swaps.py"
