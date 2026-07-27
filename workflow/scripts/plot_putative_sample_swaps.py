@@ -35,5 +35,5 @@ base = alt.Chart(data).encode(alt.X("x"), alt.Y("y"))
 
 (
     base.mark_circle(tooltip=True).encode(alt.Color("group"))
-    + base.mark_text(dx=5, dy=5).encode(alt.Text("sample"))
+    + base.mark_text(dx=5, dy=5).encode(alt.Text("sample_name"))
 ).save(snakemake.output[0])
