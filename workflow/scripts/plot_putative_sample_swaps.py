@@ -116,16 +116,18 @@ base = alt.Chart(data).encode(alt.X("x").axis(None), alt.Y("y").axis(None))
     + base.mark_text(dx=5, dy=5, clip=False, align="left").encode(
         alt.Text("sample_name")
     )
+).properties(
+    width="container",
+    height=700,
 ) & (
     alt.Chart(pairs).mark_rect().encode(
         alt.X("sample_a"),
         alt.Y("sample_b"),
         alt.Color("similarity").scale(scheme="viridis"),
     )
-)).interactive().properties(
+).properties(
     width="container",
-    height=700,
-).configure_view(
+)).interactive().configure_view(
     stroke=None
 ).save(
     snakemake.output[0]
