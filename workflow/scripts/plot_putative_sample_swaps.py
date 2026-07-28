@@ -91,9 +91,8 @@ base = alt.Chart(data).encode(alt.X("x").axis(None), alt.Y("y").axis(None))
             range=[[8, 18], [8, 16], [8, 14], [8, 12], [8, 10], [8, 8], [8, 6], [8, 4], [8, 2], [8, 0]]
         ),
         alt.Opacity("similarity"),
-        alt.StrokeWidth("similarity").scale("linear", range=[1, 4]),
-        alt.Color(
-            alt.when(
+        alt.StrokeWidth("similarity").scale(range=[1, 4]),
+        color=alt.when(
                 alt.datum.similarity >= 0.9
             ).then(
                 alt.value("#007A55")
