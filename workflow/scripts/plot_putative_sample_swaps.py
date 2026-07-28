@@ -65,9 +65,6 @@ edges = (
         # use strongest similarity signal available for visual edge confidence
         "similarity",
     )
-    .filter(
-        pl.col("similarity") >= 0.5
-    )
     .with_columns(
         # round similarity to 0, 0.1, 0.2, ... for visual clarity
         (pl.col("similarity") >= 0.9).alias("highly_similar")
@@ -87,7 +84,11 @@ edges = (
 # plot
 base = alt.Chart(data).encode(alt.X("x").axis(None), alt.Y("y").axis(None))
 ((
-    alt.Chart(edges).mark_line(clip=False).encode(
+    alt.Chart(
+        edges.filter(
+            pl.col("similarity") >= 0.5
+        )
+    ).mark_line(clip=False).encode(
         alt.X("x_a").axis(None),
         alt.Y("y_a").axis(None),
         alt.X2("x_b"),
@@ -117,7 +118,7 @@ base = alt.Chart(data).encode(alt.X("x").axis(None), alt.Y("y").axis(None))
         alt.Text("sample_name")
     )
 ).properties(
-    width="container",
+    width=950,
     height=700,
 ) & (
     alt.Chart(edges).mark_rect().encode(
