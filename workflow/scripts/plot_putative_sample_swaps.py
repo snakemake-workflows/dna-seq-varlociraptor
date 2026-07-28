@@ -100,7 +100,7 @@ base = alt.Chart(data).encode(alt.X("x").axis(None), alt.Y("y").axis(None))
             alt.value("black")
         ),
     )
-    + base.mark_circle(tooltip=True, clip=False, size=30).encode(
+    + base.mark_circle(tooltip=True, clip=False, size=50).encode(
         alt.Color("group").scale(scheme="category20")
     )
     + base.mark_text(dx=5, dy=5, clip=False, align="left").encode(
