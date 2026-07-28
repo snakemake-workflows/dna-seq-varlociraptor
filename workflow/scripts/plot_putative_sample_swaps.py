@@ -18,7 +18,7 @@ pairs = (
 # obtain graph of only highly related samples
 graph = nx.from_pandas_edgelist(
     pairs.filter(
-        (pl.col("similarity") >= 0.9)
+        (pl.col("relatedness") >= 0.9)
         | (pl.col("group") == pl.col("group_b"))
     ),
     source="sample_a",
@@ -67,7 +67,7 @@ edges = (
     )
     .with_columns(
         # round similarity to 0, 0.1, 0.2, ... for visual clarity
-        (pl.col("similarity") >= 0.9).alias("highly_similar")
+        (pl.col("relatedness") >= 0.9).alias("highly_similar")
     )
     .join(
         coords.rename({"sample_name": "sample_a", "x": "x_a", "y": "y_a"}),
@@ -96,9 +96,9 @@ base = alt.Chart(data).encode(alt.X("x").axis(None), alt.Y("y").axis(None))
         alt.StrokeDash("highly_similar", type="ordinal").scale(
             domain=[False, True],
             range=[[4, 4], [4, 0]],
-        ).title("similarity >= 0.9"),
-        alt.Opacity("similarity"),
-        alt.StrokeWidth("similarity").scale(range=[1, 2]),
+        ).title("relatedness >= 0.9"),
+        alt.Opacity("relatedness"),
+        alt.StrokeWidth("relatedness").scale(range=[1, 2]),
         # alt.StrokeDash("similarity", type="ordinal").scale(
         #     domain=[0.0, 0.95, 0.951, 1.0],
         #     range=[[4, 4], [4, 4], [1, 0], [1, 0]],
@@ -128,7 +128,7 @@ base = alt.Chart(data).encode(alt.X("x").axis(None), alt.Y("y").axis(None))
 alt.Chart(edges).mark_rect().encode(
     alt.X("sample_a"),
     alt.Y("sample_b"),
-    alt.Color("similarity").scale(scheme="viridis"),
+    alt.Color("relatedness").scale(scheme="viridis"),
     tooltip=["sample_a", "sample_b", "relatedness", "concordance"],
 ).configure_view(
     stroke=None
