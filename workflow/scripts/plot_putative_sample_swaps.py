@@ -125,10 +125,11 @@ base = alt.Chart(data).encode(alt.X("x").axis(None), alt.Y("y").axis(None))
     snakemake.output.graph
 )
 
-alt.Chart(edges).mark_rect(tooltip=["sample_a", "sample_b", "relatedness", "concordance"]).encode(
+alt.Chart(edges).mark_rect().encode(
     alt.X("sample_a"),
     alt.Y("sample_b"),
     alt.Color("similarity").scale(scheme="viridis"),
+    tooltip=["sample_a", "sample_b", "relatedness", "concordance"],
 ).configure_view(
     stroke=None
 ).save(
