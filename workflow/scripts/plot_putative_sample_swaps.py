@@ -66,10 +66,10 @@ edges = (
     .filter(
         pl.col("similarity") >= 0.3
     )
-    # .with_columns(
-    #     # round similarity to 0, 0.1, 0.2, ... for visual clarity
-    #     pl.col("similarity").round(1)
-    # )
+    .with_columns(
+        # round similarity to 0, 0.1, 0.2, ... for visual clarity
+        (pl.col("similarity") >= 0.9).alias("highly_similar")
+    )
     .join(
         coords.rename({"sample_name": "sample_a", "x": "x_a", "y": "y_a"}),
         on="sample_a",
@@ -90,15 +90,16 @@ base = alt.Chart(data).encode(alt.X("x").axis(None), alt.Y("y").axis(None))
         alt.Y("y_a").axis(None),
         alt.X2("x_b"),
         alt.Y2("y_b"),
-        # alt.StrokeDash("similarity", type="ordinal").scale(
-        #     range=[[8, 18], [8, 16], [8, 14], [8, 12], [8, 10], [8, 8], [8, 6], [8, 4], [8, 2], [8, 0]]
-        # ),
+        alt.StrokeDash("highly_similar", type="ordinal").scale(
+            domain=[False, True],
+            range=[[4, 4], [4, 0]],
+        ),
         alt.Opacity("similarity"),
         alt.StrokeWidth("similarity").scale(range=[1, 2]),
-        alt.StrokeDash("similarity", type="ordinal").scale(
-            domain=[0.0, 0.95, 0.951, 1.0],
-            range=[[1, 1], [1, 1], [1, 0], [1, 0]],
-        ),
+        # alt.StrokeDash("similarity", type="ordinal").scale(
+        #     domain=[0.0, 0.95, 0.951, 1.0],
+        #     range=[[4, 4], [4, 4], [1, 0], [1, 0]],
+        # ),
         # strokeDash=alt.when(
         #     alt.datum.similarity >= 0.95
         # ).then(
