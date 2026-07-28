@@ -93,11 +93,13 @@ base = alt.Chart(data).encode(alt.X("x").axis(None), alt.Y("y").axis(None))
         alt.Opacity("similarity"),
         alt.StrokeWidth("similarity").scale("linear", range=[1, 4]),
         alt.Color(
-            alt.condition(
-                alt.datum.similarity >= 0.9,
-                alt.value("#007A55"),
-                alt.value("black"),
-            )
+            alt.when(
+                alt.datum.similarity >= 0.9
+            ).then(
+                alt.value("#007A55")
+            ).otherwise(
+                alt.value("black")
+            ),
         )
     )
     + base.mark_circle(tooltip=True, clip=False, size=30).encode(
