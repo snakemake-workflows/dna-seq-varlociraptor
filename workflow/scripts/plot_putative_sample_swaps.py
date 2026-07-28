@@ -59,6 +59,16 @@ edges = (
         # use strongest similarity signal available for visual edge confidence
         pl.max_horizontal("relatedness", "concordance").alias("edge_strength"),
     )
+    .with_columns(
+        pl.when(pl.col("edge_strength") < 0.25)
+        .then(pl.lit("[0.0, 0.25)"))
+        .when(pl.col("edge_strength") < 0.5)
+        .then(pl.lit("[0.25, 0.5)"))
+        .when(pl.col("edge_strength") < 0.9)
+        .then(pl.lit("[0.5, 0.9)"))
+        .otherwise(pl.lit("[0.9, 1.0]"))
+        .alias("edge_strength_bin")
+    )
     .join(
         coords.rename({"sample_name": "sample_a", "x": "x_a", "y": "y_a"}),
         on="sample_a",
@@ -82,12 +92,17 @@ edge_base = alt.Chart(edges).encode(
 (
     edge_base.mark_line(clip=False, color="black").encode(
         alt.Opacity("edge_strength").scale(domain=[0, 1]),
+        alt.StrokeDash("edge_strength_bin:N").scale(
+            domain=["[0.0, 0.25)", "[0.25, 0.5)", "[0.5, 0.9)", "[0.9, 1.0]"],
+            range=[[1, 5], [4, 4], [7, 3], [1, 0]],
+        ),
         tooltip=[
             alt.Tooltip("sample_a"),
             alt.Tooltip("sample_b"),
             alt.Tooltip("relatedness"),
             alt.Tooltip("concordance"),
             alt.Tooltip("edge_strength"),
+            alt.Tooltip("edge_strength_bin"),
         ],
     )
     + base.mark_circle(tooltip=True, clip=False, size=30).encode(
