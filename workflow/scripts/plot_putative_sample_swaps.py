@@ -18,7 +18,7 @@ pairs = (
 # obtain graph of only highly related samples
 graph = nx.from_pandas_edgelist(
     pairs.filter(
-        (pl.col("relatedness") >= 0.9)
+        (pl.col("relatedness") >= 0.5)
         | (pl.col("group") == pl.col("group_b"))
     ),
     source="sample_a",
