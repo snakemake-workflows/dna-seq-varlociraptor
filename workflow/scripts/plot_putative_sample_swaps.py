@@ -33,7 +33,7 @@ for component in nx.connected_components(graph):
         .unique()
         .len()
         > 1
-    ) or component_samples.len() == 1:
+    ) or component_samples.height == 1:
         impure_subset.update(component)
 
 # generate layout
