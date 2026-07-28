@@ -8,6 +8,9 @@ samples = pl.from_pandas(snakemake.params.samples).select("sample_name", "group"
 pairs = (
     pl.read_csv(snakemake.input[0], separator="\t")
     .rename({"#sample_a": "sample_a"})
+    .with_columns(
+        pl.max_horizontal("relatedness", "concordance").alias("similarity"),
+    )
     .join(samples, left_on="sample_a", right_on="sample_name", how="left", suffix="_a")
     .join(samples, left_on="sample_b", right_on="sample_name", how="left", suffix="_b")
 )
@@ -15,8 +18,7 @@ pairs = (
 # obtain graph of only highly related samples
 graph = nx.from_pandas_edgelist(
     pairs.filter(
-        (pl.col("relatedness") >= 0.9)
-        | (pl.col("concordance") >= 0.9)
+        (pl.col("similarity") >= 0.9)
         | (pl.col("group") == pl.col("group_b"))
     ),
     source="sample_a",
@@ -61,10 +63,10 @@ edges = (
         "relatedness",
         "concordance",
         # use strongest similarity signal available for visual edge confidence
-        pl.max_horizontal("relatedness", "concordance").alias("similarity"),
+        "similarity",
     )
     .filter(
-        pl.col("similarity") >= 0.3
+        pl.col("similarity") >= 0.5
     )
     .with_columns(
         # round similarity to 0, 0.1, 0.2, ... for visual clarity
@@ -84,7 +86,7 @@ edges = (
 
 # plot
 base = alt.Chart(data).encode(alt.X("x").axis(None), alt.Y("y").axis(None))
-(
+((
     alt.Chart(edges).mark_line(clip=False).encode(
         alt.X("x_a").axis(None),
         alt.Y("y_a").axis(None),
@@ -93,7 +95,7 @@ base = alt.Chart(data).encode(alt.X("x").axis(None), alt.Y("y").axis(None))
         alt.StrokeDash("highly_similar", type="ordinal").scale(
             domain=[False, True],
             range=[[4, 4], [4, 0]],
-        ),
+        ).title("similarity >= 0.9"),
         alt.Opacity("similarity"),
         alt.StrokeWidth("similarity").scale(range=[1, 2]),
         # alt.StrokeDash("similarity", type="ordinal").scale(
@@ -114,7 +116,13 @@ base = alt.Chart(data).encode(alt.X("x").axis(None), alt.Y("y").axis(None))
     + base.mark_text(dx=5, dy=5, clip=False, align="left").encode(
         alt.Text("sample_name")
     )
-).interactive().properties(
+) & (
+    alt.Chart(pairs).mark_rect().encode(
+        alt.X("sample_a"),
+        alt.Y("sample_b"),
+        alt.Color("similarity").scale(scheme="viridis"),
+    )
+)).interactive().properties(
     width="container",
     height=700,
 ).configure_view(
@@ -122,3 +130,5 @@ base = alt.Chart(data).encode(alt.X("x").axis(None), alt.Y("y").axis(None))
 ).save(
     snakemake.output[0]
 )
+
+
