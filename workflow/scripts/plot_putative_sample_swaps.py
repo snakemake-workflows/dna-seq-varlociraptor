@@ -98,7 +98,7 @@ base = alt.Chart(data).encode(alt.X("x").axis(None), alt.Y("y").axis(None))
         strokeDash=alt.when(
             alt.datum.similarity >= 0.95
         ).then(
-            [1, 0],#alt.value("#007A55")
+            [1, 0]#alt.value("#007A55")
         ).otherwise(
             [1, 1]#alt.value("black")
         ),
