@@ -85,7 +85,9 @@ edges = (
 base = alt.Chart(data).encode(alt.X("x").axis(None), alt.Y("y").axis(None))
 (
     alt.Chart(
-        edges
+        edges.filter(
+            pl.col("relatedness") >= 0.5
+        )
     ).mark_line(clip=False).encode(
         alt.X("x_a").axis(None),
         alt.Y("y_a").axis(None),
