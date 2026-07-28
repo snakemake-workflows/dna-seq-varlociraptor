@@ -120,7 +120,7 @@ base = alt.Chart(data).encode(alt.X("x").axis(None), alt.Y("y").axis(None))
     width="container",
     height=700,
 ) & (
-    alt.Chart(pairs).mark_rect().encode(
+    alt.Chart(edges).mark_rect().encode(
         alt.X("sample_a"),
         alt.Y("sample_b"),
         alt.Color("similarity").scale(scheme="viridis"),
