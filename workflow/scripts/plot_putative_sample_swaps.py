@@ -87,8 +87,7 @@ base = alt.Chart(data).encode(alt.X("x").axis(None), alt.Y("y").axis(None))
         alt.Y("y_a").axis(None),
         alt.X2("x_b"),
         alt.Y2("y_b"),
-        alt.StrokeDash("similarity").scale(
-            "ordinal",
+        alt.StrokeDash("similarity", type="ordinal").scale(
             range=[[8, 18], [8, 16], [8, 14], [8, 12], [8, 10], [8, 8], [8, 6], [8, 4], [8, 2], [8, 0]]
         ),
         alt.Opacity("similarity"),
