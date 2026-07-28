@@ -63,10 +63,10 @@ edges = (
         # use strongest similarity signal available for visual edge confidence
         pl.max_horizontal("relatedness", "concordance").alias("similarity"),
     )
-    .with_columns(
-        # round similarity to 0, 0.1, 0.2, ... for visual clarity
-        pl.col("similarity").round(1)
-    )
+    # .with_columns(
+    #     # round similarity to 0, 0.1, 0.2, ... for visual clarity
+    #     pl.col("similarity").round(1)
+    # )
     .join(
         coords.rename({"sample_name": "sample_a", "x": "x_a", "y": "y_a"}),
         on="sample_a",
@@ -87,13 +87,13 @@ base = alt.Chart(data).encode(alt.X("x").axis(None), alt.Y("y").axis(None))
         alt.Y("y_a").axis(None),
         alt.X2("x_b"),
         alt.Y2("y_b"),
-        alt.StrokeDash("similarity", type="ordinal").scale(
-            range=[[8, 18], [8, 16], [8, 14], [8, 12], [8, 10], [8, 8], [8, 6], [8, 4], [8, 2], [8, 0]]
-        ),
+        # alt.StrokeDash("similarity", type="ordinal").scale(
+        #     range=[[8, 18], [8, 16], [8, 14], [8, 12], [8, 10], [8, 8], [8, 6], [8, 4], [8, 2], [8, 0]]
+        # ),
         alt.Opacity("similarity"),
         alt.StrokeWidth("similarity").scale(range=[1, 4]),
         color=alt.when(
-            alt.datum.similarity >= 0.9
+            alt.datum.similarity >= 0.95
         ).then(
             alt.value("#007A55")
         ).otherwise(
