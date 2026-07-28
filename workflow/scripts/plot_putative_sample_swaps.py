@@ -95,7 +95,7 @@ base = alt.Chart(data).encode(alt.X("x").axis(None), alt.Y("y").axis(None))
         # ),
         alt.Opacity("similarity"),
         alt.StrokeWidth("similarity").scale(range=[1, 2]),
-        alt.StrokeDash("similarity").scale(
+        alt.StrokeDash("similarity", type="ordinal").scale(
             domain=[0.0, 0.95, 0.951, 1.0],
             range=[[1, 1], [1, 1], [1, 0], [1, 0]],
         ),
