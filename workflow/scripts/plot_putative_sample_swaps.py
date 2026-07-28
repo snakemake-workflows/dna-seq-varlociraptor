@@ -83,7 +83,7 @@ edges = (
 
 # plot
 base = alt.Chart(data).encode(alt.X("x").axis(None), alt.Y("y").axis(None))
-((
+(
     alt.Chart(
         edges.filter(
             pl.col("similarity") >= 0.5
@@ -118,20 +118,21 @@ base = alt.Chart(data).encode(alt.X("x").axis(None), alt.Y("y").axis(None))
         alt.Text("sample_name")
     )
 ).properties(
-    width=950,
-    height=700,
-) & (
-    alt.Chart(edges).mark_rect().encode(
-        alt.X("sample_a"),
-        alt.Y("sample_b"),
-        alt.Color("similarity").scale(scheme="viridis"),
-    )
-).properties(
     width="container",
-)).interactive().configure_view(
+).interactive().configure_view(
     stroke=None
 ).save(
-    snakemake.output[0]
+    snakemake.output.graph
+)
+
+alt.Chart(edges).mark_rect(tooltip=["sample_a", "sample_b", "relatedness", "concordance"]).encode(
+    alt.X("sample_a"),
+    alt.Y("sample_b"),
+    alt.Color("similarity").scale(scheme="viridis"),
+).configure_view(
+    stroke=None
+).save(
+    snakemake.output.heatmap
 )
 
 

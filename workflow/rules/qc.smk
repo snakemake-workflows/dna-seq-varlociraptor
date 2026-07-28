@@ -128,7 +128,8 @@ rule plot_putative_sample_swaps:
     input:
         "results/somalier/all.pairs.tsv"
     output:
-        "results/plots/all.putative_swaps.html"
+        graph="results/plots/all.putative_swaps.graph.html",
+        heatmap="results/plots/all.putative_swaps.heatmap.html",
     conda:
         "../envs/pystats.yaml"
     params:
