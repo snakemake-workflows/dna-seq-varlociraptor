@@ -63,6 +63,9 @@ edges = (
         # use strongest similarity signal available for visual edge confidence
         pl.max_horizontal("relatedness", "concordance").alias("similarity"),
     )
+    .filter(
+        pl.col("similarity") >= 0.5
+    )
     # .with_columns(
     #     # round similarity to 0, 0.1, 0.2, ... for visual clarity
     #     pl.col("similarity").round(1)
