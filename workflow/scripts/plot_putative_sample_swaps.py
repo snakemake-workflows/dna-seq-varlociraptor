@@ -85,20 +85,17 @@ edges = (
 base = alt.Chart(data).encode(alt.X("x").axis(None), alt.Y("y").axis(None))
 (
     alt.Chart(
-        edges.filter(
-            pl.col("relatedness") >= 0.5
-        )
+        edges
     ).mark_line(clip=False).encode(
         alt.X("x_a").axis(None),
         alt.Y("y_a").axis(None),
         alt.X2("x_b"),
         alt.Y2("y_b"),
-        alt.StrokeDash("highly_similar", type="ordinal").scale(
+        alt.StrokeWidth("highly_similar", type="ordinal").scale(
             domain=[False, True],
-            range=[[4, 4], [4, 0]],
+            range=[0.5, 2],
         ).title("relatedness >= 0.9"),
         alt.Opacity("relatedness"),
-        alt.StrokeWidth("relatedness").scale(range=[1, 2]),
         # alt.StrokeDash("similarity", type="ordinal").scale(
         #     domain=[0.0, 0.95, 0.951, 1.0],
         #     range=[[4, 4], [4, 4], [1, 0], [1, 0]],
