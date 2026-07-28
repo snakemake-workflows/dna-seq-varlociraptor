@@ -64,7 +64,7 @@ edges = (
         pl.max_horizontal("relatedness", "concordance").alias("similarity"),
     )
     .filter(
-        pl.col("similarity") >= 0.5
+        pl.col("similarity") >= 0.3
     )
     # .with_columns(
     #     # round similarity to 0, 0.1, 0.2, ... for visual clarity
@@ -96,7 +96,7 @@ base = alt.Chart(data).encode(alt.X("x").axis(None), alt.Y("y").axis(None))
         alt.Opacity("similarity"),
         alt.StrokeWidth("similarity").scale(range=[1, 2]),
         alt.StrokeDash("similarity").scale(
-            domain=[0.0, 0.5, 0.501, 1.0],
+            domain=[0.0, 0.95, 0.951, 1.0],
             range=[[1, 1], [1, 1], [1, 0], [1, 0]],
         ),
         # strokeDash=alt.when(
@@ -107,7 +107,7 @@ base = alt.Chart(data).encode(alt.X("x").axis(None), alt.Y("y").axis(None))
         #     [1, 1]#alt.value("black")
         # ),
     )
-    + base.mark_circle(tooltip=True, clip=False, size=100).encode(
+    + base.mark_circle(tooltip=True, clip=False, size=100, opacity=1.0).encode(
         alt.Color("group").scale(scheme="category20")
     )
     + base.mark_text(dx=5, dy=5, clip=False, align="left").encode(
