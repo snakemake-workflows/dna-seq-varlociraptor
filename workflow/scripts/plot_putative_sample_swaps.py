@@ -95,13 +95,17 @@ base = alt.Chart(data).encode(alt.X("x").axis(None), alt.Y("y").axis(None))
         # ),
         alt.Opacity("similarity"),
         alt.StrokeWidth("similarity").scale(range=[1, 2]),
-        strokeDash=alt.when(
-            alt.datum.similarity >= 0.95
-        ).then(
-            [1, 0]#alt.value("#007A55")
-        ).otherwise(
-            [1, 1]#alt.value("black")
+        alt.StrokeDash("similarity").scale(
+            domain=[0.0, 0.5, 0.501, 1.0],
+            range=[[1, 1], [1, 1], [1, 0], [1, 0]],
         ),
+        # strokeDash=alt.when(
+        #     alt.datum.similarity >= 0.95
+        # ).then(
+        #     [1, 0]#alt.value("#007A55")
+        # ).otherwise(
+        #     [1, 1]#alt.value("black")
+        # ),
     )
     + base.mark_circle(tooltip=True, clip=False, size=100).encode(
         alt.Color("group").scale(scheme="category20")
