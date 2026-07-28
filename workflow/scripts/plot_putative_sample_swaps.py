@@ -35,6 +35,14 @@ for component in nx.connected_components(graph):
         > 1
     ) or component_samples.len() == 1:
         impure_subset.update(component)
+        # add all other samples belonging to the same groups as the component samples
+        for sample in component:
+            group = samples.filter(
+                pl.col("sample_name") == sample
+            ).get_column("group").item()
+            impure_subset.update(
+                samples.filter(pl.col("group") == group
+            ).get_column("sample_name").to_list())
 
 # generate layout
 layout = nx.spring_layout(graph.subgraph(impure_subset), seed=2798791)
