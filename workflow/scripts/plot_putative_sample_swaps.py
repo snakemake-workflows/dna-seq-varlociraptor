@@ -66,7 +66,7 @@ edges = (
         "similarity",
     )
     .with_columns(
-        # round similarity to 0, 0.1, 0.2, ... for visual clarity
+        # round relatedness to 0, 0.1, 0.2, ... for visual clarity
         (pl.col("relatedness") >= 0.9).alias("highly_similar")
     )
     .join(
@@ -85,9 +85,7 @@ edges = (
 base = alt.Chart(data).encode(alt.X("x").axis(None), alt.Y("y").axis(None))
 (
     alt.Chart(
-        edges.filter(
-            pl.col("relatedness") >= 0.5
-        )
+        edges
     ).mark_line(clip=False).encode(
         alt.X("x_a").axis(None),
         alt.Y("y_a").axis(None),
