@@ -144,11 +144,6 @@ rule get_vep_plugins:
     log:
         "logs/vep/plugins.log",
     params:
-        release=config["ref"]["release"],
-    wrapper:
-        "v8.0.0/bio/vep/plugins"
-
-
 rule get_pangenome:
     output:
         f"{pangenome_prefix}.gbz",
@@ -158,8 +153,7 @@ rule get_pangenome:
     params:
         url=get_pangenome_url(),
     shell:
-        "curl --fail -o {output} {params.url} 2> {log}"
-
+        "curl -fSL -o {output} {params.url} 2> {log}"
 
 rule pangenome_index:
     input:
