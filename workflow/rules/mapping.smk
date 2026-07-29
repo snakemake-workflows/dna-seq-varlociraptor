@@ -212,7 +212,7 @@ rule splitncigarreads:
         ),
         ref=genome,
     output:
-        "results/split/{sample}.bam",
+        temp("results/split/{sample}.bam"),
     log:
         "logs/gatk/splitNCIGARreads/{sample}.log",
     resources:

@@ -89,6 +89,17 @@ if "groups" in config:
 else:
     group_annotation = pd.DataFrame({"group": groups}).set_index("group")
 
+
+if "scenario" in group_annotation.columns:
+    scenarios = group_annotation.loc[:, ["scenario"]]
+    group_annotation.drop("scenario", axis="columns", inplace=True)
+else:
+    scenarios = pd.DataFrame({"group": groups, "scenario": pd.NA}, dtype=str).set_index(
+        "group"
+    )
+scenarios.fillna(lookup("calling/scenario", within=config, default=None), inplace=True)
+
+
 units = (
     pd.read_csv(
         config["units"],
