@@ -216,8 +216,8 @@ rule splitncigarreads:
 
 rule recalibrate_base_qualities:
     input:
-        bam=get_recalibrate_quality_input,
-        bai=lambda w: get_recalibrate_quality_input(w, bai=True),
+        bam=get_pre_bqsr_input,
+        bai=partial(get_pre_bqsr_input, bai=True),
         ref=genome,
         ref_dict=genome_dict,
         ref_fai=genome_fai,
@@ -242,8 +242,8 @@ ruleorder: apply_bqsr > bam_index
 
 rule apply_bqsr:
     input:
-        bam=get_recalibrate_quality_input,
-        bai=lambda w: get_recalibrate_quality_input(w, bai=True),
+        bam=get_pre_bqsr_input,
+        bai=partial(get_pre_bqsr_input, bai=True),
         ref=genome,
         ref_dict=genome_dict,
         ref_fai=genome_fai,

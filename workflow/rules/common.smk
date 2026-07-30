@@ -1,5 +1,6 @@
 import glob
 from os import path
+from functools import partial
 
 import yaml
 import pandas as pd
@@ -134,11 +135,19 @@ genebe_genome_build = (
 )
 
 
-def is_activated(xpath, default=False):
-    c = config
-    for entry in xpath.split("/"):
-        c = c.get(entry, {})
-    return bool(c.get("activate", default))
+def is_activated(dpath, default=False):
+    return lookup(dpath=dpath + "/activate", within=config, default=default)
+
+
+def or_index(primary_suffix, index_suffix):
+    def outer(func):
+        def inner(idx=False):
+            if idx:
+                return subpath(func, strip_suffix=primary_suffix, with_suffix=index_suffix)
+            else:
+                return func
+        return inner
+    return outer
 
 
 custom_alignment_props = (
@@ -277,19 +286,17 @@ def get_final_output(wildcards):
     return final_output
 
 
-def get_gather_calls_input(ext="bcf"):
-    def inner(wildcards):
-        if wildcards.by == "odds":
-            pattern = "results/calls/filtered/filtered_odds/{{{{group}}}}/{{{{event}}}}/{{{{group}}}}.{{{{calling_type}}}}.{{scatteritem}}.{ext}"
-        elif wildcards.by == "ann":
-            pattern = "results/calls/filtered/filtered_ann/{{{{group}}}}/{{{{event}}}}/{{{{group}}}}.{{{{calling_type}}}}.{{scatteritem}}.{ext}"
-        else:
-            raise ValueError(
-                "Unexpected wildcard value for 'by': {}".format(wildcards.by)
-            )
-        return gather.calling(pattern.format(ext=ext))
-
-    return inner
+@or_index(".bcf", ".bcf.csi")
+def get_gather_calls_input(wildcards):
+    if wildcards.by == "odds":
+        pattern = "results/calls/filtered/filtered_odds/{{group}}/{{event}}/{{group}}.{{calling_type}}.{scatteritem}.bcf"
+    elif wildcards.by == "ann":
+        pattern = "results/calls/filtered/filtered_ann/{{group}}/{{event}}/{{group}}.{{calling_type}}.{scatteritem}.bcf"
+    else:
+        raise ValueError(
+            f"Unexpected wildcard value for 'by': {wildcards.by}"
+        )
+    return gather.calling(pattern)
 
 
 def get_control_fdr_input(wildcards):
@@ -522,16 +529,23 @@ def get_markduplicates_input(wildcards):
         return f"results/mapped/{aligner}/{{sample}}.sorted.bam"
 
 
-def get_recalibrate_quality_input(wildcards, bai=False):
-    ext = "bai" if bai else "bam"
+@or_index(".bam", ".bai")
+def get_pre_bqsr_input(wildcards):
     datatype = get_sample_datatype(wildcards.sample)
     if datatype == "rna":
-        return "results/split/{{sample}}.{ext}".format(ext=ext)
+        return "results/split/{{sample}}.bam"
     # Post-processing of DNA samples
     if is_activated("calc_consensus_reads"):
-        return "results/consensus/{{sample}}.{ext}".format(ext=ext)
+        return "results/consensus/{{sample}}.bam"
     else:
-        return get_consensus_input(wildcards, bai)
+        return get_consensus_input(wildcards)
+
+
+def get_final_alignments(wildcards):
+    if lookup("base_quality_recalibration", within=config, default=True):
+        return get_pre_bqsr_input(wildcards)
+    else:
+        return f"results/recal/{wildcards.sample}.bam"
 
 
 def get_consensus_input(wildcards, bai=False):
