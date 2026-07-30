@@ -16,7 +16,7 @@ rule map_reads_bwa:
 rule map_reads_vg:
     input:
         access.random(f"{pangenome_prefix}.dist"),
-        "{pangenome_prefix}.shortread.withzip.min",
+        f"{pangenome_prefix}.shortread.withzip.min",
         f"{pangenome_prefix}.longread.withzip.min",
         f"{pangenome_prefix}.shortread.zipcodes",
         f"{pangenome_prefix}.longread.zipcodes",
