@@ -440,18 +440,25 @@ def get_sample_fastqs(sample):
 
 
 def get_giraffe_extra(wildcards, input):
-    return " ".join([
-        prepend_param("--ref-paths", input.paths),
-        branch(
-            lookup(query=f"sample_name == '{wildcards.sample}'", within=samples),
-            cases={
-                "ONT": "r10",
-                "PACBIO": "hifi",
-            },
-            otherwise="default",
-        ),
-        get_read_group("--read-group ")(wildcards),
-    ])
+    return " ".join(
+        [
+            prepend_param("--ref-paths", input.paths),
+            prepend_param(
+                "--parameter-preset",
+                branch(
+                    lookup(
+                        query=f"sample_name == '{wildcards.sample}'", within=samples
+                    ),
+                    cases={
+                        "ONT": "r10",
+                        "PACBIO": "hifi",
+                    },
+                    otherwise="default",
+                ),
+            ),
+            get_read_group("--read-group ")(wildcards),
+        ]
+    )
 
 
 def get_count_group_kmers_input(wildcards):
