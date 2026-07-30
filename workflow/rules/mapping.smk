@@ -34,7 +34,7 @@ rule map_reads_vg:
         extra=[
             prepend_param("--ref-paths", input.paths),
             branch(
-                lookup("sample == '{sample}'", within=samples),
+                lookup(query="sample == '{sample}'", within=samples),
                 cases={
                     "ONT": "r10",
                     "PACBIO": "hifi",
