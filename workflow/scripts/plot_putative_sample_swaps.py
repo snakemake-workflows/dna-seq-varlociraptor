@@ -82,7 +82,7 @@ base = alt.Chart(data).encode(alt.X("x").axis(None), alt.Y("y").axis(None))
         edges.filter(
             pl.col("sample_a").is_in(impure_subset)
             & pl.col("sample_b").is_in(impure_subset)
-            & pl.col("relatedness") >= 0.5
+            & (pl.col("relatedness") >= 0.5)
         )
     )
     .mark_line(clip=False)
