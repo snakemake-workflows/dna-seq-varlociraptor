@@ -144,6 +144,11 @@ rule get_vep_plugins:
     log:
         "logs/vep/plugins.log",
     params:
+        release=config["ref"]["release"],
+    wrapper:
+        "v8.0.0/bio/vep/plugins"
+
+
 rule get_pangenome:
     output:
         f"{pangenome_prefix}.gbz",
@@ -155,47 +160,42 @@ rule get_pangenome:
     shell:
         "curl -fSL -o {output} {params.url} 2> {log}"
 
-rule pangenome_index:
+
+rule pangenome_autoindex:
     input:
         f"{pangenome_prefix}.gbz",
     output:
         f"{pangenome_prefix}.dist",
+        f"{pangenome_prefix}.shortread.withzip.min",
+        f"{pangenome_prefix}.longread.withzip.min",
+        f"{pangenome_prefix}.shortread.zipcodes",
+        f"{pangenome_prefix}.longread.zipcodes",
     log:
-        "logs/vg_index.log",
+        "logs/vg_autoindex.log",
     cache: True
     conda:
         "../envs/vg.yaml"
     threads: 64
+    params:
+        prefix=subpath(output[0], with_suffix=""),
     shell:
-        "vg index --threads {threads} -j {output} {input} 2> {log}"
+        "vg autoindex --workflow sr-giraffe lr-giraffe --threads {threads} "
+        "--gbz {input} --prefix {params.prefix} {output} {input} 2> {log}"
 
 
-rule pangenome_minimizers:
+rule get_reference_paths:
     input:
-        gbz=f"{pangenome_prefix}.gbz",
-        dist=f"{pangenome_prefix}.dist",
+        f"{pangenome_prefix}.gbz",
     output:
-        min=f"{pangenome_prefix}.min",
-        zipcodes=f"{pangenome_prefix}.zipcodes",
-    log:
-        "logs/vg_minimizer.log",
-    conda:
-        "../envs/vg.yaml"
-    threads: 64
-    shell:
-        # TODO, for long reads, we need different k and w params!
-        "vg minimizer -k 29 -w 11 -p --threads {threads} -o {output.min} "
-        "-z {output.zipcodes} -d {input.dist} {input.gbz} 2> {log}"
-
-
-rule create_reference_paths:
-    output:
-        "resources/reference_paths.txt",
+        f"{pangenome_prefix}.ref_paths.txt",
     log:
         "logs/reference/paths.log",
     params:
         build=config["ref"]["build"],
+    conda:
+        "../envs/vg.yaml"
     shell:
-        "for chrom in {{1..22}} X Y M; "
-        'do echo "{params.build}#0#chr$chrom"; '
-        "done > {output} 2> {log}"
+        "(vg paths -x {input} -L --paths-by {params.build}"
+        " | grep -v '_random' "
+        " | grep -v 'chrUn_' "
+        " | grep -v '_decoy') > {output} 2> {log}"
