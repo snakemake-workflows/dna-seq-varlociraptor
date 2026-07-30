@@ -126,10 +126,12 @@ rule somalier_relate:
 
 rule plot_putative_sample_swaps:
     input:
-        "results/somalier/all.pairs.tsv"
+        "results/somalier/all.pairs.tsv",
     output:
         graph="results/plots/all.putative_swaps.graph.html",
         heatmap="results/plots/all.putative_swaps.heatmap.html",
+    log:
+        "logs/plot_putative_sample_swaps.log",
     conda:
         "../envs/pystats.yaml"
     params:
