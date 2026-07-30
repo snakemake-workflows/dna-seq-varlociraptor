@@ -31,17 +31,21 @@ rule map_reads_vg:
         "benchmarks/vg_giraffe/{sample}.tsv"
     threads: 64
     params:
-        extra=join_params(
-            prepend_param("--ref-paths", input.paths),
-            branch(
-                lookup(query="sample == '{sample}'", within=samples),
-                cases={
-                    "ONT": "r10",
-                    "PACBIO": "hifi",
-                },
-                otherwise="default",
-            ),
-            get_read_group("--read-group ")
+        # TODO replace with join_params once released
+        extra=prepend_param(
+            "",
+            [
+                prepend_param("--ref-paths", input.paths),
+                branch(
+                    lookup(query="sample == '{sample}'", within=samples),
+                    cases={
+                        "ONT": "r10",
+                        "PACBIO": "hifi",
+                    },
+                    otherwise="default",
+                ),
+                get_read_group("--read-group ")
+            ]
         ),
         sorting="none",
     wrapper:

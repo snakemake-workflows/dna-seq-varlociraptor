@@ -134,14 +134,6 @@ genebe_genome_build = (
 )
 
 
-def join_params(*args):
-    def inner(wildcards):
-        return " ".join(
-            [arg(wildcards) if callable(arg) else arg for arg in args if arg]
-        )
-    return inner
-
-
 def is_activated(xpath, default=False):
     c = config
     for entry in xpath.split("/"):
