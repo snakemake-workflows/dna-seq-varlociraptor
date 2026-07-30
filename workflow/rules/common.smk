@@ -443,7 +443,7 @@ def get_giraffe_extra(wildcards, input):
     return " ".join(
         prepend_param("--ref-paths", input.paths),
         branch(
-            lookup(query=f"sample == '{wildcards.sample}'", within=samples),
+            lookup(query=f"sample_name == '{wildcards.sample}'", within=samples),
             cases={
                 "ONT": "r10",
                 "PACBIO": "hifi",
