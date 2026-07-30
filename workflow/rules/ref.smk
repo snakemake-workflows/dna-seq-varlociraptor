@@ -199,6 +199,7 @@ rule get_reference_paths:
         "../envs/vg.yaml"
     shell:
         "(vg paths -x {input} -L --paths-by {params.build}"
-        " | grep -v '_random' "
-        " | grep -v 'chrUn_' "
-        " | grep -v '_decoy') > {output} 2> {log}"
+        " | grep -v '_random'"
+        " | grep -v 'chrUn_'"
+        " | grep -v '_decoy'"
+        " | grep -v 'EBV') > {output} 2> {log}"
