@@ -1758,10 +1758,14 @@ def get_pangenome_url():
     if parsed_version >= (2, 0):
         major = parsed_version[0]
         prefix = f"https://human-pangenomics.s3.amazonaws.com/pangenomes/freeze/release{major}/minigraph-cactus"
+        filename = f"hprc-{version}-mc-{build}.gbz"
     else:
         prefix = (
             "https://s3-us-west-2.amazonaws.com/human-pangenomics/pangenomes/"
             f"freeze/freeze1/minigraph-cactus/hprc-{version}-mc-{build}"
         )
+        # Use the filtered version, which implies a rough prior that omits
+        # haplotypes that have a frequency <10%.
+        filename = f"hprc-{version}-mc-{build}.d9.gbz"
 
-    return f"{prefix}/hprc-{version}-mc-{build}.gbz"
+    return f"{prefix}/{filename}"
