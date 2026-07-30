@@ -15,12 +15,14 @@ rule map_reads_bwa:
 
 rule map_reads_vg:
     input:
+        access.random(f"{pangenome_prefix}.dist"),
+        "{pangenome_prefix}.shortread.withzip.min",
+        f"{pangenome_prefix}.longread.withzip.min",
+        f"{pangenome_prefix}.shortread.zipcodes",
+        f"{pangenome_prefix}.longread.zipcodes",
         reads=get_map_reads_input,
         graph=f"{pangenome_prefix}.gbz",
-        dist=access.random(f"{pangenome_prefix}.dist"),
-        min=f"{pangenome_prefix}.min",
-        zipcodes=f"{pangenome_prefix}.zipcodes",
-        paths="resources/reference_paths.txt",
+        paths=f"{pangenome_prefix}.ref_paths.txt",
     output:
         bam=temp("results/mapped/vg/{sample}.raw.bam"),
     log:
@@ -29,7 +31,17 @@ rule map_reads_vg:
         "benchmarks/vg_giraffe/{sample}.tsv"
     threads: 64
     params:
-        extra=lambda w, input: f"--ref-paths {input.paths} --dist-name {input.dist} --zipcode-name {input.zipcodes} --minimizer-name {input.min} --max-multimaps 2",
+        extra=[
+            prepend_param("--ref-paths", input.paths),
+            branch(
+                lookup("sample == '{sample}'", within=samples),
+                cases={
+                    "ONT": "r10",
+                    "PACBIO": "hifi",
+                },
+                otherwise="default",
+            ),
+        ],
         sorting="none",
     wrapper:
         "v9.9.0/bio/vg/giraffe"

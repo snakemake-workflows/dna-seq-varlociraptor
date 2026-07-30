@@ -1764,6 +1764,4 @@ def get_pangenome_url():
             f"freeze/freeze1/minigraph-cactus/hprc-{version}-mc-{build}"
         )
 
-    return (
-        f"{prefix}/hprc-{version}-mc-{build}.gbz"
-    )
+    return f"{prefix}/hprc-{version}-mc-{build}.gbz"
