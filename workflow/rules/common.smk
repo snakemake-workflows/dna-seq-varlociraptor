@@ -439,6 +439,21 @@ def get_sample_fastqs(sample):
     return [f"results/merged/{sample}_single.fastq.gz"]
 
 
+def get_giraffe_extra(wildcards, input):
+    return " ".join(
+        prepend_param("--ref-paths", input.paths),
+        branch(
+            lookup(query=f"sample == '{wildcards.sample}'", within=samples),
+            cases={
+                "ONT": "r10",
+                "PACBIO": "hifi",
+            },
+            otherwise="default",
+        ),
+        get_read_group("--read-group ")(wildcards),
+    )
+
+
 def get_count_group_kmers_input(wildcards):
     group_samples = lookup(
         query=f"group == '{wildcards.group}'", within=samples, cols="sample_name"

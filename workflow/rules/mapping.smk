@@ -32,21 +32,7 @@ rule map_reads_vg:
     threads: 64
     params:
         # TODO replace with join_params once released
-        extra=prepend_param(
-            "",
-            [
-                prepend_param("--ref-paths", input.paths),
-                branch(
-                    lookup(query="sample == '{sample}'", within=samples),
-                    cases={
-                        "ONT": "r10",
-                        "PACBIO": "hifi",
-                    },
-                    otherwise="default",
-                ),
-                get_read_group("--read-group ")
-            ]
-        ),
+        extra=get_giraffe_extra,
         sorting="none",
     wrapper:
         "v9.9.0/bio/vg/giraffe"
