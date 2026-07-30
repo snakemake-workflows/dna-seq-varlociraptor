@@ -55,10 +55,7 @@ data = samples.join(coords, how="inner", on="sample_name")
 
 # add edges for visualization and encode strength
 edges = (
-    # keep edges within the impure subgraph used for layout/plotting
-    pairs.filter(
-        pl.col("sample_a").is_in(impure_subset) & pl.col("sample_b").is_in(impure_subset)
-    )
+    pairs
     .select(
         "sample_a",
         "sample_b",
@@ -84,7 +81,9 @@ edges = (
 base = alt.Chart(data).encode(alt.X("x").axis(None), alt.Y("y").axis(None))
 (
     alt.Chart(
-        edges
+        edges.filter(
+            pl.col("sample_a").is_in(impure_subset) & pl.col("sample_b").is_in(impure_subset)
+        )
     ).mark_line(clip=False).encode(
         alt.X("x_a").axis(None),
         alt.Y("y_a").axis(None),
@@ -119,10 +118,10 @@ base_heatmap = alt.Chart(edges).encode(
 
 (
     base_heatmap.mark_rect().encode(
-        alt.Color("relatedness").scale(scheme="viridis"),
+        alt.Color("relatedness").scale(scheme="turbo", domain=[-1, 1]),
     ) +
     base_heatmap.mark_circle(size=100).encode(
-        alt.Color("concordance").scale(scheme="viridis"),
+        alt.Color("concordance").scale(scheme="viridis", domain=[0, 1]),
     )
 ).configure_view(
     stroke=None
