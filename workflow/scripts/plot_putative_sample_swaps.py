@@ -64,7 +64,6 @@ edges = (
         "sample_b",
         "relatedness",
         "concordance",
-        "similarity",
     )
     .with_columns(
         (pl.col("relatedness") >= 0.9).alias("highly_similar")
