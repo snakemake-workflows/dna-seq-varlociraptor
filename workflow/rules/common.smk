@@ -134,11 +134,11 @@ genebe_genome_build = (
 )
 
 
-def is_activated(xpath):
+def is_activated(xpath, default=False):
     c = config
     for entry in xpath.split("/"):
         c = c.get(entry, {})
-    return bool(c.get("activate", False))
+    return bool(c.get("activate", default))
 
 
 custom_alignment_props = (
@@ -545,7 +545,7 @@ def get_consensus_input(wildcards, bai=False):
 def get_trimming_input(wildcards, bai=False):
     ext = "bai" if bai else "bam"
     aligner = get_aligner(wildcards)
-    if is_activated("remove_duplicates"):
+    if is_activated("remove_duplicates", default=True):
         return "results/dedup/{{sample}}.{ext}".format(ext=ext)
     else:
         return "results/mapped/{aligner}/{{sample}}.sorted.{ext}".format(

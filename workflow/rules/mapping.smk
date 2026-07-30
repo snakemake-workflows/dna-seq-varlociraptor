@@ -41,6 +41,7 @@ rule map_reads_vg:
                 },
                 otherwise="default",
             ),
+            get_read_group("--read-group ")
         ],
         sorting="none",
     wrapper:
@@ -51,7 +52,7 @@ rule reheader_mapped_reads:
     input:
         "results/mapped/vg/{sample}.raw.bam",
     output:
-        temp("results/mapped/vg/{sample}.reheadered.bam"),
+        pipe("results/mapped/vg/{sample}.reheadered.bam"),
     log:
         "logs/reheader/{sample}.log",
     conda:
@@ -68,55 +69,32 @@ rule fix_mate:
     input:
         "results/mapped/vg/{sample}.reheadered.bam",
     output:
-        temp("results/mapped/vg/{sample}.mate_fixed.bam"),
+        pipe("results/mapped/vg/{sample}.mate_fixed.bam"),
     log:
         "logs/samtools/fix_mate/{sample}.log",
     threads: 8
     params:
         extra="",
     wrapper:
-        "v4.7.2/bio/samtools/fixmate"
-
-
-# adding read groups is exclusive to vg mapped reads and
-# necessary because base recalibration throws errors
-# for not being able to find read group information
-rule add_read_group:
-    input:
-        lambda wc: (
-            "results/mapped/vg/{sample}.mate_fixed.bam"
-            if sample_has_primers(wc)
-            else "results/mapped/vg/{sample}.reheadered.bam"
-        ),
-    output:
-        temp("results/mapped/vg/{sample}.bam"),
-    log:
-        "logs/samtools/add_rg/{sample}.log",
-    conda:
-        "../envs/samtools.yaml"
-    threads: 4
-    params:
-        read_group=get_read_group(""),
-        compression_threads=lambda wildcards, threads: (
-            f"-@{threads}" if threads > 1 else ""
-        ),
-    shell:
-        "samtools addreplacerg {input} -o {output} -r {params.read_group} "
-        "-w {params.compression_threads} 2> {log}"
+        "v9.15.0/bio/samtools/fixmate"
 
 
 rule sort_alignments:
     input:
-        "results/mapped/{aligner}/{sample}.bam",
+        branch(
+            sample_has_primers,
+            then="results/mapped/vg/{sample}.mate_fixed.bam",
+            otherwise="results/mapped/vg/{sample}.reheadered.bam",
+        ),
     output:
-        temp("results/mapped/{aligner}/{sample}.sorted.bam"),
+        pipe("results/mapped/{aligner}/{sample}.sorted.bam"),
     log:
         "logs/sort/{aligner}/{sample}.log",
     threads: 16
     resources:
         mem_mb=32000,
     wrapper:
-        "v8.1.1/bio/samtools/sort"
+        "v9.15.0/bio/samtools/sort"
 
 
 rule annotate_umis:
@@ -197,7 +175,7 @@ rule merge_consensus_reads:
         "logs/samtools_merge/{sample}.log",
     threads: 8
     wrapper:
-        "v2.3.2/bio/samtools/merge"
+        "v9.15.0/bio/samtools/merge"
 
 
 rule sort_consensus_reads:
@@ -209,9 +187,9 @@ rule sort_consensus_reads:
         "logs/samtools_sort/{sample}.log",
     threads: 16
     resources:
-        mem_mb=64000,
+        mem=64000,
     wrapper:
-        "v8.1.1/bio/samtools/sort"
+        "v9.15.0/bio/samtools/sort"
 
 
 # TODO Does not use consensus reads
