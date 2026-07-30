@@ -1,0 +1,3 @@
+sample_name	group	alias	platform	datatype	calling
+seqc2-test	seqc2	tumor	ILLUMINA	dna	variants
+seqc2-test-normal	seqc2	normal	ILLUMINA	dna	variants
