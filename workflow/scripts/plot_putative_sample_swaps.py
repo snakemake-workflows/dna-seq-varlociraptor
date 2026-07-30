@@ -93,7 +93,7 @@ base = alt.Chart(data).encode(alt.X("x").axis(None), alt.Y("y").axis(None))
             domain=[False, True],
             range=[[1, 1], [1, 0]],
         ).title("relatedness >= 0.9"),
-        alt.Color("relatedness").scale(scheme="viridis"),
+        alt.Color("relatedness").scale(scheme="viridis", domain=[-1, 1], reverse=True),
         alt.Opacity("relatedness"),
     )
     + base.mark_circle(tooltip=True, clip=False, size=100, opacity=1.0).encode(
@@ -118,10 +118,10 @@ base_heatmap = alt.Chart(edges).encode(
 
 (
     base_heatmap.mark_rect().encode(
-        alt.Color("relatedness").scale(scheme="turbo", domain=[-1, 1]),
+        alt.Color("relatedness").scale(scheme="viridis", domain=[-1, 1], reverse=True),
     ) +
     base_heatmap.mark_circle(size=100).encode(
-        alt.Color("concordance").scale(scheme="viridis", domain=[0, 1]),
+        alt.Color("concordance").scale(scheme="viridis", domain=[-1, 1], reverse=True),
     )
 ).configure_view(
     stroke=None
