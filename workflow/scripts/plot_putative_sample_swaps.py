@@ -94,7 +94,7 @@ base = alt.Chart(data).encode(alt.X("x").axis(None), alt.Y("y").axis(None))
             range=[0.5, 2],
         ).title("relatedness >= 0.9"),
         alt.Color("relatedness").scale(scheme="viridis", domain=[-1, 1], reverse=True),
-        alt.Opacity("relatedness"),
+        alt.Opacity("relatedness").scale(domain=[-1, 1]),
     )
     + base.mark_circle(tooltip=True, clip=False, size=100, opacity=1.0).encode(
         alt.Color("group").scale(scheme="category20")
