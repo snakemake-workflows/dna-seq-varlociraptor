@@ -182,7 +182,7 @@ rule pangenome_autoindex:
     params:
         prefix=subpath(output[0], strip_suffix=True),
     shell:
-        "vg autoindex --workflow sr-giraffe lr-giraffe --threads {threads} "
+        "vg autoindex --workflow sr-giraffe --workflow lr-giraffe --threads {threads} "
         "--gbz {input} --prefix {params.prefix} {output} {input} 2> {log}"
 
 
