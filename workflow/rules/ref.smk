@@ -165,11 +165,14 @@ rule pangenome_autoindex:
     input:
         f"{pangenome_prefix}.gbz",
     output:
-        f"{pangenome_prefix}.dist",
-        f"{pangenome_prefix}.shortread.withzip.min",
-        f"{pangenome_prefix}.longread.withzip.min",
-        f"{pangenome_prefix}.shortread.zipcodes",
-        f"{pangenome_prefix}.longread.zipcodes",
+        multiext(
+            pangenome_prefix,
+            ".dist", 
+            ".shortread.withzip.min",
+            ".longread.withzip.min",
+            ".shortread.zipcodes",
+            ".longread.zipcodes"
+        ),
     log:
         "logs/vg_autoindex.log",
     cache: True
