@@ -180,7 +180,7 @@ rule pangenome_autoindex:
         "../envs/vg.yaml"
     threads: 64
     params:
-        prefix=subpath(output[0], strip_suffix=True),
+        prefix=subpath(output[0], strip_suffix=".dist"),
     shell:
         "vg autoindex --workflow sr-giraffe --workflow lr-giraffe --threads {threads} "
         "--gbz {input} --prefix {params.prefix} {output} {input} 2> {log}"
