@@ -110,7 +110,7 @@ base = alt.Chart(data).encode(alt.X("x").axis(None), alt.Y("y").axis(None))
     snakemake.output.graph
 )
 
-base_heatmap = alt.Chart(edges).encode(
+base_heatmap = alt.Chart(pairs).encode(
     alt.X("sample_a"),
     alt.Y("sample_b"),
     tooltip=["sample_a", "sample_b", "relatedness", "concordance"],
