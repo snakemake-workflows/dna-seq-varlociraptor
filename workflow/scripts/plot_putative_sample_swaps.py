@@ -89,9 +89,9 @@ base = alt.Chart(data).encode(alt.X("x").axis(None), alt.Y("y").axis(None))
         alt.Y("y_a").axis(None),
         alt.X2("x_b"),
         alt.Y2("y_b"),
-        alt.StrokeDash("highly_similar", type="ordinal").scale(
+        alt.StrokeWidth("highly_similar", type="ordinal").scale(
             domain=[False, True],
-            range=[[1, 1], [1, 0]],
+            range=[0.5, 2],
         ).title("relatedness >= 0.9"),
         alt.Color("relatedness").scale(scheme="viridis", domain=[-1, 1], reverse=True),
         alt.Opacity("relatedness"),
