@@ -111,13 +111,19 @@ base = alt.Chart(data).encode(alt.X("x").axis(None), alt.Y("y").axis(None))
     snakemake.output.graph
 )
 
-alt.Chart(edges).mark_rect().encode(
+base_heatmap = alt.Chart(edges).encode(
     alt.X("sample_a"),
     alt.Y("sample_b"),
-    alt.Color("relatedness").scale(scheme="viridis"),
     tooltip=["sample_a", "sample_b", "relatedness", "concordance"],
+)
+
+(
+    base_heatmap.mark_rect().encode(
+        alt.Color("relatedness").scale(scheme="viridis"),
+    ) +
+    base_heatmap.mark_circle(size=100).encode(
+        alt.Color("concordance").scale(scheme="viridis"),
+    )
 ).configure_view(
     stroke=None
-).save(
-    snakemake.output.heatmap
-)
+).save(snakemake.output.heatmap)
