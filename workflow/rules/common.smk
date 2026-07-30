@@ -139,6 +139,7 @@ def join_params(*args):
         return " ".join(
             [arg(wildcards) if callable(arg) else arg for arg in args if arg]
         )
+    return inner
 
 
 def is_activated(xpath, default=False):
