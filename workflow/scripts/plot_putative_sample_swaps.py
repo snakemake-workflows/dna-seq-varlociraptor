@@ -8,9 +8,6 @@ samples = pl.from_pandas(snakemake.params.samples).select("sample_name", "group"
 pairs = (
     pl.read_csv(snakemake.input[0], separator="\t")
     .rename({"#sample_a": "sample_a"})
-    .with_columns(
-        pl.max_horizontal("relatedness", "concordance").alias("similarity"),
-    )
     .join(samples, left_on="sample_a", right_on="sample_name", how="left", suffix="_a")
     .join(samples, left_on="sample_b", right_on="sample_name", how="left", suffix="_b")
 )
@@ -37,6 +34,11 @@ for component in nx.connected_components(graph):
         > 1
     ) or component_samples.height == 1:
         impure_subset.update(component)
+        # add all samples of impure groups
+        for group in component_samples.get_column("group").unique():
+            impure_subset.update(
+                samples.filter(pl.col("group") == group
+            ).get_column("sample_name").to_list())
 
 # generate layout
 layout = nx.spring_layout(graph.subgraph(impure_subset), seed=2798791)
@@ -62,11 +64,9 @@ edges = (
         "sample_b",
         "relatedness",
         "concordance",
-        # use strongest similarity signal available for visual edge confidence
         "similarity",
     )
     .with_columns(
-        # round relatedness to 0, 0.1, 0.2, ... for visual clarity
         (pl.col("relatedness") >= 0.9).alias("highly_similar")
     )
     .join(
@@ -91,22 +91,11 @@ base = alt.Chart(data).encode(alt.X("x").axis(None), alt.Y("y").axis(None))
         alt.Y("y_a").axis(None),
         alt.X2("x_b"),
         alt.Y2("y_b"),
-        alt.StrokeWidth("highly_similar", type="ordinal").scale(
+        alt.StrokeDash("highly_similar", type="ordinal").scale(
             domain=[False, True],
-            range=[0.5, 2],
+            range=[[1, 1], [1, 0]],
         ).title("relatedness >= 0.9"),
-        alt.Opacity("relatedness"),
-        # alt.StrokeDash("similarity", type="ordinal").scale(
-        #     domain=[0.0, 0.95, 0.951, 1.0],
-        #     range=[[4, 4], [4, 4], [1, 0], [1, 0]],
-        # ),
-        # strokeDash=alt.when(
-        #     alt.datum.similarity >= 0.95
-        # ).then(
-        #     [1, 0]#alt.value("#007A55")
-        # ).otherwise(
-        #     [1, 1]#alt.value("black")
-        # ),
+        alt.Color("relatedness").scale(scheme="viridis"),
     )
     + base.mark_circle(tooltip=True, clip=False, size=100, opacity=1.0).encode(
         alt.Color("group").scale(scheme="category20")
@@ -132,5 +121,3 @@ alt.Chart(edges).mark_rect().encode(
 ).save(
     snakemake.output.heatmap
 )
-
-
