@@ -75,7 +75,7 @@ annotations:
 params:
   fastp: ""
   picard:
-    MarkDuplicates: "--VALIDATION_STRINGENCY lenient"
+    MarkDuplicates: "--VALIDATION_STRINGENCY LENIENT"
   gatk:
     BaseRecalibrator: ""
     applyBQSR: ""
