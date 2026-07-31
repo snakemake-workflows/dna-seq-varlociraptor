@@ -38,44 +38,30 @@ rule map_reads_vg:
         "v9.9.0/bio/vg/giraffe"
 
 
-rule reheader_mapped_reads:
+rule postprocess_vg_alignments:
     input:
         "results/mapped/vg/{sample}.raw.bam",
     output:
-        temp("results/mapped/vg/{sample}.reheadered.bam"),
+        pipe("results/mapped/vg/{sample}.postprocessed.bam"),
     log:
         "logs/reheader/{sample}.log",
     conda:
         "../envs/samtools.yaml"
     params:
         build=config["ref"]["build"],
+        read_group=get_read_group(""),
     shell:
         "(samtools view {input} -H |"
-        " sed -E 's/(SN:{params.build}#0#chr)/SN:/; s/SN:M/SN:MT/' | "
-        " samtools reheader - {input} > {output}) 2> {log}"
-
-
-rule fix_mate:
-    input:
-        "results/mapped/vg/{sample}.reheadered.bam",
-    output:
-        temp("results/mapped/vg/{sample}.mate_fixed.bam"),
-    log:
-        "logs/samtools/fix_mate/{sample}.log",
-    threads: 8
-    params:
-        extra="",
-    wrapper:
-        "v9.15.0/bio/samtools/fixmate"
+        " sed -E 's/(SN:{params.build}#0#chr)/SN:/; s/SN:M/SN:MT/' |"
+        " samtools reheader - {input} |"
+        " samtools fixmate - - |"
+        " samtools addreplacerg - -r {params.read_group}"
+        ") > {output} 2> {log}"
 
 
 rule sort_alignments:
     input:
-        branch(
-            sample_has_primers,
-            then="results/mapped/vg/{sample}.mate_fixed.bam",
-            otherwise="results/mapped/vg/{sample}.reheadered.bam",
-        ),
+        "results/mapped/vg/{sample}.postprocessed.bam",
     output:
         temp("results/mapped/{aligner}/{sample}.sorted.bam"),
     log:

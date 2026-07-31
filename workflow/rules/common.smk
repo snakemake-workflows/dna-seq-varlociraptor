@@ -440,7 +440,7 @@ def get_sample_fastqs(sample):
 
 
 def get_giraffe_extra(wildcards, input):
-    extra = " ".join(
+    return " ".join(
         [
             prepend_param("--ref-paths", input.paths),
             prepend_param(
@@ -456,11 +456,8 @@ def get_giraffe_extra(wildcards, input):
                     otherwise="default",
                 ),
             ),
-            get_read_group("--read-group ")(wildcards),
         ]
     )
-    breakpoint()
-    return extra
 
 
 def get_count_group_kmers_input(wildcards):
