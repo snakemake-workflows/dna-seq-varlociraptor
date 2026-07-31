@@ -42,7 +42,7 @@ rule reheader_mapped_reads:
     input:
         "results/mapped/vg/{sample}.raw.bam",
     output:
-        pipe("results/mapped/vg/{sample}.reheadered.bam"),
+        temp("results/mapped/vg/{sample}.reheadered.bam"),
     log:
         "logs/reheader/{sample}.log",
     conda:
@@ -59,7 +59,7 @@ rule fix_mate:
     input:
         "results/mapped/vg/{sample}.reheadered.bam",
     output:
-        pipe("results/mapped/vg/{sample}.mate_fixed.bam"),
+        temp("results/mapped/vg/{sample}.mate_fixed.bam"),
     log:
         "logs/samtools/fix_mate/{sample}.log",
     threads: 8
@@ -77,7 +77,7 @@ rule sort_alignments:
             otherwise="results/mapped/vg/{sample}.reheadered.bam",
         ),
     output:
-        pipe("results/mapped/{aligner}/{sample}.sorted.bam"),
+        temp("results/mapped/{aligner}/{sample}.sorted.bam"),
     log:
         "logs/sort/{aligner}/{sample}.log",
     threads: 16
