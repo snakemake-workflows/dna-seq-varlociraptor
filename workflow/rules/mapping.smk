@@ -9,6 +9,7 @@ rule map_reads_bwa:
     threads: 8
     params:
         extra=get_read_group("-R "),
+        sorting="none",
     wrapper:
         "v3.8.0/bio/bwa/mem"
 
