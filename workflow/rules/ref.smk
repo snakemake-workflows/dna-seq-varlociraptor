@@ -167,11 +167,11 @@ rule pangenome_autoindex:
     output:
         multiext(
             pangenome_prefix,
-            ".dist", 
+            ".dist",
             ".shortread.withzip.min",
             ".longread.withzip.min",
             ".shortread.zipcodes",
-            ".longread.zipcodes"
+            ".longread.zipcodes",
         ),
     log:
         "logs/vg_autoindex.log",
@@ -193,10 +193,10 @@ rule get_reference_paths:
         f"{pangenome_prefix}.ref_paths.txt",
     log:
         "logs/reference/paths.log",
-    params:
-        build=config["ref"]["build"],
     conda:
         "../envs/vg.yaml"
+    params:
+        build=config["ref"]["build"],
     shell:
         "(vg paths -x {input} -L --paths-by {params.build}"
         " | grep -v '_random'"
