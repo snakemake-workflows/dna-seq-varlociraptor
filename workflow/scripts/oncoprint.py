@@ -98,7 +98,7 @@ def gene_oncoprint(calls):
         ).reset_index(drop=True)
         grouped = (
             grouped.drop_duplicates()
-            .groupby(["group", "symbol"], observed=False)
+            .groupby(["group", "symbol"], observed=False, as_index=False)
             .apply(join_gene_vartypes)
         )
         matrix = grouped.set_index(["symbol", "consequence", "group"]).unstack(
