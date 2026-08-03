@@ -6,7 +6,8 @@ dependencies:
   - biopython =1.87
   - pysam =0.24
   - python =3.12
-  - pandas =2.3
+  - pandas =3.0
   - altair =6.2
   - scikit-learn =1.9
   - statsmodels =0.14
+  - openpyxl =3.1
