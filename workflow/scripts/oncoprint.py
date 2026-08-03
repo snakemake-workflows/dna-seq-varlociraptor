@@ -99,6 +99,7 @@ def gene_oncoprint(calls):
             .groupby(["group", "symbol"])
             .apply(join_gene_vartypes)
         )
+        print(grouped.columns, file=sys.stderr)
         matrix = grouped.set_index(["symbol", "consequence", "group"]).unstack(
             level="group"
         )
