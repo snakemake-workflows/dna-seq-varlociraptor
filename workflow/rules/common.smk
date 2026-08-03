@@ -447,7 +447,9 @@ def get_giraffe_extra(wildcards, input):
                 "--parameter-preset",
                 branch(
                     lookup(
-                        query=f"sample_name == '{wildcards.sample}'", within=samples
+                        query=f"sample_name == '{wildcards.sample}'",
+                        within=samples,
+                        cols="platform",
                     ),
                     cases={
                         "ONT": "r10",
