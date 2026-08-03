@@ -440,24 +440,15 @@ def get_sample_fastqs(sample):
 
 
 def get_giraffe_extra(wildcards, input):
+    preset = {
+        "ONT": "r10",
+        "PACBIO": "hifi",
+    }.get(samples.loc[wildcards.sample, "platform"], "default")
+
     return " ".join(
         [
             prepend_param("--ref-paths", input.paths),
-            prepend_param(
-                "--parameter-preset",
-                branch(
-                    lookup(
-                        query=f"sample_name == '{wildcards.sample}'",
-                        within=samples,
-                        cols="platform",
-                    ),
-                    cases={
-                        "ONT": "r10",
-                        "PACBIO": "hifi",
-                    },
-                    otherwise="default",
-                ),
-            ),
+            prepend_param("--parameter-preset", preset),
         ]
     )
 

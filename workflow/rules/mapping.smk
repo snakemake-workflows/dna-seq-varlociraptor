@@ -42,7 +42,7 @@ rule postprocess_vg_alignments:
     input:
         "results/mapped/vg/{sample}.raw.bam",
     output:
-        pipe("results/mapped/vg/{sample}.postprocessed.bam"),
+        pipe("results/mapped/vg/{sample}.bam"),
     log:
         "logs/reheader/{sample}.log",
     conda:
@@ -61,7 +61,7 @@ rule postprocess_vg_alignments:
 
 rule sort_alignments:
     input:
-        "results/mapped/vg/{sample}.postprocessed.bam",
+        "results/mapped/{aligner}/{sample}.bam",
     output:
         temp("results/mapped/{aligner}/{sample}.sorted.bam"),
     log:
