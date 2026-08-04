@@ -42,6 +42,7 @@ rule multiqc:
         report(
             "results/qc/multiqc/{group}.html",
             category="Quality control",
+            subcategory="MultiQC",
             caption="../report/multiqc.rst",
             labels={"Sample group": "{group}"},
         ),
@@ -128,8 +129,20 @@ rule plot_putative_sample_swaps:
     input:
         "results/somalier/all.pairs.tsv",
     output:
-        graph="results/plots/all.putative_swaps.graph.html",
-        heatmap="results/plots/all.putative_swaps.heatmap.html",
+        graph=report(
+            "results/plots/all.putative_swaps.graph.html",
+            category="Quality control",
+            subcategory="Sample swaps",
+            caption="../report/sample_swaps_graph.rst",
+            labels={"Visualization": "graph"},
+        ),
+        heatmap=report(
+            "results/plots/all.putative_swaps.heatmap.html",
+            category="Quality control",
+            subcategory="Sample swaps",
+            caption="../report/sample_swaps_heatmap.rst",
+            labels={"Visualization": "heatmap"},
+        ),
     log:
         "logs/plot_putative_sample_swaps.log",
     conda:

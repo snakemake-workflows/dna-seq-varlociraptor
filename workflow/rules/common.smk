@@ -274,7 +274,12 @@ def get_final_output(wildcards):
     if is_activated("population/db"):
         final_output.append(lookup(dpath="population/db/path", within=config))
 
-    final_output.append("results/somalier/all.html")
+    final_output.extend(
+        collect(
+            "results/plots/all.putative_swaps.{type}.html",
+            type=["graph", "heatmap"],
+        )
+    )
 
     return final_output
 
