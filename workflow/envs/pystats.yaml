@@ -13,3 +13,4 @@ dependencies:
   - statsmodels =0.14
   - networkx =3.6
   - pyarrow =25.0
+  - openpyxl =3.1
