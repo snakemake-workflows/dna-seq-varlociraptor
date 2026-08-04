@@ -1,5 +1,23 @@
 # Changelog
 
+## [6.10.0](https://github.com/snakemake-workflows/dna-seq-varlociraptor/compare/v6.9.2...v6.10.0) (2026-08-04)
+
+
+### Features
+
+* support per-group scenario templates ([#435](https://github.com/snakemake-workflows/dna-seq-varlociraptor/issues/435)) ([982a35d](https://github.com/snakemake-workflows/dna-seq-varlociraptor/commit/982a35d1e0cc1279492e87f1f8f34777f032c447))
+
+
+### Bug Fixes
+
+* do not use kmers to personalize pangenome and rely on HPRC release 1.1 with d9 filtering by default ([#465](https://github.com/snakemake-workflows/dna-seq-varlociraptor/issues/465)) ([68e327b](https://github.com/snakemake-workflows/dna-seq-varlociraptor/commit/68e327b2f73afb4ae501d4de300d7c336ad6585a))
+* update to latest datavzrd ([#463](https://github.com/snakemake-workflows/dna-seq-varlociraptor/issues/463)) ([95bd41c](https://github.com/snakemake-workflows/dna-seq-varlociraptor/commit/95bd41c6889c79a839430692cf6ede40eb8c67a6))
+
+
+### Performance Improvements
+
+* mark more non-permanent intermediate results as temp/pipe ([#448](https://github.com/snakemake-workflows/dna-seq-varlociraptor/issues/448)) ([df5825b](https://github.com/snakemake-workflows/dna-seq-varlociraptor/commit/df5825bc11ad338831dd668d793f8bc29333a9f6))
+
 ## [6.9.2](https://github.com/snakemake-workflows/dna-seq-varlociraptor/compare/v6.9.1...v6.9.2) (2026-07-13)
 
 
