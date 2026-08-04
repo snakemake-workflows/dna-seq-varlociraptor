@@ -72,7 +72,7 @@ rule filter_unmapped_primers:
     params:
         extra=get_filter_params,
     wrapper:
-        "v2.3.2/bio/samtools/view"
+        "v9.15.0/bio/samtools/view"
 
 
 rule primer_to_bed:

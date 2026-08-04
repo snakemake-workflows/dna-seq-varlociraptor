@@ -23,7 +23,7 @@ rule genome_faidx:
         "logs/genome-faidx.log",
     cache: "omit-software"
     wrapper:
-        "v2.3.2/bio/samtools/faidx"
+        "v9.15.0/bio/samtools/faidx"
 
 
 rule genome_dict:
@@ -149,15 +149,57 @@ rule get_vep_plugins:
         "v8.0.0/bio/vep/plugins"
 
 
-rule get_pangenome:
-    output:
-        f"{pangenome_prefix}.{{ext}}",
-    log:
-        "logs/pangenome/{ext}.log",
-    wildcard_constraints:
-        ext="hapl|gbz",
-    cache: "omit-software"
-    params:
-        url=lambda wc: get_pangenome_url(wc.ext),
-    shell:
-        "curl -o {output} {params.url} 2> {log}"
+if is_activated("ref/pangenome"):
+
+    rule get_pangenome:
+        output:
+            f"{pangenome_prefix}.gbz",
+        log:
+            "logs/get_pangenome.log",
+        cache: "omit-software"
+        params:
+            url=get_pangenome_url(),
+        shell:
+            "curl -fSL -o {output} {params.url} 2> {log}"
+
+    rule pangenome_autoindex:
+        input:
+            f"{pangenome_prefix}.gbz",
+        output:
+            multiext(
+                pangenome_prefix,
+                ".dist",
+                ".shortread.withzip.min",
+                ".longread.withzip.min",
+                ".shortread.zipcodes",
+                ".longread.zipcodes",
+            ),
+        log:
+            "logs/vg_autoindex.log",
+        cache: True
+        conda:
+            "../envs/vg.yaml"
+        threads: 64
+        params:
+            prefix=subpath(output[0], strip_suffix=".dist"),
+        shell:
+            "vg autoindex --workflow sr-giraffe --workflow lr-giraffe --threads {threads} "
+            "--gbz {input} --prefix {params.prefix} {output} {input} 2> {log}"
+
+    rule get_reference_paths:
+        input:
+            f"{pangenome_prefix}.gbz",
+        output:
+            f"{pangenome_prefix}.ref_paths.txt",
+        log:
+            "logs/reference/paths.log",
+        conda:
+            "../envs/vg.yaml"
+        params:
+            build=config["ref"]["build"],
+        shell:
+            "(vg paths -x {input} -L --paths-by {params.build}"
+            " | grep -v '_random'"
+            " | grep -v 'chrUn_'"
+            " | grep -v '_decoy'"
+            " | grep -v 'EBV') > {output} 2> {log}"

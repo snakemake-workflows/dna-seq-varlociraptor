@@ -21,7 +21,7 @@ rule samtools_idxstats:
     log:
         "logs/samtools/idxstats/{sample}.log",
     wrapper:
-        "v2.3.2/bio/samtools/idxstats"
+        "v9.15.0/bio/samtools/idxstats"
 
 
 rule samtools_stats:
@@ -32,7 +32,7 @@ rule samtools_stats:
     log:
         "logs/samtools/stats/{sample}.log",
     wrapper:
-        "v2.3.2/bio/samtools/stats"
+        "v9.15.0/bio/samtools/stats"
 
 
 rule multiqc:

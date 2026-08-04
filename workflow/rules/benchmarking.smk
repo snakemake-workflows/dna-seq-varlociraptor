@@ -36,8 +36,9 @@ rule chm_namesort:
     threads: 16
     resources:
         mem_mb=64000,
+        extra="-n",
     wrapper:
-        "v8.1.1/bio/samtools/sort"
+        "v9.15.0/bio/samtools/sort"
 
 
 rule chm_to_fastq:
