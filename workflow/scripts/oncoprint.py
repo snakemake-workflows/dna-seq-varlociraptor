@@ -90,7 +90,6 @@ def attach_group_annotation(matrix, group_annotation):
 
 def gene_oncoprint(calls):
     calls = calls[["group", "symbol", "vartype", "consequence"]]
-    print(calls, file=sys.stderr)
     if not calls.empty:
         grouped = (
             calls.drop_duplicates()
@@ -99,10 +98,9 @@ def gene_oncoprint(calls):
         ).reset_index(drop=True)
         grouped = (
             grouped.drop_duplicates()
-            .groupby(["group", "symbol"], observed=False, as_index=False)
+            .groupby(["group", "symbol"], observed=False)
             .apply(join_gene_vartypes)
         )
-        print(grouped, file=sys.stderr)
         matrix = grouped.set_index(["symbol", "consequence", "group"]).unstack(
             level="group"
         )
