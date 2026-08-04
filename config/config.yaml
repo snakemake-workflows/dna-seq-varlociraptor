@@ -29,8 +29,13 @@ ref:
     # if active, reads will be aligned to given pangenome instead of to the linear reference genome
     # Important: this is only supported for homo_sapiens so far
     activate: true
-    # Pangenome source and version: Only 'hprc' and v1.1 are supported for now.
-    # see https://github.com/human-pangenomics/hpp_pangenome_resources/?tab=readme-ov-file#minigraph-cactus for details
+    # Pangenome source and version: Only 'hprc' and v1.1/v2.0 are supported for now.
+    # Version 1.1 is preferable because it is the one that filters out low frequency
+    # haplotypes, which acts like a rough but efficient prior for the resulting MAPQs.
+    # For making better use of v2.0, the pipeline has to be extended to either use
+    # a (not yet available) scenario agnostic version of the diploid-sampling approach
+    # in Giraffe or utilize another way to avoid likely mismappings on rare pangenome
+    # paths.
     source: hprc
     version: v1.1
   # Optionally, instead of downloading the whole reference from Ensembl via the
