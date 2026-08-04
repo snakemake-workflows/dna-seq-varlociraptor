@@ -90,6 +90,7 @@ def attach_group_annotation(matrix, group_annotation):
 
 def gene_oncoprint(calls):
     calls = calls[["group", "symbol", "vartype", "consequence"]]
+    print(calls, file=sys.stderr)
     if not calls.empty:
         grouped = (
             calls.drop_duplicates()
