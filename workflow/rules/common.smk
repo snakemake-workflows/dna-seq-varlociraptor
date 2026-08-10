@@ -547,14 +547,14 @@ def get_sample_bam(wildcards):
 
 def get_recalibrate_quality_input(wildcards):
     sample = wildcards.sample
-    datatype = get_sample_datatype(sample)
+    datatype = get_sample_datatype(wildcards)
     if datatype == "rna":
         return f"results/split/{sample}.bam"
     # Post-processing of DNA samples
     if is_activated("calc_consensus_reads"):
         return f"results/consensus/{sample}.bam"
     else:
-        return get_consensus_input(sample)
+        return get_consensus_input(wildcards)
 
 
 def get_consensus_input(wildcards):
