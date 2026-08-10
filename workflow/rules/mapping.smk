@@ -269,7 +269,9 @@ rule splitncigarreads:
 rule recalibrate_base_qualities:
     input:
         bam=get_recalibrate_quality_input,
-        bai=subpath(get_recalibrate_quality_input, strip_suffix=".bam", with_suffix=".bai"),
+        bai=subpath(
+            get_recalibrate_quality_input, strip_suffix=".bam", with_suffix=".bai"
+        ),
         ref=genome,
         ref_dict=genome_dict,
         ref_fai=genome_fai,
@@ -295,7 +297,9 @@ ruleorder: apply_bqsr > bam_index
 rule apply_bqsr:
     input:
         bam=get_recalibrate_quality_input,
-        bai=subpath(get_recalibrate_quality_input, strip_suffix=".bam", with_suffix=".bai"),
+        bai=subpath(
+            get_recalibrate_quality_input, strip_suffix=".bam", with_suffix=".bai"
+        ),
         ref=genome,
         ref_dict=genome_dict,
         ref_fai=genome_fai,
