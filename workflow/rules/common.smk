@@ -541,7 +541,7 @@ def get_sample_bam(wildcards):
     return branch(
         lookup("basequality_recalibration/activate", within=config, default=False),
         then=f"results/recal/{wildcards.sample}.bam",
-        otherwise=get_recalibrate_quality_input(wildcards.sample),
+        otherwise=get_recalibrate_quality_input(wildcards),
     )
 
 
