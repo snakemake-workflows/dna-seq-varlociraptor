@@ -524,8 +524,8 @@ def get_group_sample_aliases(wildcards, controls=True):
     ]["alias"]
 
 
-def get_sample_datatype(wildcards):
-    return samples.loc[[wildcards.sample], "datatype"].iloc[0]
+def get_sample_datatype(sample):
+    return samples.loc[[sample], "datatype"].iloc[0]
 
 
 def get_markduplicates_input(wildcards):
@@ -547,7 +547,7 @@ def get_sample_bam(wildcards):
 
 def get_recalibrate_quality_input(wildcards):
     sample = wildcards.sample
-    datatype = get_sample_datatype(wildcards)
+    datatype = get_sample_datatype(sample)
     if datatype == "rna":
         return f"results/split/{sample}.bam"
     # Post-processing of DNA samples
