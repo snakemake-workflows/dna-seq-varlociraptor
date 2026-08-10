@@ -680,6 +680,13 @@ def get_group_bams(wildcards):
         ]
 
 
+def get_group_bams_idxs(wildcards):
+    return [
+        subpath(bam, strip_suffix=".bam", with_suffix=".bai")
+        for bam in get_group_bams(wildcards)
+    ]
+
+
 def get_arriba_group_candidates(wildcards, csi=False):
     ext = ".csi" if csi else ""
     return expand(

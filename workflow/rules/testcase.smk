@@ -24,7 +24,7 @@ rule testcase:
         ref=genome,
         ref_idx=genome_fai,
         bams=get_group_bams,
-        bais=partial(get_group_bams, bai=True),
+        bais=partial(get_group_bams_idxs),
     output:
         directory("results/testcases/{group}/{caller}/{locus}"),
     log:
