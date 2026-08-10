@@ -92,11 +92,13 @@ def gene_oncoprint(calls):
     calls = calls[["group", "symbol", "vartype", "consequence"]]
     if not calls.empty:
         grouped = (
-            calls.drop_duplicates().groupby(["symbol"]).apply(join_group_consequences)
+            calls.drop_duplicates()
+            .groupby(["symbol"], observed=False)
+            .apply(join_group_consequences)
         ).reset_index(drop=True)
         grouped = (
             grouped.drop_duplicates()
-            .groupby(["group", "symbol"])
+            .groupby(["group", "symbol"], observed=False)
             .apply(join_gene_vartypes)
         )
         matrix = grouped.set_index(["symbol", "consequence", "group"]).unstack(
@@ -128,7 +130,7 @@ def variant_oncoprint(gene_calls, group_annotation):
     gene_calls.loc[is_protein_impact, "id"] = gene_calls.loc[is_protein_impact, "hgvsp"]
     grouped = (
         gene_calls.drop_duplicates()
-        .groupby(["id"])
+        .groupby(["id"], observed=False)
         .apply(join_group_hgvsgs)
         .drop(["id"], axis="columns")
     )
@@ -248,7 +250,7 @@ sort_oncoprint_labels(gene_oncoprint)
 
 
 os.makedirs(snakemake.output.variant_oncoprints)
-for gene, gene_calls in calls.groupby("symbol"):
+for gene, gene_calls in calls.groupby("symbol", observed=False):
     variant_oncoprint(gene_calls, group_annotation).to_csv(
         Path(snakemake.output.variant_oncoprints) / f"{gene}.tsv", sep="\t", index=False
     )
