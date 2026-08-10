@@ -1591,7 +1591,7 @@ def get_dgidb_datasources():
 
 
 def get_filter_params(wc):
-    if isinstance(get_panel_primer_input(wc.panel), list):
+    if isinstance(get_panel_primer_input(wc), list):
         return "-b -F 12"
     return "-b -F 4"
 
