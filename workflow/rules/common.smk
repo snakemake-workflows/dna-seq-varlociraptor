@@ -440,10 +440,11 @@ def get_sample_fastqs(sample):
 
 
 def get_giraffe_extra(wildcards, input):
+    platform = extract_unique_sample_column_value(wildcards.sample, "platform")
     preset = {
         "ONT": "r10",
         "PACBIO": "hifi",
-    }.get(samples.loc[wildcards.sample, "platform"], "default")
+    }.get(platform, "default")
 
     return " ".join(
         [
