@@ -9,130 +9,55 @@ rule map_reads_bwa:
     threads: 8
     params:
         extra=get_read_group("-R "),
+        sorting="none",
     wrapper:
         "v3.8.0/bio/bwa/mem"
 
 
-rule count_sample_kmers:
-    input:
-        reads=get_map_reads_input,
-    output:
-        temp("results/kmers/{sample}.kff"),
-    log:
-        "logs/kmers/{sample}.log",
-    shadow:
-        "minimal"
-    conda:
-        "../envs/kmc.yaml"
-    threads: min(max(workflow.cores, 1), 128)  # kmc can use 128 threads at most
-    resources:
-        mem="64GB",
-    params:
-        out_file=lambda wc, output: os.path.splitext(output[0])[0],
-        mem=lambda wc, resources: resources.mem[:-2],
-    shell:
-        "tmpdir=$(mktemp -d); "
-        "kmc -k29 -m{params.mem} -sm -okff -t{threads} -v @<(ls {input.reads}) {params.out_file} $tmpdir &> {log} && "
-        "rm -r $tmpdir || (rm -r $tmpdir && exit 1)"
-
-
-rule create_reference_paths:
-    output:
-        temp("resources/reference_paths.txt"),
-    log:
-        "logs/reference/paths.log",
-    params:
-        build=config["ref"]["build"],
-    shell:
-        'for chrom in {{1..22}} X Y M; do echo "{params.build}#0#chr$chrom"; done > {output} 2> {log}'
-
-
 rule map_reads_vg:
     input:
+        access.random(f"{pangenome_prefix}.dist"),
+        f"{pangenome_prefix}.shortread.withzip.min",
+        f"{pangenome_prefix}.longread.withzip.min",
+        f"{pangenome_prefix}.shortread.zipcodes",
+        f"{pangenome_prefix}.longread.zipcodes",
         reads=get_map_reads_input,
-        graph=access.random(f"{pangenome_prefix}.gbz"),
-        kmers=access.random("results/kmers/{sample}.kff"),
-        hapl=access.random(f"{pangenome_prefix}.hapl"),
-        paths=access.random("resources/reference_paths.txt"),
+        graph=f"{pangenome_prefix}.gbz",
+        paths=f"{pangenome_prefix}.ref_paths.txt",
     output:
         bam=temp("results/mapped/vg/{sample}.raw.bam"),
-        indexes=temp(
-            multiext(
-                f"{pangenome_prefix}.{{sample}}",
-                ".gbz",
-                ".dist",
-                ".shortread.withzip.min",
-                ".shortread.zipcodes",
-            )
-        ),
     log:
         "logs/mapped/vg/{sample}.log",
     benchmark:
         "benchmarks/vg_giraffe/{sample}.tsv"
     threads: 64
     params:
-        extra=lambda wc, input: f"--ref-paths {input.paths}",
+        # TODO replace with join_params once released
+        extra=get_giraffe_extra,
         sorting="none",
     wrapper:
-        "v6.1.0/bio/vg/giraffe"
+        "v9.9.0/bio/vg/giraffe"
 
 
-rule reheader_mapped_reads:
+rule postprocess_vg_alignments:
     input:
         "results/mapped/vg/{sample}.raw.bam",
     output:
-        temp("results/mapped/vg/{sample}.reheadered.bam"),
+        pipe("results/mapped/vg/{sample}.bam"),
     log:
         "logs/reheader/{sample}.log",
     conda:
         "../envs/samtools.yaml"
     params:
         build=config["ref"]["build"],
+        read_group=get_read_group(""),
     shell:
         "(samtools view {input} -H |"
-        " sed -E 's/(SN:{params.build}#0#chr)/SN:/; s/SN:M/SN:MT/' | "
-        " samtools reheader - {input} > {output}) 2> {log}"
-
-
-rule fix_mate:
-    input:
-        "results/mapped/vg/{sample}.reheadered.bam",
-    output:
-        temp("results/mapped/vg/{sample}.mate_fixed.bam"),
-    log:
-        "logs/samtools/fix_mate/{sample}.log",
-    threads: 8
-    params:
-        extra="",
-    wrapper:
-        "v4.7.2/bio/samtools/fixmate"
-
-
-# adding read groups is exclusive to vg mapped reads and
-# necessary because base recalibration throws errors
-# for not being able to find read group information
-rule add_read_group:
-    input:
-        lambda wc: (
-            "results/mapped/vg/{sample}.mate_fixed.bam"
-            if sample_has_primers(wc.sample)
-            else "results/mapped/vg/{sample}.reheadered.bam"
-        ),
-    output:
-        temp("results/mapped/vg/{sample}.bam"),
-    log:
-        "logs/samtools/add_rg/{sample}.log",
-    conda:
-        "../envs/samtools.yaml"
-    threads: 4
-    params:
-        read_group=get_read_group(""),
-        compression_threads=lambda wildcards, threads: (
-            f"-@{threads}" if threads > 1 else ""
-        ),
-    shell:
-        "samtools addreplacerg {input} -o {output} -r {params.read_group} "
-        "-w {params.compression_threads} 2> {log}"
+        " sed -E 's/(SN:{params.build}#0#chr)/SN:/; s/SN:M/SN:MT/' |"
+        " samtools reheader - {input} |"
+        " samtools fixmate - - |"
+        " samtools addreplacerg - -r {params.read_group}"
+        ") > {output} 2> {log}"
 
 
 rule sort_alignments:
@@ -146,7 +71,7 @@ rule sort_alignments:
     resources:
         mem_mb=32000,
     wrapper:
-        "v8.1.1/bio/samtools/sort"
+        "v9.15.0/bio/samtools/sort"
 
 
 rule annotate_umis:
@@ -227,7 +152,7 @@ rule merge_consensus_reads:
         "logs/samtools_merge/{sample}.log",
     threads: 8
     wrapper:
-        "v2.3.2/bio/samtools/merge"
+        "v9.15.0/bio/samtools/merge"
 
 
 rule sort_consensus_reads:
@@ -239,9 +164,9 @@ rule sort_consensus_reads:
         "logs/samtools_sort/{sample}.log",
     threads: 16
     resources:
-        mem_mb=64000,
+        mem=64000,
     wrapper:
-        "v8.1.1/bio/samtools/sort"
+        "v9.15.0/bio/samtools/sort"
 
 
 # TODO Does not use consensus reads
@@ -269,9 +194,7 @@ rule splitncigarreads:
 rule recalibrate_base_qualities:
     input:
         bam=get_recalibrate_quality_input,
-        bai=subpath(
-            get_recalibrate_quality_input, strip_suffix=".bam", with_suffix=".bai"
-        ),
+        bai=lambda w: get_recalibrate_quality_input(w, bai=True),
         ref=genome,
         ref_dict=genome_dict,
         ref_fai=genome_fai,
@@ -297,9 +220,7 @@ ruleorder: apply_bqsr > bam_index
 rule apply_bqsr:
     input:
         bam=get_recalibrate_quality_input,
-        bai=subpath(
-            get_recalibrate_quality_input, strip_suffix=".bam", with_suffix=".bai"
-        ),
+        bai=lambda w: get_recalibrate_quality_input(w, bai=True),
         ref=genome,
         ref_dict=genome_dict,
         ref_fai=genome_fai,
