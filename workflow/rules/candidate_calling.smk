@@ -52,7 +52,9 @@ rule fix_delly_calls:
     conda:
         "../envs/bcftools.yaml"
     shell:
-        """bcftools view -e 'INFO/SVTYPE="BND"' {input} -Ob > {output} 2> {log}"""
+        """
+        bcftools view -e 'INFO/SVTYPE="BND"' {input} -Ob >{output} 2>{log}
+        """
 
 
 rule filter_offtarget_variants:

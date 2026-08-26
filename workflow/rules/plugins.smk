@@ -23,13 +23,13 @@ rule process_revel_scores:
     shell:
         """
         tmpfile=$(mktemp {resources.tmpdir}/revel_scores.XXXXXX)
-        unzip -p {input} | tr "," "\t" | sed '1s/.*/#&/' | bgzip -c > $tmpfile
-        if [ "{params.build}" == "GRCh38" ] ; then
-            zgrep -h -v ^#chr $tmpfile | awk '$3 != "." ' | sort -k1,1 -k3,3n - | cat <(zcat $tmpfile | head -n1) - | bgzip -c > {output}
-        elif [ "{params.build}" == "GRCh37" ] ; then
-            cat $tmpfile > {output}
+        unzip -p {input} | tr "," "\t" | sed '1s/.*/#&/' | bgzip -c >$tmpfile
+        if [ "{params.build}" == "GRCh38" ]; then
+            zgrep -h -v ^#chr $tmpfile | awk '$3 != "." ' | sort -k1,1 -k3,3n - | cat <(zcat $tmpfile | head -n1) - | bgzip -c >{output}
+        elif [ "{params.build}" == "GRCh37" ]; then
+            cat $tmpfile >{output}
         else
-            echo "Annotation of REVEL scores only supported for GRCh37 or GRCh38" > {log}
+            echo "Annotation of REVEL scores only supported for GRCh37 or GRCh38" >{log}
             exit 125
         fi
         """

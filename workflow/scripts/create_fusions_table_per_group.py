@@ -55,6 +55,7 @@ def join_short_obs(df, samples):
     )
     return df
 
+
 calls = pd.read_csv(
     snakemake.input["varlociraptor"],
     sep="\t",
@@ -104,11 +105,15 @@ annotated_candidates = pd.read_csv(
         "type",
         "reading_frame",
     ],
-    dtype=str
+    dtype=str,
 )
 # For matching entries on chromosome and position, we need to split this column.
-annotated_candidates[["chrom1", "pos1"]] = annotated_candidates["breakpoint1"].str.split(":", expand=True)
-annotated_candidates[["chrom2", "pos2"]] = annotated_candidates["breakpoint2"].str.split(":", expand=True)
+annotated_candidates[["chrom1", "pos1"]] = annotated_candidates[
+    "breakpoint1"
+].str.split(":", expand=True)
+annotated_candidates[["chrom2", "pos2"]] = annotated_candidates[
+    "breakpoint2"
+].str.split(":", expand=True)
 annotated_candidates = annotated_candidates.drop(columns=["breakpoint1", "breakpoint2"])
 
 # We merge only on chromosome and position, as some breakpoints don't have gene
@@ -136,57 +141,82 @@ paired_fusions_with_arriba_annotations = paired_fusions.merge(
 # product of the entries in the two sets. While keeping entries with a
 # 'not_in_exon` feature_name, we filter those duplicates down to entries
 # where the feature_name and gene_id agree.
-paired_fusions_with_arriba_annotations = paired_fusions_with_arriba_annotations.loc[
-    (paired_fusions_with_arriba_annotations['feature_name_partner1'] == 'not_in_exon') |
-    (paired_fusions_with_arriba_annotations['feature_name_partner2'] == 'not_in_exon') |
-    (
-        ( paired_fusions_with_arriba_annotations['feature_name_partner1'] == paired_fusions_with_arriba_annotations['gene_id1']) &
-        ( paired_fusions_with_arriba_annotations['feature_name_partner2'] == paired_fusions_with_arriba_annotations['gene_id2'])
+paired_fusions_with_arriba_annotations = (
+    paired_fusions_with_arriba_annotations.loc[
+        (
+            paired_fusions_with_arriba_annotations["feature_name_partner1"]
+            == "not_in_exon"
+        )
+        | (
+            paired_fusions_with_arriba_annotations["feature_name_partner2"]
+            == "not_in_exon"
+        )
+        | (
+            (
+                paired_fusions_with_arriba_annotations["feature_name_partner1"]
+                == paired_fusions_with_arriba_annotations["gene_id1"]
+            )
+            & (
+                paired_fusions_with_arriba_annotations["feature_name_partner2"]
+                == paired_fusions_with_arriba_annotations["gene_id2"]
+            )
+        )
+    ]
+    .drop(
+        # Remove duplicate columns only needed for record matching.
+        columns=[
+            "gene_id1",
+            "chrom1",
+            "pos1",
+            "gene_id2",
+            "chrom2",
+            "pos2",
+        ]
     )
-].drop(
-    # Remove duplicate columns only needed for record matching.
-    columns=[
-        "gene_id1",
-        "chrom1",
-        "pos1",
-        "gene_id2",
-        "chrom2",
-        "pos2",
-    ]
-).assign(
-    # merge chromosome and position into a single breakpoint representation
-    location_breakpoint_1=lambda x: [ f"{str(chrom)}:{str(pos)}" for chrom, pos in zip(x["chromosome_partner1"], x["position_partner1"]) ],
-    location_breakpoint_2=lambda x: [ f"{str(chrom)}:{str(pos)}" for chrom, pos in zip(x["chromosome_partner2"], x["position_partner2"]) ],
-).rename(
-    # rename to interpretable column names
-    columns={
-        "feature_name_partner1": "ensembl_gene_id_breakpoint_1",
-        "transcript_id1": "ensembl_transcript_id_breakpoint_1",
-        "feature_id_partner1": "gene_symbol_breakpoint_1",
-        "exon_partner1": "exon_breakpoint_1",
-        "site1": "site_type_breakpoint_1",
-        "feature_name_partner2": "ensembl_gene_id_breakpoint_2",
-        "transcript_id2": "ensembl_transcript_id_breakpoint_2",
-        "feature_id_partner2": "gene_symbol_breakpoint_2",
-        "exon_partner2": "exon_breakpoint_2",
-        "site2": "site_type_breakpoint_2",
-        "type": "fusion_type",
-        "reading_frame": "resulting_reading_frame",
-    }
-).drop(
-    # remove redundant breakpoint info
-    columns=[
-        "chromosome_partner1",
-        "position_partner1",
-        "chromosome_partner2",
-        "position_partner2",
-    ]
-).drop(
-    # remove unused columns
-    columns=[
-        "end position_partner1",
-        "end position_partner2",
-    ]
+    .assign(
+        # merge chromosome and position into a single breakpoint representation
+        location_breakpoint_1=lambda x: [
+            f"{str(chrom)}:{str(pos)}"
+            for chrom, pos in zip(x["chromosome_partner1"], x["position_partner1"])
+        ],
+        location_breakpoint_2=lambda x: [
+            f"{str(chrom)}:{str(pos)}"
+            for chrom, pos in zip(x["chromosome_partner2"], x["position_partner2"])
+        ],
+    )
+    .rename(
+        # rename to interpretable column names
+        columns={
+            "feature_name_partner1": "ensembl_gene_id_breakpoint_1",
+            "transcript_id1": "ensembl_transcript_id_breakpoint_1",
+            "feature_id_partner1": "gene_symbol_breakpoint_1",
+            "exon_partner1": "exon_breakpoint_1",
+            "site1": "site_type_breakpoint_1",
+            "feature_name_partner2": "ensembl_gene_id_breakpoint_2",
+            "transcript_id2": "ensembl_transcript_id_breakpoint_2",
+            "feature_id_partner2": "gene_symbol_breakpoint_2",
+            "exon_partner2": "exon_breakpoint_2",
+            "site2": "site_type_breakpoint_2",
+            "type": "fusion_type",
+            "reading_frame": "resulting_reading_frame",
+        }
+    )
+    .drop(
+        # remove redundant breakpoint info
+        columns=[
+            "chromosome_partner1",
+            "position_partner1",
+            "chromosome_partner2",
+            "position_partner2",
+        ]
+    )
+    .drop(
+        # remove unused columns
+        columns=[
+            "end position_partner1",
+            "end position_partner2",
+        ]
+    )
 )
 
 # groups of columns, with numbers varying depending on scenario
@@ -197,7 +227,9 @@ prob_cols = list(
 )
 af_cols = list(
     paired_fusions_with_arriba_annotations.columns[
-        paired_fusions_with_arriba_annotations.columns.str.endswith(": allele frequency")
+        paired_fusions_with_arriba_annotations.columns.str.endswith(
+            ": allele frequency"
+        )
     ]
 )
 depth_cols = list(
@@ -232,7 +264,11 @@ columns_order = [
 columns_order = columns_order + prob_cols + af_cols + depth_cols + obs_cols
 
 # don't accidentally loose any columns
-remaining_columns = [col for col in list(paired_fusions_with_arriba_annotations.columns.values) if col not in columns_order]
+remaining_columns = [
+    col
+    for col in list(paired_fusions_with_arriba_annotations.columns.values)
+    if col not in columns_order
+]
 columns_order = columns_order + remaining_columns
 
 # reorder columns to order wanted in datavzrd table

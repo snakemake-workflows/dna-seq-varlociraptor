@@ -1,5 +1,45 @@
 # Changelog
 
+## [6.10.0](https://github.com/snakemake-workflows/dna-seq-varlociraptor/compare/v6.9.2...v6.10.0) (2026-08-04)
+
+
+### Features
+
+* support per-group scenario templates ([#435](https://github.com/snakemake-workflows/dna-seq-varlociraptor/issues/435)) ([982a35d](https://github.com/snakemake-workflows/dna-seq-varlociraptor/commit/982a35d1e0cc1279492e87f1f8f34777f032c447))
+
+
+### Bug Fixes
+
+* do not use kmers to personalize pangenome and rely on HPRC release 1.1 with d9 filtering by default ([#465](https://github.com/snakemake-workflows/dna-seq-varlociraptor/issues/465)) ([68e327b](https://github.com/snakemake-workflows/dna-seq-varlociraptor/commit/68e327b2f73afb4ae501d4de300d7c336ad6585a))
+* update to latest datavzrd ([#463](https://github.com/snakemake-workflows/dna-seq-varlociraptor/issues/463)) ([95bd41c](https://github.com/snakemake-workflows/dna-seq-varlociraptor/commit/95bd41c6889c79a839430692cf6ede40eb8c67a6))
+
+
+### Performance Improvements
+
+* mark more non-permanent intermediate results as temp/pipe ([#448](https://github.com/snakemake-workflows/dna-seq-varlociraptor/issues/448)) ([df5825b](https://github.com/snakemake-workflows/dna-seq-varlociraptor/commit/df5825bc11ad338831dd668d793f8bc29333a9f6))
+
+## [6.9.2](https://github.com/snakemake-workflows/dna-seq-varlociraptor/compare/v6.9.1...v6.9.2) (2026-07-13)
+
+
+### Bug Fixes
+
+* get correctly restricted multiqc input ([#459](https://github.com/snakemake-workflows/dna-seq-varlociraptor/issues/459)) ([115f729](https://github.com/snakemake-workflows/dna-seq-varlociraptor/commit/115f729c0374933d8599174eaa4a90efd5e6914a))
+* use correct output file for collecting QC info from fastp ([35ff815](https://github.com/snakemake-workflows/dna-seq-varlociraptor/commit/35ff81596db09a91ef069857ccea62d8a01fb7ea))
+
+## [6.9.1](https://github.com/snakemake-workflows/dna-seq-varlociraptor/compare/v6.9.0...v6.9.1) (2026-06-30)
+
+
+### Miscellaneous Chores
+
+* release 6.9.1 (updated datavzrd) ([56053db](https://github.com/snakemake-workflows/dna-seq-varlociraptor/commit/56053dbc3c466166f6b97e79452c105d5154497c))
+
+## [6.9.0](https://github.com/snakemake-workflows/dna-seq-varlociraptor/compare/v6.8.0...v6.9.0) (2026-06-24)
+
+
+### Features
+
+* test independence for numeric labels using Brunner-Munzel test ([#452](https://github.com/snakemake-workflows/dna-seq-varlociraptor/issues/452)) ([b0dc0d8](https://github.com/snakemake-workflows/dna-seq-varlociraptor/commit/b0dc0d8a0f40c2e79b70c0c32fd92772339ef45d))
+
 ## [6.8.0](https://github.com/snakemake-workflows/dna-seq-varlociraptor/compare/v6.7.0...v6.8.0) (2026-06-08)
 
 

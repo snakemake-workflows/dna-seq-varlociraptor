@@ -59,7 +59,7 @@ rule annotate_exons:
         "../envs/arriba.yaml"
     shell:
         """
-        annotate_exon_numbers.sh {input.fusions} {input.annotation} {output} 2> {log}
+        annotate_exon_numbers.sh {input.fusions} {input.annotation} {output} 2>{log}
         """
 
 
@@ -76,7 +76,7 @@ rule convert_fusions:
         "../envs/arriba.yaml"
     shell:
         """
-        convert_fusions_to_vcf.sh {input.fasta} {input.fusions} {output} 2> {log}
+        convert_fusions_to_vcf.sh {input.fasta} {input.fusions} {output} 2>{log}
         """
 
 

@@ -89,6 +89,17 @@ if "groups" in config:
 else:
     group_annotation = pd.DataFrame({"group": groups}).set_index("group")
 
+
+if "scenario" in group_annotation.columns:
+    scenarios = group_annotation.loc[:, ["scenario"]]
+    group_annotation.drop("scenario", axis="columns", inplace=True)
+else:
+    scenarios = pd.DataFrame({"group": groups, "scenario": pd.NA}, dtype=str).set_index(
+        "group"
+    )
+scenarios.fillna(lookup("calling/scenario", within=config, default=None), inplace=True)
+
+
 units = (
     pd.read_csv(
         config["units"],
@@ -117,12 +128,17 @@ primer_panels = (
     else None
 )
 
+genome_build = lookup("ref/build", within=config)
+genebe_genome_build = (
+    "hg38" if build == "GRCh38" else "hg19" if build == "GRCh37" else None
+)
 
-def is_activated(xpath):
+
+def is_activated(xpath, default=False):
     c = config
     for entry in xpath.split("/"):
         c = c.get(entry, {})
-    return bool(c.get("activate", False))
+    return bool(c.get("activate", default))
 
 
 custom_alignment_props = (
@@ -427,12 +443,68 @@ def is_paired_end(sample):
 
 
 def get_map_reads_input(wildcards):
-    if is_paired_end(wildcards.sample):
+    return get_sample_fastqs(wildcards.sample)
+
+
+def get_sample_fastqs(sample):
+    if is_paired_end(sample):
         return [
-            "results/merged/{sample}_R1.fastq.gz",
-            "results/merged/{sample}_R2.fastq.gz",
+            f"results/merged/{sample}_R1.fastq.gz",
+            f"results/merged/{sample}_R2.fastq.gz",
         ]
-    return "results/merged/{sample}_single.fastq.gz"
+    return [f"results/merged/{sample}_single.fastq.gz"]
+
+
+def get_giraffe_extra(wildcards, input):
+    preset = {
+        "ONT": "r10",
+        "PACBIO": "hifi",
+    }.get(samples.loc[wildcards.sample, "platform"], "default")
+
+    return " ".join(
+        [
+            prepend_param("--ref-paths", input.paths),
+            prepend_param("--parameter-preset", preset),
+        ]
+    )
+
+
+def get_count_group_kmers_input(wildcards):
+    group_samples = lookup(
+        query=f"group == '{wildcards.group}'", within=samples, cols="sample_name"
+    )
+    return [fq for sample in group_samples for fq in get_sample_fastqs(sample)]
+
+
+def get_sample_pangenome_prefix(wildcards):
+    group = samples.loc[wildcards.sample, "group"]
+    return f"results/pangenomes/{group}"
+
+
+def get_haplotype_args(wildcards, input):
+    with open(input.scenario) as scenario:
+        scenario = yaml.safe_load(scenario)
+        aliases = lookup(
+            query=f"group == '{wildcards.group}'", within=samples, cols="alias"
+        )
+
+        def is_diploid(alias):
+            try:
+                settings = scenario["samples"][alias]
+            except KeyError:
+                raise ValueError(
+                    f"Sample alias {alias} does not occur in scenario of group {wildcards.group}"
+                )
+
+            return (
+                "[" not in settings.get("universe", "")
+                and "somatic-effective-mutation-rate" not in settings
+            )
+
+        if len(aliases) == 1 and is_diploid(aliases[0]):
+            return "--diploid-sampling"
+        else:
+            return f"--num-haplotypes 4"
 
 
 def get_star_reads_input(wildcards, r2=False):
@@ -503,7 +575,7 @@ def get_consensus_input(wildcards, bai=False):
 def get_trimming_input(wildcards, bai=False):
     ext = "bai" if bai else "bam"
     aligner = get_aligner(wildcards)
-    if is_activated("remove_duplicates"):
+    if is_activated("remove_duplicates", default=True):
         return "results/dedup/{{sample}}.{ext}".format(ext=ext)
     else:
         return "results/mapped/{aligner}/{{sample}}.sorted.{ext}".format(
@@ -1610,17 +1682,19 @@ def get_primer_extra(wc, input):
     return extra
 
 
-def get_datavzrd_data(impact="coding"):
-    calling_type = "variants"
-    if impact == "fusions":
-        impact = "fusions.joined"
-        calling_type = "fusions"
-    pattern = "results/tables/{group}/{group}.{event}.{impact}.fdr-controlled.tsv"
+def get_datavzrd_data(calling_type="variants"):
+    if calling_type == "fusions":
+        filetype = "fusions.joined"
+    elif calling_type == "variants":
+        filetype = "variants.postprocessed"
+    else:
+        raise ValueError(f"Unsupported calling type: {calling_type}")
+    pattern = "results/tables/{group}/{group}.{event}.{filetype}.fdr-controlled.tsv"
 
     def inner(wildcards):
         return expand(
             pattern,
-            impact=impact,
+            filetype=filetype,
             event=wildcards.event,
             group=get_report_batch(calling_type),
         )
@@ -1631,7 +1705,7 @@ def get_datavzrd_data(impact="coding"):
 def get_oncoprint_input(wildcards):
     groups = get_report_batch("variants")
     return expand(
-        "results/tables/{group}/{group}.{event}.coding.fdr-controlled.tsv",
+        "results/tables/{group}/{group}.{event}.variants.postprocessed.fdr-controlled.tsv",
         group=groups,
         event=wildcards.event,
     )
@@ -1666,7 +1740,7 @@ def get_datavzrd_report_subcategory(wildcards):
     return event.get("subcategory", None)
 
 
-def get_fastqc_results(wildcards):
+def get_multiqc_input(wildcards):
     group_samples = get_group_samples(wildcards.group)
     sample_units = units.loc[group_samples]
     sra_units = pd.isna(sample_units["fq1"])
@@ -1681,7 +1755,7 @@ def get_fastqc_results(wildcards):
 
     # fastp
     if sample_units["adapters"].notna().all():
-        pattern = "results/trimmed/{unit.sample_name}/{unit.unit_name}.{mode}.qc.html"
+        pattern = "results/trimmed/{unit.sample_name}/{unit.unit_name}.{mode}.json"
         yield from expand(
             pattern, unit=sample_units[paired_end_units].itertuples(), mode="paired"
         )
@@ -1750,7 +1824,7 @@ def get_alignment_props(wildcards):
     return f"results/alignment-properties/{wildcards.group}/{wildcards.sample}.json"
 
 
-def get_pangenome_url(datatype):
+def get_pangenome_url():
     build = config["ref"]["build"].lower()
     source = config["ref"]["pangenome"]["source"]
     version = config["ref"]["pangenome"]["version"]
@@ -1762,8 +1836,23 @@ def get_pangenome_url(datatype):
         raise ValueError(
             "Unsupported pangenome source. Only 'hprc' is currently supported."
         )
-    return (
-        "https://s3-us-west-2.amazonaws.com/human-pangenomics/pangenomes/freeze/"
-        "freeze1/minigraph-cactus/"
-        f"hprc-{version}-mc-{build}/hprc-{version}-mc-{build}.{datatype}"
-    )
+    if not version.startswith("v"):
+        raise ValueError(
+            f"Invalid pangenome version {version}, has to start with v (e.g. v2.0)"
+        )
+    parsed_version = tuple(map(int, version[1:].split(".")))
+
+    if parsed_version >= (2, 0):
+        major = parsed_version[0]
+        prefix = f"https://human-pangenomics.s3.amazonaws.com/pangenomes/freeze/release{major}/minigraph-cactus"
+        filename = f"hprc-{version}-mc-{build}.gbz"
+    else:
+        prefix = (
+            "https://s3-us-west-2.amazonaws.com/human-pangenomics/pangenomes/"
+            f"freeze/freeze1/minigraph-cactus/hprc-{version}-mc-{build}"
+        )
+        # Use the filtered version, which implies a rough prior that omits
+        # haplotypes that have a frequency <10%.
+        filename = f"hprc-{version}-mc-{build}.d9.gbz"
+
+    return f"{prefix}/{filename}"

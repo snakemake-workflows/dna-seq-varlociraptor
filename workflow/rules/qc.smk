@@ -21,7 +21,7 @@ rule samtools_idxstats:
     log:
         "logs/samtools/idxstats/{sample}.log",
     wrapper:
-        "v2.3.2/bio/samtools/idxstats"
+        "v9.15.0/bio/samtools/idxstats"
 
 
 rule samtools_stats:
@@ -32,12 +32,12 @@ rule samtools_stats:
     log:
         "logs/samtools/stats/{sample}.log",
     wrapper:
-        "v2.3.2/bio/samtools/stats"
+        "v9.15.0/bio/samtools/stats"
 
 
 rule multiqc:
     input:
-        get_fastqc_results,
+        get_multiqc_input,
     output:
         report(
             "results/qc/multiqc/{group}.html",
@@ -48,6 +48,7 @@ rule multiqc:
     log:
         "logs/multiqc/{group}.log",
     params:
-        "--exclude snippy",
+        extra="--exclude snippy",
+        use_input_files_only=True,
     wrapper:
-        "v2.10.0/bio/multiqc"
+        "v9.9.0/bio/multiqc"

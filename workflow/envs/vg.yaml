@@ -1,6 +1,6 @@
 channels:
   - conda-forge
   - bioconda
+  - nodefaults
 dependencies:
-  - pandas =2.1
-  - python =3.10
+  - vg =1.73.0

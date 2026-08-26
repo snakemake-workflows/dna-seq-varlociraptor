@@ -23,6 +23,6 @@ rule tsv_to_excel:
     log:
         "logs/tsv_to_xlsx/{x}.log",
     conda:
-        "../envs/excel.yaml"
+        "../envs/pystats.yaml"
     script:
         "../scripts/tsv_to_xlsx.py"

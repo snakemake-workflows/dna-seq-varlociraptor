@@ -1,4 +1,3 @@
-name: get_genome
 channels:
   - conda-forge
   - bioconda
