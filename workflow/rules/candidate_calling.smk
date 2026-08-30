@@ -4,8 +4,8 @@ rule freebayes:
         ref_idx=genome_fai,
         regions="results/regions/{group}.expanded_regions.filtered.bed",
         # you can have a list of samples here
-        alns=access.random(lambda w: get_group_bams(w)),
-        idxs=lambda w: get_group_bams(w, bai=True),
+        alns=access.random(get_group_bams),
+        idxs=get_group_bams_idxs,
     output:
         "results/candidate-calls/freebayes/{group}/{group}.bcf",
     log:
@@ -27,8 +27,8 @@ rule delly:
     input:
         ref=access.random(genome),
         ref_idx=genome_fai,
-        alns=access.random(lambda w: get_group_bams(w)),
-        index=lambda w: get_group_bams(w, bai=True),
+        alns=access.random(get_group_bams),
+        index=get_group_bams_idxs,
         exclude=get_delly_excluded_regions(),
     output:
         "results/candidate-calls/delly/{group}/{group}.bcf",

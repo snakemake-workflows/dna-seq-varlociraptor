@@ -307,8 +307,8 @@ def get_control_fdr_input(wildcards):
         return "results/final-calls/{group}/{group}.{calling_type}.annotated.bcf"
 
 
-def get_aligner(wildcards):
-    if get_sample_datatype(wildcards.sample) == "rna":
+def get_aligner(sample):
+    if get_sample_datatype(sample) == "rna":
         return "star"
     elif is_activated("ref/pangenome"):
         return "vg"
@@ -440,10 +440,11 @@ def get_sample_fastqs(sample):
 
 
 def get_giraffe_extra(wildcards, input):
+    platform = extract_unique_sample_column_value(wildcards.sample, "platform")
     preset = {
         "ONT": "r10",
         "PACBIO": "hifi",
-    }.get(samples.loc[wildcards.sample, "platform"], "default")
+    }.get(platform, "default")
 
     return " ".join(
         [
@@ -529,42 +530,49 @@ def get_sample_datatype(sample):
 
 
 def get_markduplicates_input(wildcards):
-    aligner = get_aligner(wildcards)
-    if sample_has_umis(wildcards.sample):
+    sample = wildcards.sample
+    aligner = get_aligner(sample)
+    if sample_has_umis(sample):
         return f"results/mapped/{aligner}/{{sample}}.annotated.bam"
     else:
         return f"results/mapped/{aligner}/{{sample}}.sorted.bam"
 
 
-def get_recalibrate_quality_input(wildcards, bai=False):
-    ext = "bai" if bai else "bam"
-    datatype = get_sample_datatype(wildcards.sample)
+def get_sample_bam(wildcards):
+    return branch(
+        lookup("basequality_recalibration/activate", within=config, default=False),
+        then=f"results/recal/{wildcards.sample}.bam",
+        otherwise=get_recalibrate_quality_input(wildcards),
+    )
+
+
+def get_recalibrate_quality_input(wildcards):
+    sample = wildcards.sample
+    datatype = get_sample_datatype(sample)
     if datatype == "rna":
-        return "results/split/{{sample}}.{ext}".format(ext=ext)
+        return f"results/split/{sample}.bam"
     # Post-processing of DNA samples
     if is_activated("calc_consensus_reads"):
-        return "results/consensus/{{sample}}.{ext}".format(ext=ext)
+        return f"results/consensus/{sample}.bam"
     else:
-        return get_consensus_input(wildcards, bai)
+        return get_consensus_input(wildcards)
 
 
-def get_consensus_input(wildcards, bai=False):
-    ext = "bai" if bai else "bam"
-    if sample_has_primers(wildcards):
-        return f"results/trimmed/{{sample}}.trimmed.{ext}"
+def get_consensus_input(wildcards):
+    sample = wildcards.sample
+    if sample_has_primers(sample):
+        return f"results/trimmed/{sample}.trimmed.bam"
     else:
-        return get_trimming_input(wildcards, bai)
+        return get_trimming_input(wildcards)
 
 
-def get_trimming_input(wildcards, bai=False):
-    ext = "bai" if bai else "bam"
-    aligner = get_aligner(wildcards)
-    if is_activated("remove_duplicates", default=True):
-        return "results/dedup/{{sample}}.{ext}".format(ext=ext)
+def get_trimming_input(wildcards):
+    sample = wildcards.sample
+    aligner = get_aligner(sample)
+    if is_activated("remove_duplicates"):
+        return f"results/dedup/{sample}.bam"
     else:
-        return "results/mapped/{aligner}/{{sample}}.sorted.{ext}".format(
-            aligner=aligner, ext=ext
-        )
+        return f"results/mapped/{aligner}/{sample}.sorted.bam"
 
 
 def get_primer_bed(wc):
@@ -615,7 +623,8 @@ def get_sample_primer_fastas(sample):
         return config["primers"]["trimming"]["primers_fa1"]
 
 
-def get_panel_primer_input(panel):
+def get_panel_primer_input(wildcards):
+    panel = wildcards.panel
     if panel == "uniform":
         if config["primers"]["trimming"].get("primers_fa2", ""):
             return [
@@ -636,9 +645,9 @@ def input_is_fasta(primers):
     return True if primers.endswith(fasta_suffixes) else False
 
 
-def get_primer_regions(wc):
+def get_primer_regions(wildcards):
     if isinstance(primer_panels, pd.DataFrame):
-        panel = extract_unique_sample_column_value(wc.sample, "panel")
+        panel = extract_unique_sample_column_value(wildcards.sample, "panel")
         return f"results/primers/{panel}_primer_regions.tsv"
     return "results/primers/uniform_primer_regions.tsv"
 
@@ -659,13 +668,24 @@ def get_markduplicates_extra(wc):
     return f"{c} {b} {d}"
 
 
-def get_group_bams(wildcards, bai=False):
-    ext = "bai" if bai else "bam"
-    return expand(
-        "results/recal/{sample}.{ext}",
-        sample=get_group_samples(wildcards.group),
-        ext=ext,
-    )
+def get_group_bams(wildcards):
+    if lookup("basequality_recalibration/activate", within=config, default=False):
+        return expand(
+            "results/recal/{sample}.bam",
+            sample=get_group_samples(wildcards.group),
+        )
+    else:
+        return [
+            get_recalibrate_quality_input(sample)
+            for sample in get_group_samples(wildcards.group)
+        ]
+
+
+def get_group_bams_idxs(wildcards):
+    return [
+        subpath(bam, strip_suffix=".bam", with_suffix=".bai")
+        for bam in get_group_bams(wildcards)
+    ]
 
 
 def get_arriba_group_candidates(wildcards, csi=False):
@@ -1538,16 +1558,14 @@ def get_umi_fastq(wildcards):
         )
 
 
-def sample_has_primers(wildcards):
-    sample_name = wildcards.sample
-
+def sample_has_primers(sample):
     if config["primers"]["trimming"].get("primers_fa1") or (
         "panel" in samples.columns
-        and samples.loc[samples["sample_name"] == sample_name, "panel"].notna().any()
+        and samples.loc[samples["sample_name"] == sample, "panel"].notna().any()
     ):
-        if not is_paired_end(sample_name):
+        if not is_paired_end(sample):
             raise WorkflowError(
-                f"Primer trimming is only available for paired-end data. Sample '{sample_name}' is not paired-end."
+                f"Primer trimming is only available for paired-end data. Sample '{sample}' is not paired-end."
             )
         return True
     return False
@@ -1574,7 +1592,7 @@ def get_dgidb_datasources():
 
 
 def get_filter_params(wc):
-    if isinstance(get_panel_primer_input(wc.panel), list):
+    if isinstance(get_panel_primer_input(wc), list):
         return "-b -F 12"
     return "-b -F 4"
 

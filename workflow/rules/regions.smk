@@ -34,8 +34,8 @@ rule transform_gene_annotations:
 
 rule build_sample_regions:
     input:
-        bam="results/recal/{sample}.bam",
-        bai="results/recal/{sample}.bai",
+        bam=get_sample_bam,
+        bai=subpath(get_sample_bam, strip_suffix=".bam", with_suffix=".bai"),
         bed="resources/gene_annotation.bed",
     output:
         "results/regions/{group}/{sample}.mosdepth.global.dist.txt",
