@@ -1,0 +1,17 @@
+# This file may be used to create an environment using:
+# $ conda create --name <env> --file <this file>
+# platform: linux-64
+# created-by: conda 24.9.2
+@EXPLICIT
+https://conda.anaconda.org/conda-forge/linux-64/libgomp-16.2.0-he0feb66_4.conda#89d2c1231f47bd818f5d624b9411459d
+https://conda.anaconda.org/conda-forge/linux-64/_openmp_mutex-4.5-20_gnu.conda#a9f577daf3de00bca7c3c76c0ecbd1de
+https://conda.anaconda.org/conda-forge/linux-64/libgcc-16.2.0-ha9f2e26_4.conda#cba14d01083fc62ffd32c24d7d390633
+https://conda.anaconda.org/conda-forge/linux-64/libiconv-1.18-h0cb94f2_3.conda#f92233bf33e24a25668bb2119e2c51f9
+https://conda.anaconda.org/conda-forge/linux-64/libstdcxx-16.2.0-h934c35e_4.conda#2f2ef0d96de5bdd8c1270ff22fdf9352
+https://conda.anaconda.org/conda-forge/linux-64/ncurses-6.6-hdb14827_1.conda#ee6c0cd80a60961a1f48aa3e0b91f986
+https://conda.anaconda.org/conda-forge/linux-64/gmp-6.3.0-hfd2156b_3.conda#576e32739f323438bf69ab006c21be7b
+https://conda.anaconda.org/conda-forge/linux-64/libasprintf-0.25.1-h3f43e3d_1.conda#3b0d184bc9404516d418d4509e418bdc
+https://conda.anaconda.org/conda-forge/linux-64/libgettextpo-0.25.1-h3f43e3d_1.conda#2f4de899028319b27eb7a4023be5dfd2
+https://conda.anaconda.org/conda-forge/linux-64/readline-8.3-hd6e31c0_1.conda#69c01c781e7c8190bbdaf79e3848c5ca
+https://conda.anaconda.org/conda-forge/linux-64/mpfr-4.2.2-ha2cb11d_1.conda#7dcc10f6c0bc3596d5519a710a84dfd4
+https://conda.anaconda.org/conda-forge/linux-64/gawk-5.4.1-h0a3468a_0.conda#64fd8d804a6aaef55d6d6c562446d72b
