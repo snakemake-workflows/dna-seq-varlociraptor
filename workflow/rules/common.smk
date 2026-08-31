@@ -270,11 +270,27 @@ def get_final_output(wildcards):
                 )
     final_output.extend(get_mutational_burden_targets())
     final_output.extend(get_mutational_signature_targets())
-
+    if is_activated("varpubs"):
+        final_output.append(varpubs_update_cache())
     if is_activated("population/db"):
         final_output.append(lookup(dpath="population/db/path", within=config))
 
     return final_output
+
+
+def get_vembrane_table_input(wc):
+    if lookup(
+        dpath="varpubs/activate",
+        within=config,
+        default=False,
+    ) and lookup(
+        dpath=f"calling/fdr-control/events/{wc.event}/varpubs",
+        within=config,
+        default=True,
+    ):
+        return "results/varpubs/{group}/{group}.{event}.bcf"
+    else:
+        return "results/final-calls/{group}/{group}.{event}.variants.fdr-controlled.normal-probs.bcf"
 
 
 def get_gather_calls_input(ext="bcf"):
@@ -787,6 +803,43 @@ def get_mutational_signature_targets():
     return mutational_signature_targets
 
 
+def get_varpubs_events():
+    return [
+        event
+        for event in get_calling_events("variants")
+        if lookup(
+            dpath=f"calling/fdr-control/events/{event}/varpubs",
+            within=config,
+            default=True,
+        )
+    ]
+
+
+def get_unchanged_varpubs_cache():
+    cache = lookup(dpath="varpubs/cache", within=config)
+    if not cache.endswith(".duckdb"):
+        raise ValueError("Varpubs cache must be a duckdb file.")
+    if exists(cache):
+        return before_update(cache)
+    else:
+        return []
+
+
+def varpubs_update_cache():
+    if get_varpubs_events():
+        return update(lookup(dpath="varpubs/cache", within=config))
+    else:
+        return []
+
+
+def get_varpubs_targets():
+    return expand(
+        "results/varpubs/caches/{group}/{group}.{event}.duckdb",
+        group=variants_groups,
+        event=get_varpubs_events(),
+    )
+
+
 def get_scattered_calls(ext="bcf"):
     def inner(wildcards):
         caller = "arriba" if wildcards.calling_type == "fusions" else variant_caller
@@ -1266,6 +1319,12 @@ def get_annotation_fields_for_tables(wildcards):
                 annotation_fields.append(
                     "am_pathogenicity",
                 )
+    if lookup(dpath="varpubs/activate", within=config, default=False) and lookup(
+        dpath=f"calling/fdr-control/events/{wildcards.event}/varpubs",
+        within=config,
+        default=True,
+    ):
+        annotation_fields += ["VARPUBS_PMIDS", "VARPUBS_SUMMARY"]
 
     return annotation_fields
 
@@ -1426,6 +1485,14 @@ def get_vembrane_config(wildcards, input):
                 "name": "alphamissense",
             },
         }
+        if lookup(dpath="varpubs/activate", within=config, default=False) and lookup(
+            dpath=f"calling/fdr-control/events/{wildcards.event}/varpubs",
+            within=config,
+            default=True,
+        ):
+            rename_ann_fields["VARPUBS_PMIDS"] = {"name": "pubmed ids"}
+            rename_ann_fields["VARPUBS_SUMMARY"] = {"name": "varpubs summary"}
+
         annotation_fields = get_annotation_fields_for_tables(wildcards)
         append_items(
             annotation_fields,
@@ -1515,6 +1582,17 @@ def get_vembrane_config(wildcards, input):
             "INFO['END']",
         ]
     )
+    if lookup(dpath="varpubs/activate", within=config, default=False) and lookup(
+        dpath=f"calling/fdr-control/events/{wildcards.event}/varpubs",
+        within=config,
+        default=True,
+    ):
+        sort_order.extend(
+            [
+                "ANN['VARPUBS_SUMMARY']",
+                "ANN['VARPUBS_PMIDS']",
+            ]
+        )
     # sort columns, keeping only those in sort_order
     sorted_columns_dict = {k: columns_dict[k] for k in sort_order if k in columns_dict}
     join_items = ", ".join
@@ -1563,7 +1641,7 @@ def get_annotate_umis_params(wildcards):
         read=translate_param[
             extract_unique_sample_column_value(wildcards.sample, "umi_read")
         ],
-        umi_len=str(extract_unique_sample_column_value(wildcards.sample, "umi_len")),
+        umi_len=int(extract_unique_sample_column_value(wildcards.sample, "umi_len")),
     )
 
 

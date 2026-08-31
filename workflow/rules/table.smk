@@ -1,6 +1,6 @@
 rule vembrane_table:
     input:
-        bcf="results/final-calls/{group}/{group}.{event}.{calling_type}.fdr-controlled.normal-probs.bcf",
+        bcf=get_vembrane_table_input,
         scenario="results/scenarios/{group}.yaml",
     output:
         bcf="results/tables/{group}/{group}.{event}.{calling_type}.fdr-controlled.tsv",

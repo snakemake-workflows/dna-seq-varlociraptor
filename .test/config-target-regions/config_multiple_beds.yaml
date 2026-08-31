@@ -39,6 +39,14 @@ mutational_signatures:
   events:
     - some_id
 
+varpubs:
+  activate: false
+  cache: /media/HDD/varpubs_cache/varpubs_cache.duckdb
+  llm_url: http://localhost:11434/v1
+  model: mistral:latest
+  api_key: ""
+  mail: "some_email@example.com"
+
 calling:
   delly:
     activate: true
@@ -53,9 +61,9 @@ calling:
   fdr-control:
     threshold: 0.05
     local: true
-    events: 
+    events:
       present:
-        varlociraptor: 
+        varlociraptor:
           - present
         filter:
           - moderate
@@ -95,7 +103,7 @@ params:
     # add extra arguments for varlociraptor call
     # For example, in case of panel data consider to omit certain bias estimations
     # which might be misleading because all reads of an amplicon have the sample start
-    # position, strand etc. (--omit-strand-bias, --omit-read-position-bias, 
+    # position, strand etc. (--omit-strand-bias, --omit-read-position-bias,
     # --omit-softclip-bias, --omit-read-orientation-bias).
     call: ""
     # Add extra arguments for varlociraptor preprocess. By default, we limit the depth to 200.

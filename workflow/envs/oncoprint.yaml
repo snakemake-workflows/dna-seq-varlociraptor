@@ -1,0 +1,8 @@
+channels:
+  - conda-forge
+  - bioconda
+dependencies:
+  - pandas =1.4
+  - python =3.10
+  - scikit-learn =1.1.2
+  - statsmodels =0.13.2

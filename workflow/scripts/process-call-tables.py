@@ -90,7 +90,10 @@ def order_impact(df):
 
 
 def sort_calls(df):
-    df.sort_values(snakemake.params.sorting, ascending=False, inplace=True)
+    sort_keys = snakemake.params.sorting
+    if "varpubs summary" in df.columns:
+        sort_keys.insert(0, "varpubs summary")
+    df.sort_values(sort_keys, ascending=False, inplace=True)
 
 
 def reorder_prob_cols(df):

@@ -1,8 +1,8 @@
 rule get_target_regions:
     """
-    Targets can be defined in one or multiple BED files. In the
-    case of multiple BED files, these need to be merged.
-    """
+Targets can be defined in one or multiple BED files. In the
+case of multiple BED files, these need to be merged.
+"""
     input:
         config.get("target_regions", []),
     output:

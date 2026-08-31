@@ -71,6 +71,9 @@ rule datavzrd_variants_calls:
         gene_oncoprint=get_oncoprint("gene"),
         variant_oncoprints=get_oncoprint("variant"),
         oncoprint_sorted_datasets="results/tables/oncoprints/{batch}.{event}/label_sortings/",
+        summary_formatter=workflow.source_path(
+            "../resources/datavzrd/summary_formatter.js"
+        ),
     output:
         report(
             directory(
