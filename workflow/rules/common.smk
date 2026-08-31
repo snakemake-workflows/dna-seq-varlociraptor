@@ -1319,7 +1319,7 @@ def get_annotation_fields_for_tables(wildcards):
                 annotation_fields.append(
                     "am_pathogenicity",
                 )
-    if lookup(
+    if lookup(dpath="varpubs/activate", within=config, default=False) and lookup(
         dpath=f"calling/fdr-control/events/{wildcards.event}/varpubs",
         within=config,
         default=True,
@@ -1485,11 +1485,7 @@ def get_vembrane_config(wildcards, input):
                 "name": "alphamissense",
             },
         }
-        if lookup(
-            dpath="varpubs/activate",
-            within=config,
-            default=False
-        ) and lookup(
+        if lookup(dpath="varpubs/activate", within=config, default=False) and lookup(
             dpath=f"calling/fdr-control/events/{wildcards.event}/varpubs",
             within=config,
             default=True,
@@ -1584,10 +1580,19 @@ def get_vembrane_config(wildcards, input):
             # only needed for variants in datavzrd_variants_calls
             "ANN['Feature']",
             "INFO['END']",
-            "ANN['VARPUBS_SUMMARY']",
-            "ANN['VARPUBS_PMIDS']",
         ]
     )
+    if lookup(dpath="varpubs/activate", within=config, default=False) and lookup(
+        dpath=f"calling/fdr-control/events/{wildcards.event}/varpubs",
+        within=config,
+        default=True,
+    ):
+        sort_order.extend(
+            [
+                "ANN['VARPUBS_SUMMARY']",
+                "ANN['VARPUBS_PMIDS']",
+            ]
+        )
     # sort columns, keeping only those in sort_order
     sorted_columns_dict = {k: columns_dict[k] for k in sort_order if k in columns_dict}
     join_items = ", ".join
