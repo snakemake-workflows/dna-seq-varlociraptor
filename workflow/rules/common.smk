@@ -1720,6 +1720,8 @@ def get_oncoprint(oncoprint_type):
                 return f"{oncoprint_path}/gene-oncoprint.tsv"
             elif oncoprint_type == "variant":
                 return f"{oncoprint_path}/variant-oncoprints"
+            elif oncoprint_type == "color_domains":
+                return f"{oncoprint_path}/color-domains.json"
             else:
                 raise ValueError(f"bug: unsupported oncoprint type {oncoprint_type}")
         else:
