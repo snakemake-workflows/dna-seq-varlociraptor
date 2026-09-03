@@ -8,6 +8,7 @@ max-in-memory-rows: 1500
 __definitions__:
   - import os
   - import pandas as pd
+  - import json
   - |
     def read_file(path):
         return open(path, 'r').read()
