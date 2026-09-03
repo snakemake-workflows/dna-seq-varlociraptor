@@ -264,6 +264,7 @@ color_domains = {
         {
             value
             for group in snakemake.params.groups
+            if group in gene_oncoprint.columns
             for value in gene_oncoprint[group].dropna().unique()
         }
     ),
