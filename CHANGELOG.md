@@ -1,5 +1,18 @@
 # Changelog
 
+## [6.10.1](https://github.com/snakemake-workflows/dna-seq-varlociraptor/compare/v6.10.0...v6.10.1) (2026-09-07)
+
+
+### Bug Fixes
+
+* require latest snakemake containing a bugfix for vg parallelization ([4f385a9](https://github.com/snakemake-workflows/dna-seq-varlociraptor/commit/4f385a9c682bbee26f671e71e3f379656b814a6e))
+
+
+### Performance Improvements
+
+* share oncoprint heatmap color domains ([#468](https://github.com/snakemake-workflows/dna-seq-varlociraptor/issues/468)) ([235c42f](https://github.com/snakemake-workflows/dna-seq-varlociraptor/commit/235c42f2666b7e05784ee4a7f2ab58eb79c7475d))
+* update datavzrd wrapper to 9.17.1 ([#467](https://github.com/snakemake-workflows/dna-seq-varlociraptor/issues/467)) ([ec08825](https://github.com/snakemake-workflows/dna-seq-varlociraptor/commit/ec0882562218361fb33ecf2d1f63ea1457195b09))
+
 ## [6.10.0](https://github.com/snakemake-workflows/dna-seq-varlociraptor/compare/v6.9.2...v6.10.0) (2026-08-04)
 
 
