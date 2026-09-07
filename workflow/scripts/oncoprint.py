@@ -2,6 +2,7 @@ import sys
 
 sys.stderr = open(snakemake.log[0], "w")
 
+import json
 import os
 from pathlib import Path
 
@@ -118,7 +119,7 @@ def gene_oncoprint(calls):
         )
 
 
-def variant_oncoprint(gene_calls, group_annotation):
+def variant_oncoprint(gene_calls):
     gene_calls = gene_calls[["group", "hgvsp", "hgvsc", "hgvsg", "consequence"]]
     gene_calls.loc[:, "exists"] = "+"
 
@@ -144,8 +145,6 @@ def variant_oncoprint(gene_calls, group_annotation):
     if len(matrix.columns) > 1:
         # sort by recurrence
         matrix = sort_by_recurrence(matrix, lambda matrix: matrix.isna())
-
-    matrix = attach_group_annotation(matrix, group_annotation)
 
     return matrix
 
@@ -250,7 +249,26 @@ sort_oncoprint_labels(gene_oncoprint)
 
 
 os.makedirs(snakemake.output.variant_oncoprints)
+variant_values = set()
 for gene, gene_calls in calls.groupby("symbol", observed=False):
-    variant_oncoprint(gene_calls, group_annotation).to_csv(
+    matrix = variant_oncoprint(gene_calls)
+    for group in snakemake.params.groups:
+        if group in matrix.columns:
+            variant_values.update(matrix[group].dropna().unique())
+    attach_group_annotation(matrix, group_annotation).to_csv(
         Path(snakemake.output.variant_oncoprints) / f"{gene}.tsv", sep="\t", index=False
     )
+
+color_domains = {
+    "gene": sorted(
+        {
+            value
+            for group in snakemake.params.groups
+            if group in gene_oncoprint.columns
+            for value in gene_oncoprint[group].dropna().unique()
+        }
+    ),
+    "variant": sorted(variant_values),
+}
+with open(snakemake.output.color_domains, "w") as handle:
+    json.dump(color_domains, handle)

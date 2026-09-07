@@ -50,6 +50,7 @@ rule prepare_oncoprint:
         variant_oncoprints=directory(
             "results/tables/oncoprints/{batch}.{event}/variant-oncoprints"
         ),
+        color_domains="results/tables/oncoprints/{batch}.{event}/color-domains.json",
     log:
         "logs/prepare_oncoprint/{batch}.{event}.log",
     conda:
@@ -71,6 +72,7 @@ rule datavzrd_variants_calls:
         gene_oncoprint=get_oncoprint("gene"),
         variant_oncoprints=get_oncoprint("variant"),
         oncoprint_sorted_datasets="results/tables/oncoprints/{batch}.{event}/label_sortings/",
+        color_domains=get_oncoprint("color_domains"),
     output:
         report(
             directory(
