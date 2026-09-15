@@ -271,6 +271,14 @@ views:
               optional: true
               display-mode: pinned
               custom: ?hgvs_content
+            chromosome:
+              display-mode: hidden
+            position:
+              display-mode: hidden
+            reference allele:
+              display-mode: hidden
+            alternative allele:
+              display-mode: hidden
 
   ?for group in params.groups:
     ?group:
