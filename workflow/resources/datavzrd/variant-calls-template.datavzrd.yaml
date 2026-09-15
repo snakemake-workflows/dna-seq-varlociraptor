@@ -279,6 +279,10 @@ views:
               display-mode: hidden
             alternative allele:
               display-mode: hidden
+          add-columns:
+            build:
+              value: ?f"function() {{ return `{params.build}` }}"
+              display-mode: hidden
 
   ?for group in params.groups:
     ?group:
