@@ -179,6 +179,7 @@ def sort_oncoprint_labels(data):
             filtered_features = (
                 feature_matrix.sum(axis="index") >= snakemake.params.min_recurrence
             ).reset_index()
+            breakpoint()
 
             # filter to only those columns (we are transposed here)
             # with min_recurrence "True" values
