@@ -176,11 +176,13 @@ def sort_oncoprint_labels(data):
             feature_matrix[pd.isna(feature_matrix)] = False
             feature_matrix = feature_matrix.astype(bool)
 
+            filtered_features = feature_matrix.sum(axis="index") >= snakemake.params.min_recurrence
+
             # filter to only those columns (we are transposed here)
             # with min_recurrence "True" values
             feature_matrix = feature_matrix.loc[
                 :,
-                feature_matrix.sum(axis="index") >= snakemake.params.min_recurrence
+                filtered_features,
             ]
 
             # target vector: label values, converted into factors
@@ -226,6 +228,9 @@ def sort_oncoprint_labels(data):
             # sort by label
             sorted_target_vector = target_vector.sort_values()
             sorted_data = sorted_data[sorted_target_vector.index]
+
+            # reduce to filtered features
+            sorted_data = sorted_data.loc[filtered_features]
 
             # add mutual information
             sorted_data.insert(0, "FDR dependency", fdr)
