@@ -98,6 +98,13 @@ report:
   # samples will be created.
   activate: true
   max_read_depth: 250
+  label_dependency:
+    # For each column in the groups.tsv (if present), the pipeline will test
+    # statistical independence of the labels in that column to the presence of each
+    # variant in each reported callset.
+    # The threshold min_recurrence, for this test, additionally filters our
+    # variants that are too rare to be statistically meaninful.
+    min_recurrence: 5
   stratify:
     activate: false
     # select a sample sheet column for stratification
