@@ -298,6 +298,10 @@ params:
   delly: ""
   freebayes:
     min_alternate_fraction: 0.05 # Reduce for calling variants with lower VAFs
+    # Evaluate only the N best alleles at each site (freebayes --use-best-n-alleles).
+    # Unset, freebayes considers all alleles, which can take days on a single high coverage
+    # low complexity region (e.g. a poly-G stretch in targeted data) while the other cores idle.
+    # use_best_n_alleles: 20
     extra: ""
   get_sra:
     extra: ""
