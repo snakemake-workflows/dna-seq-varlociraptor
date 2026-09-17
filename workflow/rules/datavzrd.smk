@@ -58,7 +58,9 @@ rule prepare_oncoprint:
     params:
         groups=get_report_batch("variants"),
         labels=get_heterogeneous_labels(),
-        min_recurrence=lookup("report/label_dependency/min_recurrence", within=config),
+        min_recurrence=lookup(
+            "report/label_dependency/min_recurrence", within=config, default=1
+        ),
     script:
         "../scripts/oncoprint.py"
 
