@@ -33,7 +33,7 @@ rule atomize_variants:
     log:
         "logs/atomize/{group}/{group}.{calling_type}.{scatteritem}.log",
     params:
-        extra="--atomize --check-ref s --rm-dup exact",
+        extra="--atomize --check-ref s --rm-dup exact -m-any",
     wrapper:
         "v9.15.0/bio/bcftools/norm"
 
