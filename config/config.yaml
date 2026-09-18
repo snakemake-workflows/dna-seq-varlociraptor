@@ -124,6 +124,10 @@ maf:
 calling:
   # Set to true to infer classical genotypes from Varlociraptor's VAF predictions
   infer_genotypes: false
+  # Set to true to atomize variants before annotation with VEP. This can help to
+  # annotate population frequencies (gnomad) but will hamper the prediction
+  # of the variant impact (e.g. if two close variants affect the same codon, which
+  # will be missed with atomization activated).
   atomize: false
   delly:
     activate: true
