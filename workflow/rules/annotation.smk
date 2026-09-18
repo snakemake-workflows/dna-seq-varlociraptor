@@ -24,9 +24,27 @@ rule annotate_candidate_variants:
         "v8.0.0/bio/vep/annotate"
 
 
+rule atomize_variants:
+    input:
+        "results/calls/varlociraptor/{group}/{group}.{calling_type}.{scatteritem}.bcf",
+        ref=access.random(genome),
+    output:
+        "results/calls/atomized/{group}/{group}.{calling_type}.{scatteritem}.bcf",  # can also be .bcf, corresponding --output-type parameter is inferred automatically
+    log:
+        "logs/atomize/{group}/{group}.{calling_type}.{scatteritem}.log",
+    params:
+        extra="--atomize --check-ref s --rm-dup exact -m-any",
+    wrapper:
+        "v9.15.0/bio/bcftools/norm"
+
+
 rule annotate_variants:
     input:
-        calls="results/calls/varlociraptor/{group}/{group}.{calling_type}.{scatteritem}.bcf",
+        calls=branch(
+            lookup("calling/atomize", within=config, default=False),
+            then="results/calls/atomized/{group}/{group}.{calling_type}.{scatteritem}.bcf",
+            otherwise="results/calls/varlociraptor/{group}/{group}.{calling_type}.{scatteritem}.bcf",
+        ),
         cache=access.random("resources/vep/cache"),
         plugins=access.random("resources/vep/plugins"),
         revel=lambda wc: get_plugin_aux("REVEL"),

@@ -108,6 +108,7 @@ __definitions__:
       genebe_gene_url = f"https://genebe.net/gene/{params.genebe_genome_build}/{{value}}"
     else:
       genebe_gene_url = None
+  - narrow = True if len(params.groups) > 10 else False
 
 datasets:
   ?if input.variant_oncoprints:
@@ -167,6 +168,7 @@ views:
             Rows with highest dependency are shown first.
             """
         dataset: ?view
+        narrow: ?narrow
         render-table:
           ?if labels:
             headers:
@@ -212,12 +214,14 @@ views:
                 ellipsis: 0
             p-value dependency:
               optional: true
+              display-mode: pinned
               spell:
                 url: v1.6.0/stats/p-value
                 with:
                   significance_threshold: 0.05
             FDR dependency:
               optional: true
+              display-mode: pinned
               spell:
                 url: v1.6.0/stats/p-value
                 with:
@@ -228,6 +232,7 @@ views:
         desc: ?f"Variants found in gene {gene}."
         dataset: ?f"variant-oncoprint-{gene}"
         hidden: true
+        narrow: ?narrow
         render-table:
           ?if params.group_annotations.columns.values.tolist():
             headers:
@@ -271,6 +276,18 @@ views:
               optional: true
               display-mode: pinned
               custom: ?hgvs_content
+            chromosome:
+              display-mode: hidden
+            position:
+              display-mode: hidden
+            reference allele:
+              display-mode: hidden
+            alternative allele:
+              display-mode: hidden
+          add-columns:
+            build:
+              value: ?f"function() {{ return `{params.build}` }}"
+              display-mode: hidden
 
   ?for group in params.groups:
     ?group:

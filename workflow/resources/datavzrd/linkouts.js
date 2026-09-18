@@ -2,10 +2,15 @@ function hgvsc_dropdown(value, row) {
   function varsome_link(row) {
     let ref = row["reference allele"];
     let alt = row["alternative allele"];
-    if ( alt && ref) {
+    let build = null;
+    if ( row.build === "GRCh38" ) {
+      build = "hg38/"
+    } else {
+      build = "hg19/"
+    }
+    if ( alt && ref && build) {
       let chr = row.chromosome;
       let pos = row.position;
-      let build = ( row.build === "GRCh38" ) ? "hg38/" : "hg19/";
       const url = "https://varsome.com/variant/";
       let aa_regex = /^[ACGTacgt]+$/;
       if ( ref.match(aa_regex) && alt.match(aa_regex)) {
@@ -19,10 +24,15 @@ function hgvsc_dropdown(value, row) {
   function genebe_link(row) {
     let ref = row["reference allele"];
     let alt = row["alternative allele"];
-    if ( alt && ref) {
+    let build = null;
+    if ( row.build === "GRCh38" ) {
+      build = "hg38/"
+    } else {
+      build = "hg19/"
+    }
+    if ( alt && ref && build) {
       let chr = row.chromosome;
       let pos = row.position;
-      let build = ( row.build === "GRCh38" ) ? "hg38/" : "hg19/";
       const url = "https://genebe.net/variant/";
       let aa_regex = /^[ACGTacgt]+$/;
       if ( ref.match(aa_regex) && alt.match(aa_regex)) {
@@ -57,8 +67,8 @@ function hgvsc_dropdown(value, row) {
 
   function genomenexus_link(row) {
       let hgvsg = row.hgvsg
-      if ( hgvsg ) {
-        let build = ( row.build === "GRCh38" ) ? "grch38." : "";
+      let build = ( row.build === "GRCh38" ) ? "grch38." : null;
+      if ( hgvsg && build ) {
         const url_suffix = "genomenexus.org/variant/"
         return `https://${build}${url_suffix}${hgvsg}`
       }

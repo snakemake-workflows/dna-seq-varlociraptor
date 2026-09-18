@@ -39,7 +39,7 @@ def load_calls(path, group):
     calls = pd.read_csv(
         path,
         sep="\t",
-        usecols=["symbol", "vartype", "hgvsp", "hgvsc", "hgvsg", "consequence"],
+        usecols=["symbol", "vartype", "hgvsp", "hgvsc", "hgvsg", "consequence", "chromosome", "position", "reference allele", "alternative allele"],
     )
     calls["group"] = group
     calls.loc[:, "consequence"] = calls["consequence"].str.replace("&", ",")
@@ -120,7 +120,7 @@ def gene_oncoprint(calls):
 
 
 def variant_oncoprint(gene_calls):
-    gene_calls = gene_calls[["group", "hgvsp", "hgvsc", "hgvsg", "consequence"]]
+    gene_calls = gene_calls[["group", "hgvsp", "hgvsc", "hgvsg", "consequence", "chromosome", "position", "reference allele", "alternative allele"]]
     gene_calls.loc[:, "exists"] = "+"
 
     gene_calls = gene_calls.drop_duplicates()
@@ -136,7 +136,7 @@ def variant_oncoprint(gene_calls):
         .drop(["id"], axis="columns")
     )
     matrix = grouped.set_index(
-        ["hgvsp", "hgvsc", "hgvsg", "consequence", "group"]
+        ["hgvsp", "hgvsc", "hgvsg", "consequence", "group", "chromosome", "position", "reference allele", "alternative allele"]
     ).unstack(level="group")
 
     matrix = add_missing_groups(matrix, snakemake.params.groups, "exists")
@@ -175,6 +175,17 @@ def sort_oncoprint_labels(data):
             feature_matrix[~pd.isna(feature_matrix)] = True
             feature_matrix[pd.isna(feature_matrix)] = False
             feature_matrix = feature_matrix.astype(bool)
+
+            filtered_features = (
+                feature_matrix.sum(axis="index") >= snakemake.params.min_recurrence
+            ).reset_index(drop=True).values
+
+            # filter to only those columns (we are transposed here)
+            # with min_recurrence "True" values
+            feature_matrix = feature_matrix.loc[
+                :,
+                filtered_features,
+            ]
 
             # target vector: label values, converted into factors
             target_vector = labels_df.loc[label]
@@ -220,6 +231,9 @@ def sort_oncoprint_labels(data):
             sorted_target_vector = target_vector.sort_values()
             sorted_data = sorted_data[sorted_target_vector.index]
 
+            # reduce to filtered features
+            sorted_data = sorted_data.loc[filtered_features]
+
             # add mutual information
             sorted_data.insert(0, "FDR dependency", fdr)
             sorted_data.insert(0, "p-value dependency", pvals)
@@ -236,7 +250,6 @@ calls = pd.concat(
     ]
 )
 
-
 gene_oncoprint = gene_oncoprint(calls)
 
 group_annotation = load_group_annotation()
@@ -246,7 +259,6 @@ gene_oncoprint_main.to_csv(snakemake.output.gene_oncoprint, sep="\t", index=Fals
 os.makedirs(snakemake.output.gene_oncoprint_sortings)
 
 sort_oncoprint_labels(gene_oncoprint)
-
 
 os.makedirs(snakemake.output.variant_oncoprints)
 variant_values = set()
