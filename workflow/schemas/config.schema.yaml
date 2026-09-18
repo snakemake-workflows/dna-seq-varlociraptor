@@ -215,6 +215,10 @@ properties:
             type: boolean
       scenario:
         type: string
+      infer_genotypes:
+        type: boolean
+      atomize:
+        type: boolean
       filter:
         $ref: "#/definitions/filterentry"
         description: "a map of <filtername: string> pairs"

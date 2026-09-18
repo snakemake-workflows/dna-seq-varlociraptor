@@ -124,6 +124,7 @@ maf:
 calling:
   # Set to true to infer classical genotypes from Varlociraptor's VAF predictions
   infer_genotypes: false
+  atomize: false
   delly:
     activate: true
     # Set custom excluded regions for delly calling. If commented out predefined templates will be downloaded
