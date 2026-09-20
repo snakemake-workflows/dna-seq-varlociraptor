@@ -3,11 +3,11 @@ channels:
   - bioconda
   - nodefaults
 dependencies:
-  - biopython =1.87
-  - pysam =0.24
-  - python =3.12
-  - pandas =2.3
-  - altair =6.2
-  - scikit-learn =1.9
-  - statsmodels =0.14
-  - openpyxl =3.1
+  - biopython =1.88
+  - pysam =0.24.1
+  - python =3.14.7
+  - pandas =3.0.6
+  - altair =6.2.2
+  - scikit-learn =1.9.1
+  - statsmodels =0.15.0
+  - openpyxl =3.1.5
