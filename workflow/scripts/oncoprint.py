@@ -237,7 +237,7 @@ def sort_oncoprint_labels(data):
             sorted_data.insert(0, "p-value dependency", pvals)
 
             outdata = sorted_data.iloc[sorted_idx]
-        outpath = os.path.join(snakemake.output.gene_oncoprint_sortings, f"{label}.tsv")
+        outpath = os.path.join(snakemake.output.gene_oncoprint_sortings, f"{label}.parquet")
         store(outdata, outpath, labels_df, label_idx=label_idx)
 
 
