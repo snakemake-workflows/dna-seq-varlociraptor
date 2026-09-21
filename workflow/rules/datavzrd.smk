@@ -1,10 +1,10 @@
 rule process_call_tables:
     input:
-        calls="results/tables/{group}/{group}.{event}.variants.fdr-controlled.tsv",
+        calls="results/tables/{group}/{group}.{event}.variants.fdr-controlled.parquet",
         population_db=get_cleaned_population_db(),
         population_db_idx=get_cleaned_population_db(idx=True),
     output:
-        "results/tables/{group}/{group}.{event}.variants.postprocessed.fdr-controlled.tsv",
+        "results/tables/{group}/{group}.{event}.variants.postprocessed.fdr-controlled.parquet",
     log:
         "logs/process_call_tables/{group}.{event}.log",
     conda:
@@ -19,7 +19,7 @@ rule process_call_tables:
 
 rule process_fusion_call_tables:
     input:
-        varlociraptor="results/tables/{group}/{group}.{event}.fusions.fdr-controlled.tsv",
+        varlociraptor="results/tables/{group}/{group}.{event}.fusions.fdr-controlled.parquet",
         arriba=expand(
             "results/arriba/{sample}.fusions.annotated.tsv",
             sample=lookup(
@@ -29,7 +29,7 @@ rule process_fusion_call_tables:
             ),
         ),
     output:
-        fusions="results/tables/{group}/{group}.{event}.fusions.joined.fdr-controlled.tsv",
+        fusions="results/tables/{group}/{group}.{event}.fusions.joined.fdr-controlled.parquet",
     log:
         "logs/join_partner/{group}.{event}.log",
     conda:
@@ -43,7 +43,7 @@ rule prepare_oncoprint:
         calls=get_oncoprint_input,
         group_annotation=config.get("groups", []),
     output:
-        gene_oncoprint="results/tables/oncoprints/{batch}.{event}/gene-oncoprint.tsv",
+        gene_oncoprint="results/tables/oncoprints/{batch}.{event}/gene-oncoprint.parquet",
         gene_oncoprint_sortings=directory(
             "results/tables/oncoprints/{batch}.{event}/label_sortings/"
         ),

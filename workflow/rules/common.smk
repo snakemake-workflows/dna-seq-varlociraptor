@@ -1616,7 +1616,7 @@ def get_datavzrd_data(calling_type="variants"):
         filetype = "variants.postprocessed"
     else:
         raise ValueError(f"Unsupported calling type: {calling_type}")
-    pattern = "results/tables/{group}/{group}.{event}.{filetype}.fdr-controlled.tsv"
+    pattern = "results/tables/{group}/{group}.{event}.{filetype}.fdr-controlled.parquet"
 
     def inner(wildcards):
         return expand(
@@ -1632,7 +1632,7 @@ def get_datavzrd_data(calling_type="variants"):
 def get_oncoprint_input(wildcards):
     groups = get_report_batch("variants")
     return expand(
-        "results/tables/{group}/{group}.{event}.variants.postprocessed.fdr-controlled.tsv",
+        "results/tables/{group}/{group}.{event}.variants.postprocessed.fdr-controlled.parquet",
         group=groups,
         event=wildcards.event,
     )
