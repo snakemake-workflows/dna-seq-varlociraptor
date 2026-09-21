@@ -340,6 +340,7 @@ views:
                 scale: ordinal
           revel:
             optional: true
+            precision: 2
             plot:
               heatmap:
                 scale: "linear"
@@ -349,6 +350,7 @@ views:
                   - "#ff5555"
           cadd_phred:
             optional: true
+            precision: 2
             plot:
               heatmap:
                 scale: "linear"
@@ -357,6 +359,7 @@ views:
                   - white
                   - "#ff5555"
           "regex('.+: allele frequency$')":
+            precision: 2
             plot:
               ticks:
                 scale: "linear"
@@ -380,6 +383,7 @@ views:
                 aux-domain-columns:
                   - "regex('.+: read depth')"
           "regex('prob: (?!artifact|absent)')":
+            precision: 2
             plot:
               heatmap:
                 scale: linear
@@ -388,6 +392,7 @@ views:
                   - white
                   - "#1f77b4"
           "regex('prob: (artifact|absent)')":
+            precision: 2
             plot:
               heatmap:
                 scale: linear
@@ -396,6 +401,7 @@ views:
                   - white
                   - "#d4322c"
           "max population frequency":
+            precision: 2
             optional: true
             plot:
               heatmap:
@@ -463,6 +469,7 @@ views:
               display-mode: hidden
           spliceai:
             optional: true
+            precision: 2
             plot:
               heatmap:
                 scale: "linear"
@@ -478,6 +485,7 @@ views:
             optional: true
             display-mode: hidden
           alphamissense:
+            precision: 2
             optional: true
             plot:
               heatmap:
