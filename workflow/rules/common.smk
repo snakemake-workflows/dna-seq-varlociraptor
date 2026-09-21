@@ -144,7 +144,7 @@ def is_activated(xpath, default=False):
 def get_freebayes_use_best_n_alleles():
     # Cap the number of alleles freebayes evaluates per site. Unset means freebayes' default
     # (all alleles), which can take days on a single high coverage low complexity region.
-    n = config["params"]["freebayes"].get("use_best_n_alleles")
+    n = lookup(dpath="params/freebayes/use_best_n_alleles", within=config, default=None)
     if n is None:
         return ""
     return f"--use-best-n-alleles {n}"
