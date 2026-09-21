@@ -36,10 +36,10 @@ if config["mutational_burden"]["activate"]:
         shell:
             # TODO, remove vembrane once the mutational-burden code
             # has been fixed to ignore *-alleles
-            "(vembrane filter 'ALT != \"*\"' | "
+            "(vembrane filter --output-fmt uncompressed-bcf 'ALT != \"*\"' < {input.calls} | "
             " varlociraptor estimate mutational-burden "
             " --mode {wildcards.mode} "
             " --coding-genome-size $( cat {input.coverage_breadth} ) "
             " --events {params.events} "
             " --sample {wildcards.alias} "
-            " < {input.calls} | vl2svg > {output}) 2> {log}"
+            " | vl2svg > {output}) 2> {log}"
