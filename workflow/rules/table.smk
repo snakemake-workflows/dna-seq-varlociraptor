@@ -5,7 +5,7 @@ rule vembrane_table:
     output:
         bcf="results/tables/{group}/{group}.{event}.{calling_type}.fdr-controlled.{fmt,tsv|parquet}",
     log:
-        "logs/vembrane-table/{group}.{event}.{calling_type}.log",
+        "logs/vembrane-table/{group}.{event}.{calling_type}.{fmt}.log",
     conda:
         "../envs/vembrane.yaml"
     params:
