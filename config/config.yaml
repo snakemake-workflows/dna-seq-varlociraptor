@@ -206,6 +206,11 @@ calling:
           # Multiple filters can be defined as list and will be concatenated by 'and'
           - impact_filter
           - gene_list_filter
+        sort:
+          # sort by the specified criteria in descending order
+          - "binned max vaf"
+          - impact
+          - revel
 
 # If calc_consensus_reads is activated duplicates will be merged
 remove_duplicates:

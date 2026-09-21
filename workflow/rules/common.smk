@@ -1403,8 +1403,8 @@ def get_vembrane_config(wildcards, input):
             "CLIN_SIG": {
                 "name": "clinical significance",
             },
-            "gnomADg_AF": {
-                "name": "gnomad genome af",
+            "MAX_AF": {
+                "name": "max population frequency",
             },
             "EXON": {
                 "name": "exon",
