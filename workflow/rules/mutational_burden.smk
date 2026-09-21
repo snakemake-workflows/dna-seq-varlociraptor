@@ -34,12 +34,9 @@ if config["mutational_burden"]["activate"]:
         params:
             events=" ".join(config["mutational_burden"]["events"]),
         shell:
-            # TODO, remove vembrane once the mutational-burden code
-            # has been fixed to ignore *-alleles
-            "(vembrane filter --output-fmt uncompressed-bcf 'ALT != \"*\"' < {input.calls} | "
-            " varlociraptor estimate mutational-burden "
-            " --mode {wildcards.mode} "
-            " --coding-genome-size $( cat {input.coverage_breadth} ) "
-            " --events {params.events} "
-            " --sample {wildcards.alias} "
-            " | vl2svg > {output}) 2> {log}"
+            "(varlociraptor estimate mutational-burden "
+            "--mode {wildcards.mode} "
+            "--coding-genome-size $( cat {input.coverage_breadth} ) "
+            "--events {params.events} "
+            "--sample {wildcards.alias} "
+            "< {input.calls} | vl2svg > {output}) 2> {log}"

@@ -6,4 +6,3 @@ dependencies:
   - varlociraptor =8.9.5
   - vega-lite-cli =5.16
   - bcftools =1.21
-  - vembrane =2.6.0
