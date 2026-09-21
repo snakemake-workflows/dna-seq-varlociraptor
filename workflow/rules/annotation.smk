@@ -29,13 +29,26 @@ rule atomize_variants:
         "results/calls/varlociraptor/{group}/{group}.{calling_type}.{scatteritem}.bcf",
         ref=access.random(genome),
     output:
-        "results/calls/atomized/{group}/{group}.{calling_type}.{scatteritem}.bcf",  # can also be .bcf, corresponding --output-type parameter is inferred automatically
+        pipe("results/calls/atomized/{group}/{group}.{calling_type}.{scatteritem}.unsorted.bcf"),  # can also be .bcf, corresponding --output-type parameter is inferred automatically
     log:
         "logs/atomize/{group}/{group}.{calling_type}.{scatteritem}.log",
     params:
         extra="--atomize --check-ref s --rm-dup exact -m-any --atom-overlaps .",
     wrapper:
         "v9.15.0/bio/bcftools/norm"
+
+
+rule sort_atomized_variants:
+    input:
+        "results/calls/atomized/{group}/{group}.{calling_type}.{scatteritem}.unsorted.bcf",
+    output:
+        "results/calls/atomized/{group}/{group}.{calling_type}.{scatteritem}.bcf",
+    log:
+        "logs/bcftools/sort-atomized/{group}/{group}.{calling_type}.{scatteritem}.log",
+    resources:
+        mem_mb=8000,
+    wrapper:
+        "v9.15.0/bio/bcftools/sort"
 
 
 rule annotate_variants:
