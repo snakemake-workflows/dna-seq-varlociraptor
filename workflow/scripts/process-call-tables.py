@@ -230,7 +230,7 @@ calls["clinical significance"] = (
     .apply(sorted)
     .apply(",".join)
 )
-calls["consequence"] = calls["consequence"].apply(lambda value: value.replace("_", " "))
+calls["consequence"] = calls["consequence"].apply(sorted).apply(",".join).apply(lambda value: value.replace("_", " "))
 
 calls["protein alteration (short)"] = (
     calls["protein alteration (short)"].apply("/".join)
