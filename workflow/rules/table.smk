@@ -3,7 +3,7 @@ rule vembrane_table:
         bcf="results/final-calls/{group}/{group}.{event}.{calling_type}.fdr-controlled.normal-probs.bcf",
         scenario="results/scenarios/{group}.yaml",
     output:
-        bcf="results/tables/{group}/{group}.{event}.{calling_type}.fdr-controlled.{fmt,tsv|parquet}",
+        "results/tables/{group}/{group}.{event}.{calling_type}.fdr-controlled.{fmt,tsv|parquet}",
     log:
         "logs/vembrane-table/{group}.{event}.{calling_type}.{fmt}.log",
     conda:
@@ -14,7 +14,7 @@ rule vembrane_table:
     shell:
         "vembrane table --wide --output-fmt {params.fmt} "
         '--header "{params.config[header]}" "{params.config[expr]}" '
-        "{input.bcf} > {output.bcf} 2> {log}"
+        "{input.bcf} --output {output} 2> {log}"
 
 
 rule tsv_to_excel:
