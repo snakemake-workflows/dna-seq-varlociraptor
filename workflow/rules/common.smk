@@ -1641,10 +1641,10 @@ def get_oncoprint_input(wildcards):
 def get_variant_oncoprint_tables(wildcards, input):
     if input.variant_oncoprints:
         oncoprint_dir = input.variant_oncoprints
-        valid = re.compile(r"^[^/]+\.tsv$")
+        valid = re.compile(r"^[^/]+\.parquet$")
         tables = [f for f in os.listdir(oncoprint_dir) if valid.match(f)]
-        assert all(table.endswith(".tsv") for table in tables)
-        genes = [gene_table[:-4] for gene_table in tables]
+        assert all(table.endswith(".parquet") for table in tables)
+        genes = [gene_table[:-8] for gene_table in tables]
         return list(
             zip(genes, expand(f"{oncoprint_dir}/{{oncoprint}}", oncoprint=tables))
         )
