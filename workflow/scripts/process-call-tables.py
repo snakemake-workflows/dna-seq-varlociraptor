@@ -23,16 +23,6 @@ def write(df, path):
     df.to_parquet(path, index=False)
 
 
-def format_floats(df):
-    for col_name in df:
-        if issubclass(df[col_name].dtype.type, np.floating):
-            df[col_name] = [
-                "{:.2e}".format(x) if x < 0.1 and x > 0 else round(x, 2)
-                for x in df[col_name]
-            ]
-    return df
-
-
 def drop_cols_by_predicate(df, columns, predicate):
     predicate_true_cols = [
         col for col in columns if predicate(df[col].astype(float)).all()
@@ -121,7 +111,6 @@ def cleanup_dataframe(df):
     df = drop_low_prob_cols(df)
     df = reorder_prob_cols(df)
     df = reorder_vaf_cols(df)
-    df = format_floats(df)
     return df
 
 
