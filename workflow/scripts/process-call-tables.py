@@ -225,17 +225,15 @@ def select_spliceai_effect(calls):
 
 
 calls = pd.read_parquet(snakemake.input[0])
-breakpoint()
 calls["clinical significance"] = (
     calls["clinical significance"]
     .apply(sorted)
     .apply(",".join)
-    .replace("", np.nan)
 )
 calls["consequence"] = calls["consequence"].apply(lambda value: value.replace("_", " "))
 
 calls["protein alteration (short)"] = (
-    calls["protein alteration (short)"].apply("/".join).replace("", np.nan)
+    calls["protein alteration (short)"].apply("/".join)
 )
 
 samples = get_samples(calls)
