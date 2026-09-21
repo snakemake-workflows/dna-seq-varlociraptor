@@ -225,6 +225,7 @@ def select_spliceai_effect(calls):
 
 
 calls = pd.read_parquet(snakemake.input[0])
+breakpoint()
 calls["clinical significance"] = (
     calls["clinical significance"]
     .apply(sorted)
