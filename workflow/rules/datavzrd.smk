@@ -100,6 +100,9 @@ rule datavzrd_variants_calls:
         event_desc=lookup(
             dpath="calling/fdr-control/events/{event}/desc", within=config
         ),
+    # TODO remove conda env overwrite once Datavzrd 2.73.3 is available via snakemake-wrappers
+    conda:
+        "../envs/datavzrd_2.73.3.yaml"
     wrapper:
         "v9.17.1/utils/datavzrd"
 
