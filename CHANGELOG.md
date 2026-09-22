@@ -1,5 +1,17 @@
 # Changelog
 
+## [6.11.0](https://github.com/snakemake-workflows/dna-seq-varlociraptor/compare/v6.10.1...v6.11.0) (2026-09-22)
+
+
+### Features
+
+* expose freebayes --use-best-n-alleles via params/freebayes ([#471](https://github.com/snakemake-workflows/dna-seq-varlociraptor/issues/471)) ([87753ef](https://github.com/snakemake-workflows/dna-seq-varlociraptor/commit/87753efba1e48e1cc5949ed0e7305b91182425b0))
+
+
+### Bug Fixes
+
+* declare the freebayes config keys the workflow actually reads ([#470](https://github.com/snakemake-workflows/dna-seq-varlociraptor/issues/470)) ([ce165d5](https://github.com/snakemake-workflows/dna-seq-varlociraptor/commit/ce165d57dc3bd3f99b6766e2d61caa9af77ed4bd))
+
 ## [6.10.1](https://github.com/snakemake-workflows/dna-seq-varlociraptor/compare/v6.10.0...v6.10.1) (2026-09-07)
 
 
