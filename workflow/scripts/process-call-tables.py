@@ -221,6 +221,11 @@ calls["clinical significance"] = (
 )
 calls["consequence"] = calls["consequence"].apply(sorted).apply(",".join).apply(lambda value: value.replace("_", " "))
 
+# format AFD columns
+for col in calls.columns:
+    if col.endswith(": allele frequency distribution"):
+        calls[col] = calls[col].apply(",".join)
+
 calls["protein alteration (short)"] = (
     calls["protein alteration (short)"].apply("/".join)
 )
