@@ -6,3 +6,4 @@ dependencies:
   - python=3.14
   - yte
   - gcc
+  - binutils
