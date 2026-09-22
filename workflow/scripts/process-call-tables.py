@@ -264,6 +264,5 @@ canonical_mane = canonical | mane_plus_clinical
 
 final_calls = calls[canonical_mane]
 final_calls = cleanup_dataframe(final_calls)
-breakpoint()
 write(final_calls, snakemake.output[0])
 # TODO add possibility to also see non-canoncical or non-mane+clinical transcripts (low priority, once everything else works).
