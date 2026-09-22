@@ -1,3 +1,3 @@
 #!/bin/sh
 
-cargo install datavzrd
+cargo install datavzrd --root $CONDA_PREFIX
