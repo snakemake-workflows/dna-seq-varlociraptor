@@ -337,8 +337,10 @@ properties:
       freebayes:
         type: object
         properties:
-          min_allele_frequency:
+          min_alternate_fraction:
             type: number
+          extra:
+            type: string
           use_best_n_alleles:
             type: integer
             minimum: 1
