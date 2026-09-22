@@ -1224,7 +1224,7 @@ def get_annotation_fields_for_tables(wildcards):
         "Consequence",
         "Feature",
         "Gene",
-        "gnomADg_AF",
+        "MAX_AF",
         "HGVSc",
         "HGVSg",
         "HGVSp",
@@ -1451,7 +1451,7 @@ def get_vembrane_config(wildcards, input):
         # variants only
         "ANN['Consequence']",
         "ANN['CLIN_SIG']",
-        "ANN['gnomADg_AF']",
+        "ANN['MAX_AF']",
         "ANN['EXON'].raw",
         "ANN['REVEL']",
         "ANN['CADD_PHRED']",
