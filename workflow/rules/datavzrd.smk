@@ -102,7 +102,7 @@ rule datavzrd_variants_calls:
         ),
     # TODO remove conda env overwrite once Datavzrd 2.73.3 is available via snakemake-wrappers
     conda:
-        "../envs/datavzrd_2.73.3.yaml"
+        "../envs/datavzrd_dbg.yaml"
     wrapper:
         "v9.17.1/utils/datavzrd"
 
