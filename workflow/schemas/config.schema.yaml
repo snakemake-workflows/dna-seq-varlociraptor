@@ -339,6 +339,9 @@ properties:
         properties:
           min_allele_frequency:
             type: number
+          use_best_n_alleles:
+            type: integer
+            minimum: 1
     required:
       - gatk
       - picard
