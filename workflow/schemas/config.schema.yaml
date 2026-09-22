@@ -341,6 +341,9 @@ properties:
             type: number
           extra:
             type: string
+          use_best_n_alleles:
+            type: integer
+            minimum: 1
     required:
       - gatk
       - picard
