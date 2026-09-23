@@ -14,8 +14,8 @@ rule fastqc:
 
 rule samtools_idxstats:
     input:
-        bam="results/recal/{sample}.bam",
-        idx="results/recal/{sample}.bai",
+        bam=get_sample_bam,
+        idx=subpath(get_sample_bam, strip_suffix=".bam", with_suffix=".bai"),
     output:
         "results/qc/{sample}.bam.idxstats",
     log:
@@ -26,7 +26,7 @@ rule samtools_idxstats:
 
 rule samtools_stats:
     input:
-        bam="results/recal/{sample}.bam",
+        bam=get_sample_bam,
     output:
         "results/qc/{sample}.bam.stats",
     log:

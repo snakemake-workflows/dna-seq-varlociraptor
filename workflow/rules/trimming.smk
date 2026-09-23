@@ -26,7 +26,7 @@ rule fastp_pipe:
 
 rule fastp_se:
     input:
-        sample=lambda wc: get_fastp_input(wc),
+        sample=get_fastp_input,
     output:
         trimmed=temp("results/trimmed/{sample}/{unit}.single.fastq.gz"),
         html="results/trimmed/{sample}/{unit}.single.qc.html",
@@ -43,7 +43,7 @@ rule fastp_se:
 
 rule fastp_pe:
     input:
-        sample=lambda wc: get_fastp_input(wc),
+        sample=get_fastp_input,
     output:
         trimmed=[
             temp("results/trimmed/{sample}/{unit}_R1.fastq.gz"),
