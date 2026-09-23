@@ -1233,7 +1233,7 @@ def get_annotation_fields_for_tables(wildcards):
         "Consequence",
         "Feature",
         "Gene",
-        "gnomADg_AF",
+        "MAX_AF",
         "HGVSc",
         "HGVSg",
         "HGVSp",
@@ -1412,8 +1412,8 @@ def get_vembrane_config(wildcards, input):
             "CLIN_SIG": {
                 "name": "clinical significance",
             },
-            "gnomADg_AF": {
-                "name": "gnomad genome af",
+            "MAX_AF": {
+                "name": "max population frequency",
             },
             "EXON": {
                 "name": "exon",
@@ -1460,7 +1460,7 @@ def get_vembrane_config(wildcards, input):
         # variants only
         "ANN['Consequence']",
         "ANN['CLIN_SIG']",
-        "ANN['gnomADg_AF']",
+        "ANN['MAX_AF']",
         "ANN['EXON'].raw",
         "ANN['REVEL']",
         "ANN['CADD_PHRED']",
@@ -1625,7 +1625,7 @@ def get_datavzrd_data(calling_type="variants"):
         filetype = "variants.postprocessed"
     else:
         raise ValueError(f"Unsupported calling type: {calling_type}")
-    pattern = "results/tables/{group}/{group}.{event}.{filetype}.fdr-controlled.tsv"
+    pattern = "results/tables/{group}/{group}.{event}.{filetype}.fdr-controlled.parquet"
 
     def inner(wildcards):
         return expand(
@@ -1641,7 +1641,7 @@ def get_datavzrd_data(calling_type="variants"):
 def get_oncoprint_input(wildcards):
     groups = get_report_batch("variants")
     return expand(
-        "results/tables/{group}/{group}.{event}.variants.postprocessed.fdr-controlled.tsv",
+        "results/tables/{group}/{group}.{event}.variants.postprocessed.fdr-controlled.parquet",
         group=groups,
         event=wildcards.event,
     )
@@ -1650,10 +1650,10 @@ def get_oncoprint_input(wildcards):
 def get_variant_oncoprint_tables(wildcards, input):
     if input.variant_oncoprints:
         oncoprint_dir = input.variant_oncoprints
-        valid = re.compile(r"^[^/]+\.tsv$")
+        valid = re.compile(r"^[^/]+\.parquet$")
         tables = [f for f in os.listdir(oncoprint_dir) if valid.match(f)]
-        assert all(table.endswith(".tsv") for table in tables)
-        genes = [gene_table[:-4] for gene_table in tables]
+        assert all(table.endswith(".parquet") for table in tables)
+        genes = [gene_table[:-8] for gene_table in tables]
         return list(
             zip(genes, expand(f"{oncoprint_dir}/{{oncoprint}}", oncoprint=tables))
         )
