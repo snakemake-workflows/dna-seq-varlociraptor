@@ -1717,7 +1717,7 @@ def get_oncoprint(oncoprint_type):
                 f"results/tables/oncoprints/{wildcards.batch}.{wildcards.event}"
             )
             if oncoprint_type == "gene":
-                return f"{oncoprint_path}/gene-oncoprint.tsv"
+                return f"{oncoprint_path}/gene-oncoprint.parquet"
             elif oncoprint_type == "variant":
                 return f"{oncoprint_path}/variant-oncoprints"
             elif oncoprint_type == "color_domains":
