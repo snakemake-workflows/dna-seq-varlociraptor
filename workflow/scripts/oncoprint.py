@@ -157,9 +157,9 @@ def store(data, output, labels_df, label_idx=None):
     cols = data.columns.tolist()
     data = pd.concat([_labels_df, data.reset_index()])
     # restore column order
-    data = data[index_cols + cols].set_index(index_cols)
+    data = data[index_cols + cols]
 
-    data.to_parquet(output)
+    data.to_parquet(output, index=False)
 
 
 def sort_oncoprint_labels(data):
