@@ -84,11 +84,15 @@ def add_missing_groups(matrix, groups, index_mate):
 
 def attach_group_annotation(matrix, group_annotation):
     index_cols = matrix.index.names
-    return (
+    column_order = matrix.columns.tolist()
+    matrix = (
         pd.concat([group_annotation.reset_index(drop=True), matrix.reset_index()])
         .set_index(index_cols)
         .reset_index()
     )
+    breakpoint()
+    matrix = matrix[column_order]
+    return matrix
 
 
 def gene_oncoprint(calls):
