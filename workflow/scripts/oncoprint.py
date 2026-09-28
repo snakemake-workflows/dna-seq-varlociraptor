@@ -68,6 +68,9 @@ def sort_by_recurrence(matrix, no_occurence_check_func):
     matrix = matrix.sort_values("nocalls", ascending=True).drop(
         labels=["nocalls"], axis="columns"
     )
+    # sort columns in oncoprint style, i.e. grouping the first row values together
+    # and within that the second row values, etc.
+    breakpoint()
     return matrix
 
 
