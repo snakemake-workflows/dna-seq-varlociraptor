@@ -71,7 +71,6 @@ def sort_by_recurrence(matrix, no_occurence_check_func):
     # sort columns in oncoprint style, i.e. grouping the first row values together
     # and within that the second row values, etc.
     matrix.sort_values(matrix.index.tolist(), na_position="last", axis="columns", inplace=True)
-    breakpoint()
     return matrix
 
 
@@ -90,7 +89,7 @@ def attach_group_annotation(matrix, group_annotation):
         .set_index(index_cols)
         .reset_index()
     )
-    breakpoint()
+    # concat changes the column order, restore it
     matrix = matrix[column_order]
     return matrix
 
