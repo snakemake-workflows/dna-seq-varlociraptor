@@ -169,6 +169,7 @@ def sort_oncoprint_labels(data):
     for label_idx, label in enumerate(labels):
         outdata = data
         if not data.empty:
+            breakpoint()
             feature_matrix = data.reset_index(drop=True).T.copy()
             feature_matrix[~pd.isna(feature_matrix)] = True
             feature_matrix[pd.isna(feature_matrix)] = False
