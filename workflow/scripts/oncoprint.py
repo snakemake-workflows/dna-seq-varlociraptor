@@ -70,7 +70,7 @@ def sort_by_recurrence(matrix, no_occurence_check_func):
     )
     # sort columns in oncoprint style, i.e. grouping the first row values together
     # and within that the second row values, etc.
-    breakpoint()
+    matrix.sort_values(matrix.index.tolist(), na_position="last", axis="columns", inplace=True)
     return matrix
 
 
