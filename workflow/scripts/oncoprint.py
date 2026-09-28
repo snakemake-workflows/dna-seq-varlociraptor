@@ -154,11 +154,10 @@ def store(data, output, labels_df, label_idx=None):
 
     # add labels
     index_cols = data.index.names
-    cols = data.columns
-    breakpoint()
-    data = pd.concat([_labels_df, data.reset_index()]).set_index(index_cols)
+    cols = data.columns.tolist()
+    data = pd.concat([_labels_df, data.reset_index()])
     # restore column order
-    data = data[cols]
+    data = data[index_cols + cols].set_index(index_cols)
 
     data.to_parquet(output)
 
