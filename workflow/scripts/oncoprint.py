@@ -90,7 +90,7 @@ def attach_group_annotation(matrix, group_annotation):
         .reset_index()
     )
     # concat changes the column order, restore it
-    matrix = matrix[column_order]
+    matrix = matrix[index_cols + column_order]
     return matrix
 
 
