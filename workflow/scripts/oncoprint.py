@@ -155,6 +155,7 @@ def store(data, output, labels_df, label_idx=None):
     # add labels
     index_cols = data.index.names
     cols = data.columns
+    breakpoint()
     data = pd.concat([_labels_df, data.reset_index()]).set_index(index_cols)
     # restore column order
     data = data[cols]
