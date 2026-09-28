@@ -169,7 +169,6 @@ def sort_oncoprint_labels(data):
     for label_idx, label in enumerate(labels):
         outdata = data
         if not data.empty:
-            breakpoint()
             feature_matrix = data.reset_index(drop=True).T.copy()
             feature_matrix[~pd.isna(feature_matrix)] = True
             feature_matrix[pd.isna(feature_matrix)] = False
@@ -234,10 +233,11 @@ def sort_oncoprint_labels(data):
             sorted_data = sorted_data.loc[filtered_features]
 
             # add mutual information
-            sorted_data.insert(2, "FDR dependency", fdr)
-            sorted_data.insert(2, "p-value dependency", pvals)
+            sorted_data.insert(0, "FDR dependency", fdr)
+            sorted_data.insert(0, "p-value dependency", pvals)
 
             outdata = sorted_data.iloc[sorted_idx]
+            outdata = outdata.reset_index().set_index(["symbol", "consequence", "p-value dependency", "FDR dependency"])
         outpath = os.path.join(snakemake.output.gene_oncoprint_sortings, f"{label}.parquet")
         store(outdata, outpath, labels_df, label_idx=label_idx)
 
