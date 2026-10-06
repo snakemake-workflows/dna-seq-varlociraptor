@@ -48,7 +48,8 @@ coords = pl.DataFrame(
         "sample_name": layout.keys(),
         "x": [pos[0] for pos in layout.values()],
         "y": [pos[1] for pos in layout.values()],
-    }
+    },
+    schema={"sample_name": str} # needed in case the layout is empty
 )
 
 # add coords to sample sheet and only keep samples that are of interest
