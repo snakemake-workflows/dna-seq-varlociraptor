@@ -14,9 +14,10 @@ rule freebayes:
     params:
         # genotyping is performed by varlociraptor, hence we deactivate it in freebayes by
         # always setting --pooled-continuous
-        extra="--pooled-continuous --min-alternate-count {} --min-alternate-fraction {} {}".format(
+        extra="--pooled-continuous --min-alternate-count {} --min-alternate-fraction {} {} {}".format(
             1 if is_activated("calc_consensus_reads") else 2,
             config["params"]["freebayes"].get("min_alternate_fraction", "0.05"),
+            get_freebayes_use_best_n_alleles(),
             config["params"]["freebayes"].get("extra", ""),
         ),
     wrapper:

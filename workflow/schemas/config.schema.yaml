@@ -117,6 +117,11 @@ properties:
     properties:
       activate:
         type: boolean
+      label_dependency:
+        type: object
+        properties:
+          min_recurrence:
+            type: integer
       stratify:
         type: object
         properties:
@@ -210,6 +215,10 @@ properties:
             type: boolean
       scenario:
         type: string
+      infer_genotypes:
+        type: boolean
+      atomize:
+        type: boolean
       filter:
         $ref: "#/definitions/filterentry"
         description: "a map of <filtername: string> pairs"
@@ -337,8 +346,13 @@ properties:
       freebayes:
         type: object
         properties:
-          min_allele_frequency:
+          min_alternate_fraction:
             type: number
+          extra:
+            type: string
+          use_best_n_alleles:
+            type: integer
+            minimum: 1
     required:
       - gatk
       - picard
