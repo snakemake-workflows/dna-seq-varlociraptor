@@ -53,7 +53,7 @@ coords = pl.DataFrame(
         "sample_name": str,
         "x": float,
         "y": float,
-    } # needed in case the layout is empty
+    }, # needed in case the layout is empty
 )
 
 # add coords to sample sheet and only keep samples that are of interest
