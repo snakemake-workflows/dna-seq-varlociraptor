@@ -9,7 +9,7 @@ def write(df, path):
     if not df.empty:
         remaining_columns = df.dropna(how="all", axis="columns").columns.tolist()
         df = df[remaining_columns]
-    df.to_csv(path, index=False, sep="\t")
+    df.to_parquet(path, index=False)
 
 
 def get_prefix_columns(df, prefix):
@@ -56,15 +56,7 @@ def join_short_obs(df, samples):
     return df
 
 
-calls = pd.read_csv(
-    snakemake.input["varlociraptor"],
-    sep="\t",
-    dtype={
-        "exon": "Int64",
-        "chromosome": str,
-        "position": str,
-    },
-)
+calls = pd.read_parquet(snakemake.input["varlociraptor"])
 calls[["feature_name", "feature_id"]] = calls[["feature_id", "feature_name"]].fillna(
     "('not_in_exon',)"
 )

@@ -1,10 +1,10 @@
 rule process_call_tables:
     input:
-        calls="results/tables/{group}/{group}.{event}.variants.fdr-controlled.tsv",
+        calls="results/tables/{group}/{group}.{event}.variants.fdr-controlled.parquet",
         population_db=get_cleaned_population_db(),
         population_db_idx=get_cleaned_population_db(idx=True),
     output:
-        "results/tables/{group}/{group}.{event}.variants.postprocessed.fdr-controlled.tsv",
+        "results/tables/{group}/{group}.{event}.variants.postprocessed.fdr-controlled.parquet",
     log:
         "logs/process_call_tables/{group}.{event}.log",
     conda:
@@ -19,7 +19,7 @@ rule process_call_tables:
 
 rule process_fusion_call_tables:
     input:
-        varlociraptor="results/tables/{group}/{group}.{event}.fusions.fdr-controlled.tsv",
+        varlociraptor="results/tables/{group}/{group}.{event}.fusions.fdr-controlled.parquet",
         arriba=expand(
             "results/arriba/{sample}.fusions.annotated.tsv",
             sample=lookup(
@@ -29,7 +29,7 @@ rule process_fusion_call_tables:
             ),
         ),
     output:
-        fusions="results/tables/{group}/{group}.{event}.fusions.joined.fdr-controlled.tsv",
+        fusions="results/tables/{group}/{group}.{event}.fusions.joined.fdr-controlled.parquet",
     log:
         "logs/join_partner/{group}.{event}.log",
     conda:
@@ -43,7 +43,7 @@ rule prepare_oncoprint:
         calls=get_oncoprint_input,
         group_annotation=config.get("groups", []),
     output:
-        gene_oncoprint="results/tables/oncoprints/{batch}.{event}/gene-oncoprint.tsv",
+        gene_oncoprint="results/tables/oncoprints/{batch}.{event}/gene-oncoprint.parquet",
         gene_oncoprint_sortings=directory(
             "results/tables/oncoprints/{batch}.{event}/label_sortings/"
         ),
@@ -58,6 +58,9 @@ rule prepare_oncoprint:
     params:
         groups=get_report_batch("variants"),
         labels=get_heterogeneous_labels(),
+        min_recurrence=lookup(
+            "report/label_dependency/min_recurrence", within=config, default=1
+        ),
     script:
         "../scripts/oncoprint.py"
 
@@ -98,7 +101,7 @@ rule datavzrd_variants_calls:
             dpath="calling/fdr-control/events/{event}/desc", within=config
         ),
     wrapper:
-        "v9.17.1/utils/datavzrd"
+        "v9.18.1/utils/datavzrd"
 
 
 rule datavzrd_fusion_calls:
@@ -125,7 +128,7 @@ rule datavzrd_fusion_calls:
         species=lookup(within=config, dpath="ref/species"),
         samples=samples,
     wrapper:
-        "v9.17.1/utils/datavzrd"
+        "v9.18.1/utils/datavzrd"
 
 
 rule bedtools_merge:
@@ -179,4 +182,4 @@ rule datavzrd_coverage:
     params:
         samples=lambda wc: get_group_samples(wc.group),
     wrapper:
-        "v9.17.1/utils/datavzrd"
+        "v9.18.1/utils/datavzrd"

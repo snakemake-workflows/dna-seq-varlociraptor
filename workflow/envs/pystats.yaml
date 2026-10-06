@@ -11,3 +11,4 @@ dependencies:
   - scikit-learn =1.9
   - statsmodels =0.14
   - openpyxl =3.1
+  - pyarrow =25.0.0
