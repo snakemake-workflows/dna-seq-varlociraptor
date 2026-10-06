@@ -31,7 +31,7 @@ rule atomize_variants:
     output:
         pipe(
             "results/calls/atomized/{group}/{group}.{calling_type}.{scatteritem}.unsorted.bcf"
-        ),  # can also be .bcf, corresponding --output-type parameter is inferred automatically
+        ),
     log:
         "logs/atomize/{group}/{group}.{calling_type}.{scatteritem}.log",
     params:

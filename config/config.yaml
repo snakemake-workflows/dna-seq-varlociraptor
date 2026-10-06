@@ -128,6 +128,8 @@ calling:
   # annotate population frequencies (gnomad) but will hamper the prediction
   # of the variant impact (e.g. if two close variants affect the same codon, which
   # will be missed with atomization activated).
+  # It is furthermore important for a fair benchmarking of this pipeline
+  # (see https://github.com/varlociraptor/varlociraptor/pull/568#issuecomment-6012918387)
   atomize: false
   delly:
     activate: true

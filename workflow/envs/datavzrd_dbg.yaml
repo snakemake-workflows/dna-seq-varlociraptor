@@ -1,9 +1,0 @@
-channels:
-  - conda-forge
-dependencies:
-  - rust
-  - pnpm
-  - python=3.14
-  - yte
-  - gcc
-  - binutils
