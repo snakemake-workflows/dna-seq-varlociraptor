@@ -29,7 +29,9 @@ rule atomize_variants:
         "results/calls/varlociraptor/{group}/{group}.{calling_type}.{scatteritem}.bcf",
         ref=access.random(genome),
     output:
-        pipe("results/calls/atomized/{group}/{group}.{calling_type}.{scatteritem}.unsorted.bcf"),  # can also be .bcf, corresponding --output-type parameter is inferred automatically
+        pipe(
+            "results/calls/atomized/{group}/{group}.{calling_type}.{scatteritem}.unsorted.bcf"
+        ),  # can also be .bcf, corresponding --output-type parameter is inferred automatically
     log:
         "logs/atomize/{group}/{group}.{calling_type}.{scatteritem}.log",
     params:

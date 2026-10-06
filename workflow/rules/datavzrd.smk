@@ -89,6 +89,9 @@ rule datavzrd_variants_calls:
         ),
     log:
         "logs/datavzrd_report/{batch}.{event}.log",
+    # TODO remove conda env overwrite once Datavzrd 2.73.3 is available via snakemake-wrappers
+    conda:
+        "../envs/datavzrd_dbg.yaml"
     params:
         variant_oncoprints=get_variant_oncoprint_tables,
         groups=get_report_batch("variants"),
@@ -100,9 +103,6 @@ rule datavzrd_variants_calls:
         event_desc=lookup(
             dpath="calling/fdr-control/events/{event}/desc", within=config
         ),
-    # TODO remove conda env overwrite once Datavzrd 2.73.3 is available via snakemake-wrappers
-    conda:
-        "../envs/datavzrd_dbg.yaml"
     wrapper:
         "v9.17.1/utils/datavzrd"
 
