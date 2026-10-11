@@ -3,4 +3,4 @@ channels:
   - bioconda
   - nodefaults
 dependencies:
-  - jannovar-cli =0.33
+  - jannovar-cli =0.36
