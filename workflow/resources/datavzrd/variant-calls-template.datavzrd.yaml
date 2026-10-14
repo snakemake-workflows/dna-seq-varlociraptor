@@ -263,6 +263,8 @@ views:
                     color-scheme: paired
                     domain: ?json.load(open(input.color_domains))["variant"]
                 ellipsis: 0
+            gene:
+              display-mode: hidden
             hgvsg:
               display-mode: hidden
             hgvsc:
