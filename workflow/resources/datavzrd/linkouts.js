@@ -85,6 +85,24 @@ function hgvsc_dropdown(value, row) {
       return ``
     }
 
+  function protvar_link(row) {
+      // ProtVar only accepts RefSeq accessions in HGVS c. notation and only
+      // single-nucleotide variants, hence the genomic link.
+      let ref = row["reference allele"];
+      let alt = row["alternative allele"];
+      let consequence = String(row.consequence || "");
+      let position = parseInt(row.position, 10);
+      let nucleotide_regex = /^[ACGT]$/;
+      if ( ( row.build === "GRCh38" || row.build === "GRCh37" ) &&
+           ref && alt && ref.match(nucleotide_regex) && alt.match(nucleotide_regex) &&
+           row.chromosome && Number.isInteger(position) &&
+           consequence.includes("missense variant") ) {
+        const url_prefix = "https://www.ebi.ac.uk/ProtVar/g/"
+        return `${url_prefix}${row.chromosome}/${position}/${ref}/${alt}?assembly=${row.build.toLowerCase()}`
+      }
+      return ``
+    }
+
   let hgvs_regex = /^(.+?):(.+)$/;
   // discard protein id
   let hgvsc = ( value ) ? value.match(hgvs_regex)[2].replace('%3D', '=') : "-";
@@ -117,6 +135,11 @@ function hgvsc_dropdown(value, row) {
   let alphamissense_url = alphamissense_link(row);
   if (alphamissense_url != "") {
       links = `${links}<a class="dropdown-item" href='${alphamissense_url}' target='_blank' rel='noopener noreferrer' >AlphaMissense</a>`
+  }
+
+  let protvar_url = protvar_link(row);
+  if (protvar_url != "") {
+      links = `${links}<a class="dropdown-item" href='${protvar_url}' target='_blank' rel='noopener noreferrer' >ProtVar</a>`
   }
   if ( links ) {
     let dropdown = `<div class="btn-group">
