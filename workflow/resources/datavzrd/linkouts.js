@@ -93,9 +93,10 @@ function hgvsc_dropdown(value, row) {
       let consequence = String(row.consequence || "");
       let position = parseInt(row.position, 10);
       let nucleotide_regex = /^[ACGT]$/;
+      let chromosome_regex = /^[0-9A-Za-z_.]+$/;
       if ( ( row.build === "GRCh38" || row.build === "GRCh37" ) &&
            ref && alt && ref.match(nucleotide_regex) && alt.match(nucleotide_regex) &&
-           row.chromosome && Number.isInteger(position) &&
+           row.chromosome && chromosome_regex.test(row.chromosome) && Number.isInteger(position) &&
            consequence.includes("missense variant") ) {
         const url_prefix = "https://www.ebi.ac.uk/ProtVar/g/"
         return `${url_prefix}${row.chromosome}/${position}/${ref}/${alt}?assembly=${row.build.toLowerCase()}`
