@@ -37,9 +37,7 @@ genome_dict = f"{genome_prefix}.dict"
 ganon_organism_groups = lookup(
     "taxonomic_profiling/organism_groups", within=config, default=[]
 )
-ganon_taxids = lookup(
-    "taxonomic_profiling/taxids", within=config, default=[]
-)
+ganon_taxids = lookup("taxonomic_profiling/taxids", within=config, default=[])
 pangenome_name = f"pangenome.{species}.{build}"
 pangenome_prefix = f"resources/{pangenome_name}"
 
@@ -147,7 +145,11 @@ def is_activated(xpath, default=False):
     return bool(c.get("activate", default))
 
 
-if is_activated("taxonomic_profiling") and not ganon_organism_groups and not ganon_taxids:
+if (
+    is_activated("taxonomic_profiling")
+    and not ganon_organism_groups
+    and not ganon_taxids
+):
     raise ValueError(
         "taxonomic_profiling is activated but taxonomic_profiling/organism_groups "
         "and taxonomic_profiling/taxids are empty. Please specify at least one organism group or taxid."
