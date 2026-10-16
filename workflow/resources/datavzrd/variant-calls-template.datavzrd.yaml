@@ -263,8 +263,6 @@ views:
                     color-scheme: paired
                     domain: ?json.load(open(input.color_domains))["variant"]
                 ellipsis: 0
-            gene:
-              display-mode: hidden
             hgvsg:
               display-mode: hidden
             hgvsc:
@@ -286,6 +284,9 @@ views:
           add-columns:
             build:
               value: ?f"function() {{ return `{params.build}` }}"
+              display-mode: hidden
+            symbol:
+              value: ?f"function() {{ return `{gene}` }}"
               display-mode: hidden
 
   ?for group in params.groups:

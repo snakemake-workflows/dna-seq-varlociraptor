@@ -38,7 +38,7 @@ def join_gene_vartypes(df):
 def load_calls(path, group):
     calls = pd.read_parquet(
         path
-    ).loc[:, ["symbol", "gene", "vartype", "hgvsp", "hgvsc", "hgvsg", "consequence", "chromosome", "position", "reference allele", "alternative allele"]]
+    ).loc[:, ["symbol", "vartype", "hgvsp", "hgvsc", "hgvsg", "consequence", "chromosome", "position", "reference allele", "alternative allele"]]
     calls["group"] = group
     calls.loc[:, "consequence"] = calls["consequence"].str.replace("&", ",")
     return calls.drop_duplicates()
@@ -125,7 +125,7 @@ def gene_oncoprint(calls):
 
 
 def variant_oncoprint(gene_calls):
-    gene_calls = gene_calls[["group", "gene", "hgvsp", "hgvsc", "hgvsg", "consequence", "chromosome", "position", "reference allele", "alternative allele"]]
+    gene_calls = gene_calls[["group", "hgvsp", "hgvsc", "hgvsg", "consequence", "chromosome", "position", "reference allele", "alternative allele"]]
     gene_calls.loc[:, "exists"] = "+"
 
     gene_calls = gene_calls.drop_duplicates()
@@ -141,7 +141,7 @@ def variant_oncoprint(gene_calls):
         .drop(["id"], axis="columns")
     )
     matrix = grouped.set_index(
-        ["hgvsp", "hgvsc", "hgvsg", "consequence", "group", "gene", "chromosome", "position", "reference allele", "alternative allele"]
+        ["hgvsp", "hgvsc", "hgvsg", "consequence", "group", "chromosome", "position", "reference allele", "alternative allele"]
     ).unstack(level="group")
 
     matrix = add_missing_groups(matrix, snakemake.params.groups, "exists")
