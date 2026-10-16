@@ -147,10 +147,10 @@ def is_activated(xpath, default=False):
     return bool(c.get("activate", default))
 
 
-if is_activated("taxonomic_profiling") and not ganon_organism_groups:
+if is_activated("taxonomic_profiling") and not ganon_organism_groups and not ganon_taxids:
     raise ValueError(
         "taxonomic_profiling is activated but taxonomic_profiling/organism_groups "
-        "is empty. Please specify at least one organism group."
+        "and taxonomic_profiling/taxids are empty. Please specify at least one organism group or taxid."
     )
 
 
