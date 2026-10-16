@@ -191,6 +191,33 @@ properties:
     required:
       - activate
 
+  taxonomic_profiling:
+    type: object
+    properties:
+      activate:
+        type: boolean
+      organism_groups:
+        type: array
+        items:
+          type: string
+          enum:
+            - archaea
+            - bacteria
+            - fungi
+            - human
+            - invertebrate
+            - metagenomes
+            - other
+            - plant
+            - protozoa
+            - vertebrate_mammalian
+            - vertebrate_other
+            - viral
+      extra_build_params:
+        type: string
+    required:
+      - activate
+
   mutational_signatures:
     type: object
     properties:
