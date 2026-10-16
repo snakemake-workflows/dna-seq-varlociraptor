@@ -438,7 +438,7 @@ def get_ganon_reads_param(wildcards, input):
 
 def get_ganon_organisms():
     if ganon_taxids:
-        return f"--taxids {' '.join(map(str, ganon_taxids))}"
+        return f"--taxid {' '.join(map(str, ganon_taxids))}"
     return f"--organism-group {' '.join(ganon_organism_groups)}"
 
 
