@@ -1,5 +1,12 @@
 # Changelog
 
+## [6.11.1](https://github.com/snakemake-workflows/dna-seq-varlociraptor/compare/v6.11.0...v6.11.1) (2026-10-16)
+
+
+### Bug Fixes
+
+* siglasso install, ensure failure to install is reported ([#473](https://github.com/snakemake-workflows/dna-seq-varlociraptor/issues/473)) ([412bf28](https://github.com/snakemake-workflows/dna-seq-varlociraptor/commit/412bf28c2f2b9493caa6552cf865236612d17253))
+
 ## [6.11.0](https://github.com/snakemake-workflows/dna-seq-varlociraptor/compare/v6.10.1...v6.11.0) (2026-10-06)
 
 
