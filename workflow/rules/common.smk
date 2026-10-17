@@ -1098,10 +1098,18 @@ def get_varlociraptor_obs_args(wildcards, input):
     ]
 
 
-def get_varlociraptor_params(wildcards, params):
-    if wildcards.caller == "arriba":
-        params += " --propagate-info-fields GENE_NAME GENE_ID EXON_NUMBER"
-    return params
+def get_varlociraptor_params(subcommand):
+    if subcommand == "preprocess":
+        params = config["params"]["varlociraptor"]["preprocess"]
+    elif subcommand == "call":
+        params = config["params"]["varlociraptor"]["call"]
+
+    def inner(wildcards, params):
+        if wildcards.caller == "arriba":
+            params += " --propagate-info-fields GENE_NAME GENE_ID EXON_NUMBER"
+        return params
+
+    return inner
 
 
 wildcard_constraints:
