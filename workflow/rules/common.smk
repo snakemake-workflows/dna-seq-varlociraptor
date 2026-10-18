@@ -1099,10 +1099,13 @@ def get_varlociraptor_obs_args(wildcards, input):
 
 
 def get_varlociraptor_params(subcommand):
+    params = ""
     if subcommand == "preprocess":
-        params = config["params"]["varlociraptor"]["preprocess"]
+        params += config["params"]["varlociraptor"]["preprocess"]
     elif subcommand == "call":
-        params = config["params"]["varlociraptor"]["call"]
+        params += config["params"]["varlociraptor"]["call"]
+    else:
+        assert False, f"Unsupported subcommand: {subcommand}"
 
     def inner(wildcards):
         if wildcards.caller == "arriba":
