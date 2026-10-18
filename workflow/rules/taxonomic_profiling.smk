@@ -35,7 +35,7 @@ rule ganon_build_reference:
     shell:
         "ganon build-custom --input-file {input.info} --input-target file "
         "--taxonomy ncbi --level species --db-prefix {params.prefix} "
-        "--threads {threads} --skip-genome-size 2> {log}"
+        "--threads {threads} --skip-genome-size &> {log}"
 
 
 rule ganon_build_groups:
@@ -56,7 +56,7 @@ rule ganon_build_groups:
         organisms=get_ganon_organisms(),
     shell:
         "ganon build {params.organisms} --taxonomy ncbi "
-        "--db-prefix {params.prefix} --threads {threads} 2> {log}"
+        "--db-prefix {params.prefix} --threads {threads} &> {log}"
 
 
 rule ganon_classify:
@@ -82,7 +82,7 @@ rule ganon_classify:
     shell:
         "ganon classify --db-prefix {params.db_ref} {params.db_other} --hierarchy-labels reference other "
         "{params.reads} --output-prefix {params.output_prefix} "
-        "--threads {threads} 2> {log}"
+        "--threads {threads} &> {log}"
 
 
 rule ganon_table:
@@ -99,4 +99,4 @@ rule ganon_table:
         "../envs/ganon.yaml"
     shell:
         "ganon table --input {input} --rank species --output-value counts "
-        "--output-file {output} 2> {log}"
+        "--output-file {output} &> {log}"
