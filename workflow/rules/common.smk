@@ -1107,7 +1107,7 @@ def get_varlociraptor_params(subcommand):
     else:
         assert False, f"Unsupported subcommand: {subcommand}"
 
-    def inner(wildcards):
+    def inner(wildcards, params=params):
         if wildcards.caller == "arriba":
             params += " --propagate-info-fields GENE_NAME GENE_ID EXON_NUMBER"
         return params
