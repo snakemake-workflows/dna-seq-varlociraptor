@@ -995,7 +995,7 @@ def get_fixed_candidate_calls(ext="bcf"):
             "calling/atomize", within=config, default=False
         ):
             return (
-                f"results/candidate-calls/{{caller}}/{{group}}/{{group}}.atomized.{ext}"
+                f"results/atomized-candidate-calls/{{caller}}/{{group}}/{{group}}.{ext}"
             )
         else:
             return f"results/candidate-calls/{{caller}}/{{group}}/{{group}}.{ext}"

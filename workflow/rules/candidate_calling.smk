@@ -29,7 +29,7 @@ rule freebayes_atomize:
         "results/candidate-calls/freebayes/{group}/{group}.bcf",
         ref=access.random(genome),
     output:
-        pipe("results/candidate-calls/freebayes/{group}/{group}.atomized.bcf"),
+        pipe("results/atomized-candidate-calls/freebayes/{group}/{group}.unsorted.bcf"),
     log:
         "logs/atomize/freebayes/{group}/{group}.log",
     params:
@@ -40,9 +40,9 @@ rule freebayes_atomize:
 
 rule freebayes_atomize_sort:
     input:
-        "results/candidate-calls/freebayes/{group}/{group}.atomized.bcf",
+        "results/atomized-candidate-calls/freebayes/{group}/{group}.unsorted.bcf",
     output:
-        "results/candidate-calls/freebayes/{group}/{group}.bcf",
+        "results/atomized-candidate-calls/freebayes/{group}/{group}.bcf",
     log:
         "logs/bcftools/sort-atomized/freebayes/{group}/{group}.log",
     resources:
