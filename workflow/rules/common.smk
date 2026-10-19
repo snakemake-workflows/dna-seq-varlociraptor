@@ -1008,17 +1008,17 @@ def get_fdr_control_params(wildcards):
 
 
 def get_fixed_candidate_calls(ext="bcf"):
-    def inner(wildcards):
+    def inner(wildcards, ext=ext):
         if wildcards.caller == "delly":
-            return expand(
-                "results/candidate-calls/delly/{{group}}/{{group}}.no_bnds.{ext}",
-                ext=ext,
+            return f"results/candidate-calls/delly/{{group}}/{{group}}.no_bnds.{ext}"
+        elif wildcards.caller == "freebayes" and lookup(
+            "calling/atomize", within=config, default=False
+        ):
+            return (
+                f"results/atomized-candidate-calls/{{caller}}/{{group}}/{{group}}.{ext}"
             )
         else:
-            return expand(
-                "results/candidate-calls/{{caller}}/{{group}}/{{group}}.{ext}",
-                ext=ext,
-            )
+            return f"results/candidate-calls/{{caller}}/{{group}}/{{group}}.{ext}"
 
     return inner
 
