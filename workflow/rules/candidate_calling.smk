@@ -24,6 +24,33 @@ rule freebayes:
         "v2.7.0/bio/freebayes"
 
 
+rule freebayes_atomize:
+    input:
+        "results/candidate-calls/freebayes/{group}/{group}.bcf",
+        ref=access.random(genome),
+    output:
+        pipe("results/atomized-candidate-calls/freebayes/{group}/{group}.unsorted.bcf"),
+    log:
+        "logs/atomize/freebayes/{group}/{group}.log",
+    params:
+        extra="--atomize --check-ref s --rm-dup exact -m-any --atom-overlaps .",
+    wrapper:
+        "v9.15.0/bio/bcftools/norm"
+
+
+rule freebayes_atomize_sort:
+    input:
+        "results/atomized-candidate-calls/freebayes/{group}/{group}.unsorted.bcf",
+    output:
+        "results/atomized-candidate-calls/freebayes/{group}/{group}.bcf",
+    log:
+        "logs/bcftools/sort-atomized/freebayes/{group}/{group}.log",
+    resources:
+        mem_mb=8000,
+    wrapper:
+        "v9.15.0/bio/bcftools/sort"
+
+
 rule delly:
     input:
         ref=access.random(genome),
@@ -76,7 +103,7 @@ rule filter_offtarget_variants:
 rule scatter_candidates:
     input:
         "results/candidate-calls/{caller}/filtered/{group}/{group}.bcf"
-        if config.get("target_regions", None)
+        if lookup("target_regions", within=config, default=None)
         else get_fixed_candidate_calls("bcf"),
     output:
         scatter.calling(

@@ -1,5 +1,19 @@
 # Changelog
 
+## [6.11.3](https://github.com/snakemake-workflows/dna-seq-varlociraptor/compare/v6.11.2...v6.11.3) (2026-10-19)
+
+
+### Bug Fixes
+
+* activate flag --atomic-candidate-variants for varlociraptor preprocess in case of atomize: true ([#482](https://github.com/snakemake-workflows/dna-seq-varlociraptor/issues/482)) ([18c0978](https://github.com/snakemake-workflows/dna-seq-varlociraptor/commit/18c0978f3b224e385af03790c9b6a805e899b9c5))
+
+## [6.11.2](https://github.com/snakemake-workflows/dna-seq-varlociraptor/compare/v6.11.1...v6.11.2) (2026-10-19)
+
+
+### Bug Fixes
+
+* if enabled, atomize freebayes variants immediately after calling so that varlociraptor can classify each atom individually (otherwise, one risks e.g. spurious non-somatic variants in the atomized output) ([#480](https://github.com/snakemake-workflows/dna-seq-varlociraptor/issues/480)) ([b8bf25c](https://github.com/snakemake-workflows/dna-seq-varlociraptor/commit/b8bf25cc276f84f41cb572b74d39616a64589c29))
+
 ## [6.11.1](https://github.com/snakemake-workflows/dna-seq-varlociraptor/compare/v6.11.0...v6.11.1) (2026-10-18)
 
 
