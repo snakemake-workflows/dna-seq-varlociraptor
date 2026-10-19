@@ -1122,6 +1122,8 @@ def get_varlociraptor_params(subcommand):
     params = ""
     if subcommand == "preprocess":
         params += config["params"]["varlociraptor"]["preprocess"]
+        if lookup("calling/atomize", within=config, default=False):
+            params += " --atomic-candidate-variants "
     elif subcommand == "call":
         params += config["params"]["varlociraptor"]["call"]
     else:
