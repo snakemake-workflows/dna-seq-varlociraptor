@@ -67,11 +67,11 @@ rule sort_alignments:
         temp("results/mapped/{aligner}/{sample}.sorted.bam"),
     log:
         "logs/sort/{aligner}/{sample}.log",
-    params:
-        extra="",
     threads: 8
     resources:
         mem_mb=lambda wc, threads: threads * 2000,
+    params:
+        extra="",
     wrapper:
         "v9.15.0/bio/samtools/sort"
 
