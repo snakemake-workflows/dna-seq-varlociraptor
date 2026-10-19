@@ -98,6 +98,13 @@ report:
   # samples will be created.
   activate: true
   max_read_depth: 250
+  label_dependency:
+    # For each column in the groups.tsv (if present), the pipeline will test
+    # statistical independence of the labels in that column to the presence of each
+    # variant in each reported callset.
+    # The threshold min_recurrence, for this test, additionally filters our
+    # variants that are too rare to be statistically meaninful.
+    min_recurrence: 5
   stratify:
     activate: false
     # select a sample sheet column for stratification
@@ -117,6 +124,13 @@ maf:
 calling:
   # Set to true to infer classical genotypes from Varlociraptor's VAF predictions
   infer_genotypes: false
+  # Set to true to atomize variants before annotation with VEP. This can help to
+  # annotate population frequencies (gnomad) but will hamper the prediction
+  # of the variant impact (e.g. if two close variants affect the same codon, which
+  # will be missed with atomization activated).
+  # It is furthermore important for a fair benchmarking of this pipeline
+  # (see https://github.com/varlociraptor/varlociraptor/pull/568#issuecomment-6012918387)
+  atomize: false
   delly:
     activate: true
     # Set custom excluded regions for delly calling. If commented out predefined templates will be downloaded
@@ -194,6 +208,11 @@ calling:
           # Multiple filters can be defined as list and will be concatenated by 'and'
           - impact_filter
           - gene_list_filter
+        sort:
+          # sort by the specified criteria in descending order
+          - "binned max vaf"
+          - impact
+          - revel
 
 # If calc_consensus_reads is activated duplicates will be merged
 remove_duplicates:
@@ -298,6 +317,10 @@ params:
   delly: ""
   freebayes:
     min_alternate_fraction: 0.05 # Reduce for calling variants with lower VAFs
+    # Evaluate only the N best alleles at each site (freebayes --use-best-n-alleles).
+    # Unset, freebayes considers all alleles, which can take days on a single high coverage
+    # low complexity region (e.g. a poly-G stretch in targeted data) while the other cores idle.
+    # use_best_n_alleles: 20
     extra: ""
   get_sra:
     extra: ""

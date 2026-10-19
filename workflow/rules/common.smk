@@ -141,6 +141,15 @@ def is_activated(xpath, default=False):
     return bool(c.get("activate", default))
 
 
+def get_freebayes_use_best_n_alleles():
+    # Cap the number of alleles freebayes evaluates per site. Unset means freebayes' default
+    # (all alleles), which can take days on a single high coverage low complexity region.
+    n = lookup(dpath="params/freebayes/use_best_n_alleles", within=config, default=None)
+    if n is None:
+        return ""
+    return f"--use-best-n-alleles {n}"
+
+
 custom_alignment_props = (
     (
         pd.read_csv(
@@ -273,6 +282,13 @@ def get_final_output(wildcards):
 
     if is_activated("population/db"):
         final_output.append(lookup(dpath="population/db/path", within=config))
+
+    final_output.extend(
+        collect(
+            "results/plots/all.putative_swaps.{type}.html",
+            type=["graph", "heatmap"],
+        )
+    )
 
     return final_output
 
@@ -1102,10 +1118,21 @@ def get_varlociraptor_obs_args(wildcards, input):
     ]
 
 
-def get_varlociraptor_params(wildcards, params):
-    if wildcards.caller == "arriba":
-        params += " --propagate-info-fields GENE_NAME GENE_ID EXON_NUMBER"
-    return params
+def get_varlociraptor_params(subcommand):
+    params = ""
+    if subcommand == "preprocess":
+        params += config["params"]["varlociraptor"]["preprocess"]
+    elif subcommand == "call":
+        params += config["params"]["varlociraptor"]["call"]
+    else:
+        assert False, f"Unsupported subcommand: {subcommand}"
+
+    def inner(wildcards, params=params):
+        if wildcards.caller == "arriba":
+            params += " --propagate-info-fields GENE_NAME GENE_ID EXON_NUMBER"
+        return params
+
+    return inner
 
 
 wildcard_constraints:
@@ -1244,7 +1271,7 @@ def get_annotation_fields_for_tables(wildcards):
         "Consequence",
         "Feature",
         "Gene",
-        "gnomADg_AF",
+        "MAX_AF",
         "HGVSc",
         "HGVSg",
         "HGVSp",
@@ -1423,8 +1450,8 @@ def get_vembrane_config(wildcards, input):
             "CLIN_SIG": {
                 "name": "clinical significance",
             },
-            "gnomADg_AF": {
-                "name": "gnomad genome af",
+            "MAX_AF": {
+                "name": "max population frequency",
             },
             "EXON": {
                 "name": "exon",
@@ -1471,7 +1498,7 @@ def get_vembrane_config(wildcards, input):
         # variants only
         "ANN['Consequence']",
         "ANN['CLIN_SIG']",
-        "ANN['gnomADg_AF']",
+        "ANN['MAX_AF']",
         "ANN['EXON'].raw",
         "ANN['REVEL']",
         "ANN['CADD_PHRED']",
@@ -1634,7 +1661,7 @@ def get_datavzrd_data(calling_type="variants"):
         filetype = "variants.postprocessed"
     else:
         raise ValueError(f"Unsupported calling type: {calling_type}")
-    pattern = "results/tables/{group}/{group}.{event}.{filetype}.fdr-controlled.tsv"
+    pattern = "results/tables/{group}/{group}.{event}.{filetype}.fdr-controlled.parquet"
 
     def inner(wildcards):
         return expand(
@@ -1650,7 +1677,7 @@ def get_datavzrd_data(calling_type="variants"):
 def get_oncoprint_input(wildcards):
     groups = get_report_batch("variants")
     return expand(
-        "results/tables/{group}/{group}.{event}.variants.postprocessed.fdr-controlled.tsv",
+        "results/tables/{group}/{group}.{event}.variants.postprocessed.fdr-controlled.parquet",
         group=groups,
         event=wildcards.event,
     )
@@ -1659,10 +1686,10 @@ def get_oncoprint_input(wildcards):
 def get_variant_oncoprint_tables(wildcards, input):
     if input.variant_oncoprints:
         oncoprint_dir = input.variant_oncoprints
-        valid = re.compile(r"^[^/]+\.tsv$")
+        valid = re.compile(r"^[^/]+\.parquet$")
         tables = [f for f in os.listdir(oncoprint_dir) if valid.match(f)]
-        assert all(table.endswith(".tsv") for table in tables)
-        genes = [gene_table[:-4] for gene_table in tables]
+        assert all(table.endswith(".parquet") for table in tables)
+        genes = [gene_table[:-8] for gene_table in tables]
         return list(
             zip(genes, expand(f"{oncoprint_dir}/{{oncoprint}}", oncoprint=tables))
         )
@@ -1735,9 +1762,11 @@ def get_oncoprint(oncoprint_type):
                 f"results/tables/oncoprints/{wildcards.batch}.{wildcards.event}"
             )
             if oncoprint_type == "gene":
-                return f"{oncoprint_path}/gene-oncoprint.tsv"
+                return f"{oncoprint_path}/gene-oncoprint.parquet"
             elif oncoprint_type == "variant":
                 return f"{oncoprint_path}/variant-oncoprints"
+            elif oncoprint_type == "color_domains":
+                return f"{oncoprint_path}/color-domains.json"
             else:
                 raise ValueError(f"bug: unsupported oncoprint type {oncoprint_type}")
         else:

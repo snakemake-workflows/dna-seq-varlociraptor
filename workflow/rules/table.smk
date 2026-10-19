@@ -3,16 +3,18 @@ rule vembrane_table:
         bcf="results/final-calls/{group}/{group}.{event}.{calling_type}.fdr-controlled.normal-probs.bcf",
         scenario="results/scenarios/{group}.yaml",
     output:
-        bcf="results/tables/{group}/{group}.{event}.{calling_type}.fdr-controlled.tsv",
+        "results/tables/{group}/{group}.{event}.{calling_type}.fdr-controlled.{fmt,tsv|parquet}",
     log:
-        "logs/vembrane-table/{group}.{event}.{calling_type}.log",
+        "logs/vembrane-table/{group}.{event}.{calling_type}.{fmt}.log",
     conda:
         "../envs/vembrane.yaml"
     params:
         config=lambda wc, input: get_vembrane_config(wc, input),
+        fmt=branch(evaluate("{fmt} == 'tsv'"), then="csv", otherwise="parquet"),
     shell:
-        'vembrane table --wide --header "{params.config[header]}" "{params.config[expr]}" '
-        "{input.bcf} > {output.bcf} 2> {log}"
+        "vembrane table --wide --output-fmt {params.fmt} "
+        '--header "{params.config[header]}" "{params.config[expr]}" '
+        "{input.bcf} --output {output} 2> {log}"
 
 
 rule tsv_to_excel:

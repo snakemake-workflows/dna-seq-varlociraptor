@@ -1,5 +1,40 @@
 # Changelog
 
+## [6.11.1](https://github.com/snakemake-workflows/dna-seq-varlociraptor/compare/v6.11.0...v6.11.1) (2026-10-18)
+
+
+### Bug Fixes
+
+* siglasso install, ensure failure to install is reported ([#473](https://github.com/snakemake-workflows/dna-seq-varlociraptor/issues/473)) ([412bf28](https://github.com/snakemake-workflows/dna-seq-varlociraptor/commit/412bf28c2f2b9493caa6552cf865236612d17253))
+* update to varlociraptor 8.12.0
+
+## [6.11.0](https://github.com/snakemake-workflows/dna-seq-varlociraptor/compare/v6.10.1...v6.11.0) (2026-10-06)
+
+
+### Features
+
+* detect sample swaps with somalier ([#464](https://github.com/snakemake-workflows/dna-seq-varlociraptor/issues/464)) ([018b5fe](https://github.com/snakemake-workflows/dna-seq-varlociraptor/commit/018b5fea7f40dcbc442e3886a47c4ea0cbcc3513))
+* enable genebe linkout in variant oncoprint; support atomization of variants; use parquet for tabular intermediate results; use narrow oncoprint with &gt;=10 samples/groups ([#469](https://github.com/snakemake-workflows/dna-seq-varlociraptor/issues/469)) ([cabf658](https://github.com/snakemake-workflows/dna-seq-varlociraptor/commit/cabf658cdf57f997a74a36c0885c3059d7934fa4))
+* expose freebayes --use-best-n-alleles via params/freebayes ([#471](https://github.com/snakemake-workflows/dna-seq-varlociraptor/issues/471)) ([87753ef](https://github.com/snakemake-workflows/dna-seq-varlociraptor/commit/87753efba1e48e1cc5949ed0e7305b91182425b0))
+
+
+### Bug Fixes
+
+* declare the freebayes config keys the workflow actually reads ([#470](https://github.com/snakemake-workflows/dna-seq-varlociraptor/issues/470)) ([ce165d5](https://github.com/snakemake-workflows/dna-seq-varlociraptor/commit/ce165d57dc3bd3f99b6766e2d61caa9af77ed4bd))
+
+## [6.10.1](https://github.com/snakemake-workflows/dna-seq-varlociraptor/compare/v6.10.0...v6.10.1) (2026-09-07)
+
+
+### Bug Fixes
+
+* require latest snakemake containing a bugfix for vg parallelization ([4f385a9](https://github.com/snakemake-workflows/dna-seq-varlociraptor/commit/4f385a9c682bbee26f671e71e3f379656b814a6e))
+
+
+### Performance Improvements
+
+* share oncoprint heatmap color domains ([#468](https://github.com/snakemake-workflows/dna-seq-varlociraptor/issues/468)) ([235c42f](https://github.com/snakemake-workflows/dna-seq-varlociraptor/commit/235c42f2666b7e05784ee4a7f2ab58eb79c7475d))
+* update datavzrd wrapper to 9.17.1 ([#467](https://github.com/snakemake-workflows/dna-seq-varlociraptor/issues/467)) ([ec08825](https://github.com/snakemake-workflows/dna-seq-varlociraptor/commit/ec0882562218361fb33ecf2d1f63ea1457195b09))
+
 ## [6.10.0](https://github.com/snakemake-workflows/dna-seq-varlociraptor/compare/v6.9.2...v6.10.0) (2026-08-04)
 
 
