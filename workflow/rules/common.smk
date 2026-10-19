@@ -991,8 +991,12 @@ def get_fixed_candidate_calls(ext="bcf"):
     def inner(wildcards, ext=ext):
         if wildcards.caller == "delly":
             return f"results/candidate-calls/delly/{{group}}/{{group}}.no_bnds.{ext}"
-        elif wildcards.caller == "freebayes" and lookup("calling/atomize", within=config, default=False):
-            return f"results/candidate-calls/{{caller}}/{{group}}/{{group}}.atomized.{ext}"
+        elif wildcards.caller == "freebayes" and lookup(
+            "calling/atomize", within=config, default=False
+        ):
+            return (
+                f"results/candidate-calls/{{caller}}/{{group}}/{{group}}.atomized.{ext}"
+            )
         else:
             return f"results/candidate-calls/{{caller}}/{{group}}/{{group}}.{ext}"
 

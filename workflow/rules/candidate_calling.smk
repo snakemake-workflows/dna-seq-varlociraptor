@@ -29,9 +29,7 @@ rule freebayes_atomize:
         "results/candidate-calls/freebayes/{group}/{group}.bcf",
         ref=access.random(genome),
     output:
-        pipe(
-            "results/candidate-calls/freebayes/{group}/{group}.atomized.bcf"
-        ),
+        pipe("results/candidate-calls/freebayes/{group}/{group}.atomized.bcf"),
     log:
         "logs/atomize/freebayes/{group}/{group}.log",
     params:
