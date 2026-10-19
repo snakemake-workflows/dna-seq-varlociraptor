@@ -67,9 +67,11 @@ rule sort_alignments:
         temp("results/mapped/{aligner}/{sample}.sorted.bam"),
     log:
         "logs/sort/{aligner}/{sample}.log",
-    threads: 16
+    threads: 8
     resources:
-        mem_mb=32000,
+        mem_mb=lambda wc, threads: threads * 2000,
+    params:
+        extra="",
     wrapper:
         "v9.15.0/bio/samtools/sort"
 
@@ -183,7 +185,7 @@ rule splitncigarreads:
     log:
         "logs/gatk/splitNCIGARreads/{sample}.log",
     resources:
-        mem_mb=1024,
+        mem_mb=6000,  # we have seen cases where this goes up to 5 GB RAM usage
     params:
         extra="",  # optional
         java_opts="",  # optional
@@ -206,7 +208,7 @@ rule recalibrate_base_qualities:
         "logs/gatk/baserecalibrator/{sample}.log",
     threads: 8
     resources:
-        mem_mb=1024,
+        mem_mb=6000,
     params:
         extra=config["params"]["gatk"]["BaseRecalibrator"],
         java_opts="",
