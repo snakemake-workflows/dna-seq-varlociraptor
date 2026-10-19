@@ -46,7 +46,7 @@ calling:
   scenario: config-no-candidate-filtering/scenario.yaml
   # See http://snpeff.sourceforge.net/SnpSift.html#filter
   filter:
-    moderate: "ANN['IMPACT'] == 'MODERATE'"
+    moderate: "'MODERATE' in ANN['IMPACT']"
     with_aux:
       aux-files: 
         super_interesting_genes: config-no-candidate-filtering/super_interesting_genes.tsv

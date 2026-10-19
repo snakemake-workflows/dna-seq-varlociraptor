@@ -25,12 +25,17 @@ ref:
   release: 111
   # Genome build
   build: GRCh38
-  pangenome: 
+  pangenome:
     # if active, reads will be aligned to given pangenome instead of to the linear reference genome
     # Important: this is only supported for homo_sapiens so far
     activate: true
-    # Pangenome source and version: Only 'hprc' and v1.1 are supported for now. 
-    # see https://github.com/human-pangenomics/hpp_pangenome_resources/?tab=readme-ov-file#minigraph-cactus for details
+    # Pangenome source and version: Only 'hprc' and v1.1/v2.0 are supported for now.
+    # Version 1.1 is preferable because it is the one that filters out low frequency
+    # haplotypes, which acts like a rough but efficient prior for the resulting MAPQs.
+    # For making better use of v2.0, the pipeline has to be extended to either use
+    # a (not yet available) scenario agnostic version of the diploid-sampling approach
+    # in Giraffe or utilize another way to avoid likely mismappings on rare pangenome
+    # paths.
     source: hprc
     version: v1.1
   # Optionally, instead of downloading the whole reference from Ensembl via the
@@ -73,6 +78,10 @@ mutational_burden:
 # Quantify known mutational signatures (human only)
 mutational_signatures:
   activate: false
+  samples:
+    # Sample aliases to use for each group.
+    # Will be ignored if missing for a group.
+    - tumor
   events:
     # select events (callsets, defined under calling/fdr-control/events) to evaluate
     - some_id
@@ -89,6 +98,13 @@ report:
   # samples will be created.
   activate: true
   max_read_depth: 250
+  label_dependency:
+    # For each column in the groups.tsv (if present), the pipeline will test
+    # statistical independence of the labels in that column to the presence of each
+    # variant in each reported callset.
+    # The threshold min_recurrence, for this test, additionally filters our
+    # variants that are too rare to be statistically meaninful.
+    min_recurrence: 5
   stratify:
     activate: false
     # select a sample sheet column for stratification
@@ -108,6 +124,13 @@ maf:
 calling:
   # Set to true to infer classical genotypes from Varlociraptor's VAF predictions
   infer_genotypes: false
+  # Set to true to atomize variants before annotation with VEP. This can help to
+  # annotate population frequencies (gnomad) but will hamper the prediction
+  # of the variant impact (e.g. if two close variants affect the same codon, which
+  # will be missed with atomization activated).
+  # It is furthermore important for a fair benchmarking of this pipeline
+  # (see https://github.com/varlociraptor/varlociraptor/pull/568#issuecomment-6012918387)
+  atomize: false
   delly:
     activate: true
     # Set custom excluded regions for delly calling. If commented out predefined templates will be downloaded
@@ -126,7 +149,7 @@ calling:
     # (see gene_list_filter below). By this, you can e.g. conduct a virtual panel analysis
     # while massively speeding up the varlociraptor based evaluation of the variants.
     # See https://github.com/vembrane/vembrane
-    candidates: "ANN['IMPACT'] != 'LOW'"
+    candidates: "'MODERATE' in ANN['IMPACT']"
     # Add any number of named filters here (replace myfilter with a reasonable name,
     # and add more below). Filtering happens with the vembrane filter language
     # (see https://github.com/vembrane/vembrane), and you can refer to any fields that
@@ -135,7 +158,7 @@ calling:
     # Filters will be applied independenty, and can be referred in FDR control below
     # to generate calls for different events.
     # You can for example filter by ANN fields, ID or dbsnp annotations here.
-    impact_filter: "ANN['IMPACT'] == 'HIGH'"
+    impact_filter: "'HIGH' in ANN['IMPACT']"
     # If you need to use vembrane command line options beyond the filter expression,
     # please use the filter sub-structure with 'expression:' for the filter expression
     # and "aux-files:" for additional files with IDs for filtering. This can for example
@@ -185,6 +208,11 @@ calling:
           # Multiple filters can be defined as list and will be concatenated by 'and'
           - impact_filter
           - gene_list_filter
+        sort:
+          # sort by the specified criteria in descending order
+          - "binned max vaf"
+          - impact
+          - revel
 
 # If calc_consensus_reads is activated duplicates will be merged
 remove_duplicates:
@@ -241,13 +269,22 @@ annotations:
         # Plugin args can be passed as well, e.g. "LoFtool,path/to/custom/scores.txt".
         - LoFtool
         - REVEL
-        # For integration of SpliceAI preprocessed snv and indel scores (including index files) are required. 
+        # For integration of SpliceAI preprocessed snv and indel scores (including index files) are required.
         # Scores are available on https://basespace.illumina.com/s/otSPW8hnhaZR
         #- SpliceAI,snv=<path/to/spliceai_scores.raw.snv.hg38.vcf.gz,indel=<path/to/spliceai_scores.raw.indel.hg38.vcf.gz>
         # For annotation of AlphaMissense scores a tsv-file containing processed scores is required.
         # Scores are available on https://zenodo.org/records/10813168
         # A tabix index is required and can be created by calling `tabix -s 1 -b 2 -e 2 -f -S 1 AlphaMissense_hg38.tsv.gz`
         #- AlphaMissense,file=<path/to/AlphaMissense_hg38.tsv.gz>
+        # To add CADD_PHRED scores to all single nucleotide variants and many
+        # indels, uncomment the following and make sure to specify a `cadd`
+        # score version below:
+        # - CADD
+      score_versions:
+        # Uncomment the cadd_version if you use the CADD plugin for VEP.
+        # Available versions can be seen at:
+        # https://cadd.bihealth.org/
+        # cadd: v1.7
 
 # printing of variants in a table format (might be deprecated soon)
 tables:
@@ -280,6 +317,12 @@ params:
   delly: ""
   freebayes:
     min_alternate_fraction: 0.05 # Reduce for calling variants with lower VAFs
+    # Evaluate only the N best alleles at each site (freebayes --use-best-n-alleles).
+    # Unset, freebayes considers all alleles, which can take days on a single high coverage
+    # low complexity region (e.g. a poly-G stretch in targeted data) while the other cores idle.
+    # use_best_n_alleles: 20
+    extra: ""
+  get_sra:
     extra: ""
 
 # If activated preprocessed alignment properties can be applied to each sample individually.

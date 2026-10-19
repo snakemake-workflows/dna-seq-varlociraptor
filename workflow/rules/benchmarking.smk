@@ -31,13 +31,14 @@ rule chm_namesort:
         "resources/chm.bam",
     output:
         pipe("resources/chm.namesorted.bam"),
-    params:
-        "-n -m 4G",
     log:
         "logs/benchmarking/samtools-namesort.log",
-    threads: workflow.cores - 1
+    threads: 16
+    resources:
+        mem_mb=64000,
+        extra="-n",
     wrapper:
-        "v2.3.2/bio/samtools/sort"
+        "v9.15.0/bio/samtools/sort"
 
 
 rule chm_to_fastq:
@@ -57,13 +58,13 @@ rule chm_to_fastq:
 rule chm_eval_kit:
     output:
         directory("resources/benchmarking/chm-eval-kit"),
+    log:
+        "logs/benchmarking/chm-eval-kit.log",
+    cache: True
     params:
         # Tag and version must match, see https://github.com/lh3/CHM-eval/releases.
         tag="v0.5",
         version="20180222",
-    log:
-        "logs/benchmarking/chm-eval-kit.log",
-    cache: True
     wrapper:
         "v2.3.2/bio/benchmark/chm-eval-kit"
 
@@ -83,16 +84,16 @@ rule chromosome_map:
 
 rule rename_chromosomes:
     input:
-        bcf="results/final-calls/chm.{query}.fdr-controlled.bcf",
+        bcf="results/final-calls/chm/chm.{query}.fdr-controlled.bcf",
         map=f"resources/{genome_name}.chrmap.txt",
     output:
         "benchmarking/{query}.chr-mapped.vcf",
-    params:
-        targets=",".join(list(map("chr{}".format, range(23))) + ["chrX", "chrY"]),
     log:
         "logs/benchmarking/{query}.rename-chromosomes.log",
     conda:
         "../envs/bcftools.yaml"
+    params:
+        targets=",".join(list(map("chr{}".format, range(23))) + ["chrX", "chrY"]),
     shell:
         "(bcftools annotate --rename-chrs {input.map} {input} | "
         "bcftools view --targets {params.targets} > {output}) 2> {log} "
@@ -105,10 +106,10 @@ rule chm_eval:
     output:
         summary="benchmarking/{query}.summary",  # summary statistics
         bed="benchmarking/{query}.err.bed.gz",  # bed file with errors
+    log:
+        "logs/benchmarking/{query}.chm-eval.log",
     params:
         extra="",
         build="38",
-    log:
-        "logs/benchmarking/{query}.chm-eval.log",
     wrapper:
         "v2.3.2/bio/benchmark/chm-eval"

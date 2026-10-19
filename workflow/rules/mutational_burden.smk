@@ -6,10 +6,10 @@ if config["mutational_burden"]["activate"]:
             coding="resources/coding_regions.bed.gz",
         output:
             "results/regions/{group}.covered_regions.filtered.coding.coverage_breadth.txt",
-        conda:
-            "../envs/awk_bedtools.yaml"
         log:
             "logs/regions/{group}.covered_regions.filtered.coding.coverage_breadth.log",
+        conda:
+            "../envs/awk_bedtools.yaml"
         shell:
             "( bedtools intersect -a {input.covered} -b {input.coding} | "
             "  awk '{{ covered += $3 - $2 }} END {{ print covered }}' >{output} "
@@ -17,7 +17,7 @@ if config["mutational_burden"]["activate"]:
 
     rule estimate_mutational_burden:
         input:
-            calls="results/final-calls/{group}.variants.annotated.bcf",
+            calls="results/final-calls/{group}/{group}.variants.annotated.bcf",
             coverage_breadth="results/regions/{group}.covered_regions.filtered.coding.coverage_breadth.txt",
         output:
             report(
@@ -29,13 +29,13 @@ if config["mutational_burden"]["activate"]:
             ),
         log:
             "logs/estimate-mutational-burden/{group}.{alias}.{mode}.log",
-        params:
-            events=" ".join(config["mutational_burden"]["events"]),
         conda:
             "../envs/varlociraptor.yaml"
+        params:
+            events=" ".join(config["mutational_burden"]["events"]),
         shell:
             "(varlociraptor estimate mutational-burden "
-            "--plot-mode {wildcards.mode} "
+            "--mode {wildcards.mode} "
             "--coding-genome-size $( cat {input.coverage_breadth} ) "
             "--events {params.events} "
             "--sample {wildcards.alias} "

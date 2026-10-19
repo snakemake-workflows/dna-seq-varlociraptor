@@ -4,8 +4,10 @@ rule get_sra:
         "sra/{accession}_2.fastq.gz",
     log:
         "logs/get-sra/{accession}.log",
+    params:
+        extra=lookup(within=config, dpath="params/get_sra/extra", default=""),
     wrapper:
-        "v5.0.2/bio/sra-tools/fasterq-dump"
+        "v7.6.0/bio/sra-tools/fasterq-dump"
 
 
 rule fastp_pipe:
@@ -31,10 +33,10 @@ rule fastp_se:
         json="results/trimmed/{sample}/{unit}.single.json",
     log:
         "logs/fastp/se/{sample}_{unit}.log",
+    threads: 8
     params:
         adapters=get_fastp_adapters,
         extra=get_fastp_extra,
-    threads: 8
     wrapper:
         "v6.2.0/bio/fastp"
 
@@ -51,10 +53,10 @@ rule fastp_pe:
         json="results/trimmed/{sample}/{unit}.paired.json",
     log:
         "logs/fastp/pe/{sample}_{unit}.log",
+    threads: 8
     params:
         adapters=get_fastp_adapters,
         extra=get_fastp_extra,
-    threads: 8
     wrapper:
         "v6.2.0/bio/fastp"
 
@@ -63,10 +65,11 @@ rule merge_trimmed_fastqs:
     input:
         get_trimmed_fastqs,
     output:
-        "results/merged/{sample}_{read}.fastq.gz",
+        temp("results/merged/{sample}_{read}.fastq.gz"),
     log:
         "logs/merge-fastqs/trimmed/{sample}_{read}.log",
     wildcard_constraints:
         read="single|R1|R2",
+    threads: 0  # this does not need CPU
     shell:
         "cat {input} > {output} 2> {log}"

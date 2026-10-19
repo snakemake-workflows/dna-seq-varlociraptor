@@ -1,3 +1,4 @@
+from functools import partial
 import sys
 
 sys.stderr = open(snakemake.log[0], "w")
@@ -15,22 +16,11 @@ def write(df, path):
     df["mane_plus_clinical"][df["mane_plus_clinical"].notna()] = True
     if not df.empty:
         remaining_columns = df.dropna(how="all", axis="columns").columns.tolist()
-        if path == snakemake.output.coding:
-            # ensure that these columns are kept, even if they contain only NAs in a coding setting
-            remaining_columns.extend(["revel", "hgvsp", "symbol"])
-            remaining_columns = [col for col in df.columns if col in remaining_columns]
+        # ensure that these columns are always kept
+        remaining_columns.extend(["revel", "hgvsp", "symbol", "hgvsc", "hgvsg"])
+        remaining_columns = [col for col in df.columns if col in remaining_columns]
         df = df[remaining_columns]
-    df.to_csv(path, index=False, sep="\t")
-
-
-def format_floats(df):
-    for col_name in df:
-        if issubclass(df[col_name].dtype.type, np.floating):
-            df[col_name] = [
-                "{:.2e}".format(x) if x < 0.1 and x > 0 else round(x, 2)
-                for x in df[col_name]
-            ]
-    return df
+    df.to_parquet(path, index=False)
 
 
 def drop_cols_by_predicate(df, columns, predicate):
@@ -121,7 +111,6 @@ def cleanup_dataframe(df):
     df = drop_low_prob_cols(df)
     df = reorder_prob_cols(df)
     df = reorder_vaf_cols(df)
-    df = format_floats(df)
     return df
 
 
@@ -224,27 +213,21 @@ def select_spliceai_effect(calls):
     return calls
 
 
-calls = pd.read_csv(
-    snakemake.input[0],
-    sep="\t",
-    # The default pandas `NaN` value `NA` is a valid REF allele that we have seen
-    # in the wild, so we have to protect against mis-parsing things as `nan` here.
-    keep_default_na=False,
-    # Also, vembrane table as the tool producing the input seems to encode actual
-    # `NA` values as empty column entries or `None` values, based on tests. So only
-    # the empty string and `None` should be considered here.
-    na_values=["", "None"],
-)
+calls = pd.read_parquet(snakemake.input[0])
 calls["clinical significance"] = (
     calls["clinical significance"]
-    .apply(eval)
     .apply(sorted)
-    .apply(", ".join)
-    .replace("", np.nan)
+    .apply(",".join)
 )
+calls["consequence"] = calls["consequence"].apply(sorted).apply(",".join).apply(lambda value: value.replace("_", " "))
+
+# format AFD columns
+for col in calls.columns:
+    if col.endswith(": allele frequency distribution"):
+        calls[col] = calls[col].apply(",".join)
 
 calls["protein alteration (short)"] = (
-    calls["protein alteration (short)"].apply(eval).apply("/".join).replace("", np.nan)
+    calls["protein alteration (short)"].apply("/".join)
 )
 
 samples = get_samples(calls)
@@ -275,28 +258,11 @@ if calls.columns.str.endswith(": short ref observations").any():
 if calls.columns.str.startswith("spliceai").any():
     calls = select_spliceai_effect(calls)
 
-coding = ~pd.isna(calls["hgvsp"])
 canonical = calls["canonical"].notnull()
 mane_plus_clinical = calls["mane_plus_clinical"].notnull()
 canonical_mane = canonical | mane_plus_clinical
 
-noncoding_calls = calls[~coding & canonical_mane]
-noncoding_calls = cleanup_dataframe(noncoding_calls)
-write(noncoding_calls, snakemake.output.noncoding)
-
-coding_calls = calls[coding & canonical_mane].drop(
-    [
-        "id",
-    ],
-    axis="columns",
-)
-coding_calls = cleanup_dataframe(coding_calls)
-
-# coding variants
-# Here we have all variant info in hgvsp,
-# hence we can drop the other variant specific columns.
-write(
-    coding_calls,
-    snakemake.output.coding,
-)
+final_calls = calls[canonical_mane]
+final_calls = cleanup_dataframe(final_calls)
+write(final_calls, snakemake.output[0])
 # TODO add possibility to also see non-canoncical or non-mane+clinical transcripts (low priority, once everything else works).

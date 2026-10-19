@@ -2,6 +2,7 @@ import sys
 
 sys.stderr = open(snakemake.log[0], "w")
 
+import json
 import os
 from pathlib import Path
 
@@ -9,6 +10,7 @@ import pandas as pd
 import numpy as np
 
 from sklearn.feature_selection import chi2
+from statsmodels.stats.nonparametric import rank_compare_2indep
 from statsmodels.stats.multitest import fdrcorrection
 
 
@@ -34,9 +36,9 @@ def join_gene_vartypes(df):
 
 
 def load_calls(path, group):
-    calls = pd.read_csv(
-        path, sep="\t", usecols=["symbol", "vartype", "hgvsp", "hgvsg", "consequence"]
-    )
+    calls = pd.read_parquet(
+        path
+    ).loc[:, ["symbol", "vartype", "hgvsp", "hgvsc", "hgvsg", "consequence", "chromosome", "position", "reference allele", "alternative allele"]]
     calls["group"] = group
     calls.loc[:, "consequence"] = calls["consequence"].str.replace("&", ",")
     return calls.drop_duplicates()
@@ -66,6 +68,9 @@ def sort_by_recurrence(matrix, no_occurence_check_func):
     matrix = matrix.sort_values("nocalls", ascending=True).drop(
         labels=["nocalls"], axis="columns"
     )
+    # sort columns in oncoprint style, i.e. grouping the first row values together
+    # and within that the second row values, etc.
+    matrix.sort_values(matrix.index.tolist(), na_position="last", axis="columns", inplace=True)
     return matrix
 
 
@@ -78,22 +83,28 @@ def add_missing_groups(matrix, groups, index_mate):
 
 def attach_group_annotation(matrix, group_annotation):
     index_cols = matrix.index.names
-    return (
+    column_order = matrix.columns.tolist()
+    matrix = (
         pd.concat([group_annotation.reset_index(drop=True), matrix.reset_index()])
         .set_index(index_cols)
         .reset_index()
     )
+    # concat changes the column order, restore it
+    matrix = matrix[index_cols + column_order]
+    return matrix
 
 
 def gene_oncoprint(calls):
     calls = calls[["group", "symbol", "vartype", "consequence"]]
     if not calls.empty:
         grouped = (
-            calls.drop_duplicates().groupby(["symbol"]).apply(join_group_consequences)
+            calls.drop_duplicates()
+            .groupby(["symbol"], observed=False)
+            .apply(join_group_consequences)
         ).reset_index(drop=True)
         grouped = (
             grouped.drop_duplicates()
-            .groupby(["group", "symbol"])
+            .groupby(["group", "symbol"], observed=False)
             .apply(join_gene_vartypes)
         )
         matrix = grouped.set_index(["symbol", "consequence", "group"]).unstack(
@@ -113,13 +124,25 @@ def gene_oncoprint(calls):
         )
 
 
-def variant_oncoprint(gene_calls, group_annotation):
-    gene_calls = gene_calls[["group", "hgvsp", "hgvsg", "consequence"]]
-    gene_calls.loc[:, "exists"] = "X"
-    grouped = gene_calls.drop_duplicates().groupby(["hgvsp"]).apply(join_group_hgvsgs)
-    matrix = grouped.set_index(["hgvsp", "hgvsg", "consequence", "group"]).unstack(
-        level="group"
+def variant_oncoprint(gene_calls):
+    gene_calls = gene_calls[["group", "hgvsp", "hgvsc", "hgvsg", "consequence", "chromosome", "position", "reference allele", "alternative allele"]]
+    gene_calls.loc[:, "exists"] = "+"
+
+    gene_calls = gene_calls.drop_duplicates()
+    is_protein_impact = ~gene_calls["hgvsp"].isna()
+    gene_calls.loc[~is_protein_impact, "id"] = gene_calls.loc[
+        ~is_protein_impact, "hgvsg"
+    ]
+    gene_calls.loc[is_protein_impact, "id"] = gene_calls.loc[is_protein_impact, "hgvsp"]
+    grouped = (
+        gene_calls.drop_duplicates()
+        .groupby(["id"], observed=False)
+        .apply(join_group_hgvsgs)
+        .drop(["id"], axis="columns")
     )
+    matrix = grouped.set_index(
+        ["hgvsp", "hgvsc", "hgvsg", "consequence", "group", "chromosome", "position", "reference allele", "alternative allele"]
+    ).unstack(level="group")
 
     matrix = add_missing_groups(matrix, snakemake.params.groups, "exists")
     matrix.columns = matrix.columns.droplevel(0)  # remove superfluous header
@@ -127,8 +150,6 @@ def variant_oncoprint(gene_calls, group_annotation):
     if len(matrix.columns) > 1:
         # sort by recurrence
         matrix = sort_by_recurrence(matrix, lambda matrix: matrix.isna())
-
-    matrix = attach_group_annotation(matrix, group_annotation)
 
     return matrix
 
@@ -140,12 +161,12 @@ def store(data, output, labels_df, label_idx=None):
 
     # add labels
     index_cols = data.index.names
-    cols = data.columns
-    data = pd.concat([_labels_df, data.reset_index()]).set_index(index_cols)
+    cols = data.columns.tolist()
+    data = pd.concat([_labels_df, data.reset_index()])
     # restore column order
-    data = data[cols]
+    data = data[index_cols + cols]
 
-    data.to_csv(output, sep="\t")
+    data.to_parquet(output, index=False)
 
 
 def sort_oncoprint_labels(data):
@@ -158,15 +179,52 @@ def sort_oncoprint_labels(data):
             feature_matrix = data.reset_index(drop=True).T.copy()
             feature_matrix[~pd.isna(feature_matrix)] = True
             feature_matrix[pd.isna(feature_matrix)] = False
+            feature_matrix = feature_matrix.astype(bool)
+
+            filtered_features = (
+                feature_matrix.sum(axis="index") >= snakemake.params.min_recurrence
+            ).reset_index(drop=True).values
+
+            # filter to only those columns (we are transposed here)
+            # with min_recurrence "True" values
+            feature_matrix = feature_matrix.loc[
+                :,
+                filtered_features,
+            ]
 
             # target vector: label values, converted into factors
             target_vector = labels_df.loc[label]
             # ignore any NA in the target vector and correspondingly remove the rows in the feature matrix
-            not_na_target_vector = target_vector[~pd.isna(target_vector)].astype("category")
+            # infer_objects ensures that all values are interpreted by the best fitting type (e.g. float)
+            not_na_target_vector = target_vector[
+                ~pd.isna(target_vector)
+            ].infer_objects()
+
+            target_is_numeric = pd.api.types.is_numeric_dtype(not_na_target_vector)
+            if target_is_numeric:
+                not_na_target_vector = not_na_target_vector.astype(float)
+            else:
+                not_na_target_vector = not_na_target_vector.astype("category")
             feature_matrix = feature_matrix.loc[not_na_target_vector.index]
 
-            # calculate mutual information for 100 times and take the mean for each feature
-            _, pvals = chi2(feature_matrix, not_na_target_vector)
+            if target_is_numeric:
+                # partition target vector by each row of the (binary) feature_matrix
+                # perform Brunner-Munzel test for each feature row and collect p-values
+
+                def test_independence(feature_matrix_row):
+                    group1 = not_na_target_vector[feature_matrix_row]
+                    group2 = not_na_target_vector[~feature_matrix_row]
+                    if len(group1) > 7 and len(group2) > 7:
+                        pval = rank_compare_2indep(group1, group2, use_t=False).pvalue
+                    else:
+                        pval = 1.0  # if one of the groups is too small, we cannot perform the test, so we assign a non-significant p-value
+                    if np.isnan(pval):
+                        pval = 1.0  # if the test fails for some reason (e.g. all values are identical), we assign a non-significant p-value
+                    return pval
+
+                pvals = feature_matrix.apply(test_independence, axis="rows").values
+            else:
+                _, pvals = chi2(feature_matrix, not_na_target_vector)
             sorted_idx = np.argsort(pvals)
 
             _, fdr = fdrcorrection(pvals)
@@ -178,12 +236,16 @@ def sort_oncoprint_labels(data):
             sorted_target_vector = target_vector.sort_values()
             sorted_data = sorted_data[sorted_target_vector.index]
 
+            # reduce to filtered features
+            sorted_data = sorted_data.loc[filtered_features]
+
             # add mutual information
-            sorted_data.insert(0, "FDR dependency", np.around(fdr, 3))
-            sorted_data.insert(0, "p-value dependency", np.around(pvals, 3))
+            sorted_data.insert(0, "FDR dependency", fdr)
+            sorted_data.insert(0, "p-value dependency", pvals)
 
             outdata = sorted_data.iloc[sorted_idx]
-        outpath = os.path.join(snakemake.output.gene_oncoprint_sortings, f"{label}.tsv")
+            outdata = outdata.reset_index().set_index(["symbol", "consequence", "p-value dependency", "FDR dependency"])
+        outpath = os.path.join(snakemake.output.gene_oncoprint_sortings, f"{label}.parquet")
         store(outdata, outpath, labels_df, label_idx=label_idx)
 
 
@@ -194,20 +256,37 @@ calls = pd.concat(
     ]
 )
 
-
 gene_oncoprint = gene_oncoprint(calls)
 
 group_annotation = load_group_annotation()
 gene_oncoprint_main = attach_group_annotation(gene_oncoprint, group_annotation)
-gene_oncoprint_main.to_csv(snakemake.output.gene_oncoprint, sep="\t", index=False)
+gene_oncoprint_main.to_parquet(snakemake.output.gene_oncoprint, index=False)
 
 os.makedirs(snakemake.output.gene_oncoprint_sortings)
 
 sort_oncoprint_labels(gene_oncoprint)
 
-
 os.makedirs(snakemake.output.variant_oncoprints)
-for gene, gene_calls in calls.groupby("symbol"):
-    variant_oncoprint(gene_calls, group_annotation).to_csv(
-        Path(snakemake.output.variant_oncoprints) / f"{gene}.tsv", sep="\t", index=False
+variant_values = set()
+for gene, gene_calls in calls.groupby("symbol", observed=False):
+    matrix = variant_oncoprint(gene_calls)
+    for group in snakemake.params.groups:
+        if group in matrix.columns:
+            variant_values.update(matrix[group].dropna().unique())
+    attach_group_annotation(matrix, group_annotation).to_parquet(
+        Path(snakemake.output.variant_oncoprints) / f"{gene}.parquet", index=False
     )
+
+color_domains = {
+    "gene": sorted(
+        {
+            value
+            for group in snakemake.params.groups
+            if group in gene_oncoprint.columns
+            for value in gene_oncoprint[group].dropna().unique()
+        }
+    ),
+    "variant": sorted(variant_values),
+}
+with open(snakemake.output.color_domains, "w") as handle:
+    json.dump(color_domains, handle)

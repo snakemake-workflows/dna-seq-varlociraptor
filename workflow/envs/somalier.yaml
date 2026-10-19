@@ -1,6 +1,6 @@
 channels:
   - conda-forge
   - bioconda
+  - nodefaults
 dependencies:
-  - pandas =2.1
-  - python =3.10
+  - somalier =0.3.2

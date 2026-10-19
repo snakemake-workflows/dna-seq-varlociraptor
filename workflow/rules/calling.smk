@@ -1,9 +1,8 @@
-import io
-
-
 rule render_scenario:
     input:
-        template=local(config["calling"]["scenario"]),
+        template=local(
+            lookup(query="group == '{group}'", within=scenarios, cols="scenario")
+        ),
     output:
         report(
             "results/scenarios/{group}.yaml",
@@ -13,11 +12,11 @@ rule render_scenario:
         ),
     log:
         "logs/render-scenario/{group}.log",
+    conda:
+        None
     params:
         samples=lambda wc: samples[samples["group"] == wc.group],
         annotation=lambda wc: group_annotation.loc[wc.group],
-    conda:
-        None
     template_engine:
         "yte"
 
@@ -47,11 +46,7 @@ rule varlociraptor_preprocess:
         bai="results/recal/{sample}.bai",
         alignment_props=get_alignment_props,
     output:
-        "results/observations/{group}/{sample}.{caller}.{scatteritem}.bcf",
-    params:
-        extra=lambda wc: get_varlociraptor_params(
-            wc, config["params"]["varlociraptor"]["preprocess"]
-        ),
+        "results/observations/{caller}/{group}/{sample}.{scatteritem}.bcf",
     log:
         "logs/varlociraptor/preprocess/{group}/{sample}.{caller}.{scatteritem}.log",
     benchmark:
@@ -60,6 +55,8 @@ rule varlociraptor_preprocess:
         "../envs/varlociraptor.yaml"
     resources:
         mem_mb=lambda wc, input, attempt: attempt * 3500,  # usually, this should stay below 3500, but we have seen RNAseq cases where this goes up to 6.5 GB
+    params:
+        extra=get_varlociraptor_params("preprocess"),
     shell:
         "varlociraptor preprocess variants --candidates {input.candidates} {params.extra} "
         "--alignment-properties {input.alignment_props} {input.ref} --bam {input.bam} --output {output} "
@@ -71,25 +68,24 @@ rule varlociraptor_call:
         obs=get_group_observations,
         scenario="results/scenarios/{group}.yaml",
     output:
-        temp("results/calls/{group}.{caller}.{scatteritem}.unsorted.bcf"),
+        temp(
+            "results/calls/varlociraptor/{caller}/{group}/{group}.{scatteritem}.unsorted.bcf"
+        ),
     log:
-        "logs/varlociraptor/call/{group}.{caller}.{scatteritem}.log",
+        "logs/varlociraptor/call/{caller}/{group}.{scatteritem}.log",
+    benchmark:
+        "benchmarks/varlociraptor/call/{group}/{group}.{caller}.{scatteritem}.tsv"
+    conda:
+        "../envs/varlociraptor.yaml"
     params:
         obs=get_varlociraptor_obs_args,
         # Add -o as workaround to separate info field entries from subcommand
-        extra=lambda wc: get_varlociraptor_params(
-            wc, config["params"]["varlociraptor"]["call"]
-        )
-        + " -o /dev/stdout",
+        extra=get_varlociraptor_params("call"),
         postprocess=(
             ">"
             if not config["calling"].get("infer_genotypes")
             else "| varlociraptor genotype >"
         ),
-    conda:
-        "../envs/varlociraptor.yaml"
-    benchmark:
-        "benchmarks/varlociraptor/call/{group}.{caller}.{scatteritem}.tsv"
     shell:
         "(varlociraptor call variants {params.extra} generic --obs {params.obs}"
         " --scenario {input.scenario} {params.postprocess} {output}) 2> {log}"
@@ -97,18 +93,18 @@ rule varlociraptor_call:
 
 rule sort_calls:
     input:
-        "results/calls/{group}.{caller}.{scatteritem}.unsorted.bcf",
+        "results/calls/varlociraptor/{caller}/{group}/{group}.{scatteritem}.unsorted.bcf",
     output:
-        temp("results/calls/{group}.{caller}.{scatteritem}.bcf"),
+        temp("results/calls/varlociraptor/{caller}/{group}/{group}.{scatteritem}.bcf"),
+    log:
+        "logs/bcf-sort/{group}/{group}.{caller}.{scatteritem}.log",
+    resources:
+        mem_mb=8000,
     params:
         # Set to True, in case you want uncompressed BCF output
         uncompressed_bcf=False,
         # Extra arguments
         extras="",
-    log:
-        "logs/bcf-sort/{group}.{caller}.{scatteritem}.log",
-    resources:
-        mem_mb=8000,
     wrapper:
         "v2.6.0/bio/bcftools/sort"
 
@@ -118,9 +114,9 @@ rule bcftools_concat:
         calls=get_scattered_calls(),
         indexes=get_scattered_calls(ext="bcf.csi"),
     output:
-        "results/calls/{group}.{calling_type}.{scatteritem}.bcf",
+        "results/calls/varlociraptor/{group}/{group}.{calling_type}.{scatteritem}.bcf",
     log:
-        "logs/concat-calls/{group}.{calling_type}.{scatteritem}.log",
+        "logs/concat-calls/{group}/{group}.{calling_type}.{scatteritem}.log",
     params:
         extra="-a",  # TODO Check this
     wrapper:

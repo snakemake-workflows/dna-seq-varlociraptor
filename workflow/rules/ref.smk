@@ -3,13 +3,13 @@ rule get_genome:
         genome,
     log:
         "logs/get-genome.log",
+    cache: "omit-software"
     params:
         species=config["ref"]["species"],
         datatype="dna",
         build=config["ref"]["build"],
         release=config["ref"]["release"],
         chromosome=config["ref"].get("chromosome"),
-    cache: "omit-software"
     wrapper:
         "v7.3.0/bio/reference/ensembl-sequence"
 
@@ -23,7 +23,7 @@ rule genome_faidx:
         "logs/genome-faidx.log",
     cache: "omit-software"
     wrapper:
-        "v2.3.2/bio/samtools/faidx"
+        "v9.15.0/bio/samtools/faidx"
 
 
 rule genome_dict:
@@ -33,9 +33,9 @@ rule genome_dict:
         genome_dict,
     log:
         "logs/samtools/create_dict.log",
+    cache: "omit-software"
     conda:
         "../envs/samtools.yaml"
-    cache: "omit-software"
     shell:
         "samtools dict {input} > {output} 2> {log} "
 
@@ -48,13 +48,13 @@ rule get_known_variants:
         vcf="resources/variation.vcf.gz",
     log:
         "logs/get-known-variants.log",
+    cache: "omit-software"
     params:
         species=config["ref"]["species"],
         release=config["ref"]["release"],
         build=config["ref"]["build"],
         type="all",
         chromosome=config["ref"].get("chromosome"),
-    cache: "omit-software"
     wrapper:
         "v7.5.0/bio/reference/ensembl-variation"
 
@@ -62,14 +62,14 @@ rule get_known_variants:
 rule get_annotation:
     output:
         "resources/annotation.gtf",
+    log:
+        "logs/get_annotation.log",
+    cache: "omit-software"  # save space and time with between workflow caching (see docs)
     params:
         species=config["ref"]["species"],
         release=config["ref"]["release"],
         build=config["ref"]["build"],
         flavor="",  # optional, e.g. chr_patch_hapl_scaff, see Ensembl FTP.
-    log:
-        "logs/get_annotation.log",
-    cache: "omit-software"  # save space and time with between workflow caching (see docs)
     wrapper:
         "v7.5.0/bio/reference/ensembl-annotation"
 
@@ -87,13 +87,14 @@ rule determine_coding_regions:
     shell:
         # filter for `exon` entries, but unclear how to exclude pseudogene exons...
         """
-        ( cat {input} | \\
-          awk 'BEGIN {{ IFS = "\\t"}} {{ if ($3 == "exon") {{ print $0 }} }}' | \\
-          grep 'transcript_biotype "protein_coding"' | \\
-          grep 'gene_biotype "protein_coding"' | \\
-          awk 'BEGIN {{ IFS = "\\t"; OFS = "\\t"}}  {{ print $1,$4-1,$5 }}' | \\
-          gzip > {output} \\
-        ) 2> {log}
+        (
+            cat {input} | \\
+            awk 'BEGIN {{ IFS = "\\t"}} {{ if ($3 == "exon") {{ print $0 }} }}' | \\
+            grep 'transcript_biotype "protein_coding"' | \\
+            grep 'gene_biotype "protein_coding"' | \\
+            awk 'BEGIN {{ IFS = "\\t"; OFS = "\\t"}}  {{ print $1,$4-1,$5 }}' | \\
+            gzip >{output} \\
+        ) 2>{log}
         """
 
 
@@ -104,9 +105,9 @@ rule remove_iupac_codes:
         "resources/variation.noiupac.vcf.gz",
     log:
         "logs/fix-iupac-alleles.log",
+    cache: "omit-software"
     conda:
         "../envs/rbt.yaml"
-    cache: "omit-software"
     shell:
         "(rbt vcf-fix-iupac-alleles < {input} | bcftools view -Oz > {output}) 2> {log}"
 
@@ -126,13 +127,13 @@ rule bwa_index:
 rule get_vep_cache:
     output:
         directory("resources/vep/cache"),
+    log:
+        "logs/vep/cache.log",
+    cache: "omit-software"
     params:
         species=config["ref"]["species"],
         build=config["ref"]["build"],
         release=config["ref"]["release"],
-    log:
-        "logs/vep/cache.log",
-    cache: "omit-software"
     wrapper:
         "v8.0.0/bio/vep/cache"
 
@@ -140,23 +141,65 @@ rule get_vep_cache:
 rule get_vep_plugins:
     output:
         directory("resources/vep/plugins"),
-    params:
-        release=config["ref"]["release"],
     log:
         "logs/vep/plugins.log",
+    params:
+        release=config["ref"]["release"],
     wrapper:
         "v8.0.0/bio/vep/plugins"
 
 
-rule get_pangenome:
-    output:
-        f"{pangenome_prefix}.{{ext}}",
-    params:
-        url=lambda wc: get_pangenome_url(wc.ext),
-    wildcard_constraints:
-        ext="hapl|gbz",
-    log:
-        "logs/pangenome/{ext}.log",
-    cache: "omit-software"
-    shell:
-        "curl -o {output} {params.url} 2> {log}"
+if is_activated("ref/pangenome"):
+
+    rule get_pangenome:
+        output:
+            f"{pangenome_prefix}.gbz",
+        log:
+            "logs/get_pangenome.log",
+        cache: "omit-software"
+        params:
+            url=get_pangenome_url(),
+        shell:
+            "curl -fSL -o {output} {params.url} 2> {log}"
+
+    rule pangenome_autoindex:
+        input:
+            f"{pangenome_prefix}.gbz",
+        output:
+            multiext(
+                pangenome_prefix,
+                ".dist",
+                ".shortread.withzip.min",
+                ".longread.withzip.min",
+                ".shortread.zipcodes",
+                ".longread.zipcodes",
+            ),
+        log:
+            "logs/vg_autoindex.log",
+        cache: True
+        conda:
+            "../envs/vg.yaml"
+        threads: 64
+        params:
+            prefix=subpath(output[0], strip_suffix=".dist"),
+        shell:
+            "vg autoindex --workflow sr-giraffe --workflow lr-giraffe --threads {threads} "
+            "--gbz {input} --prefix {params.prefix} {output} {input} 2> {log}"
+
+    rule get_reference_paths:
+        input:
+            f"{pangenome_prefix}.gbz",
+        output:
+            f"{pangenome_prefix}.ref_paths.txt",
+        log:
+            "logs/reference/paths.log",
+        conda:
+            "../envs/vg.yaml"
+        params:
+            build=config["ref"]["build"],
+        shell:
+            "(vg paths -x {input} -L --paths-by {params.build}"
+            " | grep -v '_random'"
+            " | grep -v 'chrUn_'"
+            " | grep -v '_decoy'"
+            " | grep -v 'EBV') > {output} 2> {log}"

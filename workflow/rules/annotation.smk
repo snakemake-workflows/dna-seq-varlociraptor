@@ -1,53 +1,100 @@
 rule annotate_candidate_variants:
     input:
-        calls="results/candidate-calls/{group}.{caller}.{scatteritem}.bcf",
+        calls="results/candidate-calls/{caller}/{group}/{group}.{scatteritem}.bcf",
         cache=access.random("resources/vep/cache"),
         plugins=access.random("resources/vep/plugins"),
         fasta=access.random(genome),
         fai=genome_fai,
     output:
-        calls="results/candidate-calls/{group}.{caller}.{scatteritem}.annotated.bcf",
-        stats="results/candidate-calls/{group}.{caller}.{scatteritem}.stats.html",
+        calls="results/candidate-calls/{caller}/{group}/{group}.{scatteritem}.annotated.bcf",
+        stats="results/candidate-calls/{caller}/{group}/{group}.{scatteritem}.stats.html",
+    log:
+        "logs/vep/{caller}/{group}/{group}.{scatteritem}.annotate_candidates.log",
+    benchmark:
+        "benchmarks/vep/{caller}/{group}/{group}.{scatteritem}.annotate_candidates.tsv"
+    group:
+        "candidate-annotation"
+    threads: 4
     params:
         plugins=config["annotations"]["vep"]["candidate_calls"]["plugins"],
         extra="{} --vcf_info_field ANN ".format(
             config["annotations"]["vep"]["candidate_calls"]["params"]
         ),
-    log:
-        "logs/vep/{group}.{caller}.{scatteritem}.annotate_candidates.log",
-    benchmark:
-        "benchmarks/vep/{group}.{caller}.{scatteritem}.annotate_candidates.tsv"
-    threads: 4
-    group:
-        "candidate-annotation"
     wrapper:
         "v8.0.0/bio/vep/annotate"
 
 
+rule atomize_variants:
+    input:
+        "results/calls/varlociraptor/{group}/{group}.{calling_type}.{scatteritem}.bcf",
+        ref=access.random(genome),
+    output:
+        pipe(
+            "results/calls/atomized/{group}/{group}.{calling_type}.{scatteritem}.unsorted.bcf"
+        ),
+    log:
+        "logs/atomize/{group}/{group}.{calling_type}.{scatteritem}.log",
+    params:
+        extra="--atomize --check-ref s --rm-dup exact -m-any --atom-overlaps .",
+    wrapper:
+        "v9.15.0/bio/bcftools/norm"
+
+
+rule sort_atomized_variants:
+    input:
+        "results/calls/atomized/{group}/{group}.{calling_type}.{scatteritem}.unsorted.bcf",
+    output:
+        "results/calls/atomized/{group}/{group}.{calling_type}.{scatteritem}.bcf",
+    log:
+        "logs/bcftools/sort-atomized/{group}/{group}.{calling_type}.{scatteritem}.log",
+    resources:
+        mem_mb=8000,
+    wrapper:
+        "v9.15.0/bio/bcftools/sort"
+
+
 rule annotate_variants:
     input:
-        calls="results/calls/{group}.{calling_type}.{scatteritem}.bcf",
+        calls=branch(
+            lookup("calling/atomize", within=config, default=False),
+            then="results/calls/atomized/{group}/{group}.{calling_type}.{scatteritem}.bcf",
+            otherwise="results/calls/varlociraptor/{group}/{group}.{calling_type}.{scatteritem}.bcf",
+        ),
         cache=access.random("resources/vep/cache"),
         plugins=access.random("resources/vep/plugins"),
         revel=lambda wc: get_plugin_aux("REVEL"),
-        revel_tbi=lambda wc: get_plugin_aux("REVEL", True),
+        revel_tbi=lambda wc: get_plugin_aux("REVEL", index=True),
+        cadd_snv=lambda wc: get_plugin_aux("CADD", cadd_variant_type="snv"),
+        cadd_snv_tbi=lambda wc: get_plugin_aux(
+            "CADD", cadd_variant_type="snv", index=True
+        ),
+        cadd_indel=lambda wc: get_plugin_aux("CADD", cadd_variant_type="indels"),
+        cadd_indel_tbi=lambda wc: get_plugin_aux(
+            "CADD", cadd_variant_type="indels", index=True
+        ),
         fasta=access.random(genome),
         fai=genome_fai,
     output:
-        calls="results/calls/{group}.{calling_type}.{scatteritem}.annotated.bcf",
-        stats="results/calls/{group}.{calling_type}.{scatteritem}.stats.html",
+        calls="results/calls/vep_annotated/{group}/{group}.{calling_type}.{scatteritem}.bcf",
+        stats="results/calls/vep_annotated/{group}/{group}.{calling_type}.{scatteritem}.stats.html",
+    log:
+        "logs/vep/{group}.{calling_type}.{scatteritem}.annotate.log",
+    group:
+        "annotation"
+    threads: 4
     params:
         # Pass a list of plugins to use, see https://www.ensembl.org/info/docs/tools/vep/script/vep_plugins.html
         # Plugin args can be added as well, e.g. via an entry "MyPlugin,1,FOO", see docs.
-        plugins=config["annotations"]["vep"]["final_calls"]["plugins"],
+        plugins=lambda wc: [
+            p.replace(
+                "CADD",
+                f"CADD,snv={get_plugin_aux('CADD', cadd_variant_type= 'snv')},indels={get_plugin_aux('CADD', cadd_variant_type= 'indels')}",
+            )
+            for p in config["annotations"]["vep"]["final_calls"]["plugins"]
+        ],
         extra="{} --vcf_info_field ANN --hgvsg".format(
             config["annotations"]["vep"]["final_calls"]["params"]
         ),
-    log:
-        "logs/vep/{group}.{calling_type}.{scatteritem}.annotate.log",
-    threads: 4
-    group:
-        "annotation"
     wrapper:
         "v8.0.0/bio/vep/annotate"
 
@@ -55,20 +102,20 @@ rule annotate_variants:
 # TODO What about multiple ID Fields?
 rule annotate_vcfs:
     input:
-        bcf="results/calls/{prefix}.bcf",
+        bcf="results/calls/vep_annotated/{prefix}.bcf",
         annotations=get_annotation_vcfs(),
         idx=get_annotation_vcfs(idx=True),
     output:
-        "results/calls/{prefix}.db-annotated.bcf",
+        "results/calls/db_annotated/{prefix}.bcf",
     log:
         "logs/annotate-vcfs/{prefix}.log",
-    params:
-        pipes=get_annotation_pipes,
+    group:
+        "annotation"
     conda:
         "../envs/snpsift.yaml"
     threads: 4
-    group:
-        "annotation"
+    params:
+        pipes=get_annotation_pipes,
     shell:
         "(bcftools view --threads {threads} {input.bcf} {params.pipes} | "
         "bcftools view --threads {threads} -Ob > {output}) 2> {log}"
@@ -76,19 +123,19 @@ rule annotate_vcfs:
 
 rule annotate_dgidb:
     input:
-        "results/calls/{prefix}.bcf",
-    params:
-        datasources=get_dgidb_datasources(),
+        get_annotate_dgidb_input,
     output:
-        "results/calls/{prefix}.dgidb.bcf",
+        "results/calls/dgidb_annotated/{prefix}.bcf",
     log:
         "logs/annotate-dgidb/{prefix}.log",
+    group:
+        "annotation"
     conda:
         "../envs/rbt.yaml"
     resources:
         dgidb_requests=1,
-    group:
-        "annotation"
+    params:
+        datasources=get_dgidb_datasources(),
     shell:
         "rbt vcf-annotate-dgidb {input} {params.datasources} > {output} 2> {log}"
 
@@ -106,12 +153,12 @@ rule gather_annotated_calls:
         calls=get_gather_annotated_calls_input(),
         idx=get_gather_annotated_calls_input(ext="bcf.csi"),
     output:
-        "results/final-calls/{group}.{calling_type}.annotated.bcf",
+        "results/final-calls/{group}/{group}.{calling_type}.annotated.bcf",
     log:
-        "logs/gather-annotated-calls/{group}.{calling_type}.log",
-    params:
-        extra="-a",
+        "logs/gather-annotated-calls/{group}/{group}.{calling_type}.log",
     group:
         "annotation"
+    params:
+        extra="-a",
     wrapper:
         "v2.3.2/bio/bcftools/concat"

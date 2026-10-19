@@ -1,4 +1,4 @@
-$schema: "http://json-schema.org/draft-07/schema#"
+$schema: "https://json-schema.org/draft/2020-12/schema"
 
 description: snakemake configuration file
 
@@ -31,7 +31,7 @@ definitions:
     properties:
       varlociraptor:
         type: array
-        items: 
+        items:
           type: string
       filter:
         anyOf:
@@ -93,7 +93,7 @@ properties:
       trimming:
         type: object
         properties:
-          activate: 
+          activate:
             type: boolean
           primers_fq1:
             type: string
@@ -117,6 +117,11 @@ properties:
     properties:
       activate:
         type: boolean
+      label_dependency:
+        type: object
+        properties:
+          min_recurrence:
+            type: integer
       stratify:
         type: object
         properties:
@@ -145,7 +150,7 @@ properties:
             type: string
           events:
             type: array
-            items: 
+            items:
               type: string
         required:
           - activate
@@ -164,7 +169,7 @@ properties:
             type: boolean
           annotation_fields:
             type: array
-            items: 
+            items:
                anyOf:
                 - type: string
                 - type: object
@@ -210,6 +215,10 @@ properties:
             type: boolean
       scenario:
         type: string
+      infer_genotypes:
+        type: boolean
+      atomize:
+        type: boolean
       filter:
         $ref: "#/definitions/filterentry"
         description: "a map of <filtername: string> pairs"
@@ -224,7 +233,7 @@ properties:
             type: boolean
           mode:
             type: string
-            enum: 
+            enum:
               - local-smart
               - local-strict
               - global-smart
@@ -237,10 +246,9 @@ properties:
     required:
       - delly
       - freebayes
-      - scenario
       - filter
       - fdr-control
-  
+
   remove_duplicates:
     type: object
     properties:
@@ -266,7 +274,7 @@ properties:
             type: boolean
           datasources:
             type: array
-            items: 
+            items:
               type: string
       vep:
         properties:
@@ -338,8 +346,13 @@ properties:
       freebayes:
         type: object
         properties:
-          min_allele_frequency:
+          min_alternate_fraction:
             type: number
+          extra:
+            type: string
+          use_best_n_alleles:
+            type: integer
+            minimum: 1
     required:
       - gatk
       - picard

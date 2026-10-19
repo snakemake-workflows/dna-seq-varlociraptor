@@ -5,27 +5,27 @@ if is_activated("population/db"):
             get_population_db(use_before_update=True),
         output:
             temp("results/population_db.cleaned.bcf"),
-        params:
-            remove_groups=lambda wc: ",".join(variants_groups),
         conda:
             "../envs/bcftools.yaml"
+        params:
+            remove_groups=lambda wc: ",".join(variants_groups),
         shell:
             "bcftools view --force-samples --samples ^{params.remove_groups} {input} -Ob > {output}"
 
     rule population_filter_variants:
         input:
-            "results/final-calls/{group}.variants.annotated.bcf",
+            "results/final-calls/{group}/{group}.variants.annotated.bcf",
         output:
             temp("results/population/{group}.variants.filtered.bcf"),
         log:
             "logs/population/{group}.filter.log",
+        conda:
+            "../envs/varlociraptor.yaml"
         params:
             events=lookup(dpath="population/db/events", within=config),
             fdr=lookup(dpath="population/db/fdr", within=config),
             alias=lookup(dpath="population/db/alias", within=config),
             keep_fields="^INFO/SVLEN,INFO/SVTYPE,INFO/MATEID,INFO/END,INFO/CIPOS,INFO/CIEND,^FORMAT/AF",
-        conda:
-            "../envs/varlociraptor.yaml"
         shell:
             "varlociraptor filter-calls control-fdr --mode local-smart {input} "
             "--events {params.events} --fdr {params.fdr} | "

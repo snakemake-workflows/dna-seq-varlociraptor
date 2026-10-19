@@ -1,18 +1,20 @@
 rule vembrane_table:
     input:
-        bcf="results/final-calls/{group}.{event}.{calling_type}.fdr-controlled.normal-probs.bcf",
+        bcf="results/final-calls/{group}/{group}.{event}.{calling_type}.fdr-controlled.normal-probs.bcf",
         scenario="results/scenarios/{group}.yaml",
     output:
-        bcf="results/tables/{group}.{event}.{calling_type}.fdr-controlled.tsv",
+        "results/tables/{group}/{group}.{event}.{calling_type}.fdr-controlled.{fmt,tsv|parquet}",
+    log:
+        "logs/vembrane-table/{group}.{event}.{calling_type}.{fmt}.log",
     conda:
         "../envs/vembrane.yaml"
     params:
         config=lambda wc, input: get_vembrane_config(wc, input),
-    log:
-        "logs/vembrane-table/{group}.{event}.{calling_type}.log",
+        fmt=branch(evaluate("{fmt} == 'tsv'"), then="csv", otherwise="parquet"),
     shell:
-        'vembrane table --header "{params.config[header]}" "{params.config[expr]}" '
-        "{input.bcf} > {output.bcf} 2> {log}"
+        "vembrane table --wide --output-fmt {params.fmt} "
+        '--header "{params.config[header]}" "{params.config[expr]}" '
+        "{input.bcf} --output {output} 2> {log}"
 
 
 rule tsv_to_excel:
@@ -20,9 +22,9 @@ rule tsv_to_excel:
         tsv="results/{x}.tsv",
     output:
         xlsx="results/{x}.xlsx",
-    conda:
-        "../envs/excel.yaml"
     log:
         "logs/tsv_to_xlsx/{x}.log",
+    conda:
+        "../envs/pystats.yaml"
     script:
         "../scripts/tsv_to_xlsx.py"

@@ -1,5 +1,263 @@
 # Changelog
 
+## [6.11.1](https://github.com/snakemake-workflows/dna-seq-varlociraptor/compare/v6.11.0...v6.11.1) (2026-10-18)
+
+
+### Bug Fixes
+
+* siglasso install, ensure failure to install is reported ([#473](https://github.com/snakemake-workflows/dna-seq-varlociraptor/issues/473)) ([412bf28](https://github.com/snakemake-workflows/dna-seq-varlociraptor/commit/412bf28c2f2b9493caa6552cf865236612d17253))
+* update to varlociraptor 8.12.0
+
+## [6.11.0](https://github.com/snakemake-workflows/dna-seq-varlociraptor/compare/v6.10.1...v6.11.0) (2026-10-06)
+
+
+### Features
+
+* detect sample swaps with somalier ([#464](https://github.com/snakemake-workflows/dna-seq-varlociraptor/issues/464)) ([018b5fe](https://github.com/snakemake-workflows/dna-seq-varlociraptor/commit/018b5fea7f40dcbc442e3886a47c4ea0cbcc3513))
+* enable genebe linkout in variant oncoprint; support atomization of variants; use parquet for tabular intermediate results; use narrow oncoprint with &gt;=10 samples/groups ([#469](https://github.com/snakemake-workflows/dna-seq-varlociraptor/issues/469)) ([cabf658](https://github.com/snakemake-workflows/dna-seq-varlociraptor/commit/cabf658cdf57f997a74a36c0885c3059d7934fa4))
+* expose freebayes --use-best-n-alleles via params/freebayes ([#471](https://github.com/snakemake-workflows/dna-seq-varlociraptor/issues/471)) ([87753ef](https://github.com/snakemake-workflows/dna-seq-varlociraptor/commit/87753efba1e48e1cc5949ed0e7305b91182425b0))
+
+
+### Bug Fixes
+
+* declare the freebayes config keys the workflow actually reads ([#470](https://github.com/snakemake-workflows/dna-seq-varlociraptor/issues/470)) ([ce165d5](https://github.com/snakemake-workflows/dna-seq-varlociraptor/commit/ce165d57dc3bd3f99b6766e2d61caa9af77ed4bd))
+
+## [6.10.1](https://github.com/snakemake-workflows/dna-seq-varlociraptor/compare/v6.10.0...v6.10.1) (2026-09-07)
+
+
+### Bug Fixes
+
+* require latest snakemake containing a bugfix for vg parallelization ([4f385a9](https://github.com/snakemake-workflows/dna-seq-varlociraptor/commit/4f385a9c682bbee26f671e71e3f379656b814a6e))
+
+
+### Performance Improvements
+
+* share oncoprint heatmap color domains ([#468](https://github.com/snakemake-workflows/dna-seq-varlociraptor/issues/468)) ([235c42f](https://github.com/snakemake-workflows/dna-seq-varlociraptor/commit/235c42f2666b7e05784ee4a7f2ab58eb79c7475d))
+* update datavzrd wrapper to 9.17.1 ([#467](https://github.com/snakemake-workflows/dna-seq-varlociraptor/issues/467)) ([ec08825](https://github.com/snakemake-workflows/dna-seq-varlociraptor/commit/ec0882562218361fb33ecf2d1f63ea1457195b09))
+
+## [6.10.0](https://github.com/snakemake-workflows/dna-seq-varlociraptor/compare/v6.9.2...v6.10.0) (2026-08-04)
+
+
+### Features
+
+* support per-group scenario templates ([#435](https://github.com/snakemake-workflows/dna-seq-varlociraptor/issues/435)) ([982a35d](https://github.com/snakemake-workflows/dna-seq-varlociraptor/commit/982a35d1e0cc1279492e87f1f8f34777f032c447))
+
+
+### Bug Fixes
+
+* do not use kmers to personalize pangenome and rely on HPRC release 1.1 with d9 filtering by default ([#465](https://github.com/snakemake-workflows/dna-seq-varlociraptor/issues/465)) ([68e327b](https://github.com/snakemake-workflows/dna-seq-varlociraptor/commit/68e327b2f73afb4ae501d4de300d7c336ad6585a))
+* update to latest datavzrd ([#463](https://github.com/snakemake-workflows/dna-seq-varlociraptor/issues/463)) ([95bd41c](https://github.com/snakemake-workflows/dna-seq-varlociraptor/commit/95bd41c6889c79a839430692cf6ede40eb8c67a6))
+
+
+### Performance Improvements
+
+* mark more non-permanent intermediate results as temp/pipe ([#448](https://github.com/snakemake-workflows/dna-seq-varlociraptor/issues/448)) ([df5825b](https://github.com/snakemake-workflows/dna-seq-varlociraptor/commit/df5825bc11ad338831dd668d793f8bc29333a9f6))
+
+## [6.9.2](https://github.com/snakemake-workflows/dna-seq-varlociraptor/compare/v6.9.1...v6.9.2) (2026-07-13)
+
+
+### Bug Fixes
+
+* get correctly restricted multiqc input ([#459](https://github.com/snakemake-workflows/dna-seq-varlociraptor/issues/459)) ([115f729](https://github.com/snakemake-workflows/dna-seq-varlociraptor/commit/115f729c0374933d8599174eaa4a90efd5e6914a))
+* use correct output file for collecting QC info from fastp ([35ff815](https://github.com/snakemake-workflows/dna-seq-varlociraptor/commit/35ff81596db09a91ef069857ccea62d8a01fb7ea))
+
+## [6.9.1](https://github.com/snakemake-workflows/dna-seq-varlociraptor/compare/v6.9.0...v6.9.1) (2026-06-30)
+
+
+### Miscellaneous Chores
+
+* release 6.9.1 (updated datavzrd) ([56053db](https://github.com/snakemake-workflows/dna-seq-varlociraptor/commit/56053dbc3c466166f6b97e79452c105d5154497c))
+
+## [6.9.0](https://github.com/snakemake-workflows/dna-seq-varlociraptor/compare/v6.8.0...v6.9.0) (2026-06-24)
+
+
+### Features
+
+* test independence for numeric labels using Brunner-Munzel test ([#452](https://github.com/snakemake-workflows/dna-seq-varlociraptor/issues/452)) ([b0dc0d8](https://github.com/snakemake-workflows/dna-seq-varlociraptor/commit/b0dc0d8a0f40c2e79b70c0c32fd92772339ef45d))
+
+## [6.8.0](https://github.com/snakemake-workflows/dna-seq-varlociraptor/compare/v6.7.0...v6.8.0) (2026-06-08)
+
+
+### Features
+
+* add GeneBe and Decipher Genomics links ([#446](https://github.com/snakemake-workflows/dna-seq-varlociraptor/issues/446)) ([0e2ae3d](https://github.com/snakemake-workflows/dna-seq-varlociraptor/commit/0e2ae3d23977c51fef46d8de8ac16fd7f641b30d))
+
+
+### Bug Fixes
+
+* Fix datavzrd config for non-coding variants view and hide short observations ([#450](https://github.com/snakemake-workflows/dna-seq-varlociraptor/issues/450)) ([b038d37](https://github.com/snakemake-workflows/dna-seq-varlociraptor/commit/b038d37d0a603de325e3146ca6536fd362af11a0))
+
+## [6.7.0](https://github.com/snakemake-workflows/dna-seq-varlociraptor/compare/v6.6.1...v6.7.0) (2026-05-25)
+
+
+### Features
+
+* add varlociraptor-inspect linkout and ellipsis to oncoprint headers ([#445](https://github.com/snakemake-workflows/dna-seq-varlociraptor/issues/445)) ([8ebd5b5](https://github.com/snakemake-workflows/dna-seq-varlociraptor/commit/8ebd5b5e80e6854946240aa56b0676a20421196f))
+
+
+### Bug Fixes
+
+* Add optional field to variant calls template ([#444](https://github.com/snakemake-workflows/dna-seq-varlociraptor/issues/444)) ([419a6a7](https://github.com/snakemake-workflows/dna-seq-varlociraptor/commit/419a6a75eb72e621ee7b693798cdd4b0c90e9ef1))
+* update JSON schemas to 2020-12 ([#438](https://github.com/snakemake-workflows/dna-seq-varlociraptor/issues/438)) ([85ca86e](https://github.com/snakemake-workflows/dna-seq-varlociraptor/commit/85ca86e64d0e1451542b43abae13ba64ad55ba1e))
+
+
+### Performance Improvements
+
+* reasonable maximum for freebayes cores ([#439](https://github.com/snakemake-workflows/dna-seq-varlociraptor/issues/439)) ([b275fef](https://github.com/snakemake-workflows/dna-seq-varlociraptor/commit/b275fefcb4c6c388e1cc12bda036a650d94c9be9))
+
+## [6.6.1](https://github.com/snakemake-workflows/dna-seq-varlociraptor/compare/v6.6.0...v6.6.1) (2026-03-18)
+
+
+### Miscellaneous Chores
+
+* release 6.6.1 ([4ecaa79](https://github.com/snakemake-workflows/dna-seq-varlociraptor/commit/4ecaa7939bf3e555dac12cea6fed7d7e605a7b38))
+
+## [6.6.0](https://github.com/snakemake-workflows/dna-seq-varlociraptor/compare/v6.5.2...v6.6.0) (2026-03-06)
+
+
+### Features
+
+* cache CADD scores ([5840bfa](https://github.com/snakemake-workflows/dna-seq-varlociraptor/commit/5840bfa541a5848ec5d932b659045a8c5b64a19c))
+
+## [6.5.2](https://github.com/snakemake-workflows/dna-seq-varlociraptor/compare/v6.5.1...v6.5.2) (2026-03-06)
+
+
+### Bug Fixes
+
+* store CADD versions in nested dir structure ([1407a96](https://github.com/snakemake-workflows/dna-seq-varlociraptor/commit/1407a966a192bbd6c4e29ca9ad0c5136d4e17d17))
+
+## [6.5.1](https://github.com/snakemake-workflows/dna-seq-varlociraptor/compare/v6.5.0...v6.5.1) (2026-02-27)
+
+
+### Bug Fixes
+
+* integrate tabix indexing for CADD with generic tabix rule ([#431](https://github.com/snakemake-workflows/dna-seq-varlociraptor/issues/431)) ([f3cc796](https://github.com/snakemake-workflows/dna-seq-varlociraptor/commit/f3cc79643007588f10adaf6c4f867f37fbc6e3e7))
+
+
+### Performance Improvements
+
+* Update datavzrd wrapper version to v9.2.0 ([#429](https://github.com/snakemake-workflows/dna-seq-varlociraptor/issues/429)) ([88326bc](https://github.com/snakemake-workflows/dna-seq-varlociraptor/commit/88326bcb60a4b8d7884cefa88cdbe3af26dba048))
+
+## [6.5.0](https://github.com/snakemake-workflows/dna-seq-varlociraptor/compare/v6.4.2...v6.5.0) (2026-02-26)
+
+
+### Features
+
+* Enable passing additional arguments to the get_sra rule ([#428](https://github.com/snakemake-workflows/dna-seq-varlociraptor/issues/428)) ([74ab1ee](https://github.com/snakemake-workflows/dna-seq-varlociraptor/commit/74ab1eeac89db5dd0328dfdb9a41b53ac4a6ba1b))
+
+
+### Bug Fixes
+
+* adapt mutational signature calling to latest changes and ensure that generalizations introduced in the configuration are properly considered ([#424](https://github.com/snakemake-workflows/dna-seq-varlociraptor/issues/424)) ([43d4543](https://github.com/snakemake-workflows/dna-seq-varlociraptor/commit/43d45433ea8ac660eb39221cb87a2c167b97c4b0))
+
+## [6.4.2](https://github.com/snakemake-workflows/dna-seq-varlociraptor/compare/v6.4.1...v6.4.2) (2026-02-18)
+
+
+### Bug Fixes
+
+* format pangenome url in multiple lines ([#426](https://github.com/snakemake-workflows/dna-seq-varlociraptor/issues/426)) ([686ff81](https://github.com/snakemake-workflows/dna-seq-varlociraptor/commit/686ff81dcc276b45cc05bed59d556afd0fab07fa))
+
+## [6.4.1](https://github.com/snakemake-workflows/dna-seq-varlociraptor/compare/v6.4.0...v6.4.1) (2026-02-13)
+
+
+### Performance Improvements
+
+* Update varlociraptor version to 8.9.5 ([b19d1ea](https://github.com/snakemake-workflows/dna-seq-varlociraptor/commit/b19d1ea54574cd1c4d0c9ff79f3f98bd45a98156))
+
+## [6.4.0](https://github.com/snakemake-workflows/dna-seq-varlociraptor/compare/v6.3.1...v6.4.0) (2026-01-28)
+
+
+### Features
+
+* add CADD score plugin implementation to VEP annotation ([#416](https://github.com/snakemake-workflows/dna-seq-varlociraptor/issues/416)) ([9937499](https://github.com/snakemake-workflows/dna-seq-varlociraptor/commit/9937499f4464784c9604b168764c0209cec17e4a))
+
+## [6.3.1](https://github.com/snakemake-workflows/dna-seq-varlociraptor/compare/v6.3.0...v6.3.1) (2026-01-21)
+
+
+### Bug Fixes
+
+* change mutation signature VAF range from 0-100 to 5-100 ([#420](https://github.com/snakemake-workflows/dna-seq-varlociraptor/issues/420)) ([2356be7](https://github.com/snakemake-workflows/dna-seq-varlociraptor/commit/2356be7d63d1d636992265c156aae7d8ac987b72))
+* fix CI ([#421](https://github.com/snakemake-workflows/dna-seq-varlociraptor/issues/421)) ([a7622e2](https://github.com/snakemake-workflows/dna-seq-varlociraptor/commit/a7622e296bb7872719e00a2336727f85e3c66fc7))
+
+## [6.3.0](https://github.com/snakemake-workflows/dna-seq-varlociraptor/compare/v6.2.7...v6.3.0) (2026-01-17)
+
+
+### Features
+
+* allow samples other than tumor to be used for mutational signature calling ([#418](https://github.com/snakemake-workflows/dna-seq-varlociraptor/issues/418)) ([b6b428d](https://github.com/snakemake-workflows/dna-seq-varlociraptor/commit/b6b428d80f76be49299e1817d19c9180c3c320a4))
+
+
+### Bug Fixes
+
+* use latest bugfix release of varlociraptor ([89c177f](https://github.com/snakemake-workflows/dna-seq-varlociraptor/commit/89c177f586d774063ccd6291efad0f9837c7509b))
+
+## [6.2.7](https://github.com/snakemake-workflows/dna-seq-varlociraptor/compare/v6.2.6...v6.2.7) (2026-01-16)
+
+
+### Bug Fixes
+
+* missing adaptations to recent changes in the structure of the final-calls folder ([c8cabdd](https://github.com/snakemake-workflows/dna-seq-varlociraptor/commit/c8cabddbfdaf986ec77fc5f219374bbadbe017d1))
+
+## [6.2.6](https://github.com/snakemake-workflows/dna-seq-varlociraptor/compare/v6.2.5...v6.2.6) (2026-01-16)
+
+
+### Bug Fixes
+
+* adapt mutational-burden command to CLI changes in Varlociraptor ([0676b20](https://github.com/snakemake-workflows/dna-seq-varlociraptor/commit/0676b208d1949f82bd56da0b69f165ba5ce7282c))
+
+## [6.2.5](https://github.com/snakemake-workflows/dna-seq-varlociraptor/compare/v6.2.4...v6.2.5) (2026-01-14)
+
+
+### Performance Improvements
+
+* update to varlociraptor 8.9 ([b83f18b](https://github.com/snakemake-workflows/dna-seq-varlociraptor/commit/b83f18b4fb5d93303796f9fec6289b08af7e3cd3))
+
+## [6.2.4](https://github.com/snakemake-workflows/dna-seq-varlociraptor/compare/v6.2.3...v6.2.4) (2025-12-30)
+
+
+### Performance Improvements
+
+* update to latest datavzrd ([4ee9f7b](https://github.com/snakemake-workflows/dna-seq-varlociraptor/commit/4ee9f7b12a8004b5d59ff70ee5ca90a5ec716730))
+
+## [6.2.3](https://github.com/snakemake-workflows/dna-seq-varlociraptor/compare/v6.2.2...v6.2.3) (2025-12-19)
+
+
+### Bug Fixes
+
+* use correct read when merging multiple units with the same name ([d73bc9c](https://github.com/snakemake-workflows/dna-seq-varlociraptor/commit/d73bc9c0f51e5bf3ef8d1b85208ac3074a0e02ce))
+
+
+### Performance Improvements
+
+* tune memory usage of samtools sort ([a7b2f9c](https://github.com/snakemake-workflows/dna-seq-varlociraptor/commit/a7b2f9c8d35751fc4609561e50d93982cb74c570))
+
+## [6.2.2](https://github.com/snakemake-workflows/dna-seq-varlociraptor/compare/v6.2.1...v6.2.2) (2025-12-15)
+
+
+### Bug Fixes
+
+* define max threads for kmc ([9234e8e](https://github.com/snakemake-workflows/dna-seq-varlociraptor/commit/9234e8e0a113ca8d04a7c256112b92b99ed5e0e2))
+* use proper temp directory for kmc output ([c35f84c](https://github.com/snakemake-workflows/dna-seq-varlociraptor/commit/c35f84cb5d2a5243452544881d523e267c04029b))
+
+## [6.2.1](https://github.com/snakemake-workflows/dna-seq-varlociraptor/compare/v6.2.0...v6.2.1) (2025-12-11)
+
+
+### Bug Fixes
+
+* set pathvars ([36f0f6b](https://github.com/snakemake-workflows/dna-seq-varlociraptor/commit/36f0f6b52fd0bc9f5513d7bcb616149f6b2812cd))
+
+## [6.2.0](https://github.com/snakemake-workflows/dna-seq-varlociraptor/compare/v6.1.2...v6.2.0) (2025-12-11)
+
+
+### Features
+
+* split output files into subdirectories ([#398](https://github.com/snakemake-workflows/dna-seq-varlociraptor/issues/398)) ([d0b4770](https://github.com/snakemake-workflows/dna-seq-varlociraptor/commit/d0b477020857b46a83fb4572d8d20c1774e8d2ca))
+
+
+### Bug Fixes
+
+* bump star arriba meta-wrapper ([1cefa14](https://github.com/snakemake-workflows/dna-seq-varlociraptor/commit/1cefa144cf661e47099ee1ddef6019b209856d65))
+
 ## [6.1.2](https://github.com/snakemake-workflows/dna-seq-varlociraptor/compare/v6.1.1...v6.1.2) (2025-11-18)
 
 

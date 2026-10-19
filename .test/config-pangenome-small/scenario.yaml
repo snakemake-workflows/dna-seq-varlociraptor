@@ -1,0 +1,9 @@
+samples:
+  tumor:
+    universe: "[0.0,1.0]"
+  normal:
+    universe: "0.0 | 0.5 | 1.0"
+
+events:
+  somatic: "tumor:]0.0,1.0] & normal:0.0"
+  germline: "normal:0.5 | normal:1.0"

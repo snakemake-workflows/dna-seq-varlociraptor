@@ -1,0 +1,3 @@
+sample_name	unit_name	fq1	fq2	adapters	sra
+seqc2-test	lane1	data/reads/pangenome_specific_locus_tumor_r1.fq	data/reads/pangenome_specific_locus_tumor_r2.fq	-a AGATCGGAAGAGCACACGTCTGAACTCCAGTCA -A AGATCGGAAGAGCGTCGTGTAGGGAAAGAGTGT	
+seqc2-test-normal	lane1	data/reads/pangenome_specific_locus_normal_r1.fastq	data/reads/pangenome_specific_locus_normal_r2.fastq	-a AGATCGGAAGAGCACACGTCTGAACTCCAGTCA -A AGATCGGAAGAGCGTCGTGTAGGGAAAGAGTGT	

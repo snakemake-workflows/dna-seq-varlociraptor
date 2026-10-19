@@ -6,132 +6,58 @@ rule map_reads_bwa:
         temp("results/mapped/bwa/{sample}.bam"),
     log:
         "logs/bwa_mem/{sample}.log",
+    threads: 8
     params:
         extra=get_read_group("-R "),
-    threads: 8
+        sorting="none",
     wrapper:
         "v3.8.0/bio/bwa/mem"
 
 
-rule count_sample_kmers:
-    input:
-        reads=get_map_reads_input,
-    output:
-        "results/kmers/{sample}.kff",
-    params:
-        out_file=lambda wc, output: os.path.splitext(output[0])[0],
-        out_dir=lambda wc, output: os.path.dirname(output[0]),
-        mem=lambda wc, resources: resources.mem[:-2],
-    conda:
-        "../envs/kmc.yaml"
-    shadow:
-        "minimal"
-    log:
-        "logs/kmers/{sample}.log",
-    threads: max(workflow.cores, 1)
-    resources:
-        mem="64GB",
-    shell:
-        "kmc -k29 -m{params.mem} -sm -okff -t{threads} -v @<(ls {input.reads}) {params.out_file} {params.out_dir} &> {log}"
-
-
-rule create_reference_paths:
-    output:
-        "resources/reference_paths.txt",
-    params:
-        build=config["ref"]["build"],
-    log:
-        "logs/reference/paths.log",
-    shell:
-        'for chrom in {{1..22}} X Y M; do echo "{params.build}#0#chr$chrom"; done > {output} 2> {log}'
-
-
 rule map_reads_vg:
     input:
+        access.random(f"{pangenome_prefix}.dist"),
+        f"{pangenome_prefix}.shortread.withzip.min",
+        f"{pangenome_prefix}.longread.withzip.min",
+        f"{pangenome_prefix}.shortread.zipcodes",
+        f"{pangenome_prefix}.longread.zipcodes",
         reads=get_map_reads_input,
-        graph=access.random(f"{pangenome_prefix}.gbz"),
-        kmers=access.random("results/kmers/{sample}.kff"),
-        hapl=access.random(f"{pangenome_prefix}.hapl"),
-        paths=access.random("resources/reference_paths.txt"),
+        graph=f"{pangenome_prefix}.gbz",
+        paths=f"{pangenome_prefix}.ref_paths.txt",
     output:
         bam=temp("results/mapped/vg/{sample}.raw.bam"),
-        indexes=temp(
-            multiext(
-                f"{pangenome_prefix}.{{sample}}",
-                ".gbz",
-                ".dist",
-                ".shortread.withzip.min",
-                ".shortread.zipcodes",
-            )
-        ),
     log:
         "logs/mapped/vg/{sample}.log",
     benchmark:
         "benchmarks/vg_giraffe/{sample}.tsv"
-    params:
-        extra=lambda wc, input: f"--ref-paths {input.paths}",
-        sorting="none",
     threads: 64
+    params:
+        # TODO replace with join_params once released
+        extra=get_giraffe_extra,
+        sorting="none",
     wrapper:
-        "v6.1.0/bio/vg/giraffe"
+        "v9.9.0/bio/vg/giraffe"
 
 
-rule reheader_mapped_reads:
+rule postprocess_vg_alignments:
     input:
         "results/mapped/vg/{sample}.raw.bam",
     output:
-        temp("results/mapped/vg/{sample}.reheadered.bam"),
-    params:
-        build=config["ref"]["build"],
-    conda:
-        "../envs/samtools.yaml"
+        pipe("results/mapped/vg/{sample}.bam"),
     log:
         "logs/reheader/{sample}.log",
-    shell:
-        "(samtools view {input} -H |"
-        " sed -E 's/(SN:{params.build}#0#chr)/SN:/; s/SN:M/SN:MT/' | "
-        " samtools reheader - {input} > {output}) 2> {log}"
-
-
-rule fix_mate:
-    input:
-        "results/mapped/vg/{sample}.reheadered.bam",
-    output:
-        temp("results/mapped/vg/{sample}.mate_fixed.bam"),
-    log:
-        "logs/samtools/fix_mate/{sample}.log",
-    threads: 8
-    params:
-        extra="",
-    wrapper:
-        "v4.7.2/bio/samtools/fixmate"
-
-
-# adding read groups is exclusive to vg mapped reads and
-# necessary because base recalibration throws errors
-# for not being able to find read group information
-rule add_read_group:
-    input:
-        lambda wc: (
-            "results/mapped/vg/{sample}.mate_fixed.bam"
-            if sample_has_primers(wc)
-            else "results/mapped/vg/{sample}.reheadered.bam"
-        ),
-    output:
-        temp("results/mapped/vg/{sample}.bam"),
-    log:
-        "logs/samtools/add_rg/{sample}.log",
-    params:
-        read_group=get_read_group(""),
-        compression_threads=lambda wildcards, threads: (
-            f"-@{threads}" if threads > 1 else ""
-        ),
     conda:
         "../envs/samtools.yaml"
-    threads: 4
+    params:
+        build=config["ref"]["build"],
+        read_group=get_read_group(""),
     shell:
-        "samtools addreplacerg {input} -o {output} -r {params.read_group} "
-        "-w {params.compression_threads} 2> {log}"
+        "(samtools view {input} -H |"
+        " sed -E 's/(SN:{params.build}#0#chr)/SN:/; s/SN:M/SN:MT/' |"
+        " samtools reheader - {input} |"
+        " samtools fixmate - - |"
+        " samtools addreplacerg - -r {params.read_group}"
+        ") > {output} 2> {log}"
 
 
 rule sort_alignments:
@@ -147,7 +73,7 @@ rule sort_alignments:
     resources:
         mem_mb=lambda wc, threads: threads * 2000,
     wrapper:
-        "v5.10.0/bio/samtools/sort"
+        "v9.15.0/bio/samtools/sort"
 
 
 rule annotate_umis:
@@ -156,10 +82,10 @@ rule annotate_umis:
         idx="results/mapped/{aligner}/{sample}.sorted.bai",
     output:
         temp("results/mapped/{aligner}/{sample}.annotated.bam"),
-    conda:
-        "../envs/umi_tools.yaml"
     log:
         "logs/annotate_bam/{aligner}/{sample}.log",
+    conda:
+        "../envs/umi_tools.yaml"
     shell:
         "umi_tools group -I {input.bam} --paired --umi-separator : --output-bam -S {output} &> {log}"
 
@@ -172,11 +98,11 @@ rule mark_duplicates:
         metrics="results/qc/dedup/{sample}.metrics.txt",
     log:
         "logs/picard/dedup/{sample}.log",
-    params:
-        extra=get_markduplicates_extra,
     resources:
         #https://broadinstitute.github.io/picard/faq.html
         mem_mb=3000,
+    params:
+        extra=get_markduplicates_extra,
     wrapper:
         "v2.5.0/bio/picard/markduplicates"
 
@@ -203,16 +129,16 @@ rule map_consensus_reads:
         idx=access.random(rules.bwa_index.output),
     output:
         temp("results/consensus/{sample}.consensus.{read_type}.mapped.bam"),
-    params:
-        index=lambda w, input: os.path.splitext(input.idx[0])[0],
-        extra=lambda w: f"-C {get_read_group("-R")(w)}",
-        sort="samtools",
-        sort_order="coordinate",
-    wildcard_constraints:
-        read_type="pe|se",
     log:
         "logs/bwa_mem/{sample}.{read_type}.consensus.log",
+    wildcard_constraints:
+        read_type="pe|se",
     threads: 8
+    params:
+        index=lambda w, input: os.path.splitext(input.idx[0])[0],
+        extra=lambda w: f"-C {get_read_group('-R')(w)}",
+        sort="samtools",
+        sort_order="coordinate",
     wrapper:
         "v2.3.2/bio/bwa/mem"
 
@@ -228,7 +154,7 @@ rule merge_consensus_reads:
         "logs/samtools_merge/{sample}.log",
     threads: 8
     wrapper:
-        "v2.3.2/bio/samtools/merge"
+        "v9.15.0/bio/samtools/merge"
 
 
 rule sort_consensus_reads:
@@ -239,8 +165,10 @@ rule sort_consensus_reads:
     log:
         "logs/samtools_sort/{sample}.log",
     threads: 16
+    resources:
+        mem=64000,
     wrapper:
-        "v2.3.2/bio/samtools/sort"
+        "v9.15.0/bio/samtools/sort"
 
 
 # TODO Does not use consensus reads
@@ -253,14 +181,14 @@ rule splitncigarreads:
         ),
         ref=genome,
     output:
-        "results/split/{sample}.bam",
+        temp("results/split/{sample}.bam"),
     log:
         "logs/gatk/splitNCIGARreads/{sample}.log",
+    resources:
+        mem_mb=6000,  # we have seen cases where this goes up to 5 GB RAM usage
     params:
         extra="",  # optional
         java_opts="",  # optional
-    resources:
-        mem_mb=6000,  # we have seen cases where this goes up to 5 GB RAM usage
     wrapper:
         "v3.1.0/bio/gatk/splitncigarreads"
 
@@ -276,14 +204,14 @@ rule recalibrate_base_qualities:
         tbi="resources/variation.noiupac.vcf.gz.tbi",
     output:
         recal_table=temp("results/recal/{sample}.grp"),
-    params:
-        extra=config["params"]["gatk"]["BaseRecalibrator"],
-        java_opts="",
-    resources:
-        mem_mb=6000,
     log:
         "logs/gatk/baserecalibrator/{sample}.log",
     threads: 8
+    resources:
+        mem_mb=6000,
+    params:
+        extra=config["params"]["gatk"]["BaseRecalibrator"],
+        java_opts="",
     wrapper:
         "v1.25.0/bio/gatk/baserecalibratorspark"
 

@@ -1,8 +1,15 @@
 module fusion_calling:
+    pathvars:
+        results="results",  # Path to results directory
+        resources="resources",  # Path to resources directory
+        logs="logs",  # Path to logs directory
+        genome_sequence=genome,  # Path to FASTA file with genome sequence
+        genome_annotation="resources/annotation.gtf",  # Path to GTF file with genome annotation
+        reads_r1="...",  # Overwritten with function below
+        reads_r2="...",  # Overwritten with function below
+        per="{sample}",  # Pattern for sample identifiers, e.g. ``"{sample}"``
     meta_wrapper:
-        "v7.1.0/meta/bio/star_arriba"
-    config:
-        config
+        "v8.0.0/meta/bio/star_arriba"
 
 
 use rule * from fusion_calling
@@ -85,13 +92,13 @@ rule annotate_exons:
         annotation=rules.get_annotation.output,
     output:
         "results/arriba/{sample}.fusions.annotated.tsv",
-    conda:
-        "../envs/arriba.yaml"
     log:
         "logs/annotate_fusions/{sample}.log",
+    conda:
+        "../envs/arriba.yaml"
     shell:
         """
-        annotate_exon_numbers.sh {input.fusions} {input.annotation} {output} 2> {log}
+        annotate_exon_numbers.sh {input.fusions} {input.annotation} {output} 2>{log}
         """
 
 
@@ -101,31 +108,31 @@ rule convert_fusions:
         fai=genome_fai,
         fusions="results/arriba/{sample}.fusions.annotated.tsv",
     output:
-        temp("results/candidate-calls/{sample}.arriba.vcf"),
-    conda:
-        "../envs/arriba.yaml"
+        temp("results/candidate-calls/arriba/{sample}/{sample}.vcf"),
     log:
         "logs/convert_fusions/{sample}.log",
+    conda:
+        "../envs/arriba.yaml"
     shell:
         """
-        convert_fusions_to_vcf.sh {input.fasta} {input.fusions} {output} 2> {log}
+        convert_fusions_to_vcf.sh {input.fasta} {input.fusions} {output} 2>{log}
         """
 
 
 rule sort_arriba_calls:
     input:
-        "results/candidate-calls/{sample}.arriba.vcf",
+        "results/candidate-calls/arriba/{sample}/{sample}.vcf",
     output:
-        temp("results/candidate-calls/{sample}.arriba.bcf"),
+        temp("results/candidate-calls/arriba/{sample}/{sample}.bcf"),
+    log:
+        "logs/bcf-sort/{sample}/{sample}.log",
+    resources:
+        mem_mb=8000,
     params:
         # Set to True, in case you want uncompressed BCF output
         uncompressed_bcf=False,
         # Extra arguments
         extras="",
-    log:
-        "logs/bcf-sort/{sample}.log",
-    resources:
-        mem_mb=8000,
     wrapper:
         "v1.21.0/bio/bcftools/sort"
 
@@ -135,14 +142,14 @@ rule bcftools_concat_candidates:
         calls=get_arriba_group_candidates,
         idx=lambda wc: get_arriba_group_candidates(wc, csi=True),
     output:
-        "results/candidate-calls/{group}.arriba.bcf",
+        "results/candidate-calls/arriba/{group}/{group}.bcf",
     log:
         "logs/concat_candidates/{group}.log",
-    params:
-        uncompressed_bcf=False,
-        extra="-d exact -a",
     threads: 4
     resources:
         mem_mb=500,
+    params:
+        uncompressed_bcf=False,
+        extra="-d exact -a",
     wrapper:
         "v1.21.0/bio/bcftools/concat"
