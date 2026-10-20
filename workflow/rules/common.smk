@@ -34,6 +34,10 @@ genome_prefix = f"resources/{genome_name}"
 genome = f"{genome_prefix}.fasta"
 genome_fai = f"{genome}.fai"
 genome_dict = f"{genome_prefix}.dict"
+ganon_organism_groups = lookup(
+    "taxonomic_profiling/organism_groups", within=config, default=[]
+)
+ganon_taxids = lookup("taxonomic_profiling/taxids", within=config, default=[])
 pangenome_name = f"pangenome.{species}.{build}"
 pangenome_prefix = f"resources/{pangenome_name}"
 
@@ -141,6 +145,17 @@ def is_activated(xpath, default=False):
     return bool(c.get("activate", default))
 
 
+if (
+    is_activated("taxonomic_profiling")
+    and not ganon_organism_groups
+    and not ganon_taxids
+):
+    raise ValueError(
+        "taxonomic_profiling is activated but taxonomic_profiling/organism_groups "
+        "and taxonomic_profiling/taxids are empty. Please specify at least one organism group or taxid."
+    )
+
+
 def get_freebayes_use_best_n_alleles():
     # Cap the number of alleles freebayes evaluates per site. Unset means freebayes' default
     # (all alleles), which can take days on a single high coverage low complexity region.
@@ -193,6 +208,15 @@ def get_final_output(wildcards):
             group=groups,
         )
     )
+
+    if is_activated("taxonomic_profiling"):
+        final_output.extend(
+            expand(
+                "results/taxonomic_profiling/{sample}.tre",
+                sample=samples["sample_name"].unique(),
+            )
+        )
+        final_output.append("results/taxonomic_profiling/all.species.tsv")
 
     for calling_type in calling_types:
         if config["report"]["activate"]:
@@ -402,6 +426,22 @@ def get_fastp_pipe_input(wildcards):
 
 def get_fastqc_input(wildcards):
     return get_raw_reads(wildcards.sample, wildcards.unit, wildcards.fq)[0]
+
+
+def get_sample_fastqs_for_taxonomic_profiling(wildcards):
+    return get_sample_fastqs(wildcards.sample)
+
+
+def get_ganon_reads_param(wildcards, input):
+    if is_paired_end(wildcards.sample):
+        return f"--paired-reads {input.reads[0]} {input.reads[1]}"
+    return f"--single-reads {input.reads[0]}"
+
+
+def get_ganon_organisms():
+    if ganon_taxids:
+        return f"--taxid {' '.join(map(str, ganon_taxids))}"
+    return f"--organism-group {' '.join(ganon_organism_groups)}"
 
 
 def get_fastp_adapters(wildcards):
