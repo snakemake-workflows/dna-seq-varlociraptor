@@ -4,6 +4,8 @@ from os import path
 import yaml
 import pandas as pd
 from snakemake.utils import validate
+from types import SimpleNamespace
+
 
 validate(config, schema="../schemas/config.schema.yaml")
 
@@ -692,7 +694,13 @@ def get_group_bams(wildcards):
         )
     else:
         return [
-            get_recalibrate_quality_input(sample)
+            # get_recalibrate_quality_input(sample)
+            # get_recalibrate_quality_input needs the wildcards with sample in it not only the sample name,
+            # but within the current function the wildcards only contain the group.
+            # Therefore the current workaround is to create a new SimpleNamespace with the sample added to it.
+            get_recalibrate_quality_input(
+                SimpleNamespace(**dict(wildcards), sample=sample)
+            )
             for sample in get_group_samples(wildcards.group)
         ]
 
