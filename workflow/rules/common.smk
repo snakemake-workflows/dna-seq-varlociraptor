@@ -6,7 +6,6 @@ import pandas as pd
 from snakemake.utils import validate
 from types import SimpleNamespace
 
-
 validate(config, schema="../schemas/config.schema.yaml")
 
 samples = (
