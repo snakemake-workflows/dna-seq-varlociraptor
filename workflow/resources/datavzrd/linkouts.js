@@ -61,7 +61,8 @@ function hgvsc_dropdown(value, row) {
     }
 
     function decipher_genomics_link(row) {
-        gene = row.gene;
+        // DECIPHER resolves gene symbols as well as Ensembl gene ids
+        let gene = row.symbol;
         return `https://www.deciphergenomics.org/gene/${gene}/overview/management-therapies/therapies`
     }
 

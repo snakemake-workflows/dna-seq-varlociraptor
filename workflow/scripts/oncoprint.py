@@ -273,7 +273,11 @@ for gene, gene_calls in calls.groupby("symbol", observed=False):
     for group in snakemake.params.groups:
         if group in matrix.columns:
             variant_values.update(matrix[group].dropna().unique())
-    attach_group_annotation(matrix, group_annotation).to_parquet(
+    matrix = attach_group_annotation(matrix, group_annotation)
+    # the group annotation rows have no position, so concatenating them turns
+    # the column into floats (e.g. 7675088.0), which breaks the linkouts
+    matrix["position"] = matrix["position"].astype("Int64")
+    matrix.to_parquet(
         Path(snakemake.output.variant_oncoprints) / f"{gene}.parquet", index=False
     )
 
