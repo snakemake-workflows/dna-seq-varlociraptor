@@ -122,6 +122,8 @@ tables:
   activate: true
   # vembrane expression to generate the table
   output:
+    annotation_fields:
+      - BIOTYPE
     expression: "INDEX, CHROM, POS, REF, ALT[0], ANN['Consequence'], ANN['IMPACT'], ANN['SYMBOL'], ANN['Feature']"
     genotype: true
     coverage: true
