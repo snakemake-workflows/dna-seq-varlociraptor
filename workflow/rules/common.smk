@@ -1453,6 +1453,16 @@ def get_vembrane_config(wildcards, input):
                 "name": "cds position",
                 "expr": "ANN['CDS_position'].raw",
             },
+            # prediction-score mappings in vembrane, which its parquet writer
+            # cannot store; rebuild the VEP string, e.g. deleterious(0.01)
+            "SIFT": {
+                "name": "sift",
+                "expr": "';'.join(k + '(' + str(round(v, 3)) + ')' for k, v in ANN['SIFT'].items())",
+            },
+            "PolyPhen": {
+                "name": "polyphen",
+                "expr": "';'.join(k + '(' + str(round(v, 3)) + ')' for k, v in ANN['PolyPhen'].items())",
+            },
             "SpliceAI_pred_DS_AG": {
                 "name": "spliceai acceptor gain",
             },
