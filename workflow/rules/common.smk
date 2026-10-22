@@ -1457,11 +1457,11 @@ def get_vembrane_config(wildcards, input):
             # cannot store; rebuild the VEP string, e.g. deleterious(0.01)
             "SIFT": {
                 "name": "sift",
-                "expr": "';'.join(k + '(' + str(round(v, 3)) + ')' for k, v in ANN['SIFT'].items())",
+                "expr": "';'.join(f'{k}({round(v, 3)})' for k, v in ANN['SIFT'].items())",
             },
             "PolyPhen": {
                 "name": "polyphen",
-                "expr": "';'.join(k + '(' + str(round(v, 3)) + ')' for k, v in ANN['PolyPhen'].items())",
+                "expr": "';'.join(f'{k}({round(v, 3)})' for k, v in ANN['PolyPhen'].items())",
             },
             "SpliceAI_pred_DS_AG": {
                 "name": "spliceai acceptor gain",
