@@ -200,21 +200,10 @@ properties:
         type: array
         items:
           type: string
-          enum:
-            - archaea
-            - bacteria
-            - fungi
-            - human
-            - invertebrate
-            - metagenomes
-            - other
-            - plant
-            - protozoa
-            - vertebrate_mammalian
-            - vertebrate_other
-            - viral
-      extra_build_params:
-        type: string
+      taxids:
+        type: array
+        items:
+          type: integer
     required:
       - activate
 
