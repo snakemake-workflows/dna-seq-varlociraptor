@@ -58,6 +58,12 @@ calling:
           - moderate
         desc: Variants with moderate impact
 
+taxonomic_profiling:
+  activate: true
+  organism_groups:
+    # the smallest available DB for ganon2 (in reality used for linker adapter contamination detection)
+    - UniVec_Core
+
 annotations:
   dbnsfp:
     activate: false
