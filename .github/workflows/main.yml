@@ -60,7 +60,7 @@ jobs:
               --configfile .test/config-simple/config.yaml
               --show-failed-logs -j 10 --conda-cleanup-pkgs cache
             report: true
-            cleanup: false
+            cleanup: true
           - name: testcase generation
             args: >-
               results/testcases/one/freebayes/IX:314200 --configfile .test/config-simple/config.yaml
