@@ -86,6 +86,23 @@ mutational_signatures:
     # select events (callsets, defined under calling/fdr-control/events) to evaluate
     - some_id
 
+# Taxonomic profiling of the reads of each sample with ganon2 (https://pirovc.github.io/ganon).
+# The reference genome of the species selected under ref/species is always
+# included in the database (in addition to the groups below).
+taxonomic_profiling:
+  activate: false
+  # NCBI organism groups to add to the database. Available: archaea, bacteria,
+  # fungi, human, invertebrate, metagenomes, other, plant, protozoa,
+  # vertebrate_mammalian, vertebrate_other, viral (see https://pirovc.github.io/ganon/default_databases).
+  organism_groups:
+    - bacteria
+    - archaea
+    - viral
+  # Alternatively, specify individual taxids (https://www.ncbi.nlm.nih.gov/Taxonomy/Browser/wwwtax.cgi).
+  # This overrides the organism_groups setting
+  # taxids:
+  #   - 562
+
 # Sets the minimum average coverage for each gene.
 # Genes with lower average coverage will not be concidered in gene coverage datavzrd report
 # If not present min_avg_coverage will be set to 0 rendering all genes.

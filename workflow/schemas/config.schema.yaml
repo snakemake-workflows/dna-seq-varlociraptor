@@ -191,6 +191,22 @@ properties:
     required:
       - activate
 
+  taxonomic_profiling:
+    type: object
+    properties:
+      activate:
+        type: boolean
+      organism_groups:
+        type: array
+        items:
+          type: string
+      taxids:
+        type: array
+        items:
+          type: integer
+    required:
+      - activate
+
   mutational_signatures:
     type: object
     properties:
