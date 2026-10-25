@@ -3,4 +3,4 @@ channels:
   - bioconda
   - nodefaults
 dependencies:
-  - vcf2maf =1.6
+  - vcf2maf =1.6.22
