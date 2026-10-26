@@ -1360,6 +1360,7 @@ def get_vembrane_config(wildcards, input):
     }
 
     def append_items(items, renames, field_func, header_func=None):
+        added = []
         for item in items:
             if item in renames:
                 header_name = renames[item]["name"]
@@ -1371,6 +1372,8 @@ def get_vembrane_config(wildcards, input):
                 parts_field = field_func(item)
                 header_name = header_func(item) if header_func else item
             columns_dict[parts_field] = header_name
+            added.append(parts_field)
+        return added
 
     # FORMAT fields
     format_fields_names = {
@@ -1480,23 +1483,14 @@ def get_vembrane_config(wildcards, input):
             },
         }
         annotation_fields = get_annotation_fields_for_tables(wildcards)
-        append_items(
+        annotation_exprs = append_items(
             annotation_fields,
             rename_ann_fields,
             "ANN['{}']".format,
             lambda x: x.lower(),
         )
-        # fields explicitly requested via tables/output/annotation_fields, as
-        # vembrane expressions; those without a fixed position in the sort
-        # order below are placed after the built-in annotation columns
-        requested_fields = [
-            rename_ann_fields.get(field, {}).get("expr", f"ANN['{field}']")
-            for field in lookup(
-                dpath="tables/output/annotation_fields", within=config, default=[]
-            )
-        ]
     else:
-        requested_fields = []
+        annotation_exprs = []
     # determine a stable sort order, to avoid implicit assumptions about field
     # order; downstream scripts split-call-tables.py and
     # join_fusion_partner.py will remove columns they respectively don't need
@@ -1576,14 +1570,17 @@ def get_vembrane_config(wildcards, input):
             "ANN['HGVSg']",
             # only needed for variants in datavzrd_variants_calls
             "ANN['Feature']",
+            # only needed for the AlphaMissense linkout in datavzrd_variants_calls
+            "ANN['SWISSPROT']",
             "INFO['END']",
         ]
     )
-    # requested annotation fields without a fixed position go right before
-    # CHROM, in the order of the config
-    for field in requested_fields:
-        if field not in sort_order:
-            sort_order.insert(sort_order.index("CHROM"), field)
+    # annotation fields without a fixed position above, e.g. the ones requested
+    # via tables/output/annotation_fields, go right before CHROM, in the order
+    # of the annotation fields
+    for expr in annotation_exprs:
+        if expr not in sort_order:
+            sort_order.insert(sort_order.index("CHROM"), expr)
     # sort columns, keeping only those in sort_order
     sorted_columns_dict = {k: columns_dict[k] for k in sort_order if k in columns_dict}
     join_items = ", ".join
