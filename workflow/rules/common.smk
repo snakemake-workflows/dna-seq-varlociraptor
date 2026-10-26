@@ -1466,6 +1466,11 @@ def get_vembrane_config(wildcards, input):
                 "name": "polyphen",
                 "expr": "';'.join(f'{k}({round(v, 3)})' for k, v in ANN['PolyPhen'].items())",
             },
+            # also a mapping, and not defined for a record without a domain
+            "DOMAINS": {
+                "name": "domains",
+                "expr": "';'.join('%s:%s' % (k, ','.join(v)) for k, v in ANN['DOMAINS'].items()) if ANN['DOMAINS'] else ''",
+            },
             "SpliceAI_pred_DS_AG": {
                 "name": "spliceai acceptor gain",
             },
