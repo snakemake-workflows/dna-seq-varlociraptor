@@ -170,14 +170,7 @@ properties:
           annotation_fields:
             type: array
             items:
-               anyOf:
-                - type: string
-                - type: object
-                  properties:
-                    name:
-                      type: string
-                    expr:
-                      type: string
+              type: string
     generate_excel:
       type: boolean
     required:

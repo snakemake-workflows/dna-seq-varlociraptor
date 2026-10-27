@@ -290,7 +290,13 @@ annotations:
 tables:
   activate: false
   output:
-    # Uncomment and add VEP annotation fields to include (IMPACT, Consequence, Feature, SYMBOL, and HGVSp are always included)
+    # VEP annotation fields to include in addition to the always included ones
+    # (SYMBOL, Gene, Feature, IMPACT, Consequence, HGVSc, HGVSp, HGVSg, CLIN_SIG,
+    # MAX_AF, Protein_position, Amino_acids, CANONICAL, MANE_PLUS_CLINICAL) and
+    # the fields of the configured VEP plugins. Fields without a predefined
+    # column are placed after the built-in annotation columns, in the order
+    # given here. Each field has to be present in the VEP output. SWISSPROT is
+    # only passed on to the MAF output unless requested here.
     annotation_fields:
       - EXON
     event_prob: true

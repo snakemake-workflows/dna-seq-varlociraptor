@@ -199,7 +199,7 @@ class PopulationDb:
 
 
 def select_spliceai_effect(calls):
-    spliceai_columns = calls.filter(like="spliceai", axis=1)
+    spliceai_columns = calls.filter(regex="^spliceai ", axis=1)
     max_spliceai_effects = (
         spliceai_columns.idxmax(axis=1).astype(str).str.removeprefix("spliceai ") + ": "
     )
@@ -207,7 +207,7 @@ def select_spliceai_effect(calls):
     # Do not annotate effect for variants with high uncertainty (prob below 0.2)
     max_spliceai_effects[max_score < 0.2] = np.nan
     col_index = calls.columns.get_loc("spliceai acceptor gain")
-    calls = calls.drop(calls.filter(like="spliceai", axis=1).columns, axis=1)
+    calls = calls.drop(spliceai_columns.columns, axis=1)
     calls.insert(col_index, "spliceai_effect", max_spliceai_effects)
     calls.insert(col_index, "spliceai", max_score)
     return calls
@@ -229,6 +229,16 @@ for col in calls.columns:
 calls["protein alteration (short)"] = (
     calls["protein alteration (short)"].apply("/".join)
 )
+
+# join any other list-valued column (e.g. a multi-valued VEP field requested
+# via tables/output/annotation_fields)
+for col in calls.columns:
+    if calls[col].map(lambda value: isinstance(value, np.ndarray)).any():
+        calls[col] = calls[col].apply(
+            lambda value: (
+                ",".join(map(str, value)) if isinstance(value, np.ndarray) else value
+            )
+        )
 
 samples = get_samples(calls)
 
@@ -255,7 +265,7 @@ calls.set_index("gene", inplace=True, drop=False)
 if calls.columns.str.endswith(": short ref observations").any():
     calls = join_short_obs(calls, samples)
 
-if calls.columns.str.startswith("spliceai").any():
+if calls.columns.str.startswith("spliceai ").any():
     calls = select_spliceai_effect(calls)
 
 canonical = calls["canonical"].notnull()
