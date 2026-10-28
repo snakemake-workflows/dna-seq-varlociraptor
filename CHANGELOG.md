@@ -1,5 +1,13 @@
 # Changelog
 
+## [6.11.4](https://github.com/snakemake-workflows/dna-seq-varlociraptor/compare/v6.11.3...v6.11.4) (2026-10-28)
+
+
+### Bug Fixes
+
+* explicitly specify sample columns as `pl.String` during TSV reading for the somalier sample swap plot ([#486](https://github.com/snakemake-workflows/dna-seq-varlociraptor/issues/486)) ([e41238f](https://github.com/snakemake-workflows/dna-seq-varlociraptor/commit/e41238fca4df2c104df999a853e2521849c1ec8d))
+* keep user-requested annotation fields in vembrane tables ([#484](https://github.com/snakemake-workflows/dna-seq-varlociraptor/issues/484)) ([5a8f382](https://github.com/snakemake-workflows/dna-seq-varlociraptor/commit/5a8f382b150b0396d60929642881083d6127707b))
+
 ## [6.11.3](https://github.com/snakemake-workflows/dna-seq-varlociraptor/compare/v6.11.2...v6.11.3) (2026-10-19)
 
 
