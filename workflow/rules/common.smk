@@ -34,12 +34,12 @@ genome_prefix = f"resources/{genome_name}"
 genome = f"{genome_prefix}.fasta"
 genome_fai = f"{genome}.fai"
 genome_dict = f"{genome_prefix}.dict"
+pangenome_name = f"pangenome.{species}.{build}"
+pangenome_prefix = f"resources/{pangenome_name}"
 ganon_organism_groups = lookup(
     "taxonomic_profiling/organism_groups", within=config, default=[]
 )
 ganon_taxids = lookup("taxonomic_profiling/taxids", within=config, default=[])
-pangenome_name = f"pangenome.{species}.{build}"
-pangenome_prefix = f"resources/{pangenome_name}"
 
 # cram variables
 use_cram = config.get("use_cram", False)
@@ -438,10 +438,16 @@ def get_ganon_reads_param(wildcards, input):
     return f"--single-reads {input.reads[0]}"
 
 
-def get_ganon_organisms():
-    if ganon_taxids:
-        return f"--taxid {' '.join(map(str, ganon_taxids))}"
-    return f"--organism-group {' '.join(ganon_organism_groups)}"
+def get_ganon_db(suffix):
+    def inner(wildcards):
+        prefixes = []
+        if ganon_taxids:
+            prefixes.append(f"resources/ganon/taxids{suffix}")
+        if ganon_organism_groups:
+            prefixes.append(f"resources/ganon/groups{suffix}")
+        return prefixes
+
+    return inner
 
 
 def get_fastp_adapters(wildcards):

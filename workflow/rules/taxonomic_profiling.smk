@@ -1,38 +1,6 @@
-rule get_ncbi_taxonomy_names:
-    output:
-        "resources/ncbi_taxonomy/names.dmp",
-    log:
-        "logs/ncbi_taxonomy/names.log",
-    conda:
-        "../envs/curl.yaml"
-    params:
-        outdir=subpath(output[0], parent=True),
-    shell:
-        "(curl -sSfL https://ftp.ncbi.nlm.nih.gov/pub/taxonomy/taxdump.tar.gz "
-        "| tar -xz -C $(dirname {params.outdir}) names.dmp) 2> {log}"
-
-
-rule get_ganon_reference_input:
-    input:
-        genome=genome,
-        names="resources/ncbi_taxonomy/names.dmp",
-    output:
-        "resources/ganon/reference.input.tsv",
-    log:
-        "logs/ganon/get_reference_input.log",
-    conda:
-        "../envs/pystats.yaml"
-    params:
-        species=species,
-    script:
-        "../scripts/get_ganon_reference_input.py"
-
-
-# The selected reference species is always part of the database.
 rule ganon_build_reference:
     input:
         genome=genome,
-        info="resources/ganon/reference.input.tsv",
     output:
         multiext(
             "resources/ganon/reference",
@@ -68,19 +36,32 @@ rule ganon_build_groups:
     threads: 16
     params:
         prefix=subpath(output[0], strip_suffix=".hibf"),
-        organisms=get_ganon_organisms(),
+        ids=ganon_organism_groups,
+        select_arg="--organism-group",
     shell:
-        "ganon build {params.organisms} --taxonomy ncbi "
+        "ganon build {params.select_arg} {params.ids} --taxonomy ncbi "
         "--db-prefix {params.prefix} --threads {threads} &> {log}"
+
+
+use rule ganon_build_groups as ganon_build_taxids with:
+    output:
+        multiext(
+            "resources/ganon/taxids",
+            ".hibf",
+            ".tax",
+        ),
+    log:
+        "logs/ganon/build_taxids.log",
+    params:
+        ids=ganon_taxids,
+        select_arg="--taxid",
 
 
 rule ganon_classify:
     input:
         reads=get_sample_fastqs_for_taxonomic_profiling,
-        hibf_ref="resources/ganon/reference.hibf",
-        hibf_other="resources/ganon/groups.hibf",
-        tax_ref="resources/ganon/reference.tax",
-        tax_other="resources/ganon/groups.tax",
+        hibf=get_ganon_db(".hibf"),
+        tax=get_ganon_db(".tax"),
     output:
         rep="results/taxonomic_profiling/{sample}.rep",
         tre="results/taxonomic_profiling/{sample}.tre",
@@ -91,11 +72,12 @@ rule ganon_classify:
     threads: 32
     params:
         output_prefix=subpath(output.rep, strip_suffix=".rep"),
-        db_ref=subpath(input.hibf_ref, strip_suffix=".hibf"),
-        db_other=subpath(input.hibf_other, strip_suffix=".hibf"),
+        db_prefixes=lambda wildcards, input: [
+            subpath(hibf, strip_suffix=".hibf") for hibf in input.hibf
+        ],
         reads=get_ganon_reads_param,
     shell:
-        "ganon classify --db-prefix {params.db_ref} {params.db_other} --hierarchy-labels reference other "
+        "ganon classify --db-prefix {params.db_prefixes} "
         "{params.reads} --output-prefix {params.output_prefix} "
         "--threads {threads} &> {log}"
 

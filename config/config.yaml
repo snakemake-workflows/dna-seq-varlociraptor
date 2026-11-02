@@ -100,6 +100,8 @@ taxonomic_profiling:
     - viral
   # Alternatively, specify individual taxids (https://www.ncbi.nlm.nih.gov/Taxonomy/Browser/wwwtax.cgi).
   # This overrides the organism_groups setting
+  # Importantly, make sure that your reference genome's taxid is included here in case it is not
+  # part of the selected organism groups (human is 9606)!
   # taxids:
   #   - 562
 
