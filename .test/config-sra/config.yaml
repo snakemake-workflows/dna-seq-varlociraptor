@@ -61,8 +61,7 @@ calling:
 taxonomic_profiling:
   activate: true
   organism_groups:
-    # the smallest available DB for ganon2 (in reality used for linker adapter contamination detection)
-    - UniVec_Core
+    - viral
 
 annotations:
   dbnsfp:
