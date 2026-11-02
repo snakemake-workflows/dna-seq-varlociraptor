@@ -1,26 +1,3 @@
-rule ganon_build_reference:
-    input:
-        genome=genome,
-    output:
-        multiext(
-            "resources/ganon/reference",
-            ".hibf",
-            ".tax",
-        ),
-    log:
-        "logs/ganon/build_reference.log",
-    cache: "omit-software"
-    conda:
-        "../envs/ganon.yaml"
-    threads: 8
-    params:
-        prefix=subpath(output[0], strip_suffix=".hibf"),
-    shell:
-        "ganon build-custom --input-file {input.info} --input-target file "
-        "--taxonomy ncbi --level species --db-prefix {params.prefix} "
-        "--threads {threads} --skip-genome-size &> {log}"
-
-
 rule ganon_build_groups:
     output:
         multiext(

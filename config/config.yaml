@@ -87,8 +87,6 @@ mutational_signatures:
     - some_id
 
 # Taxonomic profiling of the reads of each sample with ganon2 (https://pirovc.github.io/ganon).
-# The reference genome of the species selected under ref/species is always
-# included in the database (in addition to the groups below).
 taxonomic_profiling:
   activate: false
   # NCBI organism groups to add to the database. Available: archaea, bacteria,
@@ -98,8 +96,7 @@ taxonomic_profiling:
     - bacteria
     - archaea
     - viral
-  # Alternatively, specify individual taxids (https://www.ncbi.nlm.nih.gov/Taxonomy/Browser/wwwtax.cgi).
-  # This overrides the organism_groups setting
+  # In addition, specify individual taxids (https://www.ncbi.nlm.nih.gov/Taxonomy/Browser/wwwtax.cgi).
   # Importantly, make sure that your reference genome's taxid is included here in case it is not
   # part of the selected organism groups (human is 9606)!
   # taxids:
