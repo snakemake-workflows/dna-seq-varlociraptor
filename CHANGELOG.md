@@ -1,5 +1,19 @@
 # Changelog
 
+## [6.12.0](https://github.com/snakemake-workflows/dna-seq-varlociraptor/compare/v6.11.4...v6.12.0) (2026-11-02)
+
+
+### Features
+
+* add ProtVar linkout for missense and stop-gained variants ([#474](https://github.com/snakemake-workflows/dna-seq-varlociraptor/issues/474)) ([5d03db2](https://github.com/snakemake-workflows/dna-seq-varlociraptor/commit/5d03db2459a9f8bdf75bbb2b626a8130ece2d107))
+* make sample swap analysis optional ([#488](https://github.com/snakemake-workflows/dna-seq-varlociraptor/issues/488)) ([37ca6c2](https://github.com/snakemake-workflows/dna-seq-varlociraptor/commit/37ca6c27a2f00600285f2195552d56b96ca57cdf))
+
+
+### Bug Fixes
+
+* repair the linkouts in the variant oncoprint ([#475](https://github.com/snakemake-workflows/dna-seq-varlociraptor/issues/475)) ([1667955](https://github.com/snakemake-workflows/dna-seq-varlociraptor/commit/166795555529052cc2f053c772abf4855683f428))
+* unpin patch version in vembrane.yaml, to pull in bug fixes ([#487](https://github.com/snakemake-workflows/dna-seq-varlociraptor/issues/487)) ([089b590](https://github.com/snakemake-workflows/dna-seq-varlociraptor/commit/089b590366bd4f438d252865bee2a5783797ea41))
+
 ## [6.11.4](https://github.com/snakemake-workflows/dna-seq-varlociraptor/compare/v6.11.3...v6.11.4) (2026-10-28)
 
 
