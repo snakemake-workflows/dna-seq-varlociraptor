@@ -5,9 +5,11 @@ rule get_ncbi_taxonomy_names:
         "logs/ncbi_taxonomy/names.log",
     conda:
         "../envs/curl.yaml"
+    params:
+        outdir=subpath(output[0], parent=True),
     shell:
         "(curl -sSfL https://ftp.ncbi.nlm.nih.gov/pub/taxonomy/taxdump.tar.gz "
-        "| tar -xz -C $(dirname {output}) names.dmp) 2> {log}"
+        "| tar -xz -C $(dirname {params.outdir}) names.dmp) 2> {log}"
 
 
 rule get_ganon_reference_input:
