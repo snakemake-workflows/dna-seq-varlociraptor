@@ -97,7 +97,7 @@ function hgvsc_dropdown(value, row) {
       if ( ( row.build === "GRCh38" || row.build === "GRCh37" ) &&
            ref && alt && ref.match(nucleotide_regex) && alt.match(nucleotide_regex) &&
            row.chromosome && chromosome_regex.test(row.chromosome) && Number.isInteger(position) &&
-           consequence.includes("missense variant") ) {
+           ( consequence.includes("missense variant") || consequence.includes("stop gained") ) ) {
         const url_prefix = "https://www.ebi.ac.uk/ProtVar/g/"
         return `${url_prefix}${row.chromosome}/${position}/${ref}/${alt}?assembly=${row.build.toLowerCase()}`
       }
