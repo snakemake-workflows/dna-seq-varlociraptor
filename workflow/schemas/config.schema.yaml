@@ -170,14 +170,7 @@ properties:
           annotation_fields:
             type: array
             items:
-               anyOf:
-                - type: string
-                - type: object
-                  properties:
-                    name:
-                      type: string
-                    expr:
-                      type: string
+              type: string
     generate_excel:
       type: boolean
     required:
@@ -272,6 +265,12 @@ properties:
         type: boolean
 
   calc_consensus_reads:
+    type: object
+    properties:
+      activate:
+        type: boolean
+
+  sample_swaps:
     type: object
     properties:
       activate:

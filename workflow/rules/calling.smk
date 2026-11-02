@@ -54,9 +54,7 @@ rule varlociraptor_preprocess:
     conda:
         "../envs/varlociraptor.yaml"
     params:
-        extra=lambda wc: get_varlociraptor_params(
-            wc, config["params"]["varlociraptor"]["preprocess"]
-        ),
+        extra=get_varlociraptor_params("preprocess"),
     shell:
         "varlociraptor preprocess variants --candidates {input.candidates} {params.extra} "
         "--alignment-properties {input.alignment_props} {input.ref} --bam {input.bam} --output {output} "
@@ -80,10 +78,7 @@ rule varlociraptor_call:
     params:
         obs=get_varlociraptor_obs_args,
         # Add -o as workaround to separate info field entries from subcommand
-        extra=lambda wc: get_varlociraptor_params(
-            wc, config["params"]["varlociraptor"]["call"]
-        )
-        + " -o /dev/stdout",
+        extra=get_varlociraptor_params("call"),
         postprocess=(
             ">"
             if not config["calling"].get("infer_genotypes")

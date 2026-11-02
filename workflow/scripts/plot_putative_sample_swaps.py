@@ -10,7 +10,11 @@ samples = pl.from_pandas(snakemake.params.samples).select("sample_name", "group"
 
 # read pair data and restrict to pairs that have a high concordance
 pairs = (
-    pl.read_csv(snakemake.input[0], separator="\t")
+    pl.read_csv(
+        snakemake.input[0],
+        separator="\t",
+        schema_overrides={"#sample_a": pl.String, "sample_b": pl.String},
+    )
     .rename({"#sample_a": "sample_a"})
     .join(samples, left_on="sample_a", right_on="sample_name", how="left", suffix="_a")
     .join(samples, left_on="sample_b", right_on="sample_name", how="left", suffix="_b")
@@ -53,7 +57,7 @@ coords = pl.DataFrame(
         "sample_name": str,
         "x": float,
         "y": float,
-    }, # needed in case the layout is empty
+    },  # needed in case the layout is empty
 )
 
 # add coords to sample sheet and only keep samples that are of interest
