@@ -1,6 +1,19 @@
+rule get_ncbi_taxonomy_names:
+    output:
+        "resources/ncbi_taxonomy/names.dmp",
+    log:
+        "logs/ncbi_taxonomy/names.log",
+    conda:
+        "../envs/curl.yaml"
+    shell:
+        "(curl -sSfL https://ftp.ncbi.nlm.nih.gov/pub/taxonomy/taxdump.tar.gz "
+        "| tar -xz -C $(dirname {output}) names.dmp) 2> {log}"
+
+
 rule get_ganon_reference_input:
     input:
         genome=genome,
+        names="resources/ncbi_taxonomy/names.dmp",
     output:
         "resources/ganon/reference.input.tsv",
     log:
