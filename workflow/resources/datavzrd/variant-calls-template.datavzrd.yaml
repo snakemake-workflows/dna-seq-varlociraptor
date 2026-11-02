@@ -285,6 +285,9 @@ views:
             build:
               value: ?f"function() {{ return `{params.build}` }}"
               display-mode: hidden
+            symbol:
+              value: ?f"function() {{ return `{gene}` }}"
+              display-mode: hidden
 
   ?for group in params.groups:
     ?group:
