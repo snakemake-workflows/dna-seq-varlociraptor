@@ -46,8 +46,8 @@ rule fastp_pe:
         sample=lambda wc: get_fastp_input(wc),
     output:
         trimmed=[
-            temp("results/trimmed/{sample}/{unit}_R1.fastq.gz"),
-            temp("results/trimmed/{sample}/{unit}_R2.fastq.gz"),
+            "results/trimmed/{sample}/{unit}_R1.fastq.gz",
+            "results/trimmed/{sample}/{unit}_R2.fastq.gz",
         ],
         html="results/trimmed/{sample}/{unit}.paired.qc.html",
         json="results/trimmed/{sample}/{unit}.paired.json",
