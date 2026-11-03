@@ -430,7 +430,7 @@ def get_fastqc_input(wildcards):
 
 
 def get_sample_fastqs_for_taxonomic_profiling(wildcards):
-    return get_sample_fastqs(wildcards.sample)
+    return get_sample_fastqs(wildcards.sample, purpose="taxonomic_profiling")
 
 
 def get_ganon_reads_param(wildcards, input):
@@ -490,16 +490,16 @@ def is_paired_end(sample):
 
 
 def get_map_reads_input(wildcards):
-    return get_sample_fastqs(wildcards.sample)
+    return get_sample_fastqs(wildcards.sample, purpose="mapping")
 
 
-def get_sample_fastqs(sample):
+def get_sample_fastqs(sample, purpose):
     if is_paired_end(sample):
         return [
-            f"results/merged/{sample}_R1.fastq.gz",
-            f"results/merged/{sample}_R2.fastq.gz",
+            f"results/merged/{purpose}/{sample}_R1.fastq.gz",
+            f"results/merged/{purpose}/{sample}_R2.fastq.gz",
         ]
-    return [f"results/merged/{sample}_single.fastq.gz"]
+    return [f"results/merged/{purpose}/{sample}_single.fastq.gz"]
 
 
 def get_giraffe_extra(wildcards, input):
@@ -557,11 +557,11 @@ def get_haplotype_args(wildcards, input):
 def get_star_reads_input(wildcards, r2=False):
     match (bool(is_paired_end(wildcards.sample)), r2):
         case (True, False):
-            return "results/merged/{sample}_R1.fastq.gz"
+            return "results/merged/star/{sample}_R1.fastq.gz"
         case (True, True):
-            return "results/merged/{sample}_R2.fastq.gz"
+            return "results/merged/star/{sample}_R2.fastq.gz"
         case (False, False):
-            return "results/merged/{sample}_single.fastq.gz"
+            return "results/merged/star/{sample}_single.fastq.gz"
         case (False, True):
             return []
 

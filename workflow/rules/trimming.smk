@@ -65,9 +65,9 @@ rule merge_trimmed_fastqs:
     input:
         get_trimmed_fastqs,
     output:
-        temp("results/merged/{sample}_{read}.fastq.gz"),
+        pipe("results/merged/{purpose}/{sample}_{read}.fastq.gz"),
     log:
-        "logs/merge-fastqs/trimmed/{sample}_{read}.log",
+        "logs/merge-fastqs/{purpose}/{sample}_{read}.log",
     wildcard_constraints:
         read="single|R1|R2",
     threads: 0  # this does not need CPU
