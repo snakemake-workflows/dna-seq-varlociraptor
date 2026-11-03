@@ -17,8 +17,8 @@ rule ganon_build_groups:
         select_arg="--organism-group",
         mode=lookup("taxonomic_profiling/mode", within=config),
     shell:
-        "ganon build {params.select_arg} {params.ids} --taxonomy ncbi --{params.mode} "
-        "--db-prefix {params.prefix} --threads {threads} &> {log}"
+        "(ganon build {params.select_arg} {params.ids} --taxonomy ncbi --{params.mode}"
+        " --db-prefix {params.prefix} --threads {threads} && rm -rf {params.prefix}_files) &> {log}"
 
 
 use rule ganon_build_groups as ganon_build_taxids with:
