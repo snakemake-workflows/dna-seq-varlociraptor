@@ -7,7 +7,7 @@ rule ganon_build_groups:
         ),
     log:
         "logs/ganon/build_groups.log",
-    cache: "omit-software"
+    cache: True
     conda:
         "../envs/ganon.yaml"
     threads: 16
