@@ -73,5 +73,7 @@ rule merge_trimmed_fastqs:
     wildcard_constraints:
         read="single|R1|R2",
     threads: 0  # this does not need CPU
+    resources:
+        disk_io=1
     shell:
         "cat {input} > {output} 2> {log}"
