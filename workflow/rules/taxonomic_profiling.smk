@@ -10,13 +10,14 @@ rule ganon_build_groups:
     cache: True
     conda:
         "../envs/ganon.yaml"
-    threads: 16
+    threads: 64
     params:
         prefix=subpath(output[0], strip_suffix=".hibf"),
         ids=ganon_organism_groups,
         select_arg="--organism-group",
+        mode=lookup("taxonomic_profiling/mode", within=config),
     shell:
-        "ganon build {params.select_arg} {params.ids} --taxonomy ncbi "
+        "ganon build {params.select_arg} {params.ids} --taxonomy ncbi --{params.mode} "
         "--db-prefix {params.prefix} --threads {threads} &> {log}"
 
 
