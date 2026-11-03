@@ -195,6 +195,7 @@ properties:
           - reference-genomes
           - complete-genomes
           - complete-and-reference-genomes
+          - all-genomes
       organism_groups:
         type: array
         items:

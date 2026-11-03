@@ -439,6 +439,13 @@ def get_ganon_reads_param(wildcards, input):
     return f"--single-reads {input.reads[0]}"
 
 
+def get_ganon_build_mode():
+    mode = lookup("taxonomic_profiling/mode", within=config)
+    if mode != "all-genomes":
+        return f"--{mode}"
+    return ""
+
+
 def get_ganon_db(suffix):
     def inner(wildcards):
         prefixes = []

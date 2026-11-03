@@ -89,6 +89,9 @@ mutational_signatures:
 # Taxonomic profiling of the reads of each sample with ganon2 (https://pirovc.github.io/ganon).
 taxonomic_profiling:
   activate: false
+  # Which genomes to download (reference-genomes, complete-and-reference-genomes, complete-genomes, all-genomes).
+  # See https://pirovc.github.io/ganon/default_databases/#commonly-used-sub-sets.
+  mode: reference-genomes
   # NCBI organism groups to add to the database. Available: archaea, bacteria,
   # fungi, human, invertebrate, metagenomes, other, plant, protozoa,
   # vertebrate_mammalian, vertebrate_other, viral (see https://pirovc.github.io/ganon/default_databases).
