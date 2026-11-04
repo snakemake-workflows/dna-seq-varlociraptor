@@ -35,7 +35,7 @@ use rule ganon_build_groups as ganon_build_taxids with:
         select_arg="--taxid",
 
 
-rule unmapped_reads_single:
+rule unmapped_fragments_single:
     input:
         "results/recal/{sample}.bam",
     output:
@@ -46,12 +46,12 @@ rule unmapped_reads_single:
         "../envs/samtools.yaml"
     threads: 8
     shell:
-        "(samtools view -u -e 'flag & 4 || flag & 8' {input} |"
-        " samtools collate -u -O - |"
+        "(samtools view -u -e -f 12 {input} |"
+        " samtools collate -f -u -O - |"
         " samtools fastq -0 /dev/null -o {output[0]}) 2> {log}"
 
 
-rule unmapped_reads_paired:
+rule unmapped_fragments_paired:
     input:
         "results/recal/{sample}.bam",
     output:
@@ -63,8 +63,8 @@ rule unmapped_reads_paired:
         "../envs/samtools.yaml"
     threads: 8
     shell:
-        "(samtools view -u -e 'flag & 4 || flag & 8' {input} |"
-        " samtools collate -u -O - |"
+        "(samtools view -u -f 12 {input} |"
+        " samtools collate -f -u -O - |"
         " samtools fastq -0 /dev/null -s /dev/null -1 {output[0]} -2 {output[1]}) 2> {log}"
 
 
