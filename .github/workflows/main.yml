@@ -40,6 +40,21 @@ jobs:
           snakefile: workflow/Snakefile
           args: "--lint"
 
+  Default-candidate-filter:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          persist-credentials: false
+      - name: Check the candidate filter of the template config
+        uses: snakemake/snakemake-github-action@v2
+        with:
+          directory: .
+          snakefile: .test/config-default-candidate-filter/Snakefile
+          args: "--sdm conda --cores 1"
+
   Testing:
     runs-on: ubuntu-latest
     needs:
