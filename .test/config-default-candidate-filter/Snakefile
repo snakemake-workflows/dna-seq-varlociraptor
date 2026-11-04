@@ -1,0 +1,5 @@
+rule check_default_candidate_filter:
+    conda:
+        "../../workflow/envs/vembrane.yaml"
+    shell:
+        "python {workflow.basedir}/check.py"
