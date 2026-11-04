@@ -47,8 +47,8 @@ rule fastp_pe:
         sample=lambda wc: get_fastp_input(wc),
     output:
         trimmed=[
-            temp("results/trimmed/{sample}/{unit}_R1.fastq.gz"),
-            temp("results/trimmed/{sample}/{unit}_R2.fastq.gz"),
+            pipe("results/trimmed/{sample}/{unit}_R1.fastq.gz"),
+            pipe("results/trimmed/{sample}/{unit}_R2.fastq.gz"),
         ],
         html="results/trimmed/{sample}/{unit}.paired.qc.html",
         json="results/trimmed/{sample}/{unit}.paired.json",
@@ -72,7 +72,5 @@ rule merge_trimmed_fastqs:
     wildcard_constraints:
         read="single|R1|R2",
     threads: 0  # this does not need CPU
-    resources:
-        disk_io=1,
     shell:
         "cat {input} > {output} 2> {log}"
