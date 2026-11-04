@@ -42,8 +42,12 @@ jobs:
 
   Default-candidate-filter:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     steps:
       - uses: actions/checkout@v5
+        with:
+          persist-credentials: false
       - name: Check the candidate filter of the template config
         uses: snakemake/snakemake-github-action@v2
         with:

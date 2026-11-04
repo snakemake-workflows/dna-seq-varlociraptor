@@ -19,10 +19,12 @@ EXPECTED_REMOVED = {"low", "modifier", "low_modifier"}
 
 
 def get_expression(entry):
+    """Return the vembrane expression of a filter entry of the config."""
     return entry if isinstance(entry, str) else entry["expression"]
 
 
 def get_aux_names(entry):
+    """Return the names of the aux files of a filter entry of the config."""
     return [] if isinstance(entry, str) else entry.get("aux-files", {}).keys()
 
 
