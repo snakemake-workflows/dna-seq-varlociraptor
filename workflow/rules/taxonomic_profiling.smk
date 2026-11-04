@@ -38,8 +38,8 @@ use rule ganon_build_groups as ganon_build_taxids with:
 rule ganon_classify:
     input:
         reads=get_sample_fastqs_for_taxonomic_profiling,
-        hibf=get_ganon_db(".hibf"),
-        tax=get_ganon_db(".tax"),
+        hibf=access.random(get_ganon_db(".hibf")),
+        tax=access.random(get_ganon_db(".tax")),
     output:
         rep="results/taxonomic_profiling/{sample}.rep",
         tre="results/taxonomic_profiling/{sample}.tre",
@@ -47,7 +47,7 @@ rule ganon_classify:
         "logs/ganon/classify/{sample}.log",
     conda:
         "../envs/ganon.yaml"
-    threads: 32
+    threads: 128
     params:
         output_prefix=subpath(output.rep, strip_suffix=".rep"),
         db_prefixes=lambda wildcards, input: [
