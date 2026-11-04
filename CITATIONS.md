@@ -15,8 +15,8 @@ This ensures that readers can trace the exact versions of the packages used by c
 | `bwa mem`        | li_aligning_2013                    | mapping DNA reads to the reference genome (skip for pangenome mode)    |
 | `CHM-eval`       | li_synthetic-diploid_2018           | synthetic dataset used for benchmarking                                |
 | `ColorBrewer`    | brewer_colorbrewer_2013             | good color schemes                                                     |
-| `datazvrd`       | wiegand_datavzrd_2025               | interactive tables in the report                                       |
-| `delly`          | garrison_haplotype-based_2012       | candidate variant calling structural variants (indels, SVs)            |
+| `datavzrd`       | wiegand_datavzrd_2025               | interactive tables in the report                                       |
+| `delly`          | rausch_delly_2012                   | candidate variant calling structural variants (indels, SVs)            |
 | `dna-seq-varlociraptor` | koster_snakemake-workflowsdna-seq-varlociraptor_2026 | this analysis workflow, mention the exact version used |
 | `ensembl-vep`    | mclaren_ensembl_2016                | variant annotation with metadata and effect predictions                |
 | `fastp`          | chen_fastp_2025                     | sequencing adapter trimming from raw fastq files                       |
