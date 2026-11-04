@@ -55,7 +55,7 @@ rule ganon_classify:
         ],
         reads=get_ganon_reads_param,
     shell:
-        "sleep 5; ganon classify --db-prefix {params.db_prefixes} "
+        "ganon classify --db-prefix {params.db_prefixes} "
         "{params.reads} --output-prefix {params.output_prefix} "
         "--threads {threads} &> {log}"
 
