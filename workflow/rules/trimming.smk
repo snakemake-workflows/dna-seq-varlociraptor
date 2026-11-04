@@ -29,7 +29,7 @@ rule fastp_se:
     input:
         sample=lambda wc: get_fastp_input(wc),
     output:
-        trimmed=temp("results/trimmed/{sample}/{unit}.single.fastq.gz"),
+        trimmed=pipe("results/trimmed/{sample}/{unit}.single.fastq.gz"),
         html="results/trimmed/{sample}/{unit}.single.qc.html",
         json="results/trimmed/{sample}/{unit}.single.json",
     log:
@@ -42,14 +42,13 @@ rule fastp_se:
         "v6.2.0/bio/fastp"
 
 
-# TODO change output to pipe
 rule fastp_pe:
     input:
         sample=lambda wc: get_fastp_input(wc),
     output:
         trimmed=[
-            temp("results/trimmed/{sample}/{unit}_R1.fastq.gz"),
-            temp("results/trimmed/{sample}/{unit}_R2.fastq.gz"),
+            pipe("results/trimmed/{sample}/{unit}_R1.fastq.gz"),
+            pipe("results/trimmed/{sample}/{unit}_R2.fastq.gz"),
         ],
         html="results/trimmed/{sample}/{unit}.paired.qc.html",
         json="results/trimmed/{sample}/{unit}.paired.json",
@@ -74,6 +73,6 @@ rule merge_trimmed_fastqs:
         read="single|R1|R2",
     threads: 0  # this does not need CPU
     resources:
-        disk_io=1
+        disk_io=1,
     shell:
         "cat {input} > {output} 2> {log}"

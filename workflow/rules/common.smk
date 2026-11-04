@@ -429,12 +429,18 @@ def get_fastqc_input(wildcards):
     return get_raw_reads(wildcards.sample, wildcards.unit, wildcards.fq)[0]
 
 
-def get_sample_fastqs_for_taxonomic_profiling(wildcards):
-    return get_sample_fastqs(wildcards.sample)
+def get_ganon_reads_input(wildcards):
+    if is_paired_end(wildcards.sample):
+        return [
+            f"results/unmapped/{wildcards.sample}_1.fastq.gz",
+            f"results/unmapped/{wildcards.sample}_2.fastq.gz",
+        ]
+    else:
+        return f"results/unmapped/{wildcards.sample}_single.fastq.gz"
 
 
 def get_ganon_reads_param(wildcards, input):
-    if is_paired_end(wildcards.sample):
+    if len(input.reads) == 2:
         return f"--paired-reads {input.reads[0]} {input.reads[1]}"
     return f"--single-reads {input.reads[0]}"
 
