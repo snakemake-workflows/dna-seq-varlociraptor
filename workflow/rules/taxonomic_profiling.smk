@@ -48,6 +48,9 @@ rule ganon_classify:
     conda:
         "../envs/ganon.yaml"
     threads: 128
+    resources:
+        # ganon reads large parts for the reads into memory
+        mem_mb=lambda w, input: input.size_mb
     params:
         output_prefix=subpath(output.rep, strip_suffix=".rep"),
         db_prefixes=lambda wildcards, input: [
