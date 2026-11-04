@@ -50,15 +50,15 @@ rule unmapped_reads_single:
     shell:
         "(samtools view -u -f4 {input} |"
         " samtools collate -f -u -O - |"
-        " samtools fastq -0 /dev/null -o {output[0]}) 2> {log}"
+        " samtools fastq -0 /dev/null -o {output}) 2> {log}"
 
 
 rule unmapped_reads_paired:
     input:
         "results/recal/{sample}.bam",
     output:
-        "results/unmapped/{sample}_1.fastq.gz",
-        "results/unmapped/{sample}_2.fastq.gz",
+        r1="results/unmapped/{sample}_1.fastq.gz",
+        r2="results/unmapped/{sample}_2.fastq.gz",
     log:
         "logs/unmapped/paired/{sample}.log",
     conda:
@@ -69,7 +69,7 @@ rule unmapped_reads_paired:
     shell:
         "(samtools view -u -f12 {input} |"
         " samtools collate -f -u -O - |"
-        " samtools fastq -0 /dev/null -s /dev/null -1 {output[0]} -2 {output[1]}) 2> {log}"
+        " samtools fastq -0 /dev/null -s /dev/null -1 {output.r1} -2 {output.r2}) 2> {log}"
 
 
 rule ganon_classify:
