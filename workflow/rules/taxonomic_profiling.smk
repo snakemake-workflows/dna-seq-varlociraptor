@@ -45,6 +45,8 @@ rule ganon_classify:
         tre="results/taxonomic_profiling/{sample}.tre",
     log:
         "logs/ganon/classify/{sample}.log",
+    benchmark:
+        "benchmarks/ganon/classify/{sample}.tsv",
     conda:
         "../envs/ganon.yaml"
     threads: 48
