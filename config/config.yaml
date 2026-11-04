@@ -86,6 +86,25 @@ mutational_signatures:
     # select events (callsets, defined under calling/fdr-control/events) to evaluate
     - some_id
 
+# Taxonomic profiling of the reads of each sample with ganon2 (https://pirovc.github.io/ganon).
+taxonomic_profiling:
+  activate: false
+  # Which genomes to download (reference-genomes, complete-and-reference-genomes, complete-genomes, all-genomes).
+  # See https://pirovc.github.io/ganon/default_databases/#commonly-used-sub-sets.
+  mode: reference-genomes
+  # NCBI organism groups to add to the database. Available: archaea, bacteria,
+  # fungi, human, invertebrate, metagenomes, other, plant, protozoa,
+  # vertebrate_mammalian, vertebrate_other, viral (see https://pirovc.github.io/ganon/default_databases).
+  organism_groups:
+    - bacteria
+    - archaea
+    - viral
+  # In addition, specify individual taxids (https://www.ncbi.nlm.nih.gov/Taxonomy/Browser/wwwtax.cgi).
+  # Importantly, make sure that your reference genome's taxid is included here in case it is not
+  # part of the selected organism groups (human is 9606)!
+  # taxids:
+  #   - 562
+
 sample_swaps:
   # Detection of sample swaps within the dataset using somalier.
   # Requires matching samples from the same individuals in order to make sense.

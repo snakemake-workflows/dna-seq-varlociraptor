@@ -60,6 +60,11 @@ calling:
         filter: moderate
         desc: Variants with moderate impact
 
+taxonomic_profiling:
+  activate: true
+  taxids:
+    - 562
+
 annotations:
   vcfs:
     activate: true
