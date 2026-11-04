@@ -1,4 +1,4 @@
-This file documents the software used in this workflow and links them to citation keys in [`CITATIONS.bib`](#CITATIONS.bib).
+This file documents the software used in this workflow and links them to citation keys in [`CITATIONS.bib`](CITATIONS.bib).
 When using it, please ensure that it is up to date and check if all of the listed software was actually used in your version and configuration.
 For example, if you use pangenome mapping, you can skip the `bwa` entries, and if you don't use it, you can skip the `vg giraffe` entry.
 Also always make sure to name the exact version of the workflow used, giving a tag like `v6.11.4`.
