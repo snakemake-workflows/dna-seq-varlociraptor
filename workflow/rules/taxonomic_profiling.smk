@@ -45,6 +45,8 @@ rule unmapped_reads_single:
     conda:
         "../envs/samtools.yaml"
     threads: 8
+    resources:
+        io_heavy=1,
     shell:
         "(samtools view -u -f4 {input} |"
         " samtools collate -f -u -O - |"
@@ -62,6 +64,8 @@ rule unmapped_reads_paired:
     conda:
         "../envs/samtools.yaml"
     threads: 8
+    resources:
+        io_heavy=1,
     shell:
         "(samtools view -u -f12 {input} |"
         " samtools collate -f -u -O - |"
