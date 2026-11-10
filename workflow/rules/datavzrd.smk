@@ -183,3 +183,20 @@ rule datavzrd_coverage:
         samples=lambda wc: get_group_samples(wc.group),
     wrapper:
         "v9.18.1/utils/datavzrd"
+
+
+rule datavzrd_taxonomic_profiling:
+    input:
+        "results/taxonomic_profiling/all.species.postprocessed.parquet",
+    output:
+        report(
+            directory("results/datavzrd-report/taxonomic_profiling"),
+            htmlindex="index.html",
+            category="Taxonomic profiling",
+            labels={"samples": "all"},
+        ),
+    log:
+        "logs/datavzrd_report/taxonomic_profiling.log",
+    wrapper:
+        "v9.18.1/utils/datavzrd"
+    

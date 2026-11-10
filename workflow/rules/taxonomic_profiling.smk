@@ -116,4 +116,17 @@ rule ganon_table:
         "../envs/ganon.yaml"
     shell:
         "ganon table --input {input} --rank species --output-value counts "
-        "--output-file {output} &> {log}"
+        "--unclassified-label unclassified --output-file {output} &> {log}"
+
+
+rule postprocess_ganon_table:
+    input:
+        "results/taxonomic_profiling/all.species.tsv",
+    output:
+        "results/taxonomic_profiling/all.species.postprocessed.parquet",
+    log:
+        "logs/ganon/postprocess.log",
+    conda:
+        "../envs/pystats.yaml"
+    script:
+        "../scripts/postprocess_ganon_table.py"
