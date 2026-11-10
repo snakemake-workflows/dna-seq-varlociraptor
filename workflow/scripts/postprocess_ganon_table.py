@@ -6,7 +6,7 @@ import pysam
 
 def get_colname(col):
     if col:
-        return str(Path(col).stem)
+        return Path(col).stem
     else:
         return "species"
 
@@ -21,6 +21,7 @@ def get_num_reads(stats):
 
 
 num_reads = pl.DataFrame({"sample": snakemake.params.samples, "num_reads": [get_num_reads(stats) for stats in snakemake.input.stats]})
+breakpoint()
 
 data = pl.read_csv(snakemake.input[0], separator="\t")
 data.rename({col: get_colname(col) for col in data.columns}).transpose(include_header=True).join(num_reads, on="sample").select(
