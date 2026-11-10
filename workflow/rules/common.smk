@@ -445,7 +445,7 @@ def get_ganon_reads_param(wildcards, input):
     return f"--single-reads {input.reads[0]}"
 
 
-def get_ganon_build_mode():
+def get_ganon_build_mode(wildcards):
     mode = lookup("taxonomic_profiling/mode", within=config)
     if mode != "all-genomes":
         return f"--{mode}"

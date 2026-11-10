@@ -15,7 +15,7 @@ rule ganon_build_groups:
         prefix=subpath(output[0], strip_suffix=".hibf"),
         ids=ganon_organism_groups,
         select_arg="--organism-group",
-        mode=get_ganon_build_mode(),
+        mode=get_ganon_build_mode,
     shell:
         "(ganon build {params.select_arg} {params.ids} --taxonomy ncbi {params.mode}"
         " --db-prefix {params.prefix} --threads {threads} && rm -rf {params.prefix}_files) &> {log}"
