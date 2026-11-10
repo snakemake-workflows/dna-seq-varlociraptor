@@ -21,10 +21,9 @@ def get_num_reads(stats):
 
 
 num_reads = pl.DataFrame({"sample": snakemake.params.samples, "num_reads": [get_num_reads(stats) for stats in snakemake.input.stats]})
-breakpoint()
 
 data = pl.read_csv(snakemake.input[0], separator="\t")
-data.rename({col: get_colname(col) for col in data.columns}).transpose(include_header=True).join(num_reads, on="sample").select(
+data.rename({col: get_colname(col) for col in data.columns}).transpose(column_names="species", include_header=True, header_name="sample").join(num_reads, on="sample").select(
     pl.col("species"),
     pl.exclude(["species", "num_reads"]) / pl.col("num_reads"),
 ).write_parquet(snakemake.output[0])
