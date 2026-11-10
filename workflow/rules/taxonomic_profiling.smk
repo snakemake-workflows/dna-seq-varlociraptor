@@ -123,7 +123,7 @@ rule postprocess_ganon_table:
     input:
         "results/taxonomic_profiling/all.species.tsv",
     output:
-        "results/taxonomic_profiling/all.species.postprocessed.parquet",
+        "results/taxonomic_profiling/all.species.parquet",
     log:
         "logs/ganon/postprocess.log",
     conda:
