@@ -10,9 +10,8 @@ import sys
 
 import yaml
 
-HERE = Path(__file__).parent
-CALLS = HERE / "calls.vcf"
-GENES = HERE / "genes.tsv"
+CALLS = snakemake.input.calls
+GENES = snakemake.input.genes
 
 MUST_BE_KEPT = {"high_modifier", "moderate", "high_moderate"}
 EXPECTED_REMOVED = {"low", "modifier", "low_modifier"}
@@ -45,7 +44,7 @@ def run_filter(expression, aux_names=()):
     }
 
 
-config = yaml.safe_load((HERE.parent.parent / "config/config.yaml").read_text())
+config = yaml.safe_load(Path(snakemake.input.config).read_text())
 filters = config["calling"]["filter"]
 candidates = run_filter(
     get_expression(filters["candidates"]), get_aux_names(filters["candidates"])
