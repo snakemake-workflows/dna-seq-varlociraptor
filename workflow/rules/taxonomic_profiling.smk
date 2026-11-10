@@ -106,7 +106,7 @@ rule ganon_table:
     input:
         expand(
             "results/taxonomic_profiling/{sample}.tre",
-            sample=samples["sample_name"].unique(),
+            sample=samples["sample_name"],
         ),
     output:
         "results/taxonomic_profiling/all.species.tsv",
@@ -121,12 +121,15 @@ rule ganon_table:
 
 rule postprocess_ganon_table:
     input:
-        "results/taxonomic_profiling/all.species.tsv",
+        profiling="results/taxonomic_profiling/all.species.tsv",
+        stats=collect("results/qc/{sample}.bam.stats", sample=samples["sample_name"]),
     output:
         "results/taxonomic_profiling/all.species.parquet",
     log:
         "logs/ganon/postprocess.log",
     conda:
         "../envs/pystats.yaml"
+    params:
+        samples=samples["sample_name"],
     script:
         "../scripts/postprocess_ganon_table.py"
