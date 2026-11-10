@@ -139,7 +139,7 @@ rule plot_taxonomic_profiling:
     input:
         "results/taxonomic_profiling/all.species.parquet",
     output:
-        "results/taxonomic_profiling/all.species.html",
+        "results/plots/taxonomic_profiling.html",
     log:
         "logs/ganon/plot.log",
     conda:
