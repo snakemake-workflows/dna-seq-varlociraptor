@@ -133,3 +133,16 @@ rule postprocess_ganon_table:
         samples=samples["sample_name"],
     script:
         "../scripts/postprocess_ganon_table.py"
+
+
+rule plot_taxonomic_profiling:
+    input:
+        "results/taxonomic_profiling/all.species.parquet",
+    output:
+        "results/taxonomic_profiling/all.species.html",
+    log:
+        "logs/ganon/plot.log",
+    conda:
+        "../envs/pystats.yaml"
+    script:
+        "../scripts/plot_taxonomic_profiling.py"
