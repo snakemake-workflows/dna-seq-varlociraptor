@@ -1207,7 +1207,6 @@ variant_caller = list(
         ],
     )
 )
-breakpoint()
 
 ###### Annotations ########
 
