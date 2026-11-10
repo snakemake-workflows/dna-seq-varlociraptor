@@ -90,8 +90,9 @@ mutational_signatures:
 taxonomic_profiling:
   activate: false
   # Which genomes to download (reference-genomes, complete-and-reference-genomes, complete-genomes, all-genomes).
+  # Note that certain groups don't have pure reference genomes and require complete genomes as well (e.g. viral).
   # See https://pirovc.github.io/ganon/default_databases/#commonly-used-sub-sets.
-  mode: reference-genomes
+  mode: complete-and-reference-genomes
   # NCBI organism groups to add to the database. Available: archaea, bacteria,
   # fungi, human, invertebrate, metagenomes, other, plant, protozoa,
   # vertebrate_mammalian, vertebrate_other, viral (see https://pirovc.github.io/ganon/default_databases).
@@ -100,8 +101,6 @@ taxonomic_profiling:
     - archaea
     - viral
   # In addition, specify individual taxids (https://www.ncbi.nlm.nih.gov/Taxonomy/Browser/wwwtax.cgi).
-  # Importantly, make sure that your reference genome's taxid is included here in case it is not
-  # part of the selected organism groups (human is 9606)!
   # taxids:
   #   - 562
 
