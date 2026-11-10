@@ -15,3 +15,4 @@ dependencies:
   - pyarrow =25.0
   - openpyxl =3.1
   - pyarrow =25.0.0
+  - vegafusion =2.0.3
