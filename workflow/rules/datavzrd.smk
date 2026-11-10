@@ -187,7 +187,7 @@ rule datavzrd_coverage:
 
 rule datavzrd_taxonomic_profiling:
     input:
-        "results/taxonomic_profiling/all.species.postprocessed.parquet",
+        "results/taxonomic_profiling/all.species.parquet",
     output:
         report(
             directory("results/datavzrd-report/taxonomic_profiling"),
