@@ -62,6 +62,7 @@ calling:
 
 taxonomic_profiling:
   activate: true
+  mode: complete-and-reference-genomes
   taxids:
     - 562
 
