@@ -1,0 +1,9 @@
+rule check_default_candidate_filter:
+    input:
+        config="config/config.yaml",
+        calls=".test/config-default-candidate-filter/calls.vcf",
+        genes=".test/config-default-candidate-filter/genes.tsv",
+    conda:
+        "../../workflow/envs/vembrane.yaml"
+    script:
+        "check.py"

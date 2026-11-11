@@ -155,7 +155,7 @@ calling:
     # (see gene_list_filter below). By this, you can e.g. conduct a virtual panel analysis
     # while massively speeding up the varlociraptor based evaluation of the variants.
     # See https://github.com/vembrane/vembrane
-    candidates: "'MODERATE' in ANN['IMPACT']"
+    candidates: "ANN['IMPACT'] in ['MODERATE', 'HIGH']"
     # Add any number of named filters here (replace myfilter with a reasonable name,
     # and add more below). Filtering happens with the vembrane filter language
     # (see https://github.com/vembrane/vembrane), and you can refer to any fields that
