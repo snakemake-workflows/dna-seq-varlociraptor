@@ -21,7 +21,7 @@ top_species = (
 data = data.with_columns(
     pl.when(pl.col("species").is_in(top_species))
     .then(pl.col("species"))
-    .otherwise("Other")
+    .otherwise(pl.lit("Other"))
     .alias("top_species")
 )
 
