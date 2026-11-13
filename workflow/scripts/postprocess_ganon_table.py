@@ -63,11 +63,11 @@ data.rename({col: get_colname(col) for col in data.columns}).transpose(
 ).unpivot(
     index="sample",
     variable_name="species",
-    value_name="count",
+    value_name="read count",
 ).join(
     num_reads, on="sample"
 ).with_columns(
-    (pl.col("count") / pl.col("num_reads")).alias("fraction")
+    (pl.col("read count") / pl.col("num_reads")).alias("fraction")
 ).drop(
     "num_reads"
 ).join(

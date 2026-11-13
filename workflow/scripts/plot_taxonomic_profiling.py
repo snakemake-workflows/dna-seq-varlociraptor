@@ -34,7 +34,7 @@ def plot_organism_group(data, organism_group):
             alt.Y("fraction:Q"),
             alt.Color("top_species:N").title(organism_group).scale(scheme="category20"),
             # in the tooltip, show the actual species, not just the top_species category
-            alt.Tooltip(["sample:N", "species:N", "fraction:Q", "count:Q"]),
+            alt.Tooltip(["sample:N", "species:N", "fraction:Q", "read count:Q"]),
             opacity=alt.when(species_selection)
             .then(alt.value(1))
             .otherwise(alt.value(0.1)),
