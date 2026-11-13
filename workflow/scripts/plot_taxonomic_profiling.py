@@ -18,7 +18,7 @@ top_species = (
     .head(20)
     .get_column("species")
 )
-data = data.with_column(
+data = data.with_columns(
     pl.when(pl.col("species").is_in(top_species))
     .then(pl.col("species"))
     .otherwise("Other")
