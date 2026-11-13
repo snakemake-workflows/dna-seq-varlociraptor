@@ -13,9 +13,9 @@ data = (
 # restrict to top 20 and color all the rest as other
 top_species = (
     data.group_by("species")
-    .agg(pl.max("fraction").alias("total_fraction"))
-    .sort("total_fraction", descending=True)
-    .head(20)
+    .agg(pl.max("fraction").alias("max_fraction"))
+    .sort("max_fraction", descending=True)
+    .head(19)
     .get_column("species")
 )
 data = data.with_columns(
