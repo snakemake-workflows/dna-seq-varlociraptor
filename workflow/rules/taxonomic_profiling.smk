@@ -60,7 +60,7 @@ rule ganon_classify:
     input:
         reads=get_ganon_reads_input,
         hibf=access.random(get_ganon_dbs(".hibf")),
-        tax=access.random(get_ganon_dbs(".tax")),
+        tax=get_ganon_dbs(".tax"),
     output:
         rep="results/taxonomic_profiling/{sample}.rep",
         tre="results/taxonomic_profiling/{sample}.tre",
@@ -105,6 +105,7 @@ rule ganon_table:
 
 rule postprocess_ganon_table:
     input:
+        tax=get_ganon_dbs(".tax"),
         profiling="results/taxonomic_profiling/all.species.tsv",
         stats=collect("results/qc/{sample}.bam.stats", sample=samples["sample_name"]),
     output:
@@ -115,6 +116,7 @@ rule postprocess_ganon_table:
         "../envs/pystats.yaml"
     params:
         samples=samples["sample_name"],
+        db_specs=get_ganon_db_specs(),
     script:
         "../scripts/postprocess_ganon_table.py"
 

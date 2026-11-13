@@ -476,22 +476,17 @@ def get_ganon_spec(
     return spec
 
 
-def get_ganon_dbs(suffix):
-    pattern = "resources/ganon/{category}/{spec}{suffix}"
-    dbs = []
-    dbs.extend(
-        collect(pattern, category="taxids", spec=ganon_taxid_specs, suffix=suffix)
-    )
-    dbs.extend(
-        collect(
-            pattern,
-            category="organism_groups",
-            spec=ganon_organism_group_specs,
-            suffix=suffix,
-        )
-    )
+def get_ganon_db_specs():
+    specs = []
+    if ganon_taxid_specs:
+        specs.extend({"category": "taxids", "spec": spec} for spec in ganon_taxid_specs)
+    if ganon_organism_group_specs:
+        specs.extend({"category": "organism_groups", "spec": spec} for spec in ganon_organism_group_specs)
+    return specs
 
-    return dbs
+
+def get_ganon_dbs(suffix):
+    return [f"resources/ganon/{spec['category']}/{spec['spec']}{suffix}" for spec in get_ganon_db_specs()]
 
 
 def get_fastp_adapters(wildcards):
