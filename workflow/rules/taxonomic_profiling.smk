@@ -1,0 +1,134 @@
+rule ganon_build_groups:
+    output:
+        multiext(
+            "resources/ganon/{category}/{id}:{mode}",
+            ".hibf",
+            ".tax",
+        ),
+    log:
+        "logs/ganon/build_groups/{category}/{id}:{mode}.log",
+    cache: True
+    conda:
+        "../envs/ganon.yaml"
+    threads: 64
+    params:
+        prefix=subpath(output[0], strip_suffix=".hibf"),
+        spec=get_ganon_spec,
+    shell:
+        "(ganon build {params.spec} --taxonomy ncbi --db-prefix {params.prefix}"
+        " --threads {threads} && rm -rf {params.prefix}_files) &> {log}"
+
+
+rule unmapped_reads_single:
+    input:
+        "results/recal/{sample}.bam",
+    output:
+        "results/unmapped/{sample}_single.fastq.gz",
+    log:
+        "logs/unmapped/single/{sample}.log",
+    conda:
+        "../envs/samtools.yaml"
+    threads: 8
+    resources:
+        io_heavy=1,
+    shell:
+        "(samtools view -u -f4 {input} |"
+        " samtools collate -f -u -O - |"
+        " samtools fastq -0 /dev/null -o {output}) 2> {log}"
+
+
+rule unmapped_reads_paired:
+    input:
+        "results/recal/{sample}.bam",
+    output:
+        r1="results/unmapped/{sample}_1.fastq.gz",
+        r2="results/unmapped/{sample}_2.fastq.gz",
+    log:
+        "logs/unmapped/paired/{sample}.log",
+    conda:
+        "../envs/samtools.yaml"
+    threads: 8
+    resources:
+        io_heavy=1,
+    shell:
+        "(samtools view -u -f12 {input} |"
+        " samtools collate -f -u -O - |"
+        " samtools fastq -0 /dev/null -s /dev/null -1 {output.r1} -2 {output.r2}) 2> {log}"
+
+
+rule ganon_classify:
+    input:
+        reads=get_ganon_reads_input,
+        hibf=access.random(get_ganon_dbs(".hibf")),
+        tax=get_ganon_dbs(".tax"),
+    output:
+        rep="results/taxonomic_profiling/{sample}.rep",
+        tre="results/taxonomic_profiling/{sample}.tre",
+    log:
+        "logs/ganon/classify/{sample}.log",
+    benchmark:
+        "benchmarks/ganon/classify/{sample}.tsv"
+    conda:
+        "../envs/ganon.yaml"
+    threads: 48
+    resources:
+        # ganon seems to cap at around 80 GB
+        mem_mb=80000,
+    params:
+        output_prefix=subpath(output.rep, strip_suffix=".rep"),
+        db_prefixes=lambda wildcards, input: [
+            subpath(hibf, strip_suffix=".hibf") for hibf in input.hibf
+        ],
+        reads=get_ganon_reads_param,
+    shell:
+        "ganon classify --db-prefix {params.db_prefixes} "
+        "{params.reads} --output-prefix {params.output_prefix} "
+        "--threads {threads} &> {log}"
+
+
+rule ganon_table:
+    input:
+        expand(
+            "results/taxonomic_profiling/{sample}.tre",
+            sample=samples["sample_name"],
+        ),
+    output:
+        "results/taxonomic_profiling/all.species.tsv",
+    log:
+        "logs/ganon/table.log",
+    conda:
+        "../envs/ganon.yaml"
+    shell:
+        "ganon table --input {input} --rank species --output-value counts "
+        "--unclassified-label unclassified --output-file {output} &> {log}"
+
+
+rule postprocess_ganon_table:
+    input:
+        tax=get_ganon_dbs(".tax"),
+        profiling="results/taxonomic_profiling/all.species.tsv",
+        stats=collect("results/qc/{sample}.bam.stats", sample=samples["sample_name"]),
+    output:
+        "results/taxonomic_profiling/all.species.parquet",
+    log:
+        "logs/ganon/postprocess.log",
+    conda:
+        "../envs/pystats.yaml"
+    params:
+        samples=samples["sample_name"],
+        db_specs=get_ganon_db_specs(),
+    script:
+        "../scripts/postprocess_ganon_table.py"
+
+
+rule plot_taxonomic_profiling:
+    input:
+        "results/taxonomic_profiling/all.species.parquet",
+    output:
+        "results/plots/taxonomic_profiling.html",
+    log:
+        "logs/ganon/plot.log",
+    conda:
+        "../envs/pystats.yaml"
+    script:
+        "../scripts/plot_taxonomic_profiling.py"
