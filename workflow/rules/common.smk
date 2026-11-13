@@ -470,7 +470,7 @@ def get_ganon_spec(
         spec += f" --{wildcards.mode}"
 
     if wildcards.category == "organism_groups":
-        spec += f" --organism-groups {wildcards.id}"
+        spec += f" --organism-group {wildcards.id}"
     elif wildcards.category == "taxids":
         spec += f" --taxid {wildcards.id}"
     return spec
