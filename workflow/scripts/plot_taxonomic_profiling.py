@@ -12,7 +12,7 @@ data = (
 
 # restrict to top 20 and color all the rest as other
 top_species = (
-    data.groupby("species")
+    data.group_by("species")
     .agg(pl.sum("fraction").alias("total_fraction"))
     .sort("total_fraction", reverse=True)
     .head(20)["species"]
