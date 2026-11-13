@@ -7,7 +7,7 @@ alt.data_transformers.enable("vegafusion")
 data = (
     pl.read_parquet(snakemake.input[0])
     .unpivot(index="sample", variable_name="species", value_name="fraction")
-    .filter((pl.col("fraction") >= 0.001) & (pl.col("species") != "Homo sapiens"))
+    .filter((pl.col("fraction") >= 0.0001) & (pl.col("species") != "unclassified"))
 )
 
 # restrict to top 20 and color all the rest as other
