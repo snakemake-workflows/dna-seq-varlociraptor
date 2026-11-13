@@ -473,9 +473,9 @@ def get_ganon_spec(
 def get_ganon_dbs(suffix):
     pattern = "resources/ganon/{category}/{spec}{suffix}"
     dbs = []
-    dbs.extend(collect(pattern, category="taxids", spec=ganon_taxid_specs))
+    dbs.extend(collect(pattern, category="taxids", spec=ganon_taxid_specs, suffix=suffix))
     dbs.extend(
-        collect(pattern, category="organism_groups", spec=ganon_organism_group_specs)
+        collect(pattern, category="organism_groups", spec=ganon_organism_group_specs, suffix=suffix)
     )
 
     return dbs
