@@ -89,20 +89,21 @@ mutational_signatures:
 # Taxonomic profiling of the reads of each sample with ganon2 (https://pirovc.github.io/ganon).
 taxonomic_profiling:
   activate: false
-  # Which genomes to download (reference-genomes, complete-and-reference-genomes, complete-genomes, all-genomes).
+  # Any organism group or taxid specified has to be suffixed with info on which genomes to download
+  # (reference-genomes, complete-and-reference-genomes, complete-genomes, all-genomes).
   # Note that certain groups don't have pure reference genomes and require complete genomes as well (e.g. viral).
   # See https://pirovc.github.io/ganon/default_databases/#commonly-used-sub-sets.
-  mode: complete-and-reference-genomes
+  #
   # NCBI organism groups to add to the database. Available: archaea, bacteria,
   # fungi, human, invertebrate, metagenomes, other, plant, protozoa,
   # vertebrate_mammalian, vertebrate_other, viral (see https://pirovc.github.io/ganon/default_databases).
   organism_groups:
-    - bacteria
-    - archaea
-    - viral
+    - bacteria:reference-genomes
+    - archaea:reference-genomes
+    - viral:complete-and-reference-genomes
   # In addition, specify individual taxids (https://www.ncbi.nlm.nih.gov/Taxonomy/Browser/wwwtax.cgi).
   # taxids:
-  #   - 562
+  #   - 562:reference-genomes
 
 sample_swaps:
   # Detection of sample swaps within the dataset using somalier.

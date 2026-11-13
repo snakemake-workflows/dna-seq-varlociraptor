@@ -36,10 +36,10 @@ genome_fai = f"{genome}.fai"
 genome_dict = f"{genome_prefix}.dict"
 pangenome_name = f"pangenome.{species}.{build}"
 pangenome_prefix = f"resources/{pangenome_name}"
-ganon_organism_groups = lookup(
+ganon_organism_group_specs = lookup(
     "taxonomic_profiling/organism_groups", within=config, default=[]
 )
-ganon_taxids = lookup("taxonomic_profiling/taxids", within=config, default=[])
+ganon_taxid_specs = lookup("taxonomic_profiling/taxids", within=config, default=[])
 
 # cram variables
 use_cram = config.get("use_cram", False)
@@ -445,23 +445,40 @@ def get_ganon_reads_param(wildcards, input):
     return f"--single-reads {input.reads[0]}"
 
 
-def get_ganon_build_mode(wildcards):
-    mode = lookup("taxonomic_profiling/mode", within=config)
-    if mode != "all-genomes":
-        return f"--{mode}"
-    return ""
+def get_ganon_spec(
+    wildcards,
+    valid_modes={
+        "all-genomes",
+        "reference-genomes",
+        "complete-genomes",
+        "complete-and-reference-genomes",
+    },
+):
+    spec = ""
+    if wildcards.mode != "all-genomes":
+        if wildcards.mode not in valid_modes:
+            raise ValueError(
+                f"Invalid ganon mode for {wildcards.category} {wildcards.id}: {wildcards.mode}, "
+                f"allowed are {', '.join(valid_modes)}"
+            )
+        spec += f" --{wildcards.mode}"
+
+    if wildcards.category == "organism_groups":
+        spec += f" --organism-groups {wildcards.id}"
+    elif wildcards.category == "taxids":
+        spec += f" --taxid {wildcards.id}"
+    return spec
 
 
-def get_ganon_db(suffix):
-    def inner(wildcards):
-        prefixes = []
-        if ganon_taxids:
-            prefixes.append(f"resources/ganon/taxids{suffix}")
-        if ganon_organism_groups:
-            prefixes.append(f"resources/ganon/groups{suffix}")
-        return prefixes
+def get_ganon_dbs(suffix):
+    pattern = "resources/ganon/{category}/{spec}{suffix}"
+    dbs = []
+    dbs.extend(collect(pattern, category="taxids", spec=ganon_taxid_specs))
+    dbs.extend(
+        collect(pattern, category="organism_groups", spec=ganon_organism_group_specs)
+    )
 
-    return inner
+    return dbs
 
 
 def get_fastp_adapters(wildcards):

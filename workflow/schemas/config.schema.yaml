@@ -189,13 +189,6 @@ properties:
     properties:
       activate:
         type: boolean
-      mode:
-        type: string
-        enum:
-          - reference-genomes
-          - complete-genomes
-          - complete-and-reference-genomes
-          - all-genomes
       organism_groups:
         type: array
         items:
@@ -203,7 +196,7 @@ properties:
       taxids:
         type: array
         items:
-          type: integer
+          type: string
     required:
       - activate
 

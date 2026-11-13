@@ -1,38 +1,22 @@
 rule ganon_build_groups:
     output:
         multiext(
-            "resources/ganon/groups",
+            "resources/ganon/{category}/{id}:{mode}",
             ".hibf",
             ".tax",
         ),
     log:
-        "logs/ganon/build_groups.log",
+        "logs/ganon/build_groups/{category}/{id}:{mode}.log",
     cache: True
     conda:
         "../envs/ganon.yaml"
     threads: 64
     params:
         prefix=subpath(output[0], strip_suffix=".hibf"),
-        ids=ganon_organism_groups,
-        select_arg="--organism-group",
-        mode=get_ganon_build_mode,
+        spec=get_ganon_spec,
     shell:
-        "(ganon build {params.select_arg} {params.ids} --taxonomy ncbi {params.mode}"
-        " --db-prefix {params.prefix} --threads {threads} && rm -rf {params.prefix}_files) &> {log}"
-
-
-use rule ganon_build_groups as ganon_build_taxids with:
-    output:
-        multiext(
-            "resources/ganon/taxids",
-            ".hibf",
-            ".tax",
-        ),
-    log:
-        "logs/ganon/build_taxids.log",
-    params:
-        ids=ganon_taxids,
-        select_arg="--taxid",
+        "(ganon build {params.spec} --taxonomy ncbi --db-prefix {params.prefix}"
+        " --threads {threads} && rm -rf {params.prefix}_files) &> {log}"
 
 
 rule unmapped_reads_single:
@@ -75,8 +59,8 @@ rule unmapped_reads_paired:
 rule ganon_classify:
     input:
         reads=get_ganon_reads_input,
-        hibf=access.random(get_ganon_db(".hibf")),
-        tax=access.random(get_ganon_db(".tax")),
+        hibf=access.random(get_ganon_dbs(".hibf")),
+        tax=access.random(get_ganon_dbs(".tax")),
     output:
         rep="results/taxonomic_profiling/{sample}.rep",
         tre="results/taxonomic_profiling/{sample}.tre",
