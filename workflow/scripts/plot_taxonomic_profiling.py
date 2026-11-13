@@ -30,7 +30,10 @@ species_selection = alt.selection_point(fields=["top_species"], bind="legend")
 alt.Chart(data).mark_circle(tooltip=True, size=50).encode(
     alt.X("sample:N"),
     alt.Y("fraction:Q"),
-    alt.Color("top_species:N").title("species").scale(scheme="category20"),
+    alt.Color("top_species:N")
+    .title("species")
+    .scale(scheme="category20")
+    .sort("-max_fraction"),
     # in the tooltip, show the actual species, not just the top_species category
     alt.Tooltip(["sample:N", "species:N", "fraction:Q"]),
     opacity=alt.when(species_selection).then(alt.value(1)).otherwise(alt.value(0.1)),
