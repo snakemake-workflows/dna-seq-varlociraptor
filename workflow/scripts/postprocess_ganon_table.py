@@ -31,7 +31,7 @@ def get_organism_groups(taxpath, db_spec):
         separator="\t",
         columns=[3],
         has_header=False,
-        with_column_names=lambda cols: ["species"],
+        new_columns=["species"],
     ).with_columns(pl.lit(group).alias("organism_group"))
 
 
