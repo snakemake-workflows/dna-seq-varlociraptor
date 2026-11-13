@@ -18,7 +18,9 @@ top_species = (
     .head(19)
     .get_column("species")
 )
-print(data.filter(pl.col("species").is_in(top_species)))
+print(data.group_by("species")
+    .agg(pl.max("fraction").alias("max_fraction")).sort("max_fraction", descending=True)
+        .head(19))
 data = data.with_columns(
     pl.when(pl.col("species").is_in(top_species))
     .then(pl.col("species"))
