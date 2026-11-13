@@ -40,6 +40,12 @@ ganon_organism_group_specs = lookup(
     "taxonomic_profiling/organism_groups", within=config, default=[]
 )
 ganon_taxid_specs = lookup("taxonomic_profiling/taxids", within=config, default=[])
+ganon_modes = {
+    "all-genomes",
+    "reference-genomes",
+    "complete-genomes",
+    "complete-and-reference-genomes",
+}
 
 # cram variables
 use_cram = config.get("use_cram", False)
@@ -154,6 +160,16 @@ if (
         "taxonomic_profiling is activated but taxonomic_profiling/organism_groups "
         "and taxonomic_profiling/taxids are empty. Please specify at least one organism group or taxid."
     )
+
+
+for spec in chain(ganon_taxid_specs, ganon_organism_group_specs):
+    match = re.match(r"(?P<id>[^:]+):(?P<mode>[^:]+)", spec)
+    if match is None or match.group("mode") not in ganon_modes:
+        raise ValueError(
+            "Invalid taxonomic profiling spec, has to be <id>:<mode> "
+            "with <id> being a valid taxid or organism group and <mode> "
+            f"being one of {', '.join(ganon_modes)}."
+        )
 
 
 def get_freebayes_use_best_n_alleles():
@@ -447,20 +463,10 @@ def get_ganon_reads_param(wildcards, input):
 
 def get_ganon_spec(
     wildcards,
-    valid_modes={
-        "all-genomes",
-        "reference-genomes",
-        "complete-genomes",
-        "complete-and-reference-genomes",
-    },
 ):
     spec = ""
     if wildcards.mode != "all-genomes":
-        if wildcards.mode not in valid_modes:
-            raise ValueError(
-                f"Invalid ganon mode for {wildcards.category} {wildcards.id}: {wildcards.mode}, "
-                f"allowed are {', '.join(valid_modes)}"
-            )
+        assert wildcards.mode in ganon_modes
         spec += f" --{wildcards.mode}"
 
     if wildcards.category == "organism_groups":
