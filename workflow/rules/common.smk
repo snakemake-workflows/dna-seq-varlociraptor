@@ -147,8 +147,8 @@ def is_activated(xpath, default=False):
 
 if (
     is_activated("taxonomic_profiling")
-    and not ganon_organism_groups
-    and not ganon_taxids
+    and not ganon_organism_group_specs
+    and not ganon_taxid_specs
 ):
     raise ValueError(
         "taxonomic_profiling is activated but taxonomic_profiling/organism_groups "
