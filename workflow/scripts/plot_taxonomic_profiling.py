@@ -25,7 +25,7 @@ data = data.with_columns(
     .alias("top_species")
 )
 
-alt.Chart(data).mark_circle(tooltip=True).encode(
+alt.Chart(data).mark_circle(tooltip=True, size=50).encode(
     alt.X("sample:N"),
     alt.Y("fraction:Q"),
     alt.Color("top_species:N").title("species").scale(scheme="category20"),
