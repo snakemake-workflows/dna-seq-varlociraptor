@@ -25,10 +25,15 @@ data = data.with_columns(
     .alias("top_species")
 )
 
+species_selection = alt.selection_point(fields=["top_species"], bind="legend")
+
 alt.Chart(data).mark_circle(tooltip=True, size=50).encode(
     alt.X("sample:N"),
     alt.Y("fraction:Q"),
     alt.Color("top_species:N").title("species").scale(scheme="category20"),
+    alt.Opacity(
+        alt.condition(species_selection, alt.value(1), alt.value(0.1))
+    ),
     # in the tooltip, show the actual species, not just the top_species category
     alt.Tooltip(["sample:N", "species:N", "fraction:Q"]),
-).interactive().save(snakemake.output[0])
+).add_params(species_selection).interactive().save(snakemake.output[0])
