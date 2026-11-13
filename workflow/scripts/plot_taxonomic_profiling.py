@@ -16,6 +16,7 @@ def top_n_species(data, n=19):
 
 
 def plot_organism_group(data, organism_group):
+    data = data.filter(pl.col("organism_group") == organism_group)
     data = data.filter(pl.col("species").is_in(top_n_species(data, 100))).with_columns(
         pl.when(pl.col("species").is_in(top_n_species(data, 19)))
         .then(pl.col("species"))
