@@ -18,6 +18,7 @@ top_species = (
     .head(19)
     .get_column("species")
 )
+print(data.filter(pl.col("species").is_in(top_species)))
 data = data.with_columns(
     pl.when(pl.col("species").is_in(top_species))
     .then(pl.col("species"))
