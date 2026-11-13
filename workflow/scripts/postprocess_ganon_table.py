@@ -49,11 +49,27 @@ num_reads = pl.DataFrame(
 )
 
 data = pl.read_csv(snakemake.input.profiling, separator="\t")
+# data.rename({col: get_colname(col) for col in data.columns}).transpose(
+#     column_names="species", include_header=True, header_name="sample"
+# ).join(num_reads, on="sample").select(
+#     pl.col("sample"),
+#     pl.exclude(["sample", "num_reads"]) / pl.col("num_reads"),
+# ).unpivot(index="sample", variable_name="species", value_name="fraction").join(
+#     organism_groups, on="species", how="left"
+# ).write_parquet(snakemake.output[0])
+
 data.rename({col: get_colname(col) for col in data.columns}).transpose(
     column_names="species", include_header=True, header_name="sample"
-).join(num_reads, on="sample").select(
-    pl.col("sample"),
-    pl.exclude(["sample", "num_reads"]) / pl.col("num_reads"),
-).unpivot(index="sample", variable_name="species", value_name="fraction").join(
+).unpivot(
+    index="sample",
+    variable_name="species",
+    value_name="count",
+).join(
+    num_reads, on="sample"
+).with_columns(
+    (pl.col("count") / pl.col("num_reads")).alias("fraction")
+).drop(
+    "num_reads"
+).join(
     organism_groups, on="species", how="left"
 ).write_parquet(snakemake.output[0])
