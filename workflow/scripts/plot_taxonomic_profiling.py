@@ -9,7 +9,6 @@ data = (
     .unpivot(index="sample", variable_name="species", value_name="fraction")
     .filter((pl.col("fraction") >= 0.0001) & (pl.col("species") != "unclassified"))
 )
-breakpoint()
 
 # restrict to top 20 and color all the rest as other
 top_species = (
