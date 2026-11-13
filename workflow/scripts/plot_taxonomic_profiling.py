@@ -14,8 +14,9 @@ data = (
 top_species = (
     data.group_by("species")
     .agg(pl.sum("fraction").alias("total_fraction"))
-    .sort("total_fraction", reverse=True)
-    .head(20)["species"]
+    .sort("total_fraction", descending=True)
+    .head(20)
+    .get_column("species")
 )
 data = data.with_column(
     pl.when(pl.col("species").is_in(top_species))

@@ -58,12 +58,6 @@ calling:
           - moderate
         desc: Variants with moderate impact
 
-taxonomic_profiling:
-  activate: true
-  mode: complete-and-reference-genomes
-  organism_groups:
-    - viral
-
 annotations:
   dbnsfp:
     activate: false

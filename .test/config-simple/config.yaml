@@ -62,9 +62,10 @@ calling:
 
 taxonomic_profiling:
   activate: true
-  mode: complete-and-reference-genomes
+  organism_groups:
+    - viral:complete-genomes
   taxids:
-    - 562
+    - 562:reference-genomes
 
 annotations:
   vcfs:
