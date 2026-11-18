@@ -65,16 +65,13 @@ if has_group_annotation:
         .rename({"sample_name": "sample"})
     )
 
-    charts.insert(
-        0,
-        (
-            alt.Chart(annotation)
-            .mark_rect(tooltip=True)
-            .encode(
-                alt.X("sample:N"),
-                alt.Y("variable:N"),
-                alt.Color("value:N"),
-            )
+    charts.append(
+        alt.Chart(annotation)
+        .mark_rect(tooltip=True)
+        .encode(
+            alt.X("sample:N"),
+            alt.Y("variable:N"),
+            alt.Color("value:N"),
         ),
     )
 
