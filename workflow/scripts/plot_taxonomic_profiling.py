@@ -56,6 +56,7 @@ charts = [
     for organism_group in data.get_column("organism_group").unique()
 ]
 
+breakpoint()
 if has_group_annotation:
     annotation = (
         pl.from_pandas(snakemake.params.samples)
