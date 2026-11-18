@@ -44,11 +44,40 @@ def plot_organism_group(data, organism_group):
     )
 
 
+group_annotation = pl.from_pandas(snakemake.params.group_annotation)
+has_group_annotation = group_annotation.width > 1
+
+
 data = pl.read_parquet(snakemake.input[0]).filter(pl.col("species") != "unclassified")
 
-alt.vconcat(
-    *(
-        plot_organism_group(data, organism_group)
-        for organism_group in data.get_column("organism_group").unique()
+
+charts = [
+    plot_organism_group(data, organism_group)
+    for organism_group in data.get_column("organism_group").unique()
+]
+
+if has_group_annotation:
+    annotation = (
+        pl.from_pandas(snakemake.params.samples)
+        .select(pl.col("sample_name", "alias", "group"))
+        .join(group_annotation, on="group", how="left")
+        .unpivot(index=pl.col("sample_name", "group"))
+        .rename({"sample_name": "sample"})
     )
-).resolve_scale(color="independent", x="shared").save(snakemake.output[0])
+
+    charts.insert(
+        0,
+        (
+            alt.Chart(annotation)
+            .mark_rect(tooltip=True)
+            .encode(
+                alt.X("sample:N"),
+                alt.Y("variable:N"),
+                alt.Color("value:N"),
+            )
+        ),
+    )
+
+alt.vconcat(*charts).resolve_scale(color="independent", x="shared").save(
+    snakemake.output[0]
+)

@@ -130,5 +130,8 @@ rule plot_taxonomic_profiling:
         "logs/ganon/plot.log",
     conda:
         "../envs/pystats.yaml"
+    params:
+        samples=samples,
+        group_annotation=group_annotation,
     script:
         "../scripts/plot_taxonomic_profiling.py"
