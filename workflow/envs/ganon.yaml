@@ -1,0 +1,6 @@
+channels:
+  - conda-forge
+  - bioconda
+  - nodefaults
+dependencies:
+  - ganon =2.4.4
