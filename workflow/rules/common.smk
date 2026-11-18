@@ -481,12 +481,18 @@ def get_ganon_db_specs():
     if ganon_taxid_specs:
         specs.extend({"category": "taxids", "spec": spec} for spec in ganon_taxid_specs)
     if ganon_organism_group_specs:
-        specs.extend({"category": "organism_groups", "spec": spec} for spec in ganon_organism_group_specs)
+        specs.extend(
+            {"category": "organism_groups", "spec": spec}
+            for spec in ganon_organism_group_specs
+        )
     return specs
 
 
 def get_ganon_dbs(suffix):
-    return [f"resources/ganon/{spec['category']}/{spec['spec']}{suffix}" for spec in get_ganon_db_specs()]
+    return [
+        f"resources/ganon/{spec['category']}/{spec['spec']}{suffix}"
+        for spec in get_ganon_db_specs()
+    ]
 
 
 def get_fastp_adapters(wildcards):

@@ -133,6 +133,8 @@ rule plot_taxonomic_profiling:
     params:
         samples=samples,
         group_annotation=group_annotation,
-        blacklisted_species=lookup("taxonomic_profiling/hide", within=config, default=[]),
+        blacklisted_species=lookup(
+            "taxonomic_profiling/hide", within=config, default=[]
+        ),
     script:
         "../scripts/plot_taxonomic_profiling.py"
