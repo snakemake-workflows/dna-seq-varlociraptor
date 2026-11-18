@@ -71,7 +71,7 @@ if has_group_annotation:
         .encode(
             alt.X("sample:N"),
             alt.Y("variable:N"),
-            alt.Color("value:N"),
+            alt.Color("value:N").title(None),
         ),
     )
 
