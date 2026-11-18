@@ -15,7 +15,7 @@ def top_n_species(data, n=19):
     return top_species
 
 
-def plot_organism_group(data, organism_group):
+def plot_organism_group(data, organism_group, x_title=False):
     data = data.filter(pl.col("organism_group") == organism_group)
     data = data.filter(pl.col("species").is_in(top_n_species(data, 100))).with_columns(
         pl.when(pl.col("species").is_in(top_n_species(data, 19)))
@@ -30,7 +30,7 @@ def plot_organism_group(data, organism_group):
         alt.Chart(data)
         .mark_circle(tooltip=True, size=50)
         .encode(
-            alt.X("sample:N"),
+            alt.X("sample:N").title("sample") if x_title else alt.X("sample:N"),
             alt.Y("fraction:Q"),
             alt.Color("top_species:N").title(organism_group).scale(scheme="category20"),
             # in the tooltip, show the actual species, not just the top_species category
@@ -44,16 +44,28 @@ def plot_organism_group(data, organism_group):
     )
 
 
-group_annotation = pl.from_pandas(snakemake.params.group_annotation.reset_index(drop=False, names="group"))
+group_annotation = pl.from_pandas(
+    snakemake.params.group_annotation.reset_index(drop=False, names="group")
+)
 has_group_annotation = group_annotation.width > 1
 
-blacklisted_species = ["unclassified", *map(str.lower, snakemake.params.blacklisted_species)]
-data = pl.read_parquet(snakemake.input[0]).filter(~pl.col("species").str.to_lowercase().is_in(blacklisted_species))
+blacklisted_species = [
+    "unclassified",
+    *map(str.lower, snakemake.params.blacklisted_species),
+]
+data = pl.read_parquet(snakemake.input[0]).filter(
+    ~pl.col("species").str.to_lowercase().is_in(blacklisted_species)
+)
 
+organism_groups = data.get_column("organism_group").unique()
 
 charts = [
-    plot_organism_group(data, organism_group)
-    for organism_group in data.get_column("organism_group").unique()
+    plot_organism_group(
+        data,
+        organism_group,
+        x_title=not has_group_annotation and i == len(organism_groups) - 1,
+    )
+    for i, organism_group in enumerate(organism_groups)
 ]
 
 if has_group_annotation:
