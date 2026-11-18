@@ -44,7 +44,7 @@ def plot_organism_group(data, organism_group):
     )
 
 
-group_annotation = pl.from_pandas(snakemake.params.group_annotation, include_index=True)
+group_annotation = pl.from_pandas(snakemake.params.group_annotation.reset_index(drop=False, names="group"))
 has_group_annotation = group_annotation.width > 1
 
 
@@ -58,7 +58,7 @@ charts = [
 
 if has_group_annotation:
     annotation = (
-        pl.from_pandas(snakemake.params.samples, include_index=True)
+        pl.from_pandas(snakemake.params.samples.reset_index(drop=False, names="sample_name"))
         .select(pl.col("sample_name", "alias", "group"))
         .join(group_annotation, on="group", how="left")
         .unpivot(index=pl.col("sample_name", "group"))
