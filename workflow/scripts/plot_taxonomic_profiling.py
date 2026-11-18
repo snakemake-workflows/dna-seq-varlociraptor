@@ -30,7 +30,7 @@ def plot_organism_group(data, organism_group, x_title=False):
         alt.Chart(data)
         .mark_circle(tooltip=True, size=50)
         .encode(
-            alt.X("sample:N").title("sample") if x_title else alt.X("sample:N"),
+            alt.X("sample:N").title("sample" if x_title else None),
             alt.Y("fraction:Q"),
             alt.Color("top_species:N").title(organism_group).scale(scheme="category20"),
             # in the tooltip, show the actual species, not just the top_species category
