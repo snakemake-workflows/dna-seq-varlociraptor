@@ -1,0 +1,11 @@
+##fileformat=VCFv4.2
+##contig=<ID=2>
+##VEP="v110"
+##INFO=<ID=ANN,Number=.,Type=String,Description="Consequence annotations from Ensembl VEP. Format: Allele|Consequence|IMPACT|SYMBOL|Feature|CANONICAL">
+#CHROM	POS	ID	REF	ALT	QUAL	FILTER	INFO
+2	100	high_modifier	A	T	.	.	ANN=T|stop_gained|HIGH|MSH6|ENST1|YES,T|intron_variant|MODIFIER|MSH6|ENST2|
+2	200	moderate	G	C	.	.	ANN=C|missense_variant|MODERATE|MSH6|ENST1|YES
+2	300	high_moderate	C	A	.	.	ANN=A|splice_donor_variant|HIGH|MSH6|ENST2|,A|missense_variant|MODERATE|MSH6|ENST1|YES
+2	400	low	T	G	.	.	ANN=G|synonymous_variant|LOW|MSH6|ENST1|YES
+2	500	modifier	A	G	.	.	ANN=G|intron_variant|MODIFIER|MSH6|ENST1|YES
+2	600	low_modifier	G	T	.	.	ANN=T|synonymous_variant|LOW|MSH6|ENST1|YES,T|intron_variant|MODIFIER|MSH6|ENST2|
