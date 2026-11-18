@@ -62,7 +62,7 @@ if has_group_annotation:
         pl.from_pandas(snakemake.params.samples)
         .select(pl.col("sample_name", "alias", "group"))
         .join(group_annotation, on="group", how="left")
-        .unpivot(index=pl.col("sample_name", "group"))
+        .unpivot(index=["sample_name", "group"])
         .rename({"sample_name": "sample"})
     )
 
