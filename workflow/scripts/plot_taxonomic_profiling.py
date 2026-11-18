@@ -82,7 +82,7 @@ if has_group_annotation:
         .mark_rect(tooltip=True)
         .encode(
             alt.X("sample:N"),
-            alt.Y("variable:N"),
+            alt.Y("variable:N").title(None),
             alt.Color("value:N").title(None),
         ),
     )
