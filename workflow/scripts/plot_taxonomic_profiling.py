@@ -57,6 +57,7 @@ charts = [
 ]
 
 if has_group_annotation:
+    breakpoint()
     annotation = (
         pl.from_pandas(snakemake.params.samples)
         .select(pl.col("sample_name", "alias", "group"))
