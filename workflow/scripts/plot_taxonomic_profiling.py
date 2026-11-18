@@ -58,7 +58,7 @@ charts = [
 
 if has_group_annotation:
     annotation = (
-        pl.from_pandas(snakemake.params.samples.reset_index(drop=False, names="sample_name"))
+        pl.from_pandas(snakemake.params.samples)
         .select(pl.col("sample_name", "alias", "group"))
         .join(group_annotation, on="group", how="left")
         .unpivot(index=pl.col("sample_name", "group"))
