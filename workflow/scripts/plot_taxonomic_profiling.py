@@ -47,8 +47,8 @@ def plot_organism_group(data, organism_group):
 group_annotation = pl.from_pandas(snakemake.params.group_annotation.reset_index(drop=False, names="group"))
 has_group_annotation = group_annotation.width > 1
 
-
-data = pl.read_parquet(snakemake.input[0]).filter(pl.col("species") != "unclassified")
+blacklisted_species = ["unclassified", *map(str.lower, snakemake.params.blacklisted_species)]
+data = pl.read_parquet(snakemake.input[0]).filter(~pl.col("species").str.to_lowercase().is_in(blacklisted_species))
 
 
 charts = [

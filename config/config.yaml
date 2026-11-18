@@ -89,6 +89,8 @@ mutational_signatures:
 # Taxonomic profiling of the reads of each sample with ganon2 (https://pirovc.github.io/ganon).
 taxonomic_profiling:
   activate: false
+  hide:
+    - Homo sapiens
   # Any organism group or taxid specified has to be suffixed with info on which genomes to download
   # (reference-genomes, complete-and-reference-genomes, complete-genomes, all-genomes).
   # Note that certain groups don't have pure reference genomes and require complete genomes as well (e.g. viral).
@@ -97,10 +99,13 @@ taxonomic_profiling:
   # NCBI organism groups to add to the database. Available: archaea, bacteria,
   # fungi, human, invertebrate, metagenomes, other, plant, protozoa,
   # vertebrate_mammalian, vertebrate_other, viral (see https://pirovc.github.io/ganon/default_databases).
+  # Important: ensure that the species you map to is included here, in order to catch
+  # accidentally unmapped genes. You can hide that species with the "hide" setting.
   organism_groups:
     - bacteria:reference-genomes
     - archaea:reference-genomes
     - viral:complete-and-reference-genomes
+    - human:all-genomes
   # In addition, specify individual taxids (https://www.ncbi.nlm.nih.gov/Taxonomy/Browser/wwwtax.cgi).
   # taxids:
   #   - 562:reference-genomes
