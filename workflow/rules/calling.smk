@@ -53,6 +53,8 @@ rule varlociraptor_preprocess:
         "benchmarks/varlociraptor/preprocess/{group}/{sample}.{caller}.{scatteritem}.tsv"
     conda:
         "../envs/varlociraptor.yaml"
+    resources:
+        mem_mb=lambda wc, input, attempt: attempt * 3500,  # usually, this should stay below 3500, but we have seen RNAseq cases where this goes up to 6.5 GB
     params:
         extra=get_varlociraptor_params("preprocess"),
     shell:
