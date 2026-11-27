@@ -1,0 +1,42 @@
+cff-version: 1.2.0
+message: This is the main citation for this workflow. For proper citation of the tools used, please see CITATIONS.bib and CITATIONS.md.
+type: software
+abstract: >-
+  A Snakemake workflow for calling small and structural variants under any kind
+  of scenario (tumor/normal, tumor/normal/relapse, germline, pedigree,
+  populations) via the unified statistical model of Varlociraptor.
+authors:
+  - family-names: Köster
+    given-names: Johannes
+  - family-names: Mölder
+    given-names: Felix
+  - family-names: Laehnemann
+    given-names: David
+  - family-names: Wiegand
+    given-names: Felix
+  - family-names: Uzuner
+    given-names: Hamdiye
+  - family-names: Schröder
+    given-names: Christopher
+  - family-names: Hartmann
+    given-names: Till
+  - family-names: Kaleche
+    given-names: Adel
+  - family-names: Forster
+    given-names: Jan
+  - family-names: BenOrl
+  - family-names: Ostendorf
+    given-names: Benjamin
+  - family-names: Bäuerle
+    given-names: Famke
+  - family-names: christykanto
+  - family-names: tq
+    name-particle: user
+doi: 10.5281/zenodo.4675661
+identifiers:
+  - type: doi
+    value: 10.5281/zenodo.4675661
+  - type: url
+    value: https://zenodo.org/records/4675661
+title: snakemake-workflows/dna-seq-varlociraptor
+url: https://zenodo.org/records/4675661
